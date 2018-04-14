@@ -8,6 +8,8 @@ JDK 8 or later
 
 Maven
 
+lol-client-java-api
+
 ## Building
 
 Using Git Bash
