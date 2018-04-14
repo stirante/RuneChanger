@@ -1,14 +1,14 @@
-#RuneChanger
+# RuneChanger
 
-##Requirements
-####Running
+## Requirements
+#### Running
 JRE 8 or later
-####Building
+#### Building
 JDK 8 or later
 
 Maven
 
-##Building
+## Building
 
 Using Git Bash
 ```
@@ -17,10 +17,10 @@ cd RuneChanger
 mvn package
 ```
 
-##Running
+## Running
 Just run jar or start it using ``java -jar RuneChanger.jar`` for extra logging
 
-##How it works
+## How it works
 RuneChanger uses internal LoL client API. Every second it checks for champion selection session. 
 If it finds active session it gets rune pages for currently selected champion and sets those runes to owned rune pages.
 
