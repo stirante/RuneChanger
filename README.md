@@ -1,6 +1,6 @@
 # RuneChanger
 
-[![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/CPiSCkSzbMg/0.jpg)](https://youtu.be/CPiSCkSzbMg)
+[![Video](https://img.youtube.com/vi/CPiSCkSzbMg/0.jpg)](https://youtu.be/CPiSCkSzbMg)
 
 ## Requirements
 #### Running
