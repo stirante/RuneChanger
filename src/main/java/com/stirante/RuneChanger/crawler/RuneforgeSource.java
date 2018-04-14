@@ -20,7 +20,7 @@ import java.util.List;
 
 public class RuneforgeSource implements RuneSource {
 
-    private static final String URL_ADDRESS = "http://runeforge.gg/all-loadouts-data.json";
+    private static final String URL_ADDRESS = "https://d181w3hxxigzvh.cloudfront.net/all-loadouts-data.json";
     private static final int TIMEOUT = 10000;
 
     private static Loadout[] cache = null;
