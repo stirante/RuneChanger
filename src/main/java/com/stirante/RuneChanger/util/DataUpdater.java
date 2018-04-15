@@ -2,7 +2,10 @@ package com.stirante.RuneChanger.util;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.stirante.RuneChanger.model.Rune;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -10,22 +13,28 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
- * Internal class for generating Rune and Champion enums
+ * Internal class for generating enums and resources
  */
-public class EnumGenerator {
+public class DataUpdater {
 
     private static String API_KEY = "";
     private static final String URL_BASE = "https://eun1.api.riotgames.com";
 
     private static final String RUNE_ENUM_PREFIX = "package com.stirante.RuneChanger.model;\n" +
             "\n" +
+            "import javax.imageio.ImageIO;\n" +
+            "import java.awt.image.BufferedImage;\n" +
+            "import java.io.IOException;\n" +
+            "\n" +
             "public enum Rune {\n";
     private static final String RUNE_ENUM_POSTFIX = "\n" +
+            "\n" +
             "\n" +
             "    private final int id;\n" +
             "    private final Style style;\n" +
             "    private final int slot;\n" +
             "    private final String name;\n" +
+            "    private BufferedImage image;\n" +
             "\n" +
             "    Rune(int id, int styleId, int slot, String name) {\n" +
             "        this.id = id;\n" +
@@ -68,6 +77,23 @@ public class EnumGenerator {
             "     */\n" +
             "    public int getSlot() {\n" +
             "        return slot;\n" +
+            "    }\n" +
+            "\n" +
+            "    /**\n" +
+            "     * Get rune image. Works only for keystones\n" +
+            "     *\n" +
+            "     * @return image\n" +
+            "     */\n" +
+            "    public BufferedImage getImage() {\n" +
+            "        if (getSlot() != 0) return null;\n" +
+            "        if (image == null) {\n" +
+            "            try {\n" +
+            "                image = ImageIO.read(getClass().getResourceAsStream(\"/runes/\" + getId() + \".png\"));\n" +
+            "            } catch (IOException e) {\n" +
+            "                e.printStackTrace();\n" +
+            "            }\n" +
+            "        }\n" +
+            "        return image;\n" +
             "    }\n" +
             "\n" +
             "    /**\n" +
@@ -174,6 +200,7 @@ public class EnumGenerator {
         Gson gson = new GsonBuilder().create();
         generateChampions(gson);
         generateRunes(gson);
+        downloadImages();
     }
 
     private static void generateChampions(Gson gson) throws IOException {
@@ -232,6 +259,30 @@ public class EnumGenerator {
             e.printStackTrace();
         }
     }
+
+    private static void downloadImages() {
+        HashMap<Rune, String> replacements = new HashMap<>();
+        replacements.put(Rune.RUNE_8008, "flowofbattle");
+        replacements.put(Rune.RUNE_8439, "veteranaftershock");
+        for (Rune rune : Rune.values()) {
+            if (rune.getSlot() == 0) {
+                String internalName = rune.getName().toLowerCase().replaceAll(" ", "");
+                if (replacements.containsKey(rune)) internalName = replacements.get(rune);
+                try {
+                    String url = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/";
+                    URL input = new URL(url + rune.getStyle().getName().toLowerCase() + "/" + internalName + "/" + internalName + (rune == Rune.RUNE_8008 ? "temp" : "") + ".png");
+                    HttpURLConnection conn = (HttpURLConnection) input.openConnection();
+                    conn.addRequestProperty("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36");
+                    BufferedImage read = ImageIO.read(conn.getInputStream());
+                    conn.getInputStream().close();
+                    ImageIO.write(read, "png", new File("src/main/resources/runes/" + rune.getId() + ".png"));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
 
     public static class ReforgedRuneDto {
         public String runePathName;

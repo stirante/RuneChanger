@@ -1,7 +1,7 @@
 package com.stirante.RuneChanger.model;
 
 public enum Champion {
-    //Generated on 2018-04-14 13:25:35
+    //Generated on 2018-04-15 20:25:20
     AATROX(266, "Aatrox", "Aatrox", "Aatrox"),
     AHRI(103, "Ahri", "Ahri", "Ahri"),
     AKALI(84, "Akali", "Akali", "Akali"),
@@ -142,6 +142,7 @@ public enum Champion {
     ZILEAN(26, "Zilean", "Zilean", "Zilean"),
     ZOE(142, "Zoe", "Zoe", "Zoe"),
     ZYRA(143, "Zyra", "Zyra", "Zyra");
+
 
     private final int id;
     private final String internalName;

@@ -1,53 +1,134 @@
 package com.stirante.RuneChanger.gui;
 
-import javax.imageio.ImageIO;
+import com.stirante.RuneChanger.model.RunePage;
+import com.stirante.RuneChanger.util.LangHelper;
+import com.stirante.RuneChanger.util.RuneSelectedListener;
+
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.MouseEvent;
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 public class RuneButton extends JPanel {
     private final Map<?, ?> desktopHints;
-    private final ButtonType type;
-    private Image img = null;
+    private final List<RunePage> pages = new ArrayList<>();
+    private final RuneSelectedListener runeSelectedListener;
     private Font mFont;
+    private boolean opened = false;
+    private int selected = -1;
+    private Color textColor = new Color(0xc8aa6e);
+    private Color backgroundColor = new Color(0x010a13);
+    private Color almostTransparentColor = new Color(0f, 0f, 0f, 0.01f);
+    private Color ligthenColor = new Color(1f, 1f, 1f, 0.2f);
+    private Color dividerColor = new Color(0x1e2328);
 
-    public RuneButton(ButtonType type) {
+    public RuneButton(List<RunePage> pages, RuneSelectedListener runeSelectedListener) {
         super();
-        this.type = type;
+        this.runeSelectedListener = runeSelectedListener;
+        this.pages.addAll(pages);
         try {
-            img = ImageIO.read(getClass().getResourceAsStream("/button.png"));
-        } catch (IOException e) {
+            InputStream is = getClass().getResourceAsStream("/Beaufort-Bold.ttf");
+            Font font = Font.createFont(Font.TRUETYPE_FONT, is);
+            mFont = font.deriveFont(15f);
+        } catch (IOException | FontFormatException e) {
             e.printStackTrace();
         }
-        mFont = Font.decode("Arial-BOLD-15");
         desktopHints = (Map<?, ?>) Toolkit.getDefaultToolkit().getDesktopProperty("awt.font.desktophints");
+        setBackground(new Color(0f, 0f, 0f, 0f));
     }
 
     @Override
     public void paintComponent(Graphics g) {
-        super.paintComponent(g);
         Graphics2D g2d = (Graphics2D) g;
+        g2d.clearRect(0, 0, getWidth(), getHeight());
         if (desktopHints != null) {
             g2d.setRenderingHints(desktopHints);
         }
-        if (img != null) {
-            g2d.drawImage(img, 0, 0, Constants.WIDTH, Constants.HEIGHT, null);
-        }
         g2d.setFont(mFont);
-        g2d.setColor(Color.white);
-        drawCenteredString(g2d, type.getMessage());
+        g2d.setColor(textColor);
+        drawCenteredString(g2d, getHeight() - Constants.MARGIN, LangHelper.getLang().getString("runeforgePages"));
+        if (opened) {
+            g2d.setColor(backgroundColor);
+            g2d.fillRect(Constants.MARGIN, Constants.MARGIN, Constants.BUTTON_WIDTH, Constants.ELEMENT_HEIGHT * pages.size());
+            g2d.setColor(textColor);
+            g2d.drawRect(Constants.MARGIN, Constants.MARGIN, Constants.BUTTON_WIDTH, Constants.ELEMENT_HEIGHT * pages.size());
+            for (int i = 0; i < pages.size(); i++) {
+                RunePage page = pages.get(i);
+                if (selected == i) {
+                    g2d.setColor(ligthenColor);
+                    g2d.fillRect(1 + Constants.MARGIN, i * Constants.ELEMENT_HEIGHT + Constants.MARGIN, Constants.BUTTON_WIDTH, Constants.ELEMENT_HEIGHT);
+                }
+                g2d.setColor(textColor);
+                g2d.drawImage(page.getRunes().get(0).getImage(), Constants.MARGIN, i * Constants.ELEMENT_HEIGHT + Constants.MARGIN, Constants.ELEMENT_HEIGHT, Constants.ELEMENT_HEIGHT, null);
+                drawCenteredHorizontalString(g2d, Constants.ELEMENT_HEIGHT, (i + 1) * Constants.ELEMENT_HEIGHT + Constants.MARGIN, page.getName());
+                if (i != pages.size() - 1) {
+                    g2d.setColor(dividerColor);
+                    g2d.drawLine(1 + Constants.MARGIN, (i + 1) * Constants.ELEMENT_HEIGHT + Constants.MARGIN, getWidth() - 2 - Constants.MARGIN, (i + 1) * Constants.ELEMENT_HEIGHT + Constants.MARGIN);
+                }
+            }
+        }
+    }
+
+    private void drawCenteredHorizontalString(Graphics2D g, int x, int bottom, String text) {
+        FontMetrics metrics = g.getFontMetrics(g.getFont());
+        if (metrics.stringWidth(text) > Constants.BUTTON_WIDTH - Constants.ELEMENT_HEIGHT) {
+            while (metrics.stringWidth(text) > Constants.BUTTON_WIDTH - Constants.ELEMENT_HEIGHT) {
+                text = text.substring(0, text.length() - 1);
+            }
+            text = text.substring(0, text.length() - 2) + "...";
+        }
+        g.drawString(text, x + Constants.MARGIN, bottom - metrics.getHeight() + (metrics.getAscent() / 2));
     }
 
     /**
      * Draws centered string
-     * @param g graphics
+     *
+     * @param g    graphics
      * @param text text to draw
      */
-    private void drawCenteredString(Graphics g, String text) {
+    private void drawCenteredString(Graphics g, int bottom, String text) {
         FontMetrics metrics = g.getFontMetrics(g.getFont());
-        int x = (Constants.WIDTH - metrics.stringWidth(text)) / 2;
-        int y = ((Constants.HEIGHT - metrics.getHeight()) / 2) + metrics.getAscent();
-        g.drawString(text, x, y);
+        if (metrics.stringWidth(text) > Constants.BUTTON_WIDTH) {
+            while (metrics.stringWidth(text) > Constants.BUTTON_WIDTH) {
+                text = text.substring(0, text.length() - 1);
+            }
+            text = text.substring(0, text.length() - 2) + "...";
+        }
+        int x = (Constants.BUTTON_WIDTH - metrics.stringWidth(text)) / 2;
+        g.drawString(text, x + Constants.MARGIN, bottom - metrics.getHeight() + (metrics.getAscent() / 2));
+        g.setColor(almostTransparentColor);
+        g.fillRect(x + Constants.MARGIN, bottom - metrics.getHeight() - (metrics.getAscent() / 2), metrics.stringWidth(text), metrics.getHeight());
+    }
+
+    public void mouseClicked(MouseEvent e) {
+        if (selected == pages.size())
+            opened = !opened;
+        else if (selected != -1) {
+            runeSelectedListener.onRuneSelected(pages.get(selected));
+            opened = !opened;
+        }
+        repaint();
+    }
+
+    public void mouseMoved(MouseEvent e) {
+        int i;
+        if (e.getY() < Constants.MARGIN || e.getY() > getHeight() - Constants.MARGIN) i = -1;
+        else if (e.getX() < Constants.MARGIN || e.getX() > Constants.MARGIN + Constants.BUTTON_WIDTH) i = -1;
+        else i = (e.getY() - Constants.MARGIN) / Constants.ELEMENT_HEIGHT;
+        if (i != selected) {
+            selected = i;
+            repaint();
+        }
+    }
+
+    public void mouseExited(MouseEvent e) {
+        if (selected != -1) {
+            selected = -1;
+            repaint();
+        }
     }
 }

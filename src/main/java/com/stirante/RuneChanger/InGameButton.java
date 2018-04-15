@@ -38,6 +38,12 @@ public class InGameButton {
                 currentSummoner = api.getCurrentSummoner();
             //get current champion selection session. Throws FileNotFoundException if there is no session
             LolChampSelectChampSelectSession session = api.executeGet("/lol-champ-select/v1/session", LolChampSelectChampSelectSession.class);
+//            LolChampSelectChampSelectSession session = new LolChampSelectChampSelectSession();
+//            session.myTeam = new ArrayList<>();
+//            LolChampSelectChampSelectPlayerSelection e = new LolChampSelectChampSelectPlayerSelection();
+//            e.championId = Champion.DARIUS.getId();
+//            e.summonerId = currentSummoner.summonerId;
+//            session.myTeam.add(e);
             //find selected champion
             for (LolChampSelectChampSelectPlayerSelection selection : session.myTeam) {
                 if (Objects.equals(selection.summonerId, currentSummoner.summonerId)) {
@@ -67,10 +73,6 @@ public class InGameButton {
                 //find available pages
                 ArrayList<LolPerksPerkPageResource> availablePages = new ArrayList<>();
                 for (LolPerksPerkPageResource p : pages) {
-                    if (p.name.toLowerCase().startsWith(champion.getName().toLowerCase())) {
-                        d("Page with champion name found. Not displaying button");
-                        return;
-                    }
                     if (p.isEditable) {
                         availablePages.add(p);
                     }
@@ -79,44 +81,36 @@ public class InGameButton {
                     d("No editable pages! (That's weird)");
                     return;
                 }
-                d("Opening button");
-                gui.setLoading(true);
-                gui.openWindow(null);
                 d("Downloading runes");
                 runes = RuneCrawler.getRunes(champion);
-                gui.setLoading(false);
                 if (runes == null || runes.isEmpty()) d("Runes for champion not available");
-                gui.setNotFound(runes == null || runes.isEmpty());
                 d(runes);
                 //remove all invalid rune pages
                 runes.removeIf(rune -> !rune.verify());
-                gui.setSourceError(runes.isEmpty());
                 if (runes.isEmpty()) {
                     d("Found error in rune source");
                 }
                 d("Runes available. Showing button");
-                gui.openWindow(() -> {
+                gui.openWindow(runes, (page) -> {
                     if (champion == null || runes == null || runes.isEmpty()) return;
                     //sometimes champion changes async and causes errors
                     final Champion finalChamp = champion;
                     new Thread(() -> {
                         try {
                             //change pages
-                            for (int i = 0; i < Math.min(runes.size(), availablePages.size()); i++) {
-                                LolPerksPerkPageResource page1 = availablePages.get(i);
-                                page1.primaryStyleId = runes.get(i).getMainStyle().getId();
-                                page1.subStyleId = runes.get(i).getSubStyle().getId();
-                                page1.name = (finalChamp.getName() + ":" + runes.get(i).getName());
-                                //limit name to 25 characters (client limit)
-                                page1.name = page1.name.substring(0, Math.min(25, page1.name.length()));
-                                page1.selectedPerkIds.clear();
-                                for (Rune rune : runes.get(i).getRunes()) {
-                                    page1.selectedPerkIds.add(rune.getId());
-                                }
-                                page1.isActive = true;
-                                api.executePut("/lol-perks/v1/pages/" + page1.id, page1);
+                            LolPerksPerkPageResource page1 = availablePages.get(0);
+                            page1.primaryStyleId = page.getMainStyle().getId();
+                            page1.subStyleId = page.getSubStyle().getId();
+                            page1.name = (finalChamp.getName() + ":" + page.getName());
+                            //limit name to 25 characters (client limit)
+                            page1.name = page1.name.substring(0, Math.min(25, page1.name.length()));
+                            page1.selectedPerkIds.clear();
+                            for (Rune rune : page.getRunes()) {
+                                page1.selectedPerkIds.add(rune.getId());
                             }
-                            api.executePut("/lol-perks/v1/currentpage", availablePages.get(0).id);
+                            page1.isActive = true;
+                            api.executePut("/lol-perks/v1/pages/" + page1.id, page1);
+                            api.executePut("/lol-perks/v1/currentpage", page1.id);
                         } catch (IOException ex) {
                             ex.printStackTrace();
                         }
@@ -186,6 +180,7 @@ public class InGameButton {
 
     /**
      * Debug message
+     *
      * @param message message
      */
     private static void d(Object message) {

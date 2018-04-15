@@ -1,7 +1,11 @@
 package com.stirante.RuneChanger.model;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+
 public enum Rune {
-    //Generated on 2018-04-14 13:25:35
+    //Generated on 2018-04-15 20:25:20
     RUNE_8005(8005, 8000, 0, "Press the Attack"),
     RUNE_8008(8008, 8000, 0, "Lethal Tempo"),
     RUNE_8009(8009, 8000, 1, "Presence of Mind"),
@@ -64,10 +68,13 @@ public enum Rune {
     RUNE_9105(9105, 8000, 2, "Legend: Tenacity"),
     RUNE_9111(9111, 8000, 1, "Triumph");
 
+
+
     private final int id;
     private final Style style;
     private final int slot;
     private final String name;
+    private BufferedImage image;
 
     Rune(int id, int styleId, int slot, String name) {
         this.id = id;
@@ -110,6 +117,23 @@ public enum Rune {
      */
     public int getSlot() {
         return slot;
+    }
+
+    /**
+     * Get rune image. Works only for keystones
+     *
+     * @return image
+     */
+    public BufferedImage getImage() {
+        if (getSlot() != 0) return null;
+        if (image == null) {
+            try {
+                image = ImageIO.read(getClass().getResourceAsStream("/runes/" + getId() + ".png"));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return image;
     }
 
     /**

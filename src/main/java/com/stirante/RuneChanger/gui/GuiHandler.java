@@ -1,6 +1,8 @@
 package com.stirante.RuneChanger.gui;
 
+import com.stirante.RuneChanger.model.RunePage;
 import com.stirante.RuneChanger.util.LangHelper;
+import com.stirante.RuneChanger.util.RuneSelectedListener;
 import com.sun.jna.Native;
 import com.sun.jna.platform.win32.User32;
 import com.sun.jna.platform.win32.WinDef;
@@ -10,9 +12,13 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.ResourceBundle;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -22,16 +28,10 @@ public class GuiHandler {
     private AtomicBoolean windowOpen = new AtomicBoolean(false);
     private AtomicBoolean openCommand = new AtomicBoolean(false);
     private AtomicBoolean closeCommand = new AtomicBoolean(false);
-    private AtomicBoolean loading = new AtomicBoolean(false);
-    private AtomicBoolean notFound = new AtomicBoolean(false);
-    private AtomicBoolean sourceError = new AtomicBoolean(false);
+    private List<RunePage> runes = Collections.synchronizedList(new ArrayList<>());
     private WinDef.HWND hwnd;
-    private Runnable onClick;
+    private RuneSelectedListener runeSelectedListener;
     private ResourceBundle resourceBundle = LangHelper.getLang();
-
-    public void setSourceError(boolean b) {
-        sourceError.set(b);
-    }
 
     /**
      * Extended User32 library with GetForegroundWindow method
@@ -57,24 +57,6 @@ public class GuiHandler {
     }
 
     /**
-     * Sets whether runes are loading
-     *
-     * @param loading loading
-     */
-    public void setLoading(boolean loading) {
-        this.loading.set(loading);
-    }
-
-    /**
-     * Sets whether runes are found
-     *
-     * @param notFound notFound
-     */
-    public void setNotFound(boolean notFound) {
-        this.notFound.set(notFound);
-    }
-
-    /**
      * Is window open
      *
      * @return is open
@@ -90,6 +72,10 @@ public class GuiHandler {
         closeCommand.set(true);
     }
 
+    private Dimension getDimension() {
+        return new Dimension(Constants.BUTTON_WIDTH + 2 * Constants.MARGIN, Constants.ELEMENT_HEIGHT * (runes.size() + 1) + 2 * Constants.MARGIN);
+    }
+
     /**
      * Actually create and show our button
      *
@@ -98,29 +84,35 @@ public class GuiHandler {
     private void showWindow(Rectangle rect) {
         if (win != null) win.dispose();
         win = new JWindow();
-        RuneButton canvas = new RuneButton(ButtonType.getForParams(loading.get(), notFound.get(), sourceError.get()));
+        RuneButton canvas = new RuneButton(runes, runeSelectedListener);
         win.setContentPane(canvas);
         win.setAlwaysOnTop(true);
         win.setAutoRequestFocus(false);
         win.setFocusable(false);
         win.pack();
-        win.setSize(Constants.WIDTH, Constants.HEIGHT);
-        canvas.setSize(Constants.WIDTH, Constants.HEIGHT);
+        win.setSize(getDimension());
+        win.setBackground(new Color(0f, 0f, 0f, 0f));
+        canvas.setSize(getDimension());
         //percentage position relative to client window
-        win.setLocation(rect.x + (int) (rect.width * Constants.X_PER), rect.y + (int) (rect.height * Constants.Y_PER));
+        trackPosition(rect);
         win.setVisible(true);
         win.setOpacity(1f);
         canvas.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        canvas.addMouseMotionListener(new MouseMotionListener() {
+            @Override
+            public void mouseDragged(MouseEvent e) {
+
+            }
+
+            @Override
+            public void mouseMoved(MouseEvent e) {
+                canvas.mouseMoved(e);
+            }
+        });
         canvas.addMouseListener(new MouseListener() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                windowOpen.set(false);
-                if (win != null) {
-                    win.dispose();
-                    win = null;
-                }
-                if (onClick != null)
-                    onClick.run();
+                canvas.mouseClicked(e);
             }
 
             @Override
@@ -135,14 +127,17 @@ public class GuiHandler {
 
             @Override
             public void mouseEntered(MouseEvent e) {
-
             }
 
             @Override
             public void mouseExited(MouseEvent e) {
-
+                canvas.mouseExited(e);
             }
         });
+    }
+
+    private void trackPosition(Rectangle rect) {
+        win.setLocation(rect.x + (int) (rect.width * Constants.X_PER) - Constants.MARGIN, rect.y + (int) (rect.height * Constants.Y_PER) - Constants.ELEMENT_HEIGHT * (runes.size() + 1) - Constants.MARGIN);
     }
 
     /**
@@ -226,8 +221,7 @@ public class GuiHandler {
                             else
                                 win.setVisible(false);
                             Rectangle rect1 = rect.toRectangle();
-                            if (rect1 != null)
-                                win.setLocation(rect1.x + (int) (rect1.width * Constants.X_PER), rect1.y + (int) (rect1.height * Constants.Y_PER));
+                            if (rect1 != null) trackPosition(rect1);
                         } catch (Throwable t) {
                             //sometimes 'win' becomes null async, so this code throws NullPointerException
                             t.printStackTrace();
@@ -274,8 +268,10 @@ public class GuiHandler {
      *
      * @param onClick executed when user clicks button
      */
-    public void openWindow(Runnable onClick) {
-        this.onClick = onClick;
+    public void openWindow(List<RunePage> runes, RuneSelectedListener onClick) {
+        this.runes.clear();
+        this.runes.addAll(runes);
+        this.runeSelectedListener = onClick;
         openCommand.set(true);
     }
 }
