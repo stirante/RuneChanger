@@ -1,7 +1,7 @@
 package com.stirante.RuneChanger.model;
 
 public enum Champion {
-    //Generated on 2018-04-15 20:25:20
+    //Generated on 2018-04-23 21:56:47
     AATROX(266, "Aatrox", "Aatrox", "Aatrox"),
     AHRI(103, "Ahri", "Ahri", "Ahri"),
     AKALI(84, "Akali", "Akali", "Akali"),

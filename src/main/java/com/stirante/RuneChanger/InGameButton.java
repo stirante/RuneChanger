@@ -6,6 +6,7 @@ import com.stirante.RuneChanger.model.Champion;
 import com.stirante.RuneChanger.model.Rune;
 import com.stirante.RuneChanger.model.RunePage;
 import com.stirante.RuneChanger.util.LangHelper;
+import com.stirante.RuneChanger.util.SimplePreferences;
 import com.stirante.lolclient.ClientApi;
 import generated.LolChampSelectChampSelectPlayerSelection;
 import generated.LolChampSelectChampSelectSession;
@@ -23,6 +24,9 @@ import java.util.*;
 
 public class InGameButton {
 
+    //Used for testing the UI
+    private static final boolean MOCK_SESSION = false;
+
     private static ClientApi api;
     private static GuiHandler gui;
     private static List<RunePage> runes;
@@ -37,13 +41,17 @@ public class InGameButton {
             if (currentSummoner == null)
                 currentSummoner = api.getCurrentSummoner();
             //get current champion selection session. Throws FileNotFoundException if there is no session
-            LolChampSelectChampSelectSession session = api.executeGet("/lol-champ-select/v1/session", LolChampSelectChampSelectSession.class);
-//            LolChampSelectChampSelectSession session = new LolChampSelectChampSelectSession();
-//            session.myTeam = new ArrayList<>();
-//            LolChampSelectChampSelectPlayerSelection e = new LolChampSelectChampSelectPlayerSelection();
-//            e.championId = Champion.DARIUS.getId();
-//            e.summonerId = currentSummoner.summonerId;
-//            session.myTeam.add(e);
+            LolChampSelectChampSelectSession session;
+            if (MOCK_SESSION) {
+                session = new LolChampSelectChampSelectSession();
+                session.myTeam = new ArrayList<>();
+                LolChampSelectChampSelectPlayerSelection e = new LolChampSelectChampSelectPlayerSelection();
+                e.championId = Champion.DARIUS.getId();
+                e.summonerId = currentSummoner.summonerId;
+                session.myTeam.add(e);
+            } else {
+                session = api.executeGet("/lol-champ-select/v1/session", LolChampSelectChampSelectSession.class);
+            }
             //find selected champion
             for (LolChampSelectChampSelectPlayerSelection selection : session.myTeam) {
                 if (Objects.equals(selection.summonerId, currentSummoner.summonerId)) {
@@ -136,6 +144,11 @@ public class InGameButton {
     }
 
     public static void main(String[] args) {
+        SimplePreferences.load();
+        if (!SimplePreferences.containsKey("thanks") || !((boolean) SimplePreferences.getValue("thanks"))) {
+            JOptionPane.showMessageDialog(null, resourceBundle.getString("thanks"), "RuneChanger", JOptionPane.INFORMATION_MESSAGE);
+            SimplePreferences.putValue("thanks", true);
+        }
         gui = new GuiHandler();
         try {
             api = new ClientApi();

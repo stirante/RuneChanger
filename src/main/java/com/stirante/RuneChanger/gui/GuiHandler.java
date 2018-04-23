@@ -73,7 +73,7 @@ public class GuiHandler {
     }
 
     private Dimension getDimension() {
-        return new Dimension(Constants.BUTTON_WIDTH + 2 * Constants.MARGIN, Constants.ELEMENT_HEIGHT * (runes.size() + 1) + 2 * Constants.MARGIN);
+        return new Dimension(Constants.WINDOW_WIDTH + 2 * Constants.MARGIN, Constants.ELEMENT_HEIGHT * (runes.size()) + Constants.ELEMENT_OFFSET_Y + 2 * Constants.MARGIN);
     }
 
     /**
@@ -152,7 +152,7 @@ public class GuiHandler {
             //Create icon in system tray and right click menu
             SystemTray systemTray = SystemTray.getSystemTray();
             //this actually don't work
-            Image image = ImageIO.read(GuiHandler.class.getResourceAsStream("/images/tray.png"));
+            Image image = ImageIO.read(GuiHandler.class.getResourceAsStream("/images/runechanger-runeforge-icon-32x32.png"));
             PopupMenu trayPopupMenu = new PopupMenu();
             MenuItem action = new MenuItem("RuneChanger v" + Constants.VERSION_STRING);
             action.setEnabled(false);
