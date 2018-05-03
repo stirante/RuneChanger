@@ -15,5 +15,5 @@ public class Constants {
     public static final int MARGIN = 10;
 
     //version string
-    public static final String VERSION_STRING = "1.1";
+    public static final String VERSION_STRING = "1.2";
 }
