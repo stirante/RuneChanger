@@ -1,7 +1,7 @@
 package com.stirante.RuneChanger.gui;
 
 public class Constants {
-    public static final int WINDOW_WIDTH = 280;
+    public static final int WINDOW_WIDTH = 273;
     public static final int ELEMENT_WIDTH = 192;
     public static final int ELEMENT_OFFSET_X = 81;
     public static final int ELEMENT_OFFSET_Y = 37;

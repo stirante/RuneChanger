@@ -212,14 +212,21 @@ public class GuiHandler {
                 if (windowOpen.get()) {
                     WinDef.HWND top = User32Extended.INSTANCE.GetForegroundWindow();
                     WinDef.RECT rect = new WinDef.RECT();
-                    User32Extended.INSTANCE.GetWindowRect(hwnd, rect);
+                    User32Extended.INSTANCE.GetWindowRect(top, rect);
                     if (win != null) {
                         try {
                             //apparently if left is -32000 then window is minimized
                             if (rect.left != -32000 && top != null && hwnd != null && top.getPointer().equals(hwnd.getPointer()))
                                 win.setVisible(true);
-                            else
-                                win.setVisible(false);
+                            else {
+                                char[] windowText = new char[512];
+                                User32.INSTANCE.GetWindowText(top, windowText, 512);
+                                String wText = Native.toString(windowText);
+                                if (wText.equalsIgnoreCase("League of Legends")) {
+                                    win.setVisible(true);
+                                    hwnd = top;
+                                } else win.setVisible(false);
+                            }
                             Rectangle rect1 = rect.toRectangle();
                             if (rect1 != null) trackPosition(rect1);
                         } catch (Throwable t) {

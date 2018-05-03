@@ -8,6 +8,7 @@ import com.stirante.RuneChanger.model.RunePage;
 import com.stirante.RuneChanger.util.LangHelper;
 import com.stirante.RuneChanger.util.SimplePreferences;
 import com.stirante.lolclient.ClientApi;
+import com.stirante.lolclient.ClientWebSocket;
 import generated.LolChampSelectChampSelectPlayerSelection;
 import generated.LolChampSelectChampSelectSession;
 import generated.LolPerksPerkPageResource;
@@ -33,25 +34,14 @@ public class InGameButton {
     private static Champion champion;
     private static ResourceBundle resourceBundle = LangHelper.getLang();
     private static LolSummonerSummoner currentSummoner;
+    private static ClientWebSocket socket;
 
-    private static void checkSession() {
+    private static void handleSession(LolChampSelectChampSelectSession session) {
         Champion oldChampion = champion;
         champion = null;
         try {
             if (currentSummoner == null)
                 currentSummoner = api.getCurrentSummoner();
-            //get current champion selection session. Throws FileNotFoundException if there is no session
-            LolChampSelectChampSelectSession session;
-            if (MOCK_SESSION) {
-                session = new LolChampSelectChampSelectSession();
-                session.myTeam = new ArrayList<>();
-                LolChampSelectChampSelectPlayerSelection e = new LolChampSelectChampSelectPlayerSelection();
-                e.championId = Champion.DARIUS.getId();
-                e.summonerId = currentSummoner.summonerId;
-                session.myTeam.add(e);
-            } else {
-                session = api.executeGet("/lol-champ-select/v1/session", LolChampSelectChampSelectSession.class);
-            }
             //find selected champion
             for (LolChampSelectChampSelectPlayerSelection selection : session.myTeam) {
                 if (Objects.equals(selection.summonerId, currentSummoner.summonerId)) {
@@ -136,7 +126,8 @@ public class InGameButton {
         } catch (SSLHandshakeException e) {
             d("SSLHandshakeException: Nothing too serious unless this message spams whole console");
         } catch (SocketTimeoutException e) {
-            d("SocketTimeoutException: Nothing too serious unless this message spams whole console");
+//            d("SocketTimeoutException: Nothing too serious unless this message spams whole console");
+            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
             gui.tryClose();
@@ -145,10 +136,10 @@ public class InGameButton {
 
     public static void main(String[] args) {
         SimplePreferences.load();
-        if (!SimplePreferences.containsKey("thanks") || !((boolean) SimplePreferences.getValue("thanks"))) {
-            JOptionPane.showMessageDialog(null, resourceBundle.getString("thanks"), "RuneChanger", JOptionPane.INFORMATION_MESSAGE);
-            SimplePreferences.putValue("thanks", true);
-        }
+//        if (!SimplePreferences.containsKey("thanks") || !((boolean) SimplePreferences.getValue("thanks"))) {
+//            JOptionPane.showMessageDialog(null, resourceBundle.getString("thanks"), "RuneChanger", JOptionPane.INFORMATION_MESSAGE);
+//            SimplePreferences.putValue("thanks", true);
+//        }
         gui = new GuiHandler();
         try {
             api = new ClientApi();
@@ -157,38 +148,35 @@ public class InGameButton {
             JOptionPane.showMessageDialog(null, resourceBundle.getString("noClient"), "RuneChanger", JOptionPane.WARNING_MESSAGE);
             System.exit(0);
         }
-        while (gui.isRunning()) {
+        if (MOCK_SESSION) {
             try {
-                Thread.sleep(1000);
-            } catch (InterruptedException ignored) {
+                currentSummoner = api.getCurrentSummoner();
+                LolChampSelectChampSelectSession session = new LolChampSelectChampSelectSession();
+                session.myTeam = new ArrayList<>();
+                LolChampSelectChampSelectPlayerSelection e = new LolChampSelectChampSelectPlayerSelection();
+                e.championId = Champion.DARIUS.getId();
+                e.summonerId = currentSummoner.summonerId;
+                session.myTeam.add(e);
+                handleSession(session);
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-            Thread t = new Thread(InGameButton::checkSession, "CheckThread");
-            t.start();
-            //due to JVM bug sometimes InputStream.read() blocks forever. If thread hangs for more than 50 seconds, kill it
-            for (int i = 0; i < 500; i++) {
-                if (t.isAlive()) {
-                    try {
-                        Thread.sleep(100);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
+        } else
+            try {
+                socket = api.openWebSocket();
+                socket.setEventHandler(event -> {
+                    System.out.println(event);
+                    if (event.getUri().equalsIgnoreCase("/lol-champ-select/v1/session")) {
+                        if (event.getEventType().equalsIgnoreCase("Delete")) gui.tryClose();
+                        handleSession((LolChampSelectChampSelectSession) event.getData());
                     }
-                }
+                });
+                Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+                    if (socket != null) socket.close();
+                }));
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-            if (t.isAlive()) {
-                d("Thread does not respond. Killing it");
-                t.interrupt();
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                //thread refuses to die by itself. Stop it forcefully
-                if (t.isAlive()) {
-                    d("Thread makes problems. Killing it brutally");
-                    t.stop();
-                }
-            }
-        }
     }
 
     /**
