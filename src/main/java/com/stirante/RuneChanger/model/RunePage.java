@@ -21,6 +21,7 @@ public class RunePage {
             if (i < 4 && rune.getStyle() != getMainStyle()) return false;
             else if (i >= 4 && rune.getStyle() != getSubStyle()) return false;
             if (i < 4 && rune.getSlot() != i) return false;
+            if (i == 4 && rune.getSlot() == getRunes().get(5).getSlot()) return false;
         }
         return true;
     }
