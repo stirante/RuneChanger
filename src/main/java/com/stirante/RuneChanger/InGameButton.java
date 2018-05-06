@@ -24,7 +24,8 @@ public class InGameButton {
 
     //Used for testing the UI
     private static final boolean MOCK_SESSION = false;
-    private static final boolean AUTO_ACCEPT = true;
+    //Just testing auto accepting
+    private static final boolean AUTO_ACCEPT = false;
 
     private static ClientApi api;
     private static GuiHandler gui;
@@ -165,13 +166,11 @@ public class InGameButton {
                 socket.setSocketListener(new ClientWebSocket.SocketListener() {
                     @Override
                     public void onEvent(ClientWebSocket.Event event) {
-                    System.out.println(event);
                         if (event.getUri().equalsIgnoreCase("/lol-champ-select/v1/session")) {
                             if (event.getEventType().equalsIgnoreCase("Delete")) gui.tryClose();
                             else handleSession((LolChampSelectChampSelectSession) event.getData());
                         } else if (AUTO_ACCEPT && event.getUri().equalsIgnoreCase("/lol-lobby/v2/lobby/matchmaking/search-state")) {
-                            LolLobbyLobbyMatchmakingSearchResource data = (LolLobbyLobbyMatchmakingSearchResource) event.getData();
-                            if (data.searchState == LolLobbyLobbyMatchmakingSearchState.FOUND) {
+                            if (((LolLobbyLobbyMatchmakingSearchResource) event.getData()).searchState == LolLobbyLobbyMatchmakingSearchState.FOUND) {
                                 try {
                                     api.executePost("/lol-matchmaking/v1/ready-check/accept");
                                 } catch (IOException e) {
