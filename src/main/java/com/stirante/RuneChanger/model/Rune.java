@@ -5,7 +5,7 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 
 public enum Rune {
-    //Generated on 2018-05-02 21:46:04
+    //Generated on 2018-05-06 10:46:31
     RUNE_8005(8005, 8000, 0, "Press the Attack"),
     RUNE_8008(8008, 8000, 0, "Lethal Tempo"),
     RUNE_8009(8009, 8000, 1, "Presence of Mind"),
@@ -44,12 +44,12 @@ public enum Rune {
     RUNE_8313(8313, 8300, 1, "Perfect Timing"),
     RUNE_8316(8316, 8300, 2, "Minion Dematerializer"),
     RUNE_8321(8321, 8300, 2, "Future's Market"),
-    RUNE_8326(8326, 8300, 0, "Unsealed Spellbook"),
     RUNE_8345(8345, 8300, 2, "Biscuit Delivery"),
     RUNE_8347(8347, 8300, 3, "Cosmic Insight"),
     RUNE_8351(8351, 8300, 0, "Glacial Augment"),
     RUNE_8352(8352, 8300, 3, "Time Warp Tonic"),
     RUNE_8359(8359, 8300, 0, "Kleptomancy"),
+    RUNE_8360(8360, 8300, 0, "Unsealed Spellbook"),
     RUNE_8410(8410, 8300, 3, "Approach Velocity"),
     RUNE_8429(8429, 8400, 2, "Conditioning"),
     RUNE_8437(8437, 8400, 0, "Grasp of the Undying"),
