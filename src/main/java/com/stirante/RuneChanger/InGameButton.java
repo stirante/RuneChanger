@@ -136,8 +136,6 @@ public class InGameButton {
     public static void main(String[] args) {
         Elevate.elevate(args);
         SimplePreferences.load();
-        Settings.initialize();
-        gui = new GuiHandler();
         try {
             api = new ClientApi();
         } catch (IllegalStateException e) {
@@ -145,6 +143,8 @@ public class InGameButton {
             JOptionPane.showMessageDialog(null, resourceBundle.getString("noClient"), "RuneChanger", JOptionPane.WARNING_MESSAGE);
             System.exit(0);
         }
+        Settings.initialize();
+        gui = new GuiHandler();
         if (MOCK_SESSION) {
             try {
                 currentSummoner = api.getCurrentSummoner();
@@ -183,8 +183,12 @@ public class InGameButton {
                 @Override
                 public void onClose(int i, String s) {
                     socket = null;
-                    JOptionPane.showMessageDialog(null, resourceBundle.getString("clientOff"), "RuneChanger", JOptionPane.INFORMATION_MESSAGE);
-                    System.exit(0);
+                    try {
+                        JOptionPane.showMessageDialog(null, resourceBundle.getString("clientOff"), "RuneChanger", JOptionPane.INFORMATION_MESSAGE);
+                        System.exit(0);
+                    } catch (ExceptionInInitializerError ignored) {
+
+                    }
                 }
             });
             Runtime.getRuntime().addShutdownHook(new Thread(() -> {
@@ -202,6 +206,10 @@ public class InGameButton {
      */
     public static void d(Object message) {
         System.out.println("[" + SimpleDateFormat.getTimeInstance().format(new Date()) + "] " + (message != null ? message.toString() : "null"));
+    }
+
+    public static ClientApi getApi() {
+        return api;
     }
 
 }

@@ -1,6 +1,8 @@
 package com.stirante.RuneChanger.gui;
 
+import com.stirante.RuneChanger.InGameButton;
 import com.stirante.RuneChanger.util.SimplePreferences;
+import generated.LolLootPlayerLoot;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.concurrent.Worker;
@@ -16,6 +18,7 @@ import java.io.IOException;
 public class Settings extends Application {
 
     private static Stage stage;
+    private WebEngine engine;
 
     public static void initialize() {
         new Thread(Application::launch).start();
@@ -32,7 +35,7 @@ public class Settings extends Application {
         FXMLLoader fxmlLoader = new FXMLLoader(Settings.class.getResource("/Settings.fxml"));
         BorderPane node = fxmlLoader.load();
         SettingsController controller = fxmlLoader.getController();
-        final WebEngine engine = controller.getWebview().getEngine();
+        engine = controller.getWebview().getEngine();
         engine.getLoadWorker().stateProperty().addListener((observableValue, oldState, newState) -> {
             if (newState == Worker.State.SUCCEEDED) {
                 JSObject window = (JSObject) engine.executeScript("window");
@@ -60,6 +63,22 @@ public class Settings extends Application {
 
     public String getValue(String key) {
         return SimplePreferences.getValue(key);
+    }
+
+    public void craftKeys() {
+        new Thread(() -> {
+            try {
+                LolLootPlayerLoot keyFragments = InGameButton.getApi().executeGet("/lol-loot/v1/player-loot/MATERIAL_key_fragment", LolLootPlayerLoot.class);
+                while (keyFragments.count >= 3) {
+                    keyFragments.count -= 3;
+                    InGameButton.getApi().executePost("/lol-loot/v1/player-loot/MATERIAL_key_fragment_forge/redeem");
+                }
+                Platform.runLater(() -> engine.executeScript("craftKeysDone()"));
+            } catch (IOException e) {
+                e.printStackTrace();
+                Platform.runLater(() -> engine.executeScript("craftKeysDone()"));
+            }
+        }).start();
     }
 
     public static void main(String[] args) {

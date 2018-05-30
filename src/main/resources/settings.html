@@ -615,6 +615,16 @@
             };
             $("#autoAccept").prop("checked", app.getValue("autoAccept") === 'true');
         }
+        function craftKeys() {
+            var button = $("#craftKeys");
+            if (button.text() === "Please wait") return;
+            button.html("Please wait");
+            app.craftKeys();
+        }
+        function craftKeysDone() {
+            var button = $("#craftKeys");
+            button.html("Craft all keys");
+        }
     </script>
     <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css?family=Patua+One" rel="stylesheet">
@@ -633,6 +643,8 @@
             <label><input id="autoAccept" type="checkbox" onchange="app.setValue('autoAccept', 'true')">Automatically
                 Accept</label>
         </div>
+        <p class="option-name">Loot</p>
+        <button id="craftKeys" type="button" onclick="craftKeys()">Craft all keys</button>
     </div>
 </div>
 </body>
