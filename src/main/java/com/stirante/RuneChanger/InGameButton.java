@@ -5,6 +5,7 @@ import com.stirante.RuneChanger.gui.GuiHandler;
 import com.stirante.RuneChanger.model.Champion;
 import com.stirante.RuneChanger.model.Rune;
 import com.stirante.RuneChanger.model.RunePage;
+import com.stirante.RuneChanger.util.Elevate;
 import com.stirante.RuneChanger.util.LangHelper;
 import com.stirante.RuneChanger.util.SimplePreferences;
 import com.stirante.lolclient.ClientApi;
@@ -134,11 +135,8 @@ public class InGameButton {
     }
 
     public static void main(String[] args) {
+        Elevate.elevate(args);
         SimplePreferences.load();
-//        if (!SimplePreferences.containsKey("thanks") || !((boolean) SimplePreferences.getValue("thanks"))) {
-//            JOptionPane.showMessageDialog(null, resourceBundle.getString("thanks"), "RuneChanger", JOptionPane.INFORMATION_MESSAGE);
-//            SimplePreferences.putValue("thanks", true);
-//        }
         gui = new GuiHandler();
         try {
             api = new ClientApi();
@@ -160,41 +158,41 @@ public class InGameButton {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        } else
-            try {
-                socket = api.openWebSocket();
-                socket.setSocketListener(new ClientWebSocket.SocketListener() {
-                    @Override
-                    public void onEvent(ClientWebSocket.Event event) {
-                        if (event.getUri().equalsIgnoreCase("/lol-champ-select/v1/session")) {
-                            if (event.getEventType().equalsIgnoreCase("Delete")) gui.tryClose();
-                            else handleSession((LolChampSelectChampSelectSession) event.getData());
-                        } else if (AUTO_ACCEPT && event.getUri().equalsIgnoreCase("/lol-lobby/v2/lobby/matchmaking/search-state")) {
-                            if (((LolLobbyLobbyMatchmakingSearchResource) event.getData()).searchState == LolLobbyLobbyMatchmakingSearchState.FOUND) {
-                                try {
-                                    api.executePost("/lol-matchmaking/v1/ready-check/accept");
-                                } catch (IOException e) {
-                                    e.printStackTrace();
-                                }
+        }
+        try {
+            socket = api.openWebSocket();
+            socket.setSocketListener(new ClientWebSocket.SocketListener() {
+                @Override
+                public void onEvent(ClientWebSocket.Event event) {
+                    if (event.getUri().equalsIgnoreCase("/lol-champ-select/v1/session")) {
+                        if (event.getEventType().equalsIgnoreCase("Delete")) gui.tryClose();
+                        else handleSession((LolChampSelectChampSelectSession) event.getData());
+                    } else if (AUTO_ACCEPT && event.getUri().equalsIgnoreCase("/lol-lobby/v2/lobby/matchmaking/search-state")) {
+                        if (((LolLobbyLobbyMatchmakingSearchResource) event.getData()).searchState == LolLobbyLobbyMatchmakingSearchState.FOUND) {
+                            try {
+                                api.executePost("/lol-matchmaking/v1/ready-check/accept");
+                            } catch (IOException e) {
+                                e.printStackTrace();
                             }
-                        } else if (event.getUri().equalsIgnoreCase("/riotclient/ux-state/request") && ((String) ((Map<String, Object>) event.getData()).get("state")).equalsIgnoreCase("Quit")) {
-                            socket.close();
                         }
+                    } else if (event.getUri().equalsIgnoreCase("/riotclient/ux-state/request") && ((String) ((Map<String, Object>) event.getData()).get("state")).equalsIgnoreCase("Quit")) {
+                        socket.close();
                     }
+                }
 
-                    @Override
-                    public void onClose(int i, String s) {
-                        socket = null;
-                        JOptionPane.showMessageDialog(null, resourceBundle.getString("clientOff"), "RuneChanger", JOptionPane.INFORMATION_MESSAGE);
-                        System.exit(0);
-                    }
-                });
-                Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-                    if (socket != null) socket.close();
-                }));
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+                @Override
+                public void onClose(int i, String s) {
+                    socket = null;
+                    JOptionPane.showMessageDialog(null, resourceBundle.getString("clientOff"), "RuneChanger", JOptionPane.INFORMATION_MESSAGE);
+                    System.exit(0);
+                }
+            });
+            Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+                if (socket != null) socket.close();
+            }));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -202,7 +200,7 @@ public class InGameButton {
      *
      * @param message message
      */
-    private static void d(Object message) {
+    public static void d(Object message) {
         System.out.println("[" + SimpleDateFormat.getTimeInstance().format(new Date()) + "] " + (message != null ? message.toString() : "null"));
     }
 
