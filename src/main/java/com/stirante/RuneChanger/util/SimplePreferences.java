@@ -5,13 +5,19 @@ import java.util.HashMap;
 
 public class SimplePreferences {
 
-    private static HashMap<String, Object> values;
+    private static HashMap<String, String> values;
 
     public static void load() {
         File prefs = new File("RuneChanger.dat");
-        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(prefs))) {
-            values = (HashMap<String, Object>) ois.readObject();
-        } catch (IOException | ClassNotFoundException e) {
+        try (DataInputStream ois = new DataInputStream(new FileInputStream(prefs))) {
+            values = new HashMap<>();
+            int size = ois.readInt();
+            for (int i = 0; i < size; i++) {
+                String key = ois.readUTF();
+                String value = ois.readUTF();
+                values.put(key, value);
+            }
+        } catch (IOException e) {
             if (!(e instanceof FileNotFoundException))
                 e.printStackTrace();
         }
@@ -19,7 +25,7 @@ public class SimplePreferences {
             values = new HashMap<>();
     }
 
-    public static Object getValue(String key) {
+    public static String getValue(String key) {
         return values.get(key);
     }
 
@@ -27,7 +33,7 @@ public class SimplePreferences {
         return values.containsKey(key);
     }
 
-    public static void putValue(String key, Object value) {
+    public static void putValue(String key, String value) {
         values.put(key, value);
         save();
     }
@@ -46,9 +52,13 @@ public class SimplePreferences {
                 e.printStackTrace();
             }
         }
-        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(prefs))) {
-            oos.writeObject(values);
-            oos.flush();
+        try (DataOutputStream dataOutputStream = new DataOutputStream(new FileOutputStream(prefs))) {
+            dataOutputStream.writeInt(values.size());
+            for (String key : values.keySet()) {
+                dataOutputStream.writeUTF(key);
+                dataOutputStream.writeUTF(values.get(key));
+            }
+            dataOutputStream.flush();
         } catch (IOException e) {
             e.printStackTrace();
         }
