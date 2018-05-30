@@ -23,7 +23,7 @@ public class RuneButton extends JPanel {
     private int selected = -1;
     private Color textColor = new Color(0xc8aa6e);
     private Color backgroundColor = new Color(0x010a13);
-    private Color ligthenColor = new Color(1f, 1f, 1f, 0.2f);
+    private Color lightenColor = new Color(1f, 1f, 1f, 0.2f);
     private Color dividerColor = new Color(0x1e2328);
     private BufferedImage icon;
 
@@ -61,7 +61,7 @@ public class RuneButton extends JPanel {
             for (int i = 0; i < pages.size(); i++) {
                 RunePage page = pages.get(i);
                 if (selected == i) {
-                    g2d.setColor(ligthenColor);
+                    g2d.setColor(lightenColor);
                     g2d.fillRect(1 + Constants.MARGIN + Constants.ELEMENT_OFFSET_X, i * Constants.ELEMENT_HEIGHT + Constants.MARGIN, Constants.ELEMENT_WIDTH, Constants.ELEMENT_HEIGHT);
                 }
                 g2d.setColor(textColor);
