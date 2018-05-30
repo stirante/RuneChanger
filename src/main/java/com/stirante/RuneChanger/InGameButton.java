@@ -2,6 +2,7 @@ package com.stirante.RuneChanger;
 
 import com.stirante.RuneChanger.crawler.RuneCrawler;
 import com.stirante.RuneChanger.gui.GuiHandler;
+import com.stirante.RuneChanger.gui.Settings;
 import com.stirante.RuneChanger.model.Champion;
 import com.stirante.RuneChanger.model.Rune;
 import com.stirante.RuneChanger.model.RunePage;
@@ -25,8 +26,6 @@ public class InGameButton {
 
     //Used for testing the UI
     private static final boolean MOCK_SESSION = false;
-    //Just testing auto accepting
-    private static final boolean AUTO_ACCEPT = false;
 
     private static ClientApi api;
     private static GuiHandler gui;
@@ -137,6 +136,7 @@ public class InGameButton {
     public static void main(String[] args) {
         Elevate.elevate(args);
         SimplePreferences.load();
+        Settings.initialize();
         gui = new GuiHandler();
         try {
             api = new ClientApi();
@@ -167,7 +167,7 @@ public class InGameButton {
                     if (event.getUri().equalsIgnoreCase("/lol-champ-select/v1/session")) {
                         if (event.getEventType().equalsIgnoreCase("Delete")) gui.tryClose();
                         else handleSession((LolChampSelectChampSelectSession) event.getData());
-                    } else if (AUTO_ACCEPT && event.getUri().equalsIgnoreCase("/lol-lobby/v2/lobby/matchmaking/search-state")) {
+                    } else if (SimplePreferences.getValue("autoAccept").equalsIgnoreCase("true") && event.getUri().equalsIgnoreCase("/lol-lobby/v2/lobby/matchmaking/search-state")) {
                         if (((LolLobbyLobbyMatchmakingSearchResource) event.getData()).searchState == LolLobbyLobbyMatchmakingSearchState.FOUND) {
                             try {
                                 api.executePost("/lol-matchmaking/v1/ready-check/accept");

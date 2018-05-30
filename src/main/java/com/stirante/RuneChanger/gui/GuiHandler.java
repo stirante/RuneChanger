@@ -168,6 +168,10 @@ public class GuiHandler {
             });
             trayPopupMenu.add(action);
 
+            MenuItem settings = new MenuItem(resourceBundle.getString("settings"));
+            settings.addActionListener(e -> Settings.show());
+            trayPopupMenu.add(settings);
+
             MenuItem close = new MenuItem(resourceBundle.getString("exit"));
             close.addActionListener(e -> {
                 running.set(false);
