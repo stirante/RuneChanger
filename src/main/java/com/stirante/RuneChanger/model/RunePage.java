@@ -12,10 +12,14 @@ public class RunePage {
 
     /**
      * Verifies rune page
+     *
      * @return is rune page valid
      */
     public boolean verify() {
         if (getRunes().size() != 6) return false;
+        for (Rune rune : runes) {
+            if (rune == null) return false;
+        }
         for (int i = 0; i < getRunes().size(); i++) {
             Rune rune = getRunes().get(i);
             if (i < 4 && rune.getStyle() != getMainStyle()) return false;

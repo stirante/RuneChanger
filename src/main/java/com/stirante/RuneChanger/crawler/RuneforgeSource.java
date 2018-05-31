@@ -68,8 +68,10 @@ public class RuneforgeSource implements RuneSource {
             }
             return r;
         } catch (IOException e) {
-            e.printStackTrace();
-            return null;
+            System.out.println(e.getMessage());
+            RunePage runePage = new RunePage();
+            runePage.setUrl(url);
+            return runePage;
         }
     }
 

@@ -1,7 +1,7 @@
 package com.stirante.RuneChanger.model;
 
 public enum Champion {
-    //Generated on 2018-05-30 18:15:33
+    //Generated on 2018-05-31 14:18:09
     AATROX(266, "Aatrox", "Aatrox", "Aatrox"),
     AHRI(103, "Ahri", "Ahri", "Ahri"),
     AKALI(84, "Akali", "Akali", "Akali"),
@@ -87,6 +87,7 @@ public enum Champion {
     ORNN(516, "Ornn", "Ornn", "Ornn"),
     PANTHEON(80, "Pantheon", "Pantheon", "Pantheon"),
     POPPY(78, "Poppy", "Poppy", "Poppy"),
+    PYKE(555, "Pyke", "Pyke", "Pyke"),
     QUINN(133, "Quinn", "Quinn", "Quinn"),
     RAKAN(497, "Rakan", "Rakan", "Rakan"),
     RAMMUS(33, "Rammus", "Rammus", "Rammus"),

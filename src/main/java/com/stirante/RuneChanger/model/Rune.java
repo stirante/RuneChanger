@@ -5,7 +5,7 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 
 public enum Rune {
-    //Generated on 2018-05-30 18:15:33
+    //Generated on 2018-05-31 14:18:10
     RUNE_8005(8005, 8000, 0, "Press the Attack"),
     RUNE_8008(8008, 8000, 0, "Lethal Tempo"),
     RUNE_8009(8009, 8000, 1, "Presence of Mind"),
@@ -14,6 +14,7 @@ public enum Rune {
     RUNE_8017(8017, 8000, 3, "Cut Down"),
     RUNE_8021(8021, 8000, 0, "Fleet Footwork"),
     RUNE_8105(8105, 8100, 3, "Relentless Hunter"),
+    RUNE_8106(8106, 8100, 3, "Ultimate Hunter"),
     RUNE_8112(8112, 8100, 0, "Electrocute"),
     RUNE_8120(8120, 8100, 2, "Ghost Poro"),
     RUNE_8124(8124, 8100, 0, "Predator"),
@@ -37,7 +38,7 @@ public enum Rune {
     RUNE_8236(8236, 8200, 3, "Gathering Storm"),
     RUNE_8237(8237, 8200, 3, "Scorch"),
     RUNE_8242(8242, 8400, 3, "Unflinching"),
-    RUNE_8243(8243, 8200, 1, "The Ultimate Hat"),
+    RUNE_8275(8275, 8200, 1, "Nimbus Cloak"),
     RUNE_8299(8299, 8000, 3, "Last Stand"),
     RUNE_8304(8304, 8300, 1, "Magical Footwear"),
     RUNE_8306(8306, 8300, 1, "Hextech Flashtraption"),
@@ -66,7 +67,8 @@ public enum Rune {
     RUNE_9103(9103, 8000, 2, "Legend: Bloodline"),
     RUNE_9104(9104, 8000, 2, "Legend: Alacrity"),
     RUNE_9105(9105, 8000, 2, "Legend: Tenacity"),
-    RUNE_9111(9111, 8000, 1, "Triumph");
+    RUNE_9111(9111, 8000, 1, "Triumph"),
+    RUNE_9923(9923, 8100, 0, "Hail of Blades");
 
 
 
