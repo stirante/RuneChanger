@@ -204,7 +204,7 @@ public class DataUpdater {
     }
 
     private static void generateChampions(Gson gson) throws IOException {
-        InputStream in = getEndpoint("/lol/static-data/v3/champions?locale=en_US&dataById=false&api_key=" + API_KEY);
+        InputStream in = getEndpoint("/lol/static-data/v3/champions?locale=en_US&version=8.15.1&dataById=false&api_key=" + API_KEY);
         StringBuilder sb = new StringBuilder();
         ChampionListDto champions = gson.fromJson(new InputStreamReader(in), ChampionListDto.class);
         in.close();
@@ -227,7 +227,7 @@ public class DataUpdater {
     }
 
     private static void generateRunes(Gson gson) throws IOException {
-        InputStream in = getEndpoint("/lol/static-data/v3/reforged-rune-paths?api_key=" + API_KEY);
+        InputStream in = getEndpoint("/lol/static-data/v3/reforged-rune-paths?version=8.15.1&api_key=" + API_KEY);
         StringBuilder sb = new StringBuilder();
         ReforgedRunePathDto[] runes = gson.fromJson(new InputStreamReader(in), ReforgedRunePathDto[].class);
         in.close();

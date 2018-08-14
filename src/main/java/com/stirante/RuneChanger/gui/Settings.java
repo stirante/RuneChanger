@@ -2,6 +2,8 @@ package com.stirante.RuneChanger.gui;
 
 import com.stirante.RuneChanger.InGameButton;
 import com.stirante.RuneChanger.util.SimplePreferences;
+import generated.LolChampSelectChampSelectSession;
+import generated.LolChatConversationMessageResource;
 import generated.LolLootPlayerLoot;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -26,6 +28,15 @@ public class Settings extends Application {
 
     public static void show() {
         Platform.runLater(() -> stage.show());
+    }
+
+    public static void toggle() {
+        Platform.runLater(() -> {
+            if (stage.isShowing())
+                stage.hide();
+            else
+                stage.show();
+        });
     }
 
     @Override
@@ -69,14 +80,29 @@ public class Settings extends Application {
         new Thread(() -> {
             try {
                 LolLootPlayerLoot keyFragments = InGameButton.getApi().executeGet("/lol-loot/v1/player-loot/MATERIAL_key_fragment", LolLootPlayerLoot.class);
-                while (keyFragments.count >= 3) {
-                    keyFragments.count -= 3;
-                    InGameButton.getApi().executePost("/lol-loot/v1/player-loot/MATERIAL_key_fragment_forge/redeem");
-                }
+                if (keyFragments.count >= 3)
+                    InGameButton.getApi().executePost("/lol-loot/v1/recipes/MATERIAL_key_fragment_forge/craft?repeat=" + keyFragments.count / 3, new String[]{"MATERIAL_key_fragment"});
                 Platform.runLater(() -> engine.executeScript("craftKeysDone()"));
             } catch (IOException e) {
                 e.printStackTrace();
                 Platform.runLater(() -> engine.executeScript("craftKeysDone()"));
+            }
+        }).start();
+    }
+
+    public void disenchantChampions() {
+        new Thread(() -> {
+            try {
+                LolLootPlayerLoot[] loot = InGameButton.getApi().executeGet("/lol-loot/v1/player-loot", LolLootPlayerLoot[].class);
+                for (LolLootPlayerLoot item : loot) {
+                    if (item.lootId.startsWith("CHAMPION_RENTAL_")) {
+                        InGameButton.getApi().executePost("/lol-loot/v1/recipes/CHAMPION_RENTAL_disenchant/craft", new String[]{item.lootId});
+                    }
+                }
+                Platform.runLater(() -> engine.executeScript("disenchantChampionsDone()"));
+            } catch (IOException e) {
+                e.printStackTrace();
+                Platform.runLater(() -> engine.executeScript("disenchantChampionsDone()"));
             }
         }).start();
     }

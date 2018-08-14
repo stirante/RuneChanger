@@ -606,6 +606,7 @@
             font-size: 16px;
             color: #cdbe91;
             margin-bottom: 5px;
+            text-transform: none !important;
         }
     </style>
     <script type="application/javascript">
@@ -614,16 +615,31 @@
                 app.log(message);
             };
             $("#autoAccept").prop("checked", app.getValue("autoAccept") === 'true');
+            $("#quickReplies").prop("checked", app.getValue("quickReplies") === 'true');
         }
+
         function craftKeys() {
             var button = $("#craftKeys");
             if (button.text() === "Please wait") return;
             button.html("Please wait");
             app.craftKeys();
         }
+
         function craftKeysDone() {
             var button = $("#craftKeys");
             button.html("Craft all keys");
+        }
+
+        function disenchantChampions() {
+            var button = $("#disenchantChampions");
+            if (button.text() === "Please wait") return;
+            button.html("Please wait");
+            app.disenchantChampions();
+        }
+
+        function disenchantChampionsDone() {
+            var button = $("#disenchantChampions");
+            button.html("Disenchant all champions");
         }
     </script>
     <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
@@ -640,11 +656,19 @@
         <h1>settings</h1>
         <p class="option-name">Queue</p>
         <div class="options">
-            <label><input id="autoAccept" type="checkbox" onchange="app.setValue('autoAccept', 'true')">Automatically
+            <label><input id="autoAccept" type="checkbox" onclick="app.setValue('autoAccept', checked)">Automatically
                 Accept</label>
+        </div>
+        <p class="option-name">Champion selection</p>
+        <div class="options">
+            <label><input id="quickReplies" type="checkbox" onclick="app.setValue('quickReplies', checked)">Show quick
+                replies</label>
         </div>
         <p class="option-name">Loot</p>
         <button id="craftKeys" type="button" onclick="craftKeys()">Craft all keys</button>
+        <button id="disenchantChampions" type="button" onclick="disenchantChampions()">Disenchant all champions</button>
+        <!--<p class="option-name">Experiments</p>-->
+        <!--<p class="suboption-name">Here are things I'm still testing. <br>Those will appear and disappear or completely change it's implementation frequently</p>-->
     </div>
 </div>
 </body>

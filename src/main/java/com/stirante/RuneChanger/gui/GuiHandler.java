@@ -24,6 +24,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class GuiHandler {
     private JWindow win;
+    private RuneButton canvas;
     private AtomicBoolean running = new AtomicBoolean(true);
     private AtomicBoolean windowOpen = new AtomicBoolean(false);
     private AtomicBoolean openCommand = new AtomicBoolean(false);
@@ -72,8 +73,11 @@ public class GuiHandler {
         closeCommand.set(true);
     }
 
-    private Dimension getDimension() {
-        return new Dimension(Constants.WINDOW_WIDTH + 2 * Constants.MARGIN, Constants.ELEMENT_HEIGHT * (runes.size()) + Constants.ELEMENT_OFFSET_Y + 2 * Constants.MARGIN);
+    public void setRunes(List<RunePage> runeList, RuneSelectedListener onClickListener) {
+        runes.clear();
+        runes.addAll(runeList);
+        runeSelectedListener = onClickListener;
+        if (canvas != null) canvas.setRuneData(runes, onClickListener);
     }
 
     /**
@@ -84,16 +88,16 @@ public class GuiHandler {
     private void showWindow(Rectangle rect) {
         if (win != null) win.dispose();
         win = new JWindow();
-        RuneButton canvas = new RuneButton(runes, runeSelectedListener);
+        canvas = new RuneButton();
+        canvas.setRuneData(runes, runeSelectedListener);
         win.setContentPane(canvas);
         win.setAlwaysOnTop(true);
         win.setAutoRequestFocus(false);
         win.setFocusable(false);
         win.pack();
-        win.setSize(getDimension());
+        win.setSize(rect.width, rect.height);
         win.setBackground(new Color(0f, 0f, 0f, 0f));
-        canvas.setSize(getDimension());
-        //percentage position relative to client window
+        canvas.setSize(rect.width, rect.height);
         trackPosition(rect);
         win.setVisible(true);
         win.setOpacity(1f);
@@ -137,7 +141,7 @@ public class GuiHandler {
     }
 
     private void trackPosition(Rectangle rect) {
-        win.setLocation(rect.x + (int) (rect.width * Constants.X_PER) - Constants.MARGIN, rect.y + (int) (rect.height * Constants.Y_PER) - Constants.ELEMENT_HEIGHT * (runes.size() + 1) - Constants.MARGIN);
+        win.setLocation(rect.x, rect.y);
     }
 
     /**
@@ -182,6 +186,7 @@ public class GuiHandler {
 
             TrayIcon trayIcon = new TrayIcon(image, "RuneChanger", trayPopupMenu);
             trayIcon.setImageAutoSize(true);
+            trayIcon.addActionListener(e -> Settings.toggle());
             systemTray.add(trayIcon);
         } catch (Exception e) {
             e.printStackTrace();
@@ -191,17 +196,12 @@ public class GuiHandler {
             while (running.get()) {
                 //command to open window
                 if (openCommand.get()) {
-                    //close window if already open
-                    if (windowOpen.get()) {
-                        if (win != null) {
-                            win.dispose();
-                            win = null;
-                        }
-                        windowOpen.set(false);
+                    //don't open window, when it's already open
+                    if (!windowOpen.get()) {
+                        startWindow();
+                        openCommand.set(false);
+                        windowOpen.set(true);
                     }
-                    startWindow();
-                    openCommand.set(false);
-                    windowOpen.set(true);
                 }
                 //command to close window
                 if (closeCommand.get()) {
@@ -210,6 +210,7 @@ public class GuiHandler {
                         win = null;
                     }
                     windowOpen.set(false);
+                    openCommand.set(false);
                     closeCommand.set(false);
                 }
                 //if window is open set it's position or hide if client is not active window
@@ -276,13 +277,8 @@ public class GuiHandler {
 
     /**
      * Opens window
-     *
-     * @param onClick executed when user clicks button
      */
-    public void openWindow(List<RunePage> runes, RuneSelectedListener onClick) {
-        this.runes.clear();
-        this.runes.addAll(runes);
-        this.runeSelectedListener = onClick;
+    public void openWindow() {
         openCommand.set(true);
     }
 }
