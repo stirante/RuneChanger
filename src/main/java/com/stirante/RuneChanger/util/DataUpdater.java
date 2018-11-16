@@ -17,9 +17,6 @@ import java.util.*;
  */
 public class DataUpdater {
 
-    private static String API_KEY = "";
-    private static final String URL_BASE = "https://eun1.api.riotgames.com";
-
     private static final String RUNE_ENUM_PREFIX = "package com.stirante.RuneChanger.model;\n" +
             "\n" +
             "import javax.imageio.ImageIO;\n" +
@@ -189,30 +186,37 @@ public class DataUpdater {
             "}\n";
 
     private static InputStream getEndpoint(String endpoint) throws IOException {
-        URL url = new URL(URL_BASE + endpoint);
+        System.out.println(endpoint);
+        URL url = new URL(endpoint);
         HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
-        if (urlConnection.getResponseCode() == 403) throw new RuntimeException("Regenerate API key");
         return urlConnection.getInputStream();
     }
 
     public static void main(String[] args) throws IOException {
-        if (API_KEY.isEmpty()) throw new IllegalStateException("API_KEY is empty!");
         Gson gson = new GsonBuilder().create();
-        generateChampions(gson);
-        generateRunes(gson);
+        String patch = getLatestPatch(gson);
+        generateChampions(gson, patch);
+        generateRunes(gson, patch);
         downloadImages();
     }
 
-    private static void generateChampions(Gson gson) throws IOException {
-        InputStream in = getEndpoint("/lol/static-data/v3/champions?locale=en_US&version=8.15.1&dataById=false&api_key=" + API_KEY);
+    private static String getLatestPatch(Gson gson) throws IOException {
+        InputStream in = getEndpoint("https://ddragon.leagueoflegends.com/api/versions.json");
+        String[] strings = gson.fromJson(new InputStreamReader(in), String[].class);
+        // had to change it manually, since it showed for me patch, which is not out yet
+        return strings[1];
+    }
+
+    private static void generateChampions(Gson gson, String patch) throws IOException {
+        InputStream in = getEndpoint("http://ddragon.leagueoflegends.com/cdn/" + patch + "/data/en_US/champion.json");
         StringBuilder sb = new StringBuilder();
-        ChampionListDto champions = gson.fromJson(new InputStreamReader(in), ChampionListDto.class);
+        ChampionList champions = gson.fromJson(new InputStreamReader(in), ChampionList.class);
         in.close();
-        List<ChampionDto> values = new ArrayList<>(champions.data.values());
+        List<Champion> values = new ArrayList<>(champions.data.values());
         values.sort(Comparator.comparing(o -> o.name));
         for (int i = 0; i < values.size(); i++) {
-            ChampionDto champion = values.get(i);
-            sb.append("    ").append(champion.key.toUpperCase()).append("(").append(champion.id).append(", \"").append(champion.key).append("\", \"").append(champion.name).append("\", \"").append(champion.name.replaceAll(" ", "")).append("\")");
+            Champion champion = values.get(i);
+            sb.append("    ").append(champion.id.toUpperCase()).append("(").append(champion.key).append(", \"").append(champion.id).append("\", \"").append(champion.name).append("\", \"").append(champion.name.replaceAll(" ", "")).append("\")");
             if (i == values.size() - 1) sb.append(";\n");
             else sb.append(",\n");
         }
@@ -226,8 +230,8 @@ public class DataUpdater {
         }
     }
 
-    private static void generateRunes(Gson gson) throws IOException {
-        InputStream in = getEndpoint("/lol/static-data/v3/reforged-rune-paths?version=8.15.1&api_key=" + API_KEY);
+    private static void generateRunes(Gson gson, String patch) throws IOException {
+        InputStream in = getEndpoint("http://ddragon.leagueoflegends.com/cdn/" + patch + "/data/en_US/runesReforged.json");
         StringBuilder sb = new StringBuilder();
         ReforgedRunePathDto[] runes = gson.fromJson(new InputStreamReader(in), ReforgedRunePathDto[].class);
         in.close();
@@ -262,7 +266,6 @@ public class DataUpdater {
 
     private static void downloadImages() {
         HashMap<Rune, String> replacements = new HashMap<>();
-        replacements.put(Rune.RUNE_8008, "flowofbattle");
         replacements.put(Rune.RUNE_8439, "veteranaftershock");
         for (Rune rune : Rune.values()) {
             if (rune.getSlot() == 0) {
@@ -282,7 +285,6 @@ public class DataUpdater {
             }
         }
     }
-
 
     public static class ReforgedRuneDto {
         public String runePathName;
@@ -308,19 +310,65 @@ public class DataUpdater {
         public String name;
     }
 
-    public static class ChampionListDto {
+    public class Champion {
         public String version;
-        public String type;
-        public String format;
-        public Map<String, String> keys;
-        public Map<String, ChampionDto> data;
-    }
-
-    public static class ChampionDto {
-        public String title;
-        public int id;
+        public String id;
         public String key;
         public String name;
+        public String title;
+        public String blurb;
+        public Info info;
+        public Image image;
+        public List<String> tags = null;
+        public String partype;
+        public Stats stats;
+    }
+
+    public class ChampionList {
+        public String type;
+        public String format;
+        public String version;
+        public HashMap<String, Champion> data;
+    }
+
+    public class Image {
+        public String full;
+        public String sprite;
+        public String group;
+        public Integer x;
+        public Integer y;
+        public Integer w;
+        public Integer h;
+    }
+
+    public class Info {
+        public Double attack;
+        public Double defense;
+        public Double magic;
+        public Double difficulty;
+    }
+
+    public class Stats {
+        public Double hp;
+        public Double hpperlevel;
+        public Double mp;
+        public Double mpperlevel;
+        public Double movespeed;
+        public Double armor;
+        public Double armorperlevel;
+        public Double spellblock;
+        public Double spellblockperlevel;
+        public Double attackrange;
+        public Double hpregen;
+        public Double hpregenperlevel;
+        public Double mpregen;
+        public Double mpregenperlevel;
+        public Double crit;
+        public Double critperlevel;
+        public Double attackdamage;
+        public Double attackdamageperlevel;
+        public Double attackspeedperlevel;
+        public Double attackspeed;
     }
 
 }

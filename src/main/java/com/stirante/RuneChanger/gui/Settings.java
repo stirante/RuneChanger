@@ -1,9 +1,10 @@
 package com.stirante.RuneChanger.gui;
 
 import com.stirante.RuneChanger.InGameButton;
+import com.stirante.RuneChanger.model.Champion;
 import com.stirante.RuneChanger.util.SimplePreferences;
-import generated.LolChampSelectChampSelectSession;
-import generated.LolChatConversationMessageResource;
+import generated.LolLobbyLobbyBotDifficulty;
+import generated.LolLobbyLobbyBotParams;
 import generated.LolLootPlayerLoot;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -16,6 +17,7 @@ import javafx.stage.Stage;
 import netscape.javascript.JSObject;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 public class Settings extends Application {
 
@@ -96,7 +98,9 @@ public class Settings extends Application {
                 LolLootPlayerLoot[] loot = InGameButton.getApi().executeGet("/lol-loot/v1/player-loot", LolLootPlayerLoot[].class);
                 for (LolLootPlayerLoot item : loot) {
                     if (item.lootId.startsWith("CHAMPION_RENTAL_")) {
-                        InGameButton.getApi().executePost("/lol-loot/v1/recipes/CHAMPION_RENTAL_disenchant/craft", new String[]{item.lootId});
+                        for (int i = 0; i < item.count; i++) {
+                            InGameButton.getApi().executePost("/lol-loot/v1/recipes/CHAMPION_RENTAL_disenchant/craft", new String[]{item.lootId});
+                        }
                     }
                 }
                 Platform.runLater(() -> engine.executeScript("disenchantChampionsDone()"));

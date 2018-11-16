@@ -10,6 +10,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -17,6 +18,9 @@ import java.util.List;
 import java.util.Map;
 
 public class RuneButton extends JPanel {
+
+    private static final boolean DISPLAY_FAKE = false;
+
     public static final String BOT = "BOT";
     public static final String MID = "MID";
     public static final String TOP = "TOP";
@@ -32,7 +36,7 @@ public class RuneButton extends JPanel {
     private Color dividerColor = new Color(0x1e2328);
     private Color darkenColor = new Color(0f, 0f, 0f, 0.01f);
     private BufferedImage icon;
-    //    private BufferedImage fake;
+    private BufferedImage fake;
     private Rectangle botButton = new Rectangle(0, 0, 0, 0);
     private Rectangle midButton = new Rectangle(0, 0, 0, 0);
     private Rectangle topButton = new Rectangle(0, 0, 0, 0);
@@ -44,7 +48,8 @@ public class RuneButton extends JPanel {
             Font font = Font.createFont(Font.TRUETYPE_FONT, is);
             mFont = font.deriveFont(15f);
             icon = ImageIO.read(getClass().getResourceAsStream("/images/runechanger-runeforge-icon-28x28.png"));
-//            fake = ImageIO.read(new File("D:\\Desktop\\champ select.png"));
+            if (DISPLAY_FAKE)
+                fake = ImageIO.read(new File("champ select.png"));
         } catch (IOException | FontFormatException e) {
             e.printStackTrace();
         }
@@ -68,7 +73,8 @@ public class RuneButton extends JPanel {
             g2d.setRenderingHints(desktopHints);
         }
         //fake image with champion selection for quick layout checking
-//        g2d.drawImage(fake, 0, 0, null);
+        if (DISPLAY_FAKE)
+            g2d.drawImage(fake, 0, 0, null);
         g2d.setFont(mFont);
         g2d.setColor(textColor);
         //draw rune button
@@ -156,19 +162,21 @@ public class RuneButton extends JPanel {
         g.drawString(text, x - 1, bottom - metrics.getHeight() + (metrics.getAscent() / 2));
     }
 
-//    float lastX = 0f;
-//    float lastY = 0f;
+    private float lastX = 0f;
+    private float lastY = 0f;
 
     public void mouseClicked(MouseEvent e) {
-//        float x = ((float) e.getX()) / ((float) getWidth());
-//        float y = ((float) e.getY()) / ((float) getHeight());
-//        if (e.getButton() == MouseEvent.BUTTON1) {
-//            lastX = x;
-//            lastY = y;
-//            System.out.println(x + " x " + y);
-//        } else {
-//            System.out.println("Distance: " + (x - lastX) + " x " + (y - lastY));
-//        }
+        if (DISPLAY_FAKE) {
+            float x = ((float) e.getX()) / ((float) getWidth());
+            float y = ((float) e.getY()) / ((float) getHeight());
+            if (e.getButton() == MouseEvent.BUTTON1) {
+                lastX = x;
+                lastY = y;
+                System.out.println(x + " x " + y);
+            } else {
+                System.out.println("Distance: " + (x - lastX) + " x " + (y - lastY));
+            }
+        }
         if (e.getX() > (getWidth() * Constants.RUNE_BUTTON_POSITION_X) &&
                 e.getX() < (getWidth() * Constants.RUNE_BUTTON_POSITION_X) + icon.getWidth() &&
                 e.getY() > (getHeight() * Constants.RUNE_BUTTON_POSITION_Y) &&

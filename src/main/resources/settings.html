@@ -616,6 +616,7 @@
             };
             $("#autoAccept").prop("checked", app.getValue("autoAccept") === 'true');
             $("#quickReplies").prop("checked", app.getValue("quickReplies") === 'true');
+            $("#antiAway").prop("checked", app.getValue("antiAway") === 'true');
         }
 
         function craftKeys() {
@@ -641,6 +642,7 @@
             var button = $("#disenchantChampions");
             button.html("Disenchant all champions");
         }
+
     </script>
     <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css?family=Patua+One" rel="stylesheet">
@@ -663,6 +665,10 @@
         <div class="options">
             <label><input id="quickReplies" type="checkbox" onclick="app.setValue('quickReplies', checked)">Show quick
                 replies</label>
+        </div>
+        <p class="option-name">Chat</p>
+        <div class="options">
+            <label><input id="antiAway" type="checkbox" onclick="app.setValue('antiAway', checked)">Disable away status</label>
         </div>
         <p class="option-name">Loot</p>
         <button id="craftKeys" type="button" onclick="craftKeys()">Craft all keys</button>

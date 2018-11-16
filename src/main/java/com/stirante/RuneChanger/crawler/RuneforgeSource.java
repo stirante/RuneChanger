@@ -16,14 +16,16 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class RuneforgeSource implements RuneSource {
 
-    private static final String URL_ADDRESS = "https://d181w3hxxigzvh.cloudfront.net/all-loadouts-data.json";
+    private static final String URL_ADDRESS = "https://runeforge.gg/all-loadouts-data.json";
     private static final int TIMEOUT = 10000;
 
     private static Loadout[] cache = null;
+    private static HashMap<Champion, List<RunePage>> pagesCache = new HashMap<>();
 
     public RuneforgeSource() {
         try {
@@ -82,6 +84,7 @@ public class RuneforgeSource implements RuneSource {
      * @return list of rune pages
      */
     public List<RunePage> getForChampion(Champion champion) {
+        if (pagesCache.containsKey(champion)) return pagesCache.get(champion);
         ArrayList<RunePage> result = new ArrayList<>();
         try {
             if (cache == null || cache.length == 0) {
@@ -91,12 +94,13 @@ public class RuneforgeSource implements RuneSource {
                 conn.getInputStream().close();
             }
             for (Loadout loadout : cache) {
-                if (loadout.getChampionName().equalsIgnoreCase(champion.getName()) || loadout.getChampionName().equalsIgnoreCase(champion.getAlias()))
-                    result.add(getRunes(loadout.getURL()));
+                if (loadout.loadout_champion_name.equalsIgnoreCase(champion.getName()) || loadout.loadout_champion_name.equalsIgnoreCase(champion.getAlias()))
+                    result.add(getRunes(loadout.loadout_url));
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
+        pagesCache.put(champion, result);
         return result;
     }
 
@@ -115,7 +119,7 @@ public class RuneforgeSource implements RuneSource {
         }
     }
 
-    public static class Loadout {
+    private static class Loadout {
         private int loadout_id;
         private String loadout_url;
         private String loadout_champion_name;
@@ -129,110 +133,6 @@ public class RuneforgeSource implements RuneSource {
         private String loadout_playstyle;
         private Object loadout_player;
         private Object loadout_player_headshot;
-
-        public int getId() {
-            return loadout_id;
-        }
-
-        public void setId(int value) {
-            this.loadout_id = value;
-        }
-
-        public String getURL() {
-            return loadout_url;
-        }
-
-        public void setURL(String value) {
-            this.loadout_url = value;
-        }
-
-        public String getChampionName() {
-            return loadout_champion_name;
-        }
-
-        public void setChampionName(String value) {
-            this.loadout_champion_name = value;
-        }
-
-        public String getPositionName() {
-            return loadout_position_name;
-        }
-
-        public void setPositionName(String value) {
-            this.loadout_position_name = value;
-        }
-
-        public Object getChampionFree() {
-            return loadout_champion_free;
-        }
-
-        public void setChampionFree(Object value) {
-            this.loadout_champion_free = value;
-        }
-
-        public String getChampionGrid() {
-            return loadout_champion_grid;
-        }
-
-        public void setChampionGrid(String value) {
-            this.loadout_champion_grid = value;
-        }
-
-        public String getChampionCentered() {
-            return loadout_champion_centered;
-        }
-
-        public void setChampionCentered(String value) {
-            this.loadout_champion_centered = value;
-        }
-
-        public String getChampionCenteredCdn() {
-            return loadout_champion_centered_cdn;
-        }
-
-        public void setChampionCenteredCdn(String value) {
-            this.loadout_champion_centered_cdn = value;
-        }
-
-        public String getPrimary() {
-            return loadout_primary;
-        }
-
-        public void setPrimary(String value) {
-            this.loadout_primary = value;
-        }
-
-        public String getKeystone() {
-            return loadout_keystone;
-        }
-
-        public void setKeystone(String value) {
-            this.loadout_keystone = value;
-        }
-
-        public String getPlaystyle() {
-            return loadout_playstyle;
-        }
-
-        public void setPlaystyle(String value) {
-            this.loadout_playstyle = value;
-        }
-
-        public Object getPlayer() {
-            return loadout_player;
-        }
-
-        public void setPlayer(Object value) {
-            this.loadout_player = value;
-        }
-
-        public Object getPlayerHeadshot() {
-            return loadout_player_headshot;
-        }
-
-        public void setPlayerHeadshot(Object value) {
-            this.loadout_player_headshot = value;
-        }
     }
 
 }

@@ -14,6 +14,7 @@ public class StringUtils {
         REPLACEMENT.put("’", "'");
         REPLACEMENT.put("‘", "'");
         REPLACEMENT.put("…", "...");
+        REPLACEMENT.put("”", "\"");
     }
 
     /**

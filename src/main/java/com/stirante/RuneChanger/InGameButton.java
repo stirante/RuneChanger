@@ -96,7 +96,9 @@ public class InGameButton {
                     new Thread(() -> {
                         try {
                             //change pages
-                            LolPerksPerkPageResource page1 = availablePages.get(0);
+                            LolPerksPerkPageResource page1 = api.executeGet("/lol-perks/v1/currentpage", LolPerksPerkPageResource.class);
+                            if (!page1.isEditable || !page1.isActive)
+                                page1 = availablePages.get(0);
                             page1.primaryStyleId = page.getMainStyle().getId();
                             page1.subStyleId = page.getSubStyle().getId();
                             page1.name = (finalChamp.getName() + ":" + page.getName());
@@ -165,7 +167,20 @@ public class InGameButton {
                 @Override
                 public void onEvent(ClientWebSocket.Event event) {
                     //printing every event except voice for experimenting
-//                    if (!event.getUri().toLowerCase().contains("voice")) System.out.println(event);
+                    if (!event.getUri().toLowerCase().contains("voice")) System.out.println(event);
+                    if (event.getUri().equalsIgnoreCase("/lol-chat/v1/me") && SimplePreferences.containsKey("antiAway") && SimplePreferences.getValue("antiAway").equalsIgnoreCase("true")) {
+                        if (((LolChatUserResource) event.getData()).availability.equalsIgnoreCase("away")) {
+                            LolChatUserResource data = (LolChatUserResource) event.getData();
+                            data.availability = "chat";
+                            new Thread(() -> {
+                                try {
+                                    api.executePut("/lol-chat/v1/me", data);
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                            }).run();
+                        }
+                    }
                     if (event.getUri().equalsIgnoreCase("/lol-champ-select/v1/session")) {
                         if (event.getEventType().equalsIgnoreCase("Delete")) gui.tryClose();
                         else handleSession((LolChampSelectChampSelectSession) event.getData());
