@@ -9,6 +9,7 @@ public class RunePage {
     private Style mainStyle;
     private Style subStyle;
     private List<Rune> runes = new ArrayList<>();
+    private List<Modifier> modifiers = new ArrayList<>();
 
     /**
      * Verifies rune page
@@ -22,10 +23,21 @@ public class RunePage {
         }
         for (int i = 0; i < getRunes().size(); i++) {
             Rune rune = getRunes().get(i);
-            if (i < 4 && rune.getStyle() != getMainStyle()) return false;
-            else if (i >= 4 && rune.getStyle() != getSubStyle()) return false;
-            if (i < 4 && rune.getSlot() != i) return false;
-            if (i == 4 && rune.getSlot() == getRunes().get(5).getSlot()) return false;
+            if (i < 4 && rune.getStyle() != getMainStyle()) {
+                System.out.println("Primary path contains runes from another style");
+                return false;
+            } else if (i >= 4 && rune.getStyle() != getSubStyle()) {
+                System.out.println("Secondary path contains runes from another style");
+                return false;
+            }
+            if (i < 4 && rune.getSlot() != i) {
+                System.out.println("Rune does not belong to this slot");
+                return false;
+            }
+            if (i == 4 && rune.getSlot() == getRunes().get(5).getSlot()) {
+                System.out.println("Secondary path contains runes from the same slot");
+                return false;
+            }
         }
         return true;
     }
@@ -38,6 +50,7 @@ public class RunePage {
                 ", mainStyle=" + mainStyle +
                 ", subStyle=" + subStyle +
                 ", runes=" + runes +
+                ", modifiers=" + modifiers +
                 '}';
     }
 
@@ -75,5 +88,9 @@ public class RunePage {
 
     public List<Rune> getRunes() {
         return runes;
+    }
+
+    public List<Modifier> getModifiers() {
+        return modifiers;
     }
 }

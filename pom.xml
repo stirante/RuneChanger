@@ -23,7 +23,7 @@
         <dependency>
             <groupId>com.stirante</groupId>
             <artifactId>lol-client-java-api</artifactId>
-            <version>1.0.5</version>
+            <version>1.0.6</version>
             <scope>compile</scope>
         </dependency>
         <dependency>

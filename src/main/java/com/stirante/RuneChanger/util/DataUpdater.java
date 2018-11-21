@@ -203,8 +203,7 @@ public class DataUpdater {
     private static String getLatestPatch(Gson gson) throws IOException {
         InputStream in = getEndpoint("https://ddragon.leagueoflegends.com/api/versions.json");
         String[] strings = gson.fromJson(new InputStreamReader(in), String[].class);
-        // had to change it manually, since it showed for me patch, which is not out yet
-        return strings[1];
+        return strings[0];
     }
 
     private static void generateChampions(Gson gson, String patch) throws IOException {

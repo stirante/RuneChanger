@@ -4,6 +4,7 @@ import com.stirante.RuneChanger.crawler.RuneCrawler;
 import com.stirante.RuneChanger.gui.GuiHandler;
 import com.stirante.RuneChanger.gui.Settings;
 import com.stirante.RuneChanger.model.Champion;
+import com.stirante.RuneChanger.model.Modifier;
 import com.stirante.RuneChanger.model.Rune;
 import com.stirante.RuneChanger.model.RunePage;
 import com.stirante.RuneChanger.util.Elevate;
@@ -107,6 +108,9 @@ public class InGameButton {
                             page1.selectedPerkIds.clear();
                             for (Rune rune : page.getRunes()) {
                                 page1.selectedPerkIds.add(rune.getId());
+                            }
+                            for (Modifier mod : page.getModifiers()) {
+                                page1.selectedPerkIds.add(mod.getId());
                             }
                             page1.isActive = true;
                             api.executeDelete("/lol-perks/v1/pages/" + page1.id);

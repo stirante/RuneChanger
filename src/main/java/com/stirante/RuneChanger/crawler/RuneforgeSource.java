@@ -1,10 +1,7 @@
 package com.stirante.RuneChanger.crawler;
 
 import com.google.gson.Gson;
-import com.stirante.RuneChanger.model.Champion;
-import com.stirante.RuneChanger.model.Rune;
-import com.stirante.RuneChanger.model.RunePage;
-import com.stirante.RuneChanger.model.Style;
+import com.stirante.RuneChanger.model.*;
 import com.stirante.RuneChanger.util.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -67,6 +64,12 @@ public class RuneforgeSource implements RuneSource {
             for (Element rune : runes) {
                 String attr = rune.attr("data-link-title");
                 r.getRunes().add(Rune.getByName(attr));
+            }
+            Elements tree = parse.getElementsByClass("stat-shards").first().getElementsByTag("li");
+
+            for (Element element : tree) {
+                String text = element.getElementsByClass("rune-path--rune_description").first().text();
+                r.getModifiers().add(Modifier.getByName(text));
             }
             return r;
         } catch (IOException e) {
