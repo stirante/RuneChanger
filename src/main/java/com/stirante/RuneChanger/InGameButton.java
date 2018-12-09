@@ -171,7 +171,7 @@ public class InGameButton {
                 @Override
                 public void onEvent(ClientWebSocket.Event event) {
                     //printing every event except voice for experimenting
-                    if (!event.getUri().toLowerCase().contains("voice")) System.out.println(event);
+                    //if (!event.getUri().toLowerCase().contains("voice")) System.out.println(event);
                     if (event.getUri().equalsIgnoreCase("/lol-chat/v1/me") && SimplePreferences.containsKey("antiAway") && SimplePreferences.getValue("antiAway").equalsIgnoreCase("true")) {
                         if (((LolChatUserResource) event.getData()).availability.equalsIgnoreCase("away")) {
                             LolChatUserResource data = (LolChatUserResource) event.getData();

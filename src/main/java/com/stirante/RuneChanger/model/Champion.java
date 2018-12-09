@@ -1,7 +1,7 @@
 package com.stirante.RuneChanger.model;
 
 public enum Champion {
-    //Generated on 2018-11-21 19:50:10
+    //Generated on 2018-12-09 10:06:19
     AATROX(266, "Aatrox", "Aatrox", "Aatrox"),
     AHRI(103, "Ahri", "Ahri", "Ahri"),
     AKALI(84, "Akali", "Akali", "Akali"),
@@ -79,6 +79,7 @@ public enum Champion {
     NAMI(267, "Nami", "Nami", "Nami"),
     NASUS(75, "Nasus", "Nasus", "Nasus"),
     NAUTILUS(111, "Nautilus", "Nautilus", "Nautilus"),
+    NEEKO(518, "Neeko", "Neeko", "Neeko"),
     NIDALEE(76, "Nidalee", "Nidalee", "Nidalee"),
     NOCTURNE(56, "Nocturne", "Nocturne", "Nocturne"),
     NUNU(20, "Nunu", "Nunu & Willump", "Nunu&Willump"),

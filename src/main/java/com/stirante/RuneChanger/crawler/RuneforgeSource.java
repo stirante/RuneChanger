@@ -43,6 +43,7 @@ public class RuneforgeSource implements RuneSource {
      */
     private RunePage getRunes(String url) {
         try {
+            System.out.println("Checking: " + url);
             //get web page
             Document parse = Jsoup.parse(new URL(url), TIMEOUT);
             RunePage r = new RunePage();
@@ -65,11 +66,13 @@ public class RuneforgeSource implements RuneSource {
                 String attr = rune.attr("data-link-title");
                 r.getRunes().add(Rune.getByName(attr));
             }
-            Elements tree = parse.getElementsByClass("stat-shards").first().getElementsByTag("li");
+            if (!parse.getElementsByClass("stat-shards").isEmpty()) {
+                Elements tree = parse.getElementsByClass("stat-shards").first().getElementsByTag("li");
 
-            for (Element element : tree) {
-                String text = element.getElementsByClass("rune-path--rune_description").first().text();
-                r.getModifiers().add(Modifier.getByName(text));
+                for (Element element : tree) {
+                    String text = element.getElementsByClass("rune-path--rune_description").first().text();
+                    r.getModifiers().add(Modifier.getByName(text));
+                }
             }
             return r;
         } catch (IOException e) {

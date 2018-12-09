@@ -269,6 +269,10 @@ public class GuiHandler {
             if (rect.top == 0 && rect.left == 0) {
                 return true;
             }
+            //ignore minimized windows
+            if (rect.left == -32000) {
+                return true;
+            }
             hwnd = hWnd;
             showWindow(rect.toRectangle());
             return true;
