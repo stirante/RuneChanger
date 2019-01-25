@@ -22,7 +22,6 @@ public class Elevate {
      * @return The cleaned program arguments
      */
     public static String[] elevate(String[] args) {
-        String[] result = args;
 
         // Check for elevation marker.
         boolean elevate = false;
@@ -57,6 +56,6 @@ public class Elevate {
             }
             System.exit(0);
         }
-        return result;
+        return args;
     }
 }

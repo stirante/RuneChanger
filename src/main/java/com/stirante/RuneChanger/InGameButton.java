@@ -32,7 +32,7 @@ public class InGameButton {
     private static GuiHandler gui;
     private static List<RunePage> runes;
     private static Champion champion;
-    private static ResourceBundle resourceBundle = LangHelper.getLang();
+    private static final ResourceBundle resourceBundle = LangHelper.getLang();
     private static LolSummonerSummoner currentSummoner;
     private static ClientWebSocket socket;
 
@@ -41,21 +41,26 @@ public class InGameButton {
         Champion oldChampion = champion;
         champion = null;
         try {
-            if (currentSummoner == null)
+            if (currentSummoner == null) {
                 currentSummoner = api.getCurrentSummoner();
+            }
             //find selected champion
             for (LolChampSelectChampSelectPlayerSelection selection : session.myTeam) {
                 if (Objects.equals(selection.summonerId, currentSummoner.summonerId)) {
                     //first check locked champion
                     champion = Champion.getById(selection.championId);
                     //if it fails check just selected champion
-                    if (champion == null) champion = Champion.getById(selection.championPickIntent);
+                    if (champion == null) {
+                        champion = Champion.getById(selection.championPickIntent);
+                    }
                     //if all fails check list of actions
                     if (champion == null) {
                         for (Object actionList : session.actions) {
                             for (Object obj : ((List) actionList)) {
+                                //noinspection unchecked
                                 Map<String, Object> selectAction = (Map<String, Object>) obj;
-                                if (selectAction.get("type").equals("pick") && selectAction.get("actorCellId") == selection.cellId) {
+                                if (selectAction.get("type").equals("pick") &&
+                                        selectAction.get("actorCellId") == selection.cellId) {
                                     champion = Champion.getById((Integer) selectAction.get("championId"));
                                 }
                             }
@@ -64,11 +69,14 @@ public class InGameButton {
                     break;
                 }
             }
-            if (champion == null && gui.isWindowOpen()) gui.tryClose();
+            if (champion == null && gui.isWindowOpen()) {
+                gui.tryClose();
+            }
             if (champion != null && champion != oldChampion) {
                 d("Player chose champion " + champion.getName());
                 //get all rune pages
-                LolPerksPerkPageResource[] pages = api.executeGet("/lol-perks/v1/pages", LolPerksPerkPageResource[].class);
+                LolPerksPerkPageResource[] pages =
+                        api.executeGet("/lol-perks/v1/pages", LolPerksPerkPageResource[].class);
                 //find available pages
                 ArrayList<LolPerksPerkPageResource> availablePages = new ArrayList<>();
                 for (LolPerksPerkPageResource p : pages) {
@@ -82,7 +90,9 @@ public class InGameButton {
                 }
                 d("Downloading runes");
                 runes = RuneCrawler.getRunes(champion);
-                if (runes == null || runes.isEmpty()) d("Runes for champion not available");
+                if (runes == null || runes.isEmpty()) {
+                    d("Runes for champion not available");
+                }
                 d(runes);
                 //remove all invalid rune pages
                 runes.removeIf(rune -> !rune.verify());
@@ -91,15 +101,19 @@ public class InGameButton {
                 }
                 d("Runes available. Showing button");
                 gui.setRunes(runes, (page) -> {
-                    if (champion == null || runes == null || runes.isEmpty()) return;
+                    if (champion == null || runes == null || runes.isEmpty()) {
+                        return;
+                    }
                     //sometimes champion changes async and causes errors
                     final Champion finalChamp = champion;
                     new Thread(() -> {
                         try {
                             //change pages
-                            LolPerksPerkPageResource page1 = api.executeGet("/lol-perks/v1/currentpage", LolPerksPerkPageResource.class);
-                            if (!page1.isEditable || !page1.isActive)
+                            LolPerksPerkPageResource page1 =
+                                    api.executeGet("/lol-perks/v1/currentpage", LolPerksPerkPageResource.class);
+                            if (!page1.isEditable || !page1.isActive) {
                                 page1 = availablePages.get(0);
+                            }
                             page1.primaryStyleId = page.getMainStyle().getId();
                             page1.subStyleId = page.getSubStyle().getId();
                             page1.name = (finalChamp.getName() + ":" + page.getName());
@@ -168,11 +182,14 @@ public class InGameButton {
         try {
             socket = api.openWebSocket();
             socket.setSocketListener(new ClientWebSocket.SocketListener() {
+                @SuppressWarnings("unchecked")
                 @Override
                 public void onEvent(ClientWebSocket.Event event) {
                     //printing every event except voice for experimenting
                     //if (!event.getUri().toLowerCase().contains("voice")) System.out.println(event);
-                    if (event.getUri().equalsIgnoreCase("/lol-chat/v1/me") && SimplePreferences.containsKey("antiAway") && SimplePreferences.getValue("antiAway").equalsIgnoreCase("true")) {
+                    if (event.getUri().equalsIgnoreCase("/lol-chat/v1/me") &&
+                            SimplePreferences.containsKey("antiAway") &&
+                            SimplePreferences.getValue("antiAway").equalsIgnoreCase("true")) {
                         if (((LolChatUserResource) event.getData()).availability.equalsIgnoreCase("away")) {
                             LolChatUserResource data = (LolChatUserResource) event.getData();
                             data.availability = "chat";
@@ -186,17 +203,26 @@ public class InGameButton {
                         }
                     }
                     if (event.getUri().equalsIgnoreCase("/lol-champ-select/v1/session")) {
-                        if (event.getEventType().equalsIgnoreCase("Delete")) gui.tryClose();
-                        else handleSession((LolChampSelectChampSelectSession) event.getData());
-                    } else if (Boolean.parseBoolean(SimplePreferences.getValue("autoAccept")) && event.getUri().equalsIgnoreCase("/lol-lobby/v2/lobby/matchmaking/search-state")) {
-                        if (((LolLobbyLobbyMatchmakingSearchResource) event.getData()).searchState == LolLobbyLobbyMatchmakingSearchState.FOUND) {
+                        if (event.getEventType().equalsIgnoreCase("Delete")) {
+                            gui.tryClose();
+                        }
+                        else {
+                            handleSession((LolChampSelectChampSelectSession) event.getData());
+                        }
+                    }
+                    else if (Boolean.parseBoolean(SimplePreferences.getValue("autoAccept")) &&
+                            event.getUri().equalsIgnoreCase("/lol-lobby/v2/lobby/matchmaking/search-state")) {
+                        if (((LolLobbyLobbyMatchmakingSearchResource) event.getData()).searchState ==
+                                LolLobbyLobbyMatchmakingSearchState.FOUND) {
                             try {
                                 api.executePost("/lol-matchmaking/v1/ready-check/accept");
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }
                         }
-                    } else if (event.getUri().equalsIgnoreCase("/riotclient/ux-state/request") && ((String) ((Map<String, Object>) event.getData()).get("state")).equalsIgnoreCase("Quit")) {
+                    }
+                    else if (event.getUri().equalsIgnoreCase("/riotclient/ux-state/request") &&
+                            ((String) ((Map<String, Object>) event.getData()).get("state")).equalsIgnoreCase("Quit")) {
                         socket.close();
                         JOptionPane.showMessageDialog(null, resourceBundle.getString("clientOff"), "RuneChanger", JOptionPane.INFORMATION_MESSAGE);
                         System.exit(0);
@@ -215,7 +241,9 @@ public class InGameButton {
                 }
             });
             Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-                if (socket != null) socket.close();
+                if (socket != null) {
+                    socket.close();
+                }
             }));
         } catch (Exception e) {
             e.printStackTrace();
@@ -228,7 +256,8 @@ public class InGameButton {
      * @param message message
      */
     public static void d(Object message) {
-        System.out.println("[" + SimpleDateFormat.getTimeInstance().format(new Date()) + "] " + (message != null ? message.toString() : "null"));
+        System.out.println("[" + SimpleDateFormat.getTimeInstance().format(new Date()) + "] " +
+                (message != null ? message.toString() : "null"));
     }
 
     public static ClientApi getApi() {
@@ -238,9 +267,12 @@ public class InGameButton {
     public static void sendMessageToChampSelect(String msg) {
         new Thread(() -> {
             try {
-                LolChampSelectChampSelectSession session = InGameButton.getApi().executeGet("/lol-champ-select/v1/session", LolChampSelectChampSelectSession.class);
+                LolChampSelectChampSelectSession session = InGameButton.getApi()
+                        .executeGet("/lol-champ-select/v1/session", LolChampSelectChampSelectSession.class);
                 String name = session.chatDetails.chatRoomName;
-                if (name == null) return;
+                if (name == null) {
+                    return;
+                }
                 name = name.substring(0, name.indexOf('@'));
                 LolChatConversationMessageResource message = new LolChatConversationMessageResource();
                 message.body = msg;

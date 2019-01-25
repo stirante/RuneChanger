@@ -15,14 +15,6 @@ public enum Style {
         this.name = name;
     }
 
-    public int getId() {
-        return id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
     /**
      * Gets style by name
      *
@@ -31,7 +23,9 @@ public enum Style {
      */
     public static Style getByName(String name) {
         for (Style style : values()) {
-            if (style.name.equalsIgnoreCase(name)) return style;
+            if (style.name.equalsIgnoreCase(name)) {
+                return style;
+            }
         }
         return null;
     }
@@ -44,8 +38,18 @@ public enum Style {
      */
     public static Style getById(int id) {
         for (Style style : values()) {
-            if (style.id == id) return style;
+            if (style.id == id) {
+                return style;
+            }
         }
         return null;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
     }
 }

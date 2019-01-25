@@ -18,11 +18,13 @@ public class SimplePreferences {
                 values.put(key, value);
             }
         } catch (IOException e) {
-            if (!(e instanceof FileNotFoundException))
+            if (!(e instanceof FileNotFoundException)) {
                 e.printStackTrace();
+            }
         }
-        if (values == null)
+        if (values == null) {
             values = new HashMap<>();
+        }
     }
 
     public static String getValue(String key) {

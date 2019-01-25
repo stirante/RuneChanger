@@ -12,7 +12,9 @@ public class LangHelper {
      * @return default resource bundle
      */
     public static ResourceBundle getLang() {
-        if (resourceBundle == null) resourceBundle = ResourceBundle.getBundle("lang.messages");
+        if (resourceBundle == null) {
+            resourceBundle = ResourceBundle.getBundle("lang.messages");
+        }
         return resourceBundle;
     }
 

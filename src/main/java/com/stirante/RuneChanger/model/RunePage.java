@@ -8,8 +8,8 @@ public class RunePage {
     private String name;
     private Style mainStyle;
     private Style subStyle;
-    private List<Rune> runes = new ArrayList<>();
-    private List<Modifier> modifiers = new ArrayList<>();
+    private final List<Rune> runes = new ArrayList<>();
+    private final List<Modifier> modifiers = new ArrayList<>();
 
     /**
      * Verifies rune page
@@ -17,16 +17,21 @@ public class RunePage {
      * @return is rune page valid
      */
     public boolean verify() {
-        if (getRunes().size() != 6) return false;
+        if (getRunes().size() != 6) {
+            return false;
+        }
         for (Rune rune : runes) {
-            if (rune == null) return false;
+            if (rune == null) {
+                return false;
+            }
         }
         for (int i = 0; i < getRunes().size(); i++) {
             Rune rune = getRunes().get(i);
             if (i < 4 && rune.getStyle() != getMainStyle()) {
                 System.out.println("Primary path contains runes from another style");
                 return false;
-            } else if (i >= 4 && rune.getStyle() != getSubStyle()) {
+            }
+            else if (i >= 4 && rune.getStyle() != getSubStyle()) {
                 System.out.println("Secondary path contains runes from another style");
                 return false;
             }

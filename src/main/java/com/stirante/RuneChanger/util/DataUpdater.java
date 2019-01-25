@@ -215,13 +215,29 @@ public class DataUpdater {
         values.sort(Comparator.comparing(o -> o.name));
         for (int i = 0; i < values.size(); i++) {
             Champion champion = values.get(i);
-            sb.append("    ").append(champion.id.toUpperCase()).append("(").append(champion.key).append(", \"").append(champion.id).append("\", \"").append(champion.name).append("\", \"").append(champion.name.replaceAll(" ", "")).append("\")");
-            if (i == values.size() - 1) sb.append(";\n");
-            else sb.append(",\n");
+            sb.append("    ")
+                    .append(champion.id.toUpperCase())
+                    .append("(")
+                    .append(champion.key)
+                    .append(", \"")
+                    .append(champion.id)
+                    .append("\", \"")
+                    .append(champion.name)
+                    .append("\", \"")
+                    .append(champion.name.replaceAll(" ", ""))
+                    .append("\")");
+            if (i == values.size() - 1) {
+                sb.append(";\n");
+            }
+            else {
+                sb.append(",\n");
+            }
         }
         try {
             FileWriter writer = new FileWriter(new File("src/main/java/com/stirante/RuneChanger/model/Champion.java"));
-            writer.write(CHAMPION_ENUM_PREFIX + "    //Generated on " + SimpleDateFormat.getDateTimeInstance().format(new Date()) + "\n" + sb.toString() + CHAMPION_ENUM_POSTFIX);
+            writer.write(CHAMPION_ENUM_PREFIX + "    //Generated on " +
+                    SimpleDateFormat.getDateTimeInstance().format(new Date()) + "\n" + sb.toString() +
+                    CHAMPION_ENUM_POSTFIX);
             writer.flush();
             writer.close();
         } catch (IOException e) {
@@ -230,7 +246,8 @@ public class DataUpdater {
     }
 
     private static void generateRunes(Gson gson, String patch) throws IOException {
-        InputStream in = getEndpoint("http://ddragon.leagueoflegends.com/cdn/" + patch + "/data/en_US/runesReforged.json");
+        InputStream in =
+                getEndpoint("http://ddragon.leagueoflegends.com/cdn/" + patch + "/data/en_US/runesReforged.json");
         StringBuilder sb = new StringBuilder();
         ReforgedRunePathDto[] runes = gson.fromJson(new InputStreamReader(in), ReforgedRunePathDto[].class);
         in.close();
@@ -249,13 +266,29 @@ public class DataUpdater {
         runes1.sort(Comparator.comparingInt(o -> o.id));
         for (int i = 0; i < runes1.size(); i++) {
             ReforgedRuneDto rune = runes1.get(i);
-            sb.append("    RUNE_").append(rune.id).append("(").append(rune.id).append(", ").append(rune.runePathId).append(", ").append(rune.slot).append(", \"").append(rune.name).append("\")");
-            if (i == runes1.size() - 1) sb.append(";\n");
-            else sb.append(",\n");
+            sb.append("    RUNE_")
+                    .append(rune.id)
+                    .append("(")
+                    .append(rune.id)
+                    .append(", ")
+                    .append(rune.runePathId)
+                    .append(", ")
+                    .append(rune.slot)
+                    .append(", \"")
+                    .append(rune.name)
+                    .append("\")");
+            if (i == runes1.size() - 1) {
+                sb.append(";\n");
+            }
+            else {
+                sb.append(",\n");
+            }
         }
         try {
             FileWriter writer = new FileWriter(new File("src/main/java/com/stirante/RuneChanger/model/Rune.java"));
-            writer.write(RUNE_ENUM_PREFIX + "    //Generated on " + SimpleDateFormat.getDateTimeInstance().format(new Date()) + "\n" + sb.toString() + RUNE_ENUM_POSTFIX);
+            writer.write(RUNE_ENUM_PREFIX + "    //Generated on " +
+                    SimpleDateFormat.getDateTimeInstance().format(new Date()) + "\n" + sb.toString() +
+                    RUNE_ENUM_POSTFIX);
             writer.flush();
             writer.close();
         } catch (IOException e) {
@@ -269,10 +302,14 @@ public class DataUpdater {
         for (Rune rune : Rune.values()) {
             if (rune.getSlot() == 0) {
                 String internalName = rune.getName().toLowerCase().replaceAll(" ", "");
-                if (replacements.containsKey(rune)) internalName = replacements.get(rune);
+                if (replacements.containsKey(rune)) {
+                    internalName = replacements.get(rune);
+                }
                 try {
-                    String url = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/";
-                    URL input = new URL(url + rune.getStyle().getName().toLowerCase() + "/" + internalName + "/" + internalName + (rune == Rune.RUNE_8008 ? "temp" : "") + ".png");
+                    String url =
+                            "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/";
+                    URL input = new URL(url + rune.getStyle().getName().toLowerCase() + "/" + internalName + "/" +
+                            internalName + (rune == Rune.RUNE_8008 ? "temp" : "") + ".png");
                     HttpURLConnection conn = (HttpURLConnection) input.openConnection();
                     conn.addRequestProperty("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36");
                     BufferedImage read = ImageIO.read(conn.getInputStream());
@@ -302,11 +339,11 @@ public class DataUpdater {
     }
 
     public static class ReforgedRunePathDto {
-        List<ReforgedRuneSlotDto> slots;
         public String icon;
         public int id;
         public String key;
         public String name;
+        List<ReforgedRuneSlotDto> slots;
     }
 
     public class Champion {

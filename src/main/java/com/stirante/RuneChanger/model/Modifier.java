@@ -23,7 +23,24 @@ public enum Modifier {
     }
 
     /**
+     * Get modifier by name
+     *
+     * @param name modifier
+     * @return modifier
+     */
+    public static Modifier getByName(String name) {
+        for (Modifier mod : values()) {
+            if (name.startsWith(mod.onlineName)) {
+                return mod;
+            }
+        }
+        System.out.println(name + " not found");
+        return null;
+    }
+
+    /**
      * Get modifier id
+     *
      * @return modifier id
      */
     public int getId() {
@@ -32,6 +49,7 @@ public enum Modifier {
 
     /**
      * Get modifier type name
+     *
      * @return modifier type
      */
     public String getType() {
@@ -40,24 +58,11 @@ public enum Modifier {
 
     /**
      * Get modifier name, used to parse online pages
+     *
      * @return modifier online name
      */
     public String getOnlineName() {
         return onlineName;
-    }
-
-    /**
-     * Get modifier by name
-     *
-     * @param name modifier
-     * @return modifier
-     */
-    public static Modifier getByName(String name) {
-        for (Modifier mod : values()) {
-            if (name.startsWith(mod.onlineName)) return mod;
-        }
-        System.out.println(name + " not found");
-        return null;
     }
 
     @Override

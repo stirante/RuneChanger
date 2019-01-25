@@ -1,10 +1,7 @@
 package com.stirante.RuneChanger.gui;
 
 import com.stirante.RuneChanger.InGameButton;
-import com.stirante.RuneChanger.model.Champion;
 import com.stirante.RuneChanger.util.SimplePreferences;
-import generated.LolLobbyLobbyBotDifficulty;
-import generated.LolLobbyLobbyBotParams;
 import generated.LolLootPlayerLoot;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -17,7 +14,6 @@ import javafx.stage.Stage;
 import netscape.javascript.JSObject;
 
 import java.io.IOException;
-import java.util.Arrays;
 
 public class Settings extends Application {
 
@@ -34,11 +30,19 @@ public class Settings extends Application {
 
     public static void toggle() {
         Platform.runLater(() -> {
-            if (stage.isShowing())
+            if (stage.isShowing()) {
                 stage.hide();
-            else
+            }
+            else {
                 stage.show();
+            }
         });
+    }
+
+    public static void main(String[] args) {
+        SimplePreferences.load();
+        initialize();
+        show();
     }
 
     @Override
@@ -81,9 +85,13 @@ public class Settings extends Application {
     public void craftKeys() {
         new Thread(() -> {
             try {
-                LolLootPlayerLoot keyFragments = InGameButton.getApi().executeGet("/lol-loot/v1/player-loot/MATERIAL_key_fragment", LolLootPlayerLoot.class);
-                if (keyFragments.count >= 3)
-                    InGameButton.getApi().executePost("/lol-loot/v1/recipes/MATERIAL_key_fragment_forge/craft?repeat=" + keyFragments.count / 3, new String[]{"MATERIAL_key_fragment"});
+                LolLootPlayerLoot keyFragments = InGameButton.getApi()
+                        .executeGet("/lol-loot/v1/player-loot/MATERIAL_key_fragment", LolLootPlayerLoot.class);
+                if (keyFragments.count >= 3) {
+                    InGameButton.getApi()
+                            .executePost("/lol-loot/v1/recipes/MATERIAL_key_fragment_forge/craft?repeat=" +
+                                    keyFragments.count / 3, new String[]{"MATERIAL_key_fragment"});
+                }
                 Platform.runLater(() -> engine.executeScript("craftKeysDone()"));
             } catch (IOException e) {
                 e.printStackTrace();
@@ -95,11 +103,13 @@ public class Settings extends Application {
     public void disenchantChampions() {
         new Thread(() -> {
             try {
-                LolLootPlayerLoot[] loot = InGameButton.getApi().executeGet("/lol-loot/v1/player-loot", LolLootPlayerLoot[].class);
+                LolLootPlayerLoot[] loot =
+                        InGameButton.getApi().executeGet("/lol-loot/v1/player-loot", LolLootPlayerLoot[].class);
                 for (LolLootPlayerLoot item : loot) {
                     if (item.lootId.startsWith("CHAMPION_RENTAL_")) {
                         for (int i = 0; i < item.count; i++) {
-                            InGameButton.getApi().executePost("/lol-loot/v1/recipes/CHAMPION_RENTAL_disenchant/craft", new String[]{item.lootId});
+                            InGameButton.getApi()
+                                    .executePost("/lol-loot/v1/recipes/CHAMPION_RENTAL_disenchant/craft", new String[]{item.lootId});
                         }
                     }
                 }
@@ -109,12 +119,6 @@ public class Settings extends Application {
                 Platform.runLater(() -> engine.executeScript("disenchantChampionsDone()"));
             }
         }).start();
-    }
-
-    public static void main(String[] args) {
-        SimplePreferences.load();
-        initialize();
-        show();
     }
 
 }

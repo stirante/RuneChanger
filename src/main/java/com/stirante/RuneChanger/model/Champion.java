@@ -1,7 +1,7 @@
 package com.stirante.RuneChanger.model;
 
 public enum Champion {
-    //Generated on 2018-12-09 10:06:19
+    //Generated on 2019-01-25 21:17:40
     AATROX(266, "Aatrox", "Aatrox", "Aatrox"),
     AHRI(103, "Ahri", "Ahri", "Ahri"),
     AKALI(84, "Akali", "Akali", "Akali"),
@@ -109,6 +109,7 @@ public enum Champion {
     SONA(37, "Sona", "Sona", "Sona"),
     SORAKA(16, "Soraka", "Soraka", "Soraka"),
     SWAIN(50, "Swain", "Swain", "Swain"),
+    SYLAS(517, "Sylas", "Sylas", "Sylas"),
     SYNDRA(134, "Syndra", "Syndra", "Syndra"),
     TAHMKENCH(223, "TahmKench", "Tahm Kench", "TahmKench"),
     TALIYAH(163, "Taliyah", "Taliyah", "Taliyah"),

@@ -25,24 +25,14 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class GuiHandler {
     private JWindow win;
     private RuneButton canvas;
-    private AtomicBoolean running = new AtomicBoolean(true);
-    private AtomicBoolean windowOpen = new AtomicBoolean(false);
-    private AtomicBoolean openCommand = new AtomicBoolean(false);
-    private AtomicBoolean closeCommand = new AtomicBoolean(false);
-    private List<RunePage> runes = Collections.synchronizedList(new ArrayList<>());
+    private final AtomicBoolean running = new AtomicBoolean(true);
+    private final AtomicBoolean windowOpen = new AtomicBoolean(false);
+    private final AtomicBoolean openCommand = new AtomicBoolean(false);
+    private final AtomicBoolean closeCommand = new AtomicBoolean(false);
+    private final List<RunePage> runes = Collections.synchronizedList(new ArrayList<>());
     private WinDef.HWND hwnd;
     private RuneSelectedListener runeSelectedListener;
-    private ResourceBundle resourceBundle = LangHelper.getLang();
-
-    /**
-     * Extended User32 library with GetForegroundWindow method
-     */
-    public interface User32Extended extends User32 {
-        User32Extended INSTANCE = Native.loadLibrary("user32", User32Extended.class);
-
-        HWND GetForegroundWindow();
-
-    }
+    private final ResourceBundle resourceBundle = LangHelper.getLang();
 
     public GuiHandler() {
         handleWindowThread();
@@ -77,7 +67,9 @@ public class GuiHandler {
         runes.clear();
         runes.addAll(runeList);
         runeSelectedListener = onClickListener;
-        if (canvas != null) canvas.setRuneData(runes, onClickListener);
+        if (canvas != null) {
+            canvas.setRuneData(runes, onClickListener);
+        }
     }
 
     /**
@@ -86,7 +78,9 @@ public class GuiHandler {
      * @param rect client window bounds
      */
     private void showWindow(Rectangle rect) {
-        if (win != null) win.dispose();
+        if (win != null) {
+            win.dispose();
+        }
         win = new JWindow();
         canvas = new RuneButton();
         canvas.setRuneData(runes, runeSelectedListener);
@@ -156,7 +150,8 @@ public class GuiHandler {
             //Create icon in system tray and right click menu
             SystemTray systemTray = SystemTray.getSystemTray();
             //this actually don't work
-            Image image = ImageIO.read(GuiHandler.class.getResourceAsStream("/images/runechanger-runeforge-icon-32x32.png"));
+            Image image =
+                    ImageIO.read(GuiHandler.class.getResourceAsStream("/images/runechanger-runeforge-icon-32x32.png"));
             PopupMenu trayPopupMenu = new PopupMenu();
             MenuItem action = new MenuItem("RuneChanger v" + Constants.VERSION_STRING);
             action.setEnabled(false);
@@ -221,8 +216,10 @@ public class GuiHandler {
                     if (win != null) {
                         try {
                             //apparently if left is -32000 then window is minimized
-                            if (rect.left != -32000 && top != null && hwnd != null && top.getPointer().equals(hwnd.getPointer()))
+                            if (rect.left != -32000 && top != null && hwnd != null &&
+                                    top.getPointer().equals(hwnd.getPointer())) {
                                 win.setVisible(true);
+                            }
                             else {
                                 char[] windowText = new char[512];
                                 User32.INSTANCE.GetWindowText(top, windowText, 512);
@@ -230,10 +227,15 @@ public class GuiHandler {
                                 if (wText.equalsIgnoreCase("League of Legends")) {
                                     win.setVisible(true);
                                     hwnd = top;
-                                } else win.setVisible(false);
+                                }
+                                else {
+                                    win.setVisible(false);
+                                }
                             }
                             Rectangle rect1 = rect.toRectangle();
-                            if (rect1 != null) trackPosition(rect1);
+                            if (rect1 != null) {
+                                trackPosition(rect1);
+                            }
                         } catch (Throwable t) {
                             //sometimes 'win' becomes null async, so this code throws NullPointerException
                             t.printStackTrace();
@@ -284,5 +286,15 @@ public class GuiHandler {
      */
     public void openWindow() {
         openCommand.set(true);
+    }
+
+    /**
+     * Extended User32 library with GetForegroundWindow method
+     */
+    public interface User32Extended extends User32 {
+        User32Extended INSTANCE = Native.loadLibrary("user32", User32Extended.class);
+
+        HWND GetForegroundWindow();
+
     }
 }

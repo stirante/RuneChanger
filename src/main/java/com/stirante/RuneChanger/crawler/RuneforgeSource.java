@@ -22,7 +22,7 @@ public class RuneforgeSource implements RuneSource {
     private static final int TIMEOUT = 10000;
 
     private static Loadout[] cache = null;
-    private static HashMap<Champion, List<RunePage>> pagesCache = new HashMap<>();
+    private static final HashMap<Champion, List<RunePage>> pagesCache = new HashMap<>();
 
     public RuneforgeSource() {
         try {
@@ -32,6 +32,23 @@ public class RuneforgeSource implements RuneSource {
             conn.getInputStream().close();
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    /**
+     * Verifies all runes from runeforge.gg
+     *
+     * @param args program arguments
+     */
+    public static void main(String[] args) {
+        RuneforgeSource src = new RuneforgeSource();
+        for (Champion champion : Champion.values()) {
+            List<RunePage> runes = src.getForChampion(champion);
+            for (RunePage rune : runes) {
+                if (!rune.verify()) {
+                    System.out.println(rune.getUrl());
+                }
+            }
         }
     }
 
@@ -90,7 +107,9 @@ public class RuneforgeSource implements RuneSource {
      * @return list of rune pages
      */
     public List<RunePage> getForChampion(Champion champion) {
-        if (pagesCache.containsKey(champion)) return pagesCache.get(champion);
+        if (pagesCache.containsKey(champion)) {
+            return pagesCache.get(champion);
+        }
         ArrayList<RunePage> result = new ArrayList<>();
         try {
             if (cache == null || cache.length == 0) {
@@ -100,29 +119,16 @@ public class RuneforgeSource implements RuneSource {
                 conn.getInputStream().close();
             }
             for (Loadout loadout : cache) {
-                if (loadout.loadout_champion_name.equalsIgnoreCase(champion.getName()) || loadout.loadout_champion_name.equalsIgnoreCase(champion.getAlias()))
+                if (loadout.loadout_champion_name.equalsIgnoreCase(champion.getName()) ||
+                        loadout.loadout_champion_name.equalsIgnoreCase(champion.getAlias())) {
                     result.add(getRunes(loadout.loadout_url));
+                }
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
         pagesCache.put(champion, result);
         return result;
-    }
-
-    /**
-     * Verifies all runes from runeforge.gg
-     *
-     * @param args program arguments
-     */
-    public static void main(String[] args) {
-        RuneforgeSource src = new RuneforgeSource();
-        for (Champion champion : Champion.values()) {
-            List<RunePage> runes = src.getForChampion(champion);
-            for (RunePage rune : runes) {
-                if (!rune.verify()) System.out.println(rune.getUrl());
-            }
-        }
     }
 
     private static class Loadout {

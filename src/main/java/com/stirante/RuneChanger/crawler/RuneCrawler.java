@@ -8,7 +8,7 @@ import java.util.List;
 
 public class RuneCrawler {
 
-    private static List<RuneSource> sources = new ArrayList<>();
+    private static final List<RuneSource> sources = new ArrayList<>();
 
     static {
         sources.add(new RuneforgeSource());
@@ -16,6 +16,7 @@ public class RuneCrawler {
 
     /**
      * Get list of rune pages for champion
+     *
      * @param champion champion
      * @return list of rune pages
      */
