@@ -41,12 +41,18 @@ public class RuneforgeSource implements RuneSource {
      * @param args program arguments
      */
     public static void main(String[] args) {
+        try {
+            Champion.init();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         RuneforgeSource src = new RuneforgeSource();
         for (Champion champion : Champion.values()) {
+            System.out.println(champion.getName() + ":");
             List<RunePage> runes = src.getForChampion(champion);
             for (RunePage rune : runes) {
                 if (!rune.verify()) {
-                    System.out.println(rune.getUrl());
+                    System.out.println("\t\tBAD: " + rune.getUrl());
                 }
             }
         }

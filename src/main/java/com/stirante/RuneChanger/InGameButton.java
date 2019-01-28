@@ -157,6 +157,14 @@ public class InGameButton {
         Elevate.elevate(args);
         SimplePreferences.load();
         try {
+            Champion.init();
+        } catch (IOException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(null, resourceBundle.getString("initDataError"), "RuneChanger",
+                    JOptionPane.WARNING_MESSAGE);
+            System.exit(0);
+        }
+        try {
             api = new ClientApi();
         } catch (IllegalStateException e) {
             e.printStackTrace();
@@ -171,7 +179,7 @@ public class InGameButton {
                 LolChampSelectChampSelectSession session = new LolChampSelectChampSelectSession();
                 session.myTeam = new ArrayList<>();
                 LolChampSelectChampSelectPlayerSelection e = new LolChampSelectChampSelectPlayerSelection();
-                e.championId = Champion.DARIUS.getId();
+                e.championId = Objects.requireNonNull(Champion.getByName("darius")).getId();
                 e.summonerId = currentSummoner.summonerId;
                 session.myTeam.add(e);
                 handleSession(session);

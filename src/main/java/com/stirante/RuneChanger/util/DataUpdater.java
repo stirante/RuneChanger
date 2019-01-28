@@ -195,7 +195,7 @@ public class DataUpdater {
     public static void main(String[] args) throws IOException {
         Gson gson = new GsonBuilder().create();
         String patch = getLatestPatch(gson);
-        generateChampions(gson, patch);
+//        generateChampions(gson, patch);
         generateRunes(gson, patch);
         downloadImages();
     }
@@ -206,44 +206,44 @@ public class DataUpdater {
         return strings[0];
     }
 
-    private static void generateChampions(Gson gson, String patch) throws IOException {
-        InputStream in = getEndpoint("http://ddragon.leagueoflegends.com/cdn/" + patch + "/data/en_US/champion.json");
-        StringBuilder sb = new StringBuilder();
-        ChampionList champions = gson.fromJson(new InputStreamReader(in), ChampionList.class);
-        in.close();
-        List<Champion> values = new ArrayList<>(champions.data.values());
-        values.sort(Comparator.comparing(o -> o.name));
-        for (int i = 0; i < values.size(); i++) {
-            Champion champion = values.get(i);
-            sb.append("    ")
-                    .append(champion.id.toUpperCase())
-                    .append("(")
-                    .append(champion.key)
-                    .append(", \"")
-                    .append(champion.id)
-                    .append("\", \"")
-                    .append(champion.name)
-                    .append("\", \"")
-                    .append(champion.name.replaceAll(" ", ""))
-                    .append("\")");
-            if (i == values.size() - 1) {
-                sb.append(";\n");
-            }
-            else {
-                sb.append(",\n");
-            }
-        }
-        try {
-            FileWriter writer = new FileWriter(new File("src/main/java/com/stirante/RuneChanger/model/Champion.java"));
-            writer.write(CHAMPION_ENUM_PREFIX + "    //Generated on " +
-                    SimpleDateFormat.getDateTimeInstance().format(new Date()) + "\n" + sb.toString() +
-                    CHAMPION_ENUM_POSTFIX);
-            writer.flush();
-            writer.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
+//    private static void generateChampions(Gson gson, String patch) throws IOException {
+//        InputStream in = getEndpoint("http://ddragon.leagueoflegends.com/cdn/" + patch + "/data/en_US/champion.json");
+//        StringBuilder sb = new StringBuilder();
+//        ChampionList champions = gson.fromJson(new InputStreamReader(in), ChampionList.class);
+//        in.close();
+//        List<Champion> values = new ArrayList<>(champions.data.values());
+//        values.sort(Comparator.comparing(o -> o.name));
+//        for (int i = 0; i < values.size(); i++) {
+//            Champion champion = values.get(i);
+//            sb.append("    ")
+//                    .append(champion.id.toUpperCase())
+//                    .append("(")
+//                    .append(champion.key)
+//                    .append(", \"")
+//                    .append(champion.id)
+//                    .append("\", \"")
+//                    .append(champion.name)
+//                    .append("\", \"")
+//                    .append(champion.name.replaceAll(" ", ""))
+//                    .append("\")");
+//            if (i == values.size() - 1) {
+//                sb.append(";\n");
+//            }
+//            else {
+//                sb.append(",\n");
+//            }
+//        }
+//        try {
+//            FileWriter writer = new FileWriter(new File("src/main/java/com/stirante/RuneChanger/model/Champion.java"));
+//            writer.write(CHAMPION_ENUM_PREFIX + "    //Generated on " +
+//                    SimpleDateFormat.getDateTimeInstance().format(new Date()) + "\n" + sb.toString() +
+//                    CHAMPION_ENUM_POSTFIX);
+//            writer.flush();
+//            writer.close();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//    }
 
     private static void generateRunes(Gson gson, String patch) throws IOException {
         InputStream in =
@@ -344,67 +344,6 @@ public class DataUpdater {
         public String key;
         public String name;
         List<ReforgedRuneSlotDto> slots;
-    }
-
-    public class Champion {
-        public String version;
-        public String id;
-        public String key;
-        public String name;
-        public String title;
-        public String blurb;
-        public Info info;
-        public Image image;
-        public List<String> tags = null;
-        public String partype;
-        public Stats stats;
-    }
-
-    public class ChampionList {
-        public String type;
-        public String format;
-        public String version;
-        public HashMap<String, Champion> data;
-    }
-
-    public class Image {
-        public String full;
-        public String sprite;
-        public String group;
-        public Integer x;
-        public Integer y;
-        public Integer w;
-        public Integer h;
-    }
-
-    public class Info {
-        public Double attack;
-        public Double defense;
-        public Double magic;
-        public Double difficulty;
-    }
-
-    public class Stats {
-        public Double hp;
-        public Double hpperlevel;
-        public Double mp;
-        public Double mpperlevel;
-        public Double movespeed;
-        public Double armor;
-        public Double armorperlevel;
-        public Double spellblock;
-        public Double spellblockperlevel;
-        public Double attackrange;
-        public Double hpregen;
-        public Double hpregenperlevel;
-        public Double mpregen;
-        public Double mpregenperlevel;
-        public Double crit;
-        public Double critperlevel;
-        public Double attackdamage;
-        public Double attackdamageperlevel;
-        public Double attackspeedperlevel;
-        public Double attackspeed;
     }
 
 }
