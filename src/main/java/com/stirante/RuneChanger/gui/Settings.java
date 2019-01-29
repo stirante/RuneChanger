@@ -6,17 +6,26 @@ import generated.LolLootPlayerLoot;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.concurrent.Worker;
+import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Rectangle2D;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.web.WebEngine;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import netscape.javascript.JSObject;
 
 import java.io.IOException;
 
 public class Settings extends Application {
 
+	public static Stage mainStage;
+	private double xOffset = 0;
+	private double yOffset = 0;
     private static Stage stage;
     private WebEngine engine;
 
@@ -25,49 +34,86 @@ public class Settings extends Application {
     }
 
     public static void show() {
-        Platform.runLater(() -> stage.show());
+		System.out.println("mainstage is showing: " + mainStage.isShowing());
+		if (!mainStage.isShowing())
+		{
+			Platform.runLater(() -> {
+				mainStage.show();
+			});
+		}
     }
 
     public static void toggle() {
         Platform.runLater(() -> {
-            if (stage.isShowing()) {
-                stage.hide();
+            if (mainStage.isShowing()) {
+				mainStage.hide();
             }
             else {
-                stage.show();
+				mainStage.show();
             }
         });
     }
 
     public static void main(String[] args) {
-        SimplePreferences.load();
-        initialize();
-        show();
+//        SimplePreferences.load();
+//        initialize();
+//        show();
+		launch(args);
     }
 
     @Override
     public void start(Stage stage) throws IOException {
-        Platform.setImplicitExit(false);
-        Settings.stage = stage;
-        FXMLLoader fxmlLoader = new FXMLLoader(Settings.class.getResource("/Settings.fxml"));
-        BorderPane node = fxmlLoader.load();
-        SettingsController controller = fxmlLoader.getController();
-        engine = controller.getWebview().getEngine();
-        engine.getLoadWorker().stateProperty().addListener((observableValue, oldState, newState) -> {
-            if (newState == Worker.State.SUCCEEDED) {
-                JSObject window = (JSObject) engine.executeScript("window");
-                window.setMember("app", this);
-                engine.executeScript("init()");
-            }
-        });
-        engine.load(Settings.class.getResource("/settings.html").toString());
-        Scene scene = new Scene(node, 1280, 720);
-        stage.setScene(scene);
-        stage.setTitle("RuneChanger Settings");
-        stage.setOnCloseRequest(event -> {
-            event.consume();
-            stage.hide();
-        });
+    	mainStage = stage;
+		Parent root = FXMLLoader.load(getClass().getResource("/Settings.fxml"));
+		stage.initStyle(StageStyle.TRANSPARENT);
+		root.setOnMousePressed(new EventHandler<MouseEvent>() {
+			@Override
+			public void handle(MouseEvent event) {
+				xOffset = event.getSceneX();
+				yOffset = event.getSceneY();
+			}
+		});
+		root.setOnMouseDragged(new EventHandler<MouseEvent>() {
+			@Override
+			public void handle(MouseEvent event) {
+				stage.setX(event.getScreenX() - xOffset);
+				stage.setY(event.getScreenY() - yOffset);
+			}
+		});
+		Rectangle2D primaryScreenBounds = Screen.getPrimary().getVisualBounds();
+
+		Scene scene = new Scene(root);
+		scene.setFill(javafx.scene.paint.Color.TRANSPARENT);
+		stage.setScene(scene);
+
+//set Stage boundaries to the lower right corner of the visible bounds of the main screen
+		stage.setX(primaryScreenBounds.getMinX() + primaryScreenBounds.getWidth() - 385); //framesize -15
+		stage.setY(primaryScreenBounds.getMinY() + primaryScreenBounds.getHeight() - 471); //framesize +5
+		stage.setWidth(370);
+		stage.setHeight(466);
+		Platform.setImplicitExit(false);
+		stage.show();
+//        Platform.setImplicitExit(false);
+//        Settings.stage = stage;
+//        FXMLLoader fxmlLoader = new FXMLLoader(Settings.class.getResource("/Settings.fxml"));
+//        BorderPane node = fxmlLoader.load();
+//        SettingsController controller = fxmlLoader.getController();
+//        engine = controller.getWebview().getEngine();
+//        engine.getLoadWorker().stateProperty().addListener((observableValue, oldState, newState) -> {
+//            if (newState == Worker.State.SUCCEEDED) {
+//                JSObject window = (JSObject) engine.executeScript("window");
+//                window.setMember("app", this);
+//                engine.executeScript("init()");
+//            }
+//        });
+//        engine.load(Settings.class.getResource("/settings.html").toString());
+//        Scene scene = new Scene(node, 1280, 720);
+//        stage.setScene(scene);
+//        stage.setTitle("RuneChanger Settings");
+//        stage.setOnCloseRequest(event -> {
+//            event.consume();
+//            stage.hide();
+//        });
     }
 
     public void log(String message) {
