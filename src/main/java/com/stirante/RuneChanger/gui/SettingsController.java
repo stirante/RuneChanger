@@ -5,6 +5,7 @@
 package com.stirante.RuneChanger.gui;
 
 import com.jfoenix.controls.JFXButton;
+import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXToggleButton;
 import static com.stirante.RuneChanger.gui.Settings.craftKeys;
 import static com.stirante.RuneChanger.gui.Settings.disenchantChampions;
@@ -29,7 +30,10 @@ public class SettingsController {
 	private AnchorPane topbar_pane, settings_pane, credits_pane, runebook_pane;
 
 	@FXML
-	private JFXToggleButton quickReplyBtn, autoChampBtn, autoQueueBtn, noAwayBtn;
+	private JFXToggleButton quickReplyBtn, autoQueueBtn, noAwayBtn;
+
+	@FXML
+	private JFXComboBox<?> autoChampCB;
 
 	@FXML
 	void handleMenuSelection(MouseEvent event) {
@@ -47,6 +51,12 @@ public class SettingsController {
 	void handleToggleButtonPressed(Event e) {
 		System.out.println("Toggle button pressed ");
 		handleToggleButtonSelection(e);
+	}
+
+	@FXML
+	void handleComboBoxPressed(Event e) {
+		System.out.println("Combo box pressed" + e.getTarget());
+		handleComboBox(e);
 	}
 
 	@FXML // This method is called by the FXMLLoader when initialization is complete
@@ -105,9 +115,9 @@ public class SettingsController {
 
 	private void handleToggleButtonSelection (Event e)
 	{
-		if (e.getTarget() == autoChampBtn)
+		if (e.getTarget() == autoChampCB)
 		{
-			SimplePreferences.putValue("autoChamp", String.valueOf(autoChampBtn.isSelected()));
+//			SimplePreferences.putValue("autoChamp", String.valueOf(autoChampCB-TODO));
 		}
 		else if (e.getTarget() == autoQueueBtn)
 		{
@@ -127,10 +137,9 @@ public class SettingsController {
 	private void loadPreferences ()
 	{
 		System.out.println("loading preferences..");
-		if (SimplePreferences.getValue("autoChamp").equals("true"))
+		if (!SimplePreferences.getValue("autoChamp").equals("None"))
 		{
-			System.out.println("autochamp setting to true");
-			autoChampBtn.setSelected(true);
+//			autoChampBtn.setSelected(TODO);
 		}
 		if (SimplePreferences.getValue("autoAccept").equals("true"))
 		{
@@ -144,6 +153,11 @@ public class SettingsController {
 		{
 			quickReplyBtn.setSelected(true);
 		}
+	}
+
+	private void handleComboBox(Event e)
+	{
+
 	}
 
 	public static void showWarning (String title, String header, String content)
