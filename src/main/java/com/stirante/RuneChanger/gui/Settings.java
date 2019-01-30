@@ -1,23 +1,21 @@
 package com.stirante.RuneChanger.gui;
 
 import com.stirante.RuneChanger.InGameButton;
+import static com.stirante.RuneChanger.gui.SettingsController.showWarning;
 import com.stirante.RuneChanger.util.SimplePreferences;
 import generated.LolLootPlayerLoot;
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.concurrent.Worker;
 import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.BorderPane;
 import javafx.scene.web.WebEngine;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-import netscape.javascript.JSObject;
 
 import java.io.IOException;
 
@@ -93,27 +91,6 @@ public class Settings extends Application {
 		stage.setHeight(466);
 		Platform.setImplicitExit(false);
 		stage.show();
-//        Platform.setImplicitExit(false);
-//        Settings.stage = stage;
-//        FXMLLoader fxmlLoader = new FXMLLoader(Settings.class.getResource("/Settings.fxml"));
-//        BorderPane node = fxmlLoader.load();
-//        SettingsController controller = fxmlLoader.getController();
-//        engine = controller.getWebview().getEngine();
-//        engine.getLoadWorker().stateProperty().addListener((observableValue, oldState, newState) -> {
-//            if (newState == Worker.State.SUCCEEDED) {
-//                JSObject window = (JSObject) engine.executeScript("window");
-//                window.setMember("app", this);
-//                engine.executeScript("init()");
-//            }
-//        });
-//        engine.load(Settings.class.getResource("/settings.html").toString());
-//        Scene scene = new Scene(node, 1280, 720);
-//        stage.setScene(scene);
-//        stage.setTitle("RuneChanger Settings");
-//        stage.setOnCloseRequest(event -> {
-//            event.consume();
-//            stage.hide();
-//        });
     }
 
     public void log(String message) {
@@ -128,7 +105,7 @@ public class Settings extends Application {
         return SimplePreferences.getValue(key);
     }
 
-    public void craftKeys() {
+    public static void craftKeys() {
         new Thread(() -> {
             try {
                 LolLootPlayerLoot keyFragments = InGameButton.getApi()
@@ -137,16 +114,18 @@ public class Settings extends Application {
                     InGameButton.getApi()
                             .executePost("/lol-loot/v1/recipes/MATERIAL_key_fragment_forge/craft?repeat=" +
                                     keyFragments.count / 3, new String[]{"MATERIAL_key_fragment"});
-                }
-                Platform.runLater(() -> engine.executeScript("craftKeysDone()"));
+                } else {
+					Platform.runLater(() -> {
+						showWarning("ERROR", "Not enough key fragments", "You do not have enough key fragments to perform this operation!");
+					});
+				}
             } catch (IOException e) {
                 e.printStackTrace();
-                Platform.runLater(() -> engine.executeScript("craftKeysDone()"));
             }
         }).start();
     }
 
-    public void disenchantChampions() {
+    public static void disenchantChampions() {
         new Thread(() -> {
             try {
                 LolLootPlayerLoot[] loot =
@@ -159,10 +138,8 @@ public class Settings extends Application {
                         }
                     }
                 }
-                Platform.runLater(() -> engine.executeScript("disenchantChampionsDone()"));
             } catch (IOException e) {
                 e.printStackTrace();
-                Platform.runLater(() -> engine.executeScript("disenchantChampionsDone()"));
             }
         }).start();
     }

@@ -4,13 +4,23 @@
 
 package com.stirante.RuneChanger.gui;
 
+import com.jfoenix.controls.JFXButton;
+import com.jfoenix.controls.JFXToggleButton;
+import static com.stirante.RuneChanger.gui.Settings.craftKeys;
+import static com.stirante.RuneChanger.gui.Settings.disenchantChampions;
 import static com.stirante.RuneChanger.gui.Settings.mainStage;
+import com.stirante.RuneChanger.util.SimplePreferences;
+import javafx.event.Event;
 import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 
 public class SettingsController {
+
+	@FXML
+	private JFXButton disenchantBtn, craftKeyBtn;
 
 	@FXML
 	private ImageView btn_settings, btn_exit, btn_credits, btn_runebook;
@@ -19,9 +29,24 @@ public class SettingsController {
 	private AnchorPane topbar_pane, settings_pane, credits_pane, runebook_pane;
 
 	@FXML
-	void handleButtonAction(MouseEvent event) {
-		System.out.println(event.getTarget());
-		handleMenuSelection(event);
+	private JFXToggleButton quickReplyBtn, autoChampBtn, autoQueueBtn, noAwayBtn;
+
+	@FXML
+	void handleMenuSelection(MouseEvent event) {
+		System.out.println("Menu item pressed" + event.getTarget());
+		handleMenuSelectionFnc(event);
+	}
+
+	@FXML
+	void handleSettingsButtonPressed(Event e) {
+		System.out.println("Settings button pressed " + e);
+		handleSettingsButtonSelection(e);
+	}
+
+	@FXML
+	void handleToggleButtonPressed(Event e) {
+		System.out.println("Toggle button pressed ");
+		handleToggleButtonSelection(e);
 	}
 
 	@FXML // This method is called by the FXMLLoader when initialization is complete
@@ -33,10 +58,11 @@ public class SettingsController {
 		assert btn_exit != null : "fx:id=\"btn_exit\" was not injected: check your FXML file 'Settings.fxml'.";
 		assert settings_pane != null : "fx:id=\"settings_pane\" was not injected: check your FXML file 'Settings.fxml'.";
 		assert credits_pane != null : "fx:id=\"credits_pane\" was not injected: check your FXML file 'Settings.fxml'.";
-
+		SimplePreferences.load();
+		loadPreferences();
 	}
 
-	private void handleMenuSelection(MouseEvent event)
+	private void handleMenuSelectionFnc(MouseEvent event)
 	{
 		if(event.getTarget() == btn_settings){
 			settings_pane.setVisible(true);
@@ -63,5 +89,69 @@ public class SettingsController {
 			credits_pane.setVisible(false);
 			mainStage.hide();
 		}
+	}
+
+	private void handleSettingsButtonSelection(Event e)
+	{
+		if (e.getTarget() == craftKeyBtn)
+		{
+			craftKeys();
+		}
+		else if (e.getTarget() == disenchantBtn)
+		{
+			disenchantChampions();
+		}
+	}
+
+	private void handleToggleButtonSelection (Event e)
+	{
+		if (e.getTarget() == autoChampBtn)
+		{
+			SimplePreferences.putValue("autoChamp", String.valueOf(autoChampBtn.isSelected()));
+		}
+		else if (e.getTarget() == autoQueueBtn)
+		{
+			SimplePreferences.putValue("autoAccept", String.valueOf(autoQueueBtn.isSelected()));
+		}
+		else if (e.getTarget() == noAwayBtn)
+		{
+			SimplePreferences.putValue("antiAway", String.valueOf(noAwayBtn.isSelected()));
+		}
+		else if (e.getTarget() == quickReplyBtn)
+		{
+			SimplePreferences.putValue("quickReplies", String.valueOf(quickReplyBtn.isSelected()));
+		}
+		SimplePreferences.save();
+	}
+
+	private void loadPreferences ()
+	{
+		System.out.println("loading preferences..");
+		if (SimplePreferences.getValue("autoChamp").equals("true"))
+		{
+			System.out.println("autochamp setting to true");
+			autoChampBtn.setSelected(true);
+		}
+		if (SimplePreferences.getValue("autoAccept").equals("true"))
+		{
+			autoQueueBtn.setSelected(true);
+		}
+		if (SimplePreferences.getValue("antiAway").equals("true"))
+		{
+			noAwayBtn.setSelected(true);
+		}
+		if (SimplePreferences.getValue("quickReplies").equals("true"))
+		{
+			quickReplyBtn.setSelected(true);
+		}
+	}
+
+	public static void showWarning (String title, String header, String content)
+	{
+		Alert alert = new Alert(Alert.AlertType.ERROR);
+		alert.setTitle(title);
+		alert.setHeaderText(header);
+		alert.setContentText(content);
+		alert.showAndWait();
 	}
 }
