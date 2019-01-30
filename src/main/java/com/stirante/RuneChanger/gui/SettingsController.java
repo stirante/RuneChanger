@@ -4,9 +4,7 @@
 
 package com.stirante.RuneChanger.gui;
 
-import static com.stirante.RuneChanger.gui.Settings.main;
 import static com.stirante.RuneChanger.gui.Settings.mainStage;
-import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
@@ -18,7 +16,7 @@ public class SettingsController {
 	private ImageView btn_settings, btn_exit, btn_credits, btn_runebook;
 
 	@FXML
-	private AnchorPane topbar_pane, settings_pane, credits_pane;
+	private AnchorPane topbar_pane, settings_pane, credits_pane, runebook_pane;
 
 	@FXML
 	void handleButtonAction(MouseEvent event) {
@@ -42,22 +40,28 @@ public class SettingsController {
 	{
 		if(event.getTarget() == btn_settings){
 			settings_pane.setVisible(true);
+			runebook_pane.setVisible(false);
 			credits_pane.setVisible(false);
 
 		}
-		else
-		if(event.getTarget() == btn_credits)
+		else if(event.getTarget() == btn_credits)
 		{
 			settings_pane.setVisible(false);
+			runebook_pane.setVisible(false);
 			credits_pane.setVisible(true);
 		}
-		else
-		if(event.getTarget() == btn_exit)
+		else if (event.getTarget() == btn_runebook)
+		{
+			runebook_pane.setVisible(true);
+			credits_pane.setVisible(false);
+			settings_pane.setVisible(false);
+		}
+		else if(event.getTarget() == btn_exit)
 		{
 			settings_pane.setVisible(false);
+			runebook_pane.setVisible(false);
 			credits_pane.setVisible(false);
 			mainStage.hide();
-//			System.exit(0);
 		}
 	}
 }
