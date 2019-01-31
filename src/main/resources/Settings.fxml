@@ -29,9 +29,9 @@
 	<children>
 		<AnchorPane fx:id="topbar_pane" prefHeight="73.0" prefWidth="380.0" style="-fx-background-color: #3D4956;">
 			<children>
-            <ImageView fitHeight="75.0" fitWidth="380.0" layoutX="-3.0">
+            <ImageView fitHeight="75.0" fitWidth="395.0" layoutX="-14.0">
                <image>
-                  <Image url="@images/blueBackground.png" />
+                  <Image url="@images/topbar.png" />
                </image>
             </ImageView>
 				<ImageView fx:id="btn_settings" layoutX="49.0" layoutY="21.0" onMousePressed="#handleMenuSelection" pickOnBounds="true" preserveRatio="true">
@@ -56,8 +56,13 @@
 				</ImageView>
 			</children>
 		</AnchorPane>
-		<AnchorPane fx:id="settings_pane" layoutY="86.0" prefHeight="381.0" prefWidth="380.0" style="-fx-background-color: #3D4956;">
+		<AnchorPane fx:id="settings_pane" layoutY="86.0" prefHeight="381.0" prefWidth="380.0" style="-fx-background-color: #3D4956;" visible="false">
 			<children>
+            <ImageView fitHeight="385.0" fitWidth="388.0" layoutX="-7.0">
+               <image>
+                  <Image url="@images/blueBackground.png" />
+               </image>
+            </ImageView>
 				<Label layoutX="33.0" layoutY="32.0" text="AutoChamp" textFill="WHITE">
 					<font>
 						<Font name="System Bold" size="12.0" />
@@ -106,7 +111,7 @@
             </Label>
             <Label layoutX="34.0" layoutY="197.0" text="Quick-Replies" textFill="WHITE">
                <font>
-                  <Font name="System Bold" size="12.0" />
+                  <Font name="FrizQuadrataStd" size="13.0" />
                </font>
             </Label>
             <JFXToggleButton fx:id="quickReplyBtn" layoutX="243.0" layoutY="186.0" onAction="#handleToggleButtonPressed" prefHeight="56.0" prefWidth="93.0" text="On" textFill="#eda678" toggleColor="#eda678" toggleLineColor="#eba478e2" />
@@ -122,8 +127,13 @@
             </JFXComboBox>
 			</children>
 		</AnchorPane>
-		<AnchorPane fx:id="credits_pane" layoutY="86.0" prefHeight="381.0" prefWidth="380.0" style="-fx-background-color: #3D4956;" visible="false">
+		<AnchorPane fx:id="credits_pane" layoutY="86.0" prefHeight="385.0" prefWidth="380.0" style="-fx-background-color: #3D4956;" visible="false">
 			<children>
+            <ImageView fitHeight="385.0" fitWidth="381.0" layoutY="-2.0">
+               <image>
+                  <Image url="@images/purpleBackground.png" />
+               </image>
+            </ImageView>
 				<ImageView layoutX="161.0" layoutY="80.0" pickOnBounds="true" preserveRatio="true">
 					<image>
 						<Image url="@images/user_male.png" />
@@ -144,40 +154,56 @@
 						<Image url="@images/up.png" />
 					</image>
 				</ImageView>
+            <Label layoutX="14.0" layoutY="338.0" prefHeight="17.0" prefWidth="78.0" text="Alternate_UI" textFill="WHITE">
+               <font>
+                  <Font name="System Bold" size="12.0" />
+               </font>
+            </Label>
+            <JFXToggleButton fx:id="noAwayBtn1" layoutX="98.0" layoutY="326.0" onAction="#handleToggleButtonPressed" prefHeight="56.0" prefWidth="93.0" text="On" textFill="#eda678" toggleColor="#eda678" toggleLineColor="#eba478e2" />
+            <Label layoutX="14.0" layoutY="360.0" text="Turns on alternate UI" textFill="#f2efef">
+               <font>
+                  <Font size="9.0" />
+               </font>
+            </Label>
 			</children></AnchorPane>
-      <AnchorPane fx:id="runebook_pane" layoutY="86.0" prefHeight="381.0" prefWidth="380.0" style="-fx-background-color: #3D4956;" visible="false">
+      <AnchorPane fx:id="runebook_pane" layoutY="86.0" prefHeight="381.0" prefWidth="380.0" style="-fx-background-color: #3D4956;">
          <children>
+            <ImageView fitHeight="385.0" fitWidth="381.0">
+               <image>
+                  <Image url="@images/blueBackground.png" />
+               </image>
+            </ImageView>
             <ImageView layoutX="221.0" layoutY="-12.0" pickOnBounds="true" preserveRatio="true">
                <image>
                   <Image url="@images/up.png" />
                </image>
             </ImageView>
-            <JFXListView layoutX="13.0" layoutY="63.0" opacity="0.05" prefHeight="308.0" prefWidth="350.0" />
-            <JFXButton fx:id="craftKeyBtn1" alignment="CENTER" layoutX="138.0" layoutY="27.0" onAction="#handleSettingsButtonPressed" prefHeight="34.0" prefWidth="93.0" style="-fx-background-color: #eda678; -fx-border-radius: 5em;" text="LOAD">
-               <font>
-                  <Font name="Consolas Bold" size="17.0" />
-               </font>
-            </JFXButton>
-            <ImageView fx:id="syncButton" fitHeight="34.0" fitWidth="40.0" layoutX="332.0" layoutY="10.0" onMouseReleased="#handleSyncBtn" pickOnBounds="true" preserveRatio="true">
+            <JFXListView layoutX="16.0" layoutY="14.0" opacity="0.05" prefHeight="357.0" prefWidth="187.0" />
+            <ImageView fx:id="syncButton" fitHeight="34.0" fitWidth="40.0" layoutX="333.0" layoutY="14.0" onMouseReleased="#handleSyncBtn" pickOnBounds="true" preserveRatio="true">
                <image>
                   <Image url="@images/icons8_Synchronize_48px.png" />
                </image>
             </ImageView>
-            <JFXButton fx:id="craftKeyBtn11" alignment="CENTER" layoutX="26.0" layoutY="25.0" onAction="#handleSettingsButtonPressed" prefHeight="39.0" prefWidth="93.0" style="-fx-background-color: #eda678; -fx-border-radius: 5em;" text="IMPORT">
+            <Label layoutX="226.0" layoutY="14.0" prefHeight="34.0" prefWidth="105.0" text="SAVE SETTINGS" textFill="WHITE">
                <font>
-                  <Font name="Consolas Bold" size="17.0" />
+                  <Font name="FrizQuadrataStd" size="14.0" />
+               </font>
+            </Label>
+            <JFXButton fx:id="craftKeyBtn1" layoutX="224.0" layoutY="331.0" onAction="#handleSettingsButtonPressed" prefHeight="42.0" prefWidth="126.0" style="-fx-background-color: #1e2328; -fx-border-color: d9ae50;" text="LOAD" textFill="#d9ae50">
+               <font>
+                  <Font name="FrizQuadrataStd" size="14.0" />
                </font>
             </JFXButton>
-            <ImageView fitHeight="44.0" fitWidth="93.0" layoutX="26.0" layoutY="25.0" pickOnBounds="true" preserveRatio="true">
-               <image>
-                  <Image url="@images/import.png" />
-               </image>
-            </ImageView>
-            <ImageView fitHeight="44.0" fitWidth="93.0" layoutX="138.0" layoutY="25.0" pickOnBounds="true" preserveRatio="true">
-               <image>
-                  <Image url="@images/load.png" />
-               </image>
-            </ImageView>
+            <JFXButton fx:id="craftKeyBtn11" layoutX="224.0" layoutY="280.0" onAction="#handleSettingsButtonPressed" prefHeight="42.0" prefWidth="126.0" style="-fx-background-color: #1e2328; -fx-border-color: d9ae50;" text="IMPORT" textFill="#d9ae50">
+               <font>
+                  <Font name="FrizQuadrataStd" size="14.0" />
+               </font>
+            </JFXButton>
+            <JFXButton fx:id="craftKeyBtn111" layoutX="224.0" layoutY="58.0" onAction="#handleSettingsButtonPressed" prefHeight="42.0" prefWidth="126.0" style="-fx-background-color: #1e2328; -fx-border-color: d9ae50;" text="EDIT" textFill="#d9ae50">
+               <font>
+                  <Font name="FrizQuadrataStd" size="14.0" />
+               </font>
+            </JFXButton>
          </children>
       </AnchorPane>
 	</children>
