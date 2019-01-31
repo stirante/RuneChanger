@@ -1,12 +1,13 @@
 package com.stirante.RuneChanger.model;
 
 public enum Modifier {
+    //from https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/perks.json
     RUNE_5001(5001, "+15-90 Health"),
-    RUNE_5002(5002, "+5 Armor"),
-    RUNE_5003(5003, "+6 Magic Resist"),
+    RUNE_5002(5002, "+6 Armor"),
+    RUNE_5003(5003, "+8 Magic Resist"),
     RUNE_5005(5005, "+9% Attack Speed"),
     RUNE_5007(5007, "+1-10% CDR"),
-    RUNE_5008(5008, "+10 Adaptive", "+6 AD or 10 AP");
+    RUNE_5008(5008, "+9 Adaptive", "+5 AD or 9 AP");
 
     private final int id;
     private final String type;
