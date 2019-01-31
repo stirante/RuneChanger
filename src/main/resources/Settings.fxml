@@ -2,6 +2,7 @@
 
 <?import com.jfoenix.controls.JFXButton?>
 <?import com.jfoenix.controls.JFXComboBox?>
+<?import com.jfoenix.controls.JFXListView?>
 <?import com.jfoenix.controls.JFXToggleButton?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Label?>
@@ -50,7 +51,7 @@
 				</ImageView>
 			</children>
 		</AnchorPane>
-		<AnchorPane fx:id="settings_pane" layoutY="86.0" prefHeight="381.0" prefWidth="380.0" style="-fx-background-color: #3D4956;">
+		<AnchorPane fx:id="settings_pane" layoutY="86.0" prefHeight="381.0" prefWidth="380.0" style="-fx-background-color: #3D4956;" visible="false">
 			<children>
 				<Label layoutX="33.0" layoutY="32.0" text="AutoChamp" textFill="WHITE">
 					<font>
@@ -136,13 +137,29 @@
 					</image>
 				</ImageView>
 			</children></AnchorPane>
-      <AnchorPane fx:id="runebook_pane" layoutY="86.0" prefHeight="381.0" prefWidth="380.0" style="-fx-background-color: #3D4956;" visible="false">
+      <AnchorPane fx:id="runebook_pane" layoutY="86.0" prefHeight="381.0" prefWidth="380.0" style="-fx-background-color: #3D4956;">
          <children>
             <ImageView layoutX="221.0" layoutY="-12.0" pickOnBounds="true" preserveRatio="true">
                <image>
                   <Image url="@images/up.png" />
                </image>
             </ImageView>
+            <JFXListView layoutX="13.0" layoutY="9.0" opacity="0.12" prefHeight="362.0" prefWidth="182.0" />
+            <JFXButton fx:id="craftKeyBtn1" alignment="CENTER" layoutX="291.0" layoutY="331.0" onAction="#handleSettingsButtonPressed" prefHeight="26.0" prefWidth="82.0" style="-fx-background-color: #eda678; -fx-border-radius: 5em;" text="LOAD">
+               <font>
+                  <Font name="Consolas Bold" size="17.0" />
+               </font>
+            </JFXButton>
+            <ImageView fx:id="syncButton" fitHeight="34.0" fitWidth="40.0" layoutX="326.0" layoutY="14.0" onMouseReleased="#handleSyncBtn" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@images/icons8_Synchronize_48px.png" />
+               </image>
+            </ImageView>
+            <JFXButton fx:id="craftKeyBtn11" alignment="CENTER" layoutX="201.0" layoutY="331.0" onAction="#handleSettingsButtonPressed" prefHeight="26.0" prefWidth="82.0" style="-fx-background-color: #eda678; -fx-border-radius: 5em;" text="IMPORT">
+               <font>
+                  <Font name="Consolas Bold" size="17.0" />
+               </font>
+            </JFXButton>
          </children>
       </AnchorPane>
 	</children>
