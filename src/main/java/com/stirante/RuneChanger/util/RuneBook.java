@@ -8,6 +8,7 @@ import generated.LolPerksPerkPageResource;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.control.Alert;
@@ -20,13 +21,14 @@ public class RuneBook
 {
 	private static ClientApi api = new ClientApi();
 	private static ArrayList<LolPerksPerkPageResource> availablePages = new ArrayList<>();
+	private static Integer primaryStyle = null;
+	private static Integer subStyle = null;
 
 	public static void importAction(JFXListView<Label> runebookList, ImageView syncButton)
 	{
 		availablePages.clear();
-		ArrayList<LolPerksPerkPageResource> allAvailablePages = new ArrayList();
 		rotateSyncButton(syncButton);
-		allAvailablePages = getAvailablePages();
+		getAvailablePages();
 		LolPerksPerkPageResource currentRunes = new LolPerksPerkPageResource();
 		Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
 		alert.getButtonTypes().clear();
@@ -55,9 +57,9 @@ public class RuneBook
 				return;
 			}
 		}
-		if (!currentRunes.isValid)
+		if (currentRunes.isValid == null || !currentRunes.isValid)
 		{
-			showWarning("Invalid Runes","The runes you chose are invalid","Please adjust your runes and try again.");
+			showWarning("Invalid Runes", "The runes you chose are invalid or incomplete", "Please adjust your runes and try again.");
 			return;
 		}
 		if (SimplePreferences.runeBookValues.containsKey(currentRunes.name))
@@ -76,7 +78,7 @@ public class RuneBook
 			label.autosize();
 			label.setGraphic(imageView);
 			runebookList.getItems().add(label);
-			SimplePreferences.putRuneBookValue(currentRunes.name.toUpperCase(), currentRunes.selectedPerkIds.toString());
+			SimplePreferences.putRuneBookValue(currentRunes.name.toUpperCase(), currentRunes.selectedPerkIds.toString() + "-" + currentRunes.primaryStyleId.toString() + "-" + currentRunes.subStyleId.toString());
 		}
 		catch (IOException e)
 		{
@@ -124,7 +126,67 @@ public class RuneBook
 
 	public static void loadAction(JFXListView<Label> list)
 	{
-		
+		if (list.getFocusModel().getFocusedItem() == null)
+		{
+			System.out.println("No selection made to load");
+			return;
+		}
+		primaryStyle = null;
+		subStyle = null;
+		try
+		{
+			LolPerksPerkPageResource page1;
+			page1 = getSelectedPage();
+
+			System.out.println("page1: " + page1.name + " " + page1.selectedPerkIds);
+
+			if (!page1.isEditable)
+			{
+				showWarning("Page not editable!","The page you have chosen is not editable.","To continue you need to choose a editable page in the league client and try again.");
+				return;
+			}
+
+			System.out.println(page1);
+			page1.selectedPerkIds = processPerks(SimplePreferences.getRuneBookValue(list.getFocusModel().getFocusedItem().getText()));
+			page1.name = list.getFocusModel().getFocusedItem().getText();
+			page1.isActive = true;
+			page1.primaryStyleId = primaryStyle;
+			page1.subStyleId = subStyle;
+			System.out.println("Page: " + page1);
+			api.executeDelete("/lol-perks/v1/pages/" + page1.id);
+			api.executePost("/lol-perks/v1/pages/", page1);
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+
+	}
+
+	private static List<Integer> processPerks(String processThis)
+	{
+		List<Integer> list = new ArrayList<>();
+		System.out.println("Stuff: " + processThis.toString());
+		String[] runesAndStyles = processThis.split("-");
+		String runes = runesAndStyles[0];
+		String primaryStyleId = runesAndStyles[1];
+		String subStyleId = runesAndStyles[2];
+		System.out.println("Stuff: " + subStyleId + " " + primaryStyleId + " " + runes);
+		String[] array = runes.split(",");
+		array[0].replaceAll("\\[", "");
+		array[array.length - 1].replaceAll("\\]", "");
+		for (int i = 0; array.length > i; i++)
+		{
+			String parseThis = array[i].replaceAll("\\[","");
+			parseThis = parseThis.replaceAll("]","");
+			parseThis = parseThis.replaceAll("\\s","");
+			list.add(Integer.parseInt(parseThis));
+			System.out.println(array[i]);
+		}
+		primaryStyle = Integer.parseInt(primaryStyleId);
+		subStyle = Integer.parseInt(subStyleId);
+		System.out.println("List Processed: " + list + "\nPrimaryStyle processed: " + primaryStyleId + "\nSubStyle processed: " + subStyleId);
+		return list;
 	}
 
 	private static ArrayList<LolPerksPerkPageResource> getAvailablePages()
