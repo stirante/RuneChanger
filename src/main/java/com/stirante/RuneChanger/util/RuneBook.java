@@ -122,6 +122,11 @@ public class RuneBook
 		}
 	}
 
+	public static void loadAction(JFXListView<Label> list)
+	{
+		
+	}
+
 	private static ArrayList<LolPerksPerkPageResource> getAvailablePages()
 	{
 		try

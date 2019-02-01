@@ -87,7 +87,7 @@ public class SettingsController {
 		}
 		else if (e.getTarget() == rbLoadBtn)
 		{
-
+			RuneBook.loadAction(runebookList);
 		}
 		else if (e.getTarget() == rbEditBtn)
 		{
