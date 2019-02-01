@@ -76,7 +76,7 @@ public class RuneBook
 			label.autosize();
 			label.setGraphic(imageView);
 			runebookList.getItems().add(label);
-			SimplePreferences.putRuneBookValue(currentRunes.name, currentRunes.selectedPerkIds.toString());
+			SimplePreferences.putRuneBookValue(currentRunes.name.toUpperCase(), currentRunes.selectedPerkIds.toString());
 		}
 		catch (IOException e)
 		{
@@ -106,7 +106,20 @@ public class RuneBook
 				e.printStackTrace();
 			}
 		});
+	}
 
+	public static void deleteRuneTree(JFXListView<Label> list)
+	{
+		try
+		{
+			Label selectedLabel = list.getFocusModel().getFocusedItem();
+			list.getItems().remove(list.getFocusModel().getFocusedIndex());
+			SimplePreferences.removeRuneBookValue(selectedLabel.getText().toUpperCase());
+		}
+		catch (ArrayIndexOutOfBoundsException e)
+		{
+			System.out.println("Invalid selection user is trying to delete!");
+		}
 	}
 
 	private static ArrayList<LolPerksPerkPageResource> getAvailablePages()

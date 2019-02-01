@@ -91,7 +91,7 @@ public class SettingsController {
 		}
 		else if (e.getTarget() == rbEditBtn)
 		{
-
+			RuneBook.deleteRuneTree(runebookList);
 		}
 	}
 
@@ -172,7 +172,7 @@ public class SettingsController {
 
 	private void loadPreferences ()
 	{
-		System.out.println("loading preferences.." + SimplePreferences.runeBookValues);
+		System.out.println("loading preferences..");
 			if (SimplePreferences.getValue("autoAccept") != null && SimplePreferences.getValue("autoAccept").equals("true"))
 			{
 				autoQueueBtn.setSelected(true);
