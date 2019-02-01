@@ -85,7 +85,7 @@
 					</font>
 				</Label>
 				<Separator layoutX="35.0" layoutY="274.0" opacity="0.33" prefHeight="1.0" prefWidth="307.0" />
-				<JFXButton fx:id="disenchantBtn" layoutX="202.0" layoutY="313.0" onAction="#handleSettingsButtonPressed" prefHeight="31.0" prefWidth="147.0" style="-fx-background-color: #1e2328; -fx-border-color: d9ae50;" text="DECHANT * CHAMPIONS" textFill="#d9ae50">
+				<JFXButton fx:id="disenchantBtn" layoutX="202.0" layoutY="313.0" onAction="#handleSettingsButtonPressed" prefHeight="31.0" prefWidth="147.0" ripplerFill="#1986b1" style="-fx-background-color: #1e2328; -fx-border-color: d9ae50;" text="DECHANT * CHAMPIONS" textFill="#d9ae50">
                <font>
                   <Font name="FrizQuadrataStd" size="11.0" />
                </font></JFXButton>
@@ -199,7 +199,7 @@
                   <Font name="FrizQuadrataStd" size="14.0" />
                </font>
             </JFXButton>
-            <JFXButton fx:id="craftKeyBtn111" layoutX="224.0" layoutY="58.0" onAction="#handleSettingsButtonPressed" prefHeight="42.0" prefWidth="126.0" style="-fx-background-color: #1e2328; -fx-border-color: d9ae50;" text="EDIT" textFill="#d9ae50">
+            <JFXButton fx:id="craftKeyBtn111" layoutX="224.0" layoutY="58.0" onAction="#handleSettingsButtonPressed" prefHeight="42.0" prefWidth="126.0" ripplerFill="#1986b1" style="-fx-background-color: #1e2328; -fx-border-color: d9ae50;" text="EDIT" textFill="#d9ae50">
                <font>
                   <Font name="FrizQuadrataStd" size="14.0" />
                </font>
