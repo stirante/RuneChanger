@@ -78,7 +78,7 @@ public enum Rune {
     private final String name;
     private BufferedImage image;
 
-    Rune(int id, int styleId, int slot, String name) {
+     Rune(int id, int styleId, int slot, String name) {
         this.id = id;
         style = Style.getById(styleId);
         this.slot = slot;
