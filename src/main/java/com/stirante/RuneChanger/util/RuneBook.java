@@ -67,7 +67,6 @@ public class RuneBook
 			showWarning("Duplicate runepage!", "The runepage you are trying to import already exists!", "Please remove or rename the runepage that has the duplicate name before trying again.");
 			return;
 		}
-		System.out.println(currentRunes.selectedPerkIds);
 		try
 		{
 			BufferedImage image = ImageIO.read(RuneBook.class.getResourceAsStream("/runes/" + currentRunes.selectedPerkIds.get(0) + ".png"));
@@ -138,21 +137,17 @@ public class RuneBook
 			LolPerksPerkPageResource page1;
 			page1 = getSelectedPage();
 
-			System.out.println("page1: " + page1.name + " " + page1.selectedPerkIds);
-
 			if (!page1.isEditable)
 			{
 				showWarning("Page not editable!","The page you have chosen is not editable.","To continue you need to choose a editable page in the league client and try again.");
 				return;
 			}
 
-			System.out.println(page1);
 			page1.selectedPerkIds = processPerks(SimplePreferences.getRuneBookValue(list.getFocusModel().getFocusedItem().getText()));
 			page1.name = list.getFocusModel().getFocusedItem().getText();
 			page1.isActive = true;
 			page1.primaryStyleId = primaryStyle;
 			page1.subStyleId = subStyle;
-			System.out.println("Page: " + page1);
 			api.executeDelete("/lol-perks/v1/pages/" + page1.id);
 			api.executePost("/lol-perks/v1/pages/", page1);
 		}
@@ -166,12 +161,10 @@ public class RuneBook
 	private static List<Integer> processPerks(String processThis)
 	{
 		List<Integer> list = new ArrayList<>();
-		System.out.println("Stuff: " + processThis.toString());
 		String[] runesAndStyles = processThis.split("-");
 		String runes = runesAndStyles[0];
 		String primaryStyleId = runesAndStyles[1];
 		String subStyleId = runesAndStyles[2];
-		System.out.println("Stuff: " + subStyleId + " " + primaryStyleId + " " + runes);
 		String[] array = runes.split(",");
 		array[0].replaceAll("\\[", "");
 		array[array.length - 1].replaceAll("\\]", "");
@@ -181,7 +174,6 @@ public class RuneBook
 			parseThis = parseThis.replaceAll("]","");
 			parseThis = parseThis.replaceAll("\\s","");
 			list.add(Integer.parseInt(parseThis));
-			System.out.println(array[i]);
 		}
 		primaryStyle = Integer.parseInt(primaryStyleId);
 		subStyle = Integer.parseInt(subStyleId);
