@@ -32,7 +32,7 @@ public class RuneBook
 		LolPerksPerkPageResource currentRunes = new LolPerksPerkPageResource();
 		Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
 		alert.getButtonTypes().clear();
-		alert.setTitle("Not that nice looking default windows ui");
+		alert.setTitle("Runepage Selection");
 		alert.setHeaderText("Choose which runepage to import.");
 		System.out.println("Amount of rune pages: " + availablePages.size());
 		for (int i = 0; i < availablePages.size(); i++)
