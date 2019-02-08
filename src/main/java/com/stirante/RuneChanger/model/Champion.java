@@ -35,42 +35,6 @@ public class Champion {
     }
 
     /**
-     * Get champion id
-     *
-     * @return champion id
-     */
-    public int getId() {
-        return id;
-    }
-
-    /**
-     * Get riot internal champion name
-     *
-     * @return internal champion name
-     */
-    public String getInternalName() {
-        return internalName;
-    }
-
-    /**
-     * Get champion name
-     *
-     * @return champion name
-     */
-    public String getName() {
-        return name;
-    }
-
-    /**
-     * Get alternative champion name
-     *
-     * @return alias
-     */
-    public String getAlias() {
-        return alias;
-    }
-
-    /**
      * Get champion by id
      *
      * @param id id
@@ -131,6 +95,42 @@ public class Champion {
         URL urlObject = new URL(url);
         HttpURLConnection urlConnection = (HttpURLConnection) urlObject.openConnection();
         return urlConnection.getInputStream();
+    }
+
+    /**
+     * Get champion id
+     *
+     * @return champion id
+     */
+    public int getId() {
+        return id;
+    }
+
+    /**
+     * Get riot internal champion name
+     *
+     * @return internal champion name
+     */
+    public String getInternalName() {
+        return internalName;
+    }
+
+    /**
+     * Get champion name
+     *
+     * @return champion name
+     */
+    public String getName() {
+        return name;
+    }
+
+    /**
+     * Get alternative champion name
+     *
+     * @return alias
+     */
+    public String getAlias() {
+        return alias;
     }
 
     public class ChampionDTO {

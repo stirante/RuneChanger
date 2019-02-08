@@ -26,7 +26,6 @@ public class DataUpdater {
             "public enum Rune {\n";
     private static final String RUNE_ENUM_POSTFIX = "\n" +
             "\n" +
-            "\n" +
             "    private final int id;\n" +
             "    private final Style style;\n" +
             "    private final int slot;\n" +
@@ -38,6 +37,38 @@ public class DataUpdater {
             "        style = Style.getById(styleId);\n" +
             "        this.slot = slot;\n" +
             "        this.name = name;\n" +
+            "    }\n" +
+            "\n" +
+            "    /**\n" +
+            "     * Get rune by name\n" +
+            "     *\n" +
+            "     * @param name rune name\n" +
+            "     * @return rune\n" +
+            "     */\n" +
+            "    public static Rune getByName(String name) {\n" +
+            "        for (Rune rune : values()) {\n" +
+            "            if (rune.name.equalsIgnoreCase(name) || rune.name.replaceAll(\"'\", \"’\").equalsIgnoreCase(name)) {\n" +
+            "                return rune;\n" +
+            "            }\n" +
+            "        }\n" +
+            "        System.out.println(name + \" not found\");\n" +
+            "        return null;\n" +
+            "    }\n" +
+            "\n" +
+            "    /**\n" +
+            "     * Get rune by id\n" +
+            "     *\n" +
+            "     * @param id rune id\n" +
+            "     * @return rune\n" +
+            "     */\n" +
+            "    public static Rune getById(int id) {\n" +
+            "        for (Rune rune : values()) {\n" +
+            "            if (rune.id == id) {\n" +
+            "                return rune;\n" +
+            "            }\n" +
+            "        }\n" +
+            "        System.out.println(id + \" not found\");\n" +
+            "        return null;\n" +
             "    }\n" +
             "\n" +
             "    /**\n" +
@@ -82,7 +113,9 @@ public class DataUpdater {
             "     * @return image\n" +
             "     */\n" +
             "    public BufferedImage getImage() {\n" +
-            "        if (getSlot() != 0) return null;\n" +
+            "        if (getSlot() != 0) {\n" +
+            "            return null;\n" +
+            "        }\n" +
             "        if (image == null) {\n" +
             "            try {\n" +
             "                image = ImageIO.read(getClass().getResourceAsStream(\"/runes/\" + getId() + \".png\"));\n" +
@@ -93,97 +126,12 @@ public class DataUpdater {
             "        return image;\n" +
             "    }\n" +
             "\n" +
-            "    /**\n" +
-            "     * Get rune by name\n" +
-            "     *\n" +
-            "     * @param name rune name\n" +
-            "     * @return rune\n" +
-            "     */\n" +
-            "    public static Rune getByName(String name) {\n" +
-            "        for (Rune rune : values()) {\n" +
-            "            if (rune.name.equalsIgnoreCase(name) || rune.name.replaceAll(\"'\", \"’\").equalsIgnoreCase(name)) return rune;\n" +
-            "        }\n" +
-            "        System.out.println(name + \" not found\");\n" +
-            "        return null;\n" +
-            "    }\n" +
-            "\n" +
             "    @Override\n" +
             "    public String toString() {\n" +
             "        return name() + \"(\" + name + \")\";\n" +
             "    }\n" +
             "}\n";
 
-    private static final String CHAMPION_ENUM_PREFIX = "package com.stirante.RuneChanger.model;\n" +
-            "\n" +
-            "public enum Champion {\n";
-    private static final String CHAMPION_ENUM_POSTFIX = "\n" +
-            "\n" +
-            "    private final int id;\n" +
-            "    private final String internalName;\n" +
-            "    private final String name;\n" +
-            "    private final String alias;\n" +
-            "\n" +
-            "    Champion(int id, String internalName, String name, String alias) {\n" +
-            "        this.id = id;\n" +
-            "        this.internalName = internalName;\n" +
-            "        this.name = name;\n" +
-            "        this.alias = alias;\n" +
-            "    }\n" +
-            "\n" +
-            "    Champion(int id, String internalName, String name) {\n" +
-            "        this(id, internalName, name, name);\n" +
-            "    }\n" +
-            "\n" +
-            "    /**\n" +
-            "     * Get champion id\n" +
-            "     *\n" +
-            "     * @return champion id\n" +
-            "     */\n" +
-            "    public int getId() {\n" +
-            "        return id;\n" +
-            "    }\n" +
-            "\n" +
-            "    /**\n" +
-            "     * Get riot internal champion name\n" +
-            "     *\n" +
-            "     * @return internal champion name\n" +
-            "     */\n" +
-            "    public String getInternalName() {\n" +
-            "        return internalName;\n" +
-            "    }\n" +
-            "\n" +
-            "    /**\n" +
-            "     * Get champion name\n" +
-            "     *\n" +
-            "     * @return champion name\n" +
-            "     */\n" +
-            "    public String getName() {\n" +
-            "        return name;\n" +
-            "    }\n" +
-            "\n" +
-            "    /**\n" +
-            "     * Get alternative champion name\n" +
-            "     *\n" +
-            "     * @return alias\n" +
-            "     */\n" +
-            "    public String getAlias() {\n" +
-            "        return alias;\n" +
-            "    }\n" +
-            "\n" +
-            "    /**\n" +
-            "     * Get champion by id\n" +
-            "     *\n" +
-            "     * @param id id\n" +
-            "     * @return champion\n" +
-            "     */\n" +
-            "    public static Champion getById(int id) {\n" +
-            "        for (Champion champion : values()) {\n" +
-            "            if (champion.id == id) return champion;\n" +
-            "        }\n" +
-            "        return null;\n" +
-            "    }\n" +
-            "\n" +
-            "}\n";
 
     private static InputStream getEndpoint(String endpoint) throws IOException {
         System.out.println(endpoint);
@@ -195,7 +143,6 @@ public class DataUpdater {
     public static void main(String[] args) throws IOException {
         Gson gson = new GsonBuilder().create();
         String patch = getLatestPatch(gson);
-//        generateChampions(gson, patch);
         generateRunes(gson, patch);
         downloadImages();
     }
@@ -205,45 +152,6 @@ public class DataUpdater {
         String[] strings = gson.fromJson(new InputStreamReader(in), String[].class);
         return strings[0];
     }
-
-//    private static void generateChampions(Gson gson, String patch) throws IOException {
-//        InputStream in = getEndpoint("http://ddragon.leagueoflegends.com/cdn/" + patch + "/data/en_US/champion.json");
-//        StringBuilder sb = new StringBuilder();
-//        ChampionList champions = gson.fromJson(new InputStreamReader(in), ChampionList.class);
-//        in.close();
-//        List<Champion> values = new ArrayList<>(champions.data.values());
-//        values.sort(Comparator.comparing(o -> o.name));
-//        for (int i = 0; i < values.size(); i++) {
-//            Champion champion = values.get(i);
-//            sb.append("    ")
-//                    .append(champion.id.toUpperCase())
-//                    .append("(")
-//                    .append(champion.key)
-//                    .append(", \"")
-//                    .append(champion.id)
-//                    .append("\", \"")
-//                    .append(champion.name)
-//                    .append("\", \"")
-//                    .append(champion.name.replaceAll(" ", ""))
-//                    .append("\")");
-//            if (i == values.size() - 1) {
-//                sb.append(";\n");
-//            }
-//            else {
-//                sb.append(",\n");
-//            }
-//        }
-//        try {
-//            FileWriter writer = new FileWriter(new File("src/main/java/com/stirante/RuneChanger/model/Champion.java"));
-//            writer.write(CHAMPION_ENUM_PREFIX + "    //Generated on " +
-//                    SimpleDateFormat.getDateTimeInstance().format(new Date()) + "\n" + sb.toString() +
-//                    CHAMPION_ENUM_POSTFIX);
-//            writer.flush();
-//            writer.close();
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//    }
 
     private static void generateRunes(Gson gson, String patch) throws IOException {
         InputStream in =

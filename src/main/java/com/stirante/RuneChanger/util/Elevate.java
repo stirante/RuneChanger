@@ -1,6 +1,6 @@
 package com.stirante.RuneChanger.util;
 
-import com.stirante.RuneChanger.InGameButton;
+import com.stirante.RuneChanger.RuneChanger;
 import com.sun.jna.platform.win32.Kernel32;
 import com.sun.jna.platform.win32.Kernel32Util;
 import com.sun.jna.platform.win32.Shell32;
@@ -28,7 +28,7 @@ public class Elevate {
         if (args.length > 0) {
             elevate = args[args.length - 1].equals(ELEVATE_ARG);
         }
-        InGameButton.d("Elevate: " + elevate);
+        RuneChanger.d("Elevate: " + elevate);
         if (elevate) {
             // Get the command and remove the elevation marker.
             String command = System.getProperty("sun.java.command");

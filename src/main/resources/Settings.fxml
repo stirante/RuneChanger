@@ -1,194 +1,184 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import com.jfoenix.controls.JFXButton?>
-<?import com.jfoenix.controls.JFXComboBox?>
 <?import com.jfoenix.controls.JFXListView?>
 <?import com.jfoenix.controls.JFXToggleButton?>
 <?import javafx.geometry.Insets?>
+<?import javafx.geometry.Rectangle2D?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.text.Font?>
 
-<!--<?xml version="1.0" encoding="UTF-8"?>
-
-
-		<?import javafx.scene.layout.BorderPane?>
-		<?import javafx.scene.web.WebView?>
-		<BorderPane xmlns:fx="http://javafx.com/fxml/1" prefHeight="720.0" prefWidth="1280.0"
-					xmlns="http://javafx.com/javafx/8.0.121" fx:controller="com.stirante.RuneChanger.gui.SettingsController">
-			<center>
-				<WebView fx:id="webView" prefHeight="720.0" prefWidth="1280.0" BorderPane.alignment="CENTER"/>
-			</center>
-		</BorderPane>
-		 -->
-
-<AnchorPane id="AnchorPane" prefHeight="466.0" prefWidth="370.0" style="-fx-background-color: rgba(0, 100, 100, 0);" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.stirante.RuneChanger.gui.SettingsController">
-	<children>
-		<AnchorPane fx:id="topbar_pane" prefHeight="73.0" prefWidth="380.0" style="-fx-background-color: #3D4956;">
-			<children>
-            <ImageView fitHeight="75.0" fitWidth="395.0" layoutX="-14.0">
-               <image>
-                  <Image url="@images/topbar.png" />
-               </image>
-            </ImageView>
-				<ImageView fx:id="btn_settings" layoutX="49.0" layoutY="21.0" onMousePressed="#handleMenuSelection" pickOnBounds="true" preserveRatio="true">
-					<image>
-						<Image url="@images/settings.png" />
-					</image>
-				</ImageView>
-				<ImageView fx:id="btn_credits" layoutX="132.0" layoutY="25.0" onMousePressed="#handleMenuSelection" pickOnBounds="true" preserveRatio="true">
-					<image>
-						<Image url="@images/user.png" />
-					</image>
-				</ImageView>
-				<ImageView fx:id="btn_runebook" fitHeight="32.0" fitWidth="32.0" layoutX="215.0" layoutY="22.0" onMousePressed="#handleMenuSelection" pickOnBounds="true" preserveRatio="true">
-					<image>
-						<Image url="@images/icons8_Book_24px_1.png" />
-					</image>
-				</ImageView>
-				<ImageView fx:id="btn_exit" fitHeight="25.0" fitWidth="43.0" layoutX="303.0" layoutY="26.0" onMousePressed="#handleMenuSelection" pickOnBounds="true" preserveRatio="true">
-					<image>
-						<Image url="@images/shutdown.png" />
-					</image>
-				</ImageView>
-			</children>
-		</AnchorPane>
-		<AnchorPane fx:id="settings_pane" layoutY="86.0" prefHeight="381.0" prefWidth="380.0" style="-fx-background-color: #3D4956;" visible="false">
-			<children>
-            <ImageView fitHeight="385.0" fitWidth="388.0" layoutX="-7.0">
-               <image>
-                  <Image url="@images/blueBackground.png" />
-               </image>
-            </ImageView>
-				<Label layoutX="33.0" layoutY="32.0" text="AutoChamp" textFill="WHITE">
-					<font>
-						<Font name="System Bold" size="12.0" />
-					</font>
-				</Label>
-				<Label layoutX="33.0" layoutY="57.0" text="You will automatically pick your&#10;chosen champion [DISABLED]" textFill="#f2efef">
-					<font>
-						<Font size="9.0" />
-					</font>
-				</Label>
-				<Label layoutX="33.0" layoutY="95.0" text="No-Away" textFill="WHITE">
-					<font>
-						<Font name="System Bold" size="12.0" />
-					</font>
-				</Label>
-				<JFXToggleButton fx:id="noAwayBtn" layoutX="242.0" layoutY="82.0" onAction="#handleToggleButtonPressed" prefHeight="56.0" prefWidth="93.0" text="On" textFill="#eda678" toggleColor="#eda678" toggleLineColor="#eba478e2" />
-				<Label layoutX="33.0" layoutY="117.0" text="Disables away status" textFill="#f2efef">
-					<font>
-						<Font size="9.0" />
-					</font>
-				</Label>
-				<Separator layoutX="35.0" layoutY="274.0" opacity="0.33" prefHeight="1.0" prefWidth="307.0" />
-				<JFXButton fx:id="disenchantBtn" layoutX="202.0" layoutY="313.0" onAction="#handleSettingsButtonPressed" prefHeight="31.0" prefWidth="147.0" ripplerFill="#1986b1" style="-fx-background-color: #1e2328; -fx-border-color: d9ae50;" text="DECHANT * CHAMPIONS" textFill="#d9ae50">
-               <font>
-                  <Font name="FrizQuadrataStd" size="11.0" />
-               </font></JFXButton>
-				<JFXButton fx:id="craftKeyBtn" layoutX="42.0" layoutY="313.0" onAction="#handleSettingsButtonPressed" prefHeight="25.0" prefWidth="130.0" style="-fx-background-color: #1e2328; -fx-border-color: d9ae50;" text="CRAFT ALL KEYS" textFill="#d9ae50">
-               <font>
-                  <Font name="FrizQuadrataStd" size="14.0" />
-               </font></JFXButton>
-				<ImageView layoutX="56.0" layoutY="-13.0" pickOnBounds="true" preserveRatio="true">
-					<image>
-						<Image url="@images/up.png" />
-					</image>
-				</ImageView>
-            <Label layoutX="34.0" layoutY="146.0" text="AutoQueue" textFill="WHITE">
-               <font>
-                  <Font name="System Bold" size="12.0" />
-               </font>
+<AnchorPane id="AnchorPane" prefHeight="470.0" prefWidth="480.0" style="-fx-background-color: transparent;" xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.stirante.RuneChanger.gui.SettingsController">
+    <AnchorPane prefHeight="73.0" prefWidth="480.0">
+        <ImageView fitHeight="75.0" fitWidth="494.0" layoutX="-14.0">
+            <Image url="@images/topbar.png" />
+        </ImageView>
+        <ImageView fx:id="btn_settings" fitHeight="24.0" fitWidth="24.0" layoutX="78.0" layoutY="23.0" onMousePressed="#handleMenuSelection" pickOnBounds="true" preserveRatio="true">
+            <Image url="@images/settings.png" />
+        </ImageView>
+        <ImageView fx:id="btn_runebook" fitHeight="24.0" fitWidth="24.0" layoutX="173.0" layoutY="23.0" onMousePressed="#handleMenuSelection" pickOnBounds="true" preserveRatio="true">
+            <Image url="@images/icons8_Book_24px_1.png" />
+        </ImageView>
+        <ImageView fx:id="btn_credits" fitHeight="24.0" fitWidth="24.0" layoutX="278.0" layoutY="23.0" onMousePressed="#handleMenuSelection" pickOnBounds="true" preserveRatio="true">
+            <Image url="@images/user.png" />
+        </ImageView>
+        <ImageView fx:id="btn_exit" fitHeight="20.0" fitWidth="20.0" layoutX="380.0" layoutY="25.0" onMousePressed="#handleMenuSelection" pickOnBounds="true" preserveRatio="true">
+            <Image url="@images/shutdown.png" />
+        </ImageView>
+    </AnchorPane>
+    <AnchorPane fx:id="settingsPane" layoutY="86.0" prefHeight="381.0" prefWidth="380.0">
+        <ImageView fitHeight="444.0" fitWidth="480.0" preserveRatio="true">
+            <Image url="@images/blueBackground.png" />
+            <viewport>
+                <Rectangle2D height="362.0" minX="450.0" minY="350.0" width="450.0" />
+            </viewport>
+        </ImageView>
+        <GridPane prefHeight="386.0" prefWidth="480.0">
+            <columnConstraints>
+                <ColumnConstraints halignment="LEFT" hgrow="SOMETIMES" minWidth="10.0" prefWidth="240.0"/>
+                <ColumnConstraints halignment="RIGHT" hgrow="SOMETIMES" minWidth="10.0" prefWidth="240.0"/>
+            </columnConstraints>
+            <rowConstraints>
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+            </rowConstraints>
+            <padding>
+                <Insets bottom="20.0" left="50.0" right="50.0" top="20.0"/>
+            </padding>
+            <Label text="No-Away" textFill="WHITE" GridPane.valignment="BOTTOM">
+                <font>
+                    <Font size="16.0"/>
+                </font>
             </Label>
-            <JFXToggleButton fx:id="autoQueueBtn" layoutX="243.0" layoutY="135.0" onAction="#handleToggleButtonPressed" prefHeight="56.0" prefWidth="93.0" text="On" textFill="#eda678" toggleColor="#eda678" toggleLineColor="#eba478e2" />
-            <Label layoutX="34.0" layoutY="168.0" text="Automatically accepts the queue" textFill="#f2efef">
-               <font>
-                  <Font size="9.0" />
-               </font>
+            <Label text="Disables away status" textFill="#f2efef" GridPane.rowIndex="1" GridPane.valignment="TOP">
+                <font>
+                    <Font size="13.0"/>
+                </font>
             </Label>
-            <Label layoutX="34.0" layoutY="197.0" text="Quick-Replies" textFill="WHITE">
-               <font>
-                  <Font name="FrizQuadrataStd" size="13.0" />
-               </font>
+            <Label text="AutoQueue" textFill="WHITE" GridPane.rowIndex="2" GridPane.valignment="BOTTOM">
+                <font>
+                    <Font size="16.0"/>
+                </font>
             </Label>
-            <JFXToggleButton fx:id="quickReplyBtn" layoutX="243.0" layoutY="186.0" onAction="#handleToggleButtonPressed" prefHeight="56.0" prefWidth="93.0" text="On" textFill="#eda678" toggleColor="#eda678" toggleLineColor="#eba478e2" />
-            <Label layoutX="34.0" layoutY="219.0" text="Show quick reply interface" textFill="#f2efef">
-               <font>
-                  <Font size="9.0" />
-               </font>
+            <Label text="Automatically accepts the queue" textFill="#f2efef" GridPane.rowIndex="3"
+                   GridPane.valignment="TOP">
+                <font>
+                    <Font size="13.0"/>
+                </font>
             </Label>
-            <JFXComboBox fx:id="autoChampCB" focusColor="#ab8e24" labelFloat="true" layoutX="256.0" layoutY="42.0" onAction="#handleComboBoxPressed" prefHeight="25.0" prefWidth="65.0" unFocusColor="#575353" visibleRowCount="500">
-               <opaqueInsets>
-                  <Insets />
-               </opaqueInsets>
-            </JFXComboBox>
-			</children>
-		</AnchorPane>
-		<AnchorPane fx:id="credits_pane" layoutY="86.0" prefHeight="385.0" prefWidth="380.0" style="-fx-background-color: #3D4956;" visible="false">
-			<children>
-            <ImageView fitHeight="385.0" fitWidth="381.0" layoutY="-2.0">
-               <image>
-                  <Image url="@images/purpleBackground.png" />
-               </image>
-            </ImageView>
-				<ImageView layoutX="161.0" layoutY="80.0" pickOnBounds="true" preserveRatio="true">
-					<image>
-						<Image url="@images/user_male.png" />
-					</image>
-				</ImageView>
-				<Label layoutX="117.0" layoutY="164.0" text="Brought to you by: Stirante" textFill="WHITE">
-					<font>
-						<Font name="System Bold" size="12.0" />
-					</font>
-				</Label>
-				<Label layoutX="123.0" layoutY="188.0" text="GUI Design by: Robin Withes" textFill="WHITE">
-					<font>
-						<Font size="11.0" />
-					</font>
-				</Label>
-				<ImageView layoutX="134.0" layoutY="-12.0" pickOnBounds="true" preserveRatio="true">
-					<image>
-						<Image url="@images/up.png" />
-					</image>
-				</ImageView>
-			</children></AnchorPane>
-      <AnchorPane fx:id="runebook_pane" layoutY="86.0" prefHeight="381.0" prefWidth="380.0" style="-fx-background-color: #3D4956;" visible="false">
-         <children>
-            <ImageView fitHeight="385.0" fitWidth="381.0">
-               <image>
-                  <Image url="@images/blueBackground.png" />
-               </image>
-            </ImageView>
-            <ImageView layoutX="221.0" layoutY="-12.0" pickOnBounds="true" preserveRatio="true">
-               <image>
-                  <Image url="@images/up.png" />
-               </image>
-            </ImageView>
-            <JFXListView fx:id="runebookList" layoutX="16.0" layoutY="14.0" opacity="0.65" prefHeight="357.0" prefWidth="187.0" style="-fx-background-color: #122121; -fx-border-color: #9a9557;" />
-            <ImageView fx:id="syncButton" fitHeight="31.0" fitWidth="32.0" layoutX="337.0" layoutY="69.0" onMouseReleased="#handleSyncBtn" pickOnBounds="true" preserveRatio="true">
-               <image>
-                  <Image url="@images/icons8_Synchronize_48px.png" />
-               </image>
-            </ImageView>
-            <JFXButton fx:id="rbLoadBtn" layoutX="207.0" layoutY="268.0" onAction="#handleRunebookButtonPressed" prefHeight="42.0" prefWidth="126.0" style="-fx-background-color: #1e2328; -fx-border-color: d9ae50;" text="LOAD" textFill="#d9ae50">
-               <font>
-                  <Font name="FrizQuadrataStd" size="14.0" />
-               </font>
+            <Label text="Quick-Replies" textFill="WHITE" GridPane.rowIndex="4" GridPane.valignment="BOTTOM">
+                <font>
+                    <Font size="16.0"/>
+                </font>
+            </Label>
+            <Label text="Show quick reply interface" textFill="#f2efef" GridPane.rowIndex="5" GridPane.valignment="TOP">
+                <font>
+                    <Font size="13.0"/>
+                </font>
+            </Label>
+            <Separator opacity="0.33" prefHeight="1.0" prefWidth="307.0" GridPane.columnSpan="2" GridPane.rowIndex="6"/>
+            <JFXButton fx:id="craftKeyBtn" onAction="#handleSettingsButtonPressed" prefHeight="31.0" prefWidth="180.0"
+                       style="-fx-background-color: #1e2328; -fx-border-color: d9ae50;" text="CRAFT ALL KEYS"
+                       textFill="#d9ae50" GridPane.halignment="CENTER" GridPane.rowIndex="7"
+                       GridPane.valignment="CENTER">
+                <font>
+                    <Font name="Beaufort for LOL Bold" size="12.0"/>
+                </font>
             </JFXButton>
-            <JFXButton fx:id="rbImportBtn" layoutX="207.0" layoutY="64.0" onAction="#handleRunebookButtonPressed" prefHeight="42.0" prefWidth="126.0" style="-fx-background-color: #1e2328; -fx-border-color: d9ae50;" text="IMPORT" textFill="#d9ae50">
-               <font>
-                  <Font name="FrizQuadrataStd" size="14.0" />
-               </font>
+            <JFXButton fx:id="disenchantBtn" onAction="#handleSettingsButtonPressed" prefHeight="31.0" prefWidth="180.0"
+                       ripplerFill="#1986b1" style="-fx-background-color: #1e2328; -fx-border-color: d9ae50;"
+                       text="DISENCHANT CHAMPIONS" textFill="#d9ae50" GridPane.columnIndex="1"
+                       GridPane.halignment="CENTER" GridPane.rowIndex="7" GridPane.valignment="CENTER">
+                <font>
+                    <Font name="Beaufort for LOL Bold" size="12.0"/>
+                </font>
             </JFXButton>
-            <JFXButton fx:id="rbEditBtn" layoutX="207.0" layoutY="319.0" onAction="#handleRunebookButtonPressed" prefHeight="42.0" prefWidth="126.0" ripplerFill="#1986b1" style="-fx-background-color: #1e2328; -fx-border-color: d9ae50;" text="DELETE" textFill="#d9ae50">
-               <font>
-                  <Font name="FrizQuadrataStd" size="14.0" />
-               </font>
-            </JFXButton>
-         </children>
-      </AnchorPane>
-	</children>
+            <JFXToggleButton fx:id="noAwayBtn" onAction="#handleToggleButtonPressed" prefHeight="60.0" prefWidth="120.0"
+                             size="11.0" text="On" textFill="#eda678" toggleColor="#eda678" toggleLineColor="#eba478e2"
+                             GridPane.columnIndex="1" GridPane.rowIndex="0" GridPane.rowSpan="2">
+                <font>
+                    <Font size="13.0"/>
+                </font>
+            </JFXToggleButton>
+            <JFXToggleButton fx:id="autoQueueBtn" onAction="#handleToggleButtonPressed" prefHeight="60.0"
+                             prefWidth="120.0" size="11.0" text="On" textFill="#eda678" toggleColor="#eda678"
+                             toggleLineColor="#eba478e2" GridPane.columnIndex="1" GridPane.rowIndex="2"
+                             GridPane.rowSpan="2">
+                <font>
+                    <Font size="13.0"/>
+                </font>
+            </JFXToggleButton>
+            <JFXToggleButton fx:id="quickReplyBtn" onAction="#handleToggleButtonPressed" prefHeight="60.0"
+                             prefWidth="120.0" size="11.0" text="On" textFill="#eda678" toggleColor="#eda678"
+                             toggleLineColor="#eba478e2" GridPane.columnIndex="1" GridPane.rowIndex="4"
+                             GridPane.rowSpan="2">
+                <font>
+                    <Font size="13.0"/>
+                </font>
+            </JFXToggleButton>
+        </GridPane>
+        <ImageView layoutX="80.0" layoutY="-38.0" pickOnBounds="true" preserveRatio="true">
+            <Image url="@images/up.png" />
+        </ImageView>
+    </AnchorPane>
+    <AnchorPane fx:id="creditsPane" layoutY="86.0" prefHeight="385.0" prefWidth="480.0" visible="false">
+        <ImageView fitHeight="444.0" fitWidth="480.0" preserveRatio="true">
+            <Image url="@images/blueBackground.png" />
+            <viewport>
+                <Rectangle2D height="362.0" minX="450.0" minY="350.0" width="450.0" />
+            </viewport>
+        </ImageView>
+        <Label layoutX="163.0" layoutY="163.0" text="Brought to you by: Stirante" textFill="WHITE">
+            <font>
+                <Font name="System Bold" size="12.0" />
+            </font>
+        </Label>
+        <Label layoutX="171.0" layoutY="185.0" text="GUI Design by: Robin Withes" textFill="WHITE">
+            <font>
+                <Font size="11.0" />
+            </font>
+        </Label>
+        <ImageView layoutX="280.0" layoutY="-39.0" pickOnBounds="true" preserveRatio="true">
+            <Image url="@images/up.png" />
+        </ImageView>
+    </AnchorPane>
+    <AnchorPane fx:id="runebookPane" layoutY="86.0" prefHeight="381.0" prefWidth="380.0" visible="false">
+        <ImageView fitHeight="444.0" fitWidth="480.0" preserveRatio="true">
+            <Image url="@images/blueBackground.png" />
+            <viewport>
+                <Rectangle2D height="362.0" minX="450.0" minY="350.0" width="450.0" />
+            </viewport>
+        </ImageView>
+        <ImageView layoutX="175.0" layoutY="-39.0" pickOnBounds="true" preserveRatio="true">
+            <Image url="@images/up.png" />
+        </ImageView>
+        <JFXListView fx:id="localRunes" layoutX="14.0" layoutY="14.0" opacity="0.65" prefHeight="357.0" prefWidth="199.0" style="-fx-background-color: #122121; -fx-border-color: #9a9557;" />
+        <JFXButton fx:id="addBtn" layoutX="220.0" layoutY="172.0" onAction="#handleRunebookButtonPressed" prefHeight="42.0" prefWidth="42.0" style="-fx-background-color: #1e2328; -fx-border-color: d9ae50;" text="←" textFill="#d9ae50">
+            <font>
+                <Font name="Beaufort for LOL Bold" size="14.0" />
+            </font>
+        </JFXButton>
+        <JFXButton fx:id="removeBtn" layoutX="220.0" layoutY="329.0" onAction="#handleRunebookButtonPressed" prefHeight="42.0" prefWidth="42.0" ripplerFill="#1986b1" style="-fx-background-color: #1e2328; -fx-border-color: d9ae50;" text="X" textFill="#d9ae50">
+            <font>
+                <Font name="Beaufort for LOL Bold" size="14.0" />
+            </font>
+        </JFXButton>
+        <JFXListView fx:id="clientRunes" layoutX="267.0" layoutY="14.0" opacity="0.65" prefHeight="357.0" prefWidth="199.0" style="-fx-background-color: #122121; -fx-border-color: #9a9557;" />
+        <ImageView fx:id="syncButton" fitHeight="31.0" fitWidth="32.0" layoutX="225.0" layoutY="14.0" onMouseReleased="#handleSyncBtn" pickOnBounds="true" preserveRatio="true">
+            <Image url="@images/icons8_Synchronize_48px.png" />
+        </ImageView>
+    </AnchorPane>
 </AnchorPane>

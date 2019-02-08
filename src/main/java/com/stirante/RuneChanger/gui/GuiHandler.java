@@ -23,16 +23,16 @@ import java.util.ResourceBundle;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class GuiHandler {
-    private JWindow win;
-    private RuneButton canvas;
     private final AtomicBoolean running = new AtomicBoolean(true);
     private final AtomicBoolean windowOpen = new AtomicBoolean(false);
     private final AtomicBoolean openCommand = new AtomicBoolean(false);
     private final AtomicBoolean closeCommand = new AtomicBoolean(false);
     private final List<RunePage> runes = Collections.synchronizedList(new ArrayList<>());
+    private final ResourceBundle resourceBundle = LangHelper.getLang();
+    private JWindow win;
+    private RuneButton canvas;
     private WinDef.HWND hwnd;
     private RuneSelectedListener runeSelectedListener;
-    private final ResourceBundle resourceBundle = LangHelper.getLang();
 
     public GuiHandler() {
         handleWindowThread();

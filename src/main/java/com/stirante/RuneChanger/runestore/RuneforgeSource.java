@@ -1,4 +1,4 @@
-package com.stirante.RuneChanger.crawler;
+package com.stirante.RuneChanger.runestore;
 
 import com.google.gson.Gson;
 import com.stirante.RuneChanger.model.*;
@@ -20,9 +20,8 @@ public class RuneforgeSource implements RuneSource {
 
     private static final String URL_ADDRESS = "https://runeforge.gg/all-loadouts-data.json";
     private static final int TIMEOUT = 10000;
-
-    private static Loadout[] cache = null;
     private static final HashMap<Champion, List<RunePage>> pagesCache = new HashMap<>();
+    private static Loadout[] cache = null;
 
     public RuneforgeSource() {
         try {
@@ -64,15 +63,14 @@ public class RuneforgeSource implements RuneSource {
      * @param url url
      * @return rune page
      */
-    private RunePage getRunes(String url) {
+    private RunePage getRunes(Champion champion, String url) {
         try {
-            System.out.println("Checking: " + url);
             //get web page
             Document parse = Jsoup.parse(new URL(url), TIMEOUT);
             RunePage r = new RunePage();
             r.setUrl(url);
             //get rune page name
-            r.setName(StringUtils.fixString(parse.select("h2.loadout-title").text()));
+            r.setName(champion.getName() + ":" + StringUtils.fixString(parse.select("h2.loadout-title").text()));
             Element style = parse.getElementsByClass("rune-path--primary").first();
             String styleName = style.getElementsByClass("rune-path--path").first().attr("data-content-title");
             r.setMainStyle(Style.getByName(styleName));
@@ -127,7 +125,7 @@ public class RuneforgeSource implements RuneSource {
             for (Loadout loadout : cache) {
                 if (loadout.loadout_champion_name.equalsIgnoreCase(champion.getName()) ||
                         loadout.loadout_champion_name.equalsIgnoreCase(champion.getAlias())) {
-                    result.add(getRunes(loadout.loadout_url));
+                    result.add(getRunes(champion, loadout.loadout_url));
                 }
             }
         } catch (IOException e) {

@@ -5,7 +5,7 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 
 public enum Rune {
-    //Generated on 2019-01-25 21:17:40
+    //Generated on 2019-02-08 19:27:35
     RUNE_8005(8005, 8000, 0, "Press the Attack"),
     RUNE_8008(8008, 8000, 0, "Lethal Tempo"),
     RUNE_8009(8009, 8000, 1, "Presence of Mind"),
@@ -71,18 +71,49 @@ public enum Rune {
     RUNE_9923(9923, 8100, 0, "Hail of Blades");
 
 
-
     private final int id;
     private final Style style;
     private final int slot;
     private final String name;
     private BufferedImage image;
 
-     Rune(int id, int styleId, int slot, String name) {
+    Rune(int id, int styleId, int slot, String name) {
         this.id = id;
         style = Style.getById(styleId);
         this.slot = slot;
         this.name = name;
+    }
+
+    /**
+     * Get rune by name
+     *
+     * @param name rune name
+     * @return rune
+     */
+    public static Rune getByName(String name) {
+        for (Rune rune : values()) {
+            if (rune.name.equalsIgnoreCase(name) || rune.name.replaceAll("'", "’").equalsIgnoreCase(name)) {
+                return rune;
+            }
+        }
+        System.out.println(name + " not found");
+        return null;
+    }
+
+    /**
+     * Get rune by id
+     *
+     * @param id rune id
+     * @return rune
+     */
+    public static Rune getById(int id) {
+        for (Rune rune : values()) {
+            if (rune.id == id) {
+                return rune;
+            }
+        }
+        System.out.println(id + " not found");
+        return null;
     }
 
     /**
@@ -127,7 +158,9 @@ public enum Rune {
      * @return image
      */
     public BufferedImage getImage() {
-        if (getSlot() != 0) return null;
+        if (getSlot() != 0) {
+            return null;
+        }
         if (image == null) {
             try {
                 image = ImageIO.read(getClass().getResourceAsStream("/runes/" + getId() + ".png"));
@@ -136,20 +169,6 @@ public enum Rune {
             }
         }
         return image;
-    }
-
-    /**
-     * Get rune by name
-     *
-     * @param name rune name
-     * @return rune
-     */
-    public static Rune getByName(String name) {
-        for (Rune rune : values()) {
-            if (rune.name.equalsIgnoreCase(name) || rune.name.replaceAll("'", "’").equalsIgnoreCase(name)) return rune;
-        }
-        System.out.println(name + " not found");
-        return null;
     }
 
     @Override

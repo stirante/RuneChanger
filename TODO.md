@@ -10,4 +10,3 @@
 - [x] Update settings GUI
 - [ ] Automatically pick user defined champion(s)
 - [ ] Automatically ban user defined champion(s)
-- [ ] Add option to disable rune button

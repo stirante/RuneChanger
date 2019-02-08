@@ -1,0 +1,14 @@
+.list-cell:filled:selected:focused, .list-cell:filled:selected {
+    -fx-background-color: rgba(255, 255, 255, 0.2);
+    -fx-text-fill: white;
+}
+
+.list-cell {
+    -fx-text-fill: white;
+    -fx-background-color: transparent;
+}
+
+.list-cell:filled:hover {
+    -fx-background-color: rgba(255, 255, 255, 0.1);
+    -fx-text-fill: white;
+}

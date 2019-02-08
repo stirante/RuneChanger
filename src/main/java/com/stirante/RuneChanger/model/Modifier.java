@@ -40,6 +40,22 @@ public enum Modifier {
     }
 
     /**
+     * Get modifier by id
+     *
+     * @param id modifier
+     * @return modifier
+     */
+    public static Modifier getById(Integer id) {
+        for (Modifier mod : values()) {
+            if (mod.id == id) {
+                return mod;
+            }
+        }
+        System.out.println(id + " not found");
+        return null;
+    }
+
+    /**
      * Get modifier id
      *
      * @return modifier id

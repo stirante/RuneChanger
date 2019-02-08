@@ -1,4 +1,4 @@
-package com.stirante.RuneChanger.crawler;
+package com.stirante.RuneChanger.runestore;
 
 import com.stirante.RuneChanger.model.Champion;
 import com.stirante.RuneChanger.model.RunePage;

@@ -1,6 +1,6 @@
 package com.stirante.RuneChanger.gui;
 
-import com.stirante.RuneChanger.InGameButton;
+import com.stirante.RuneChanger.RuneChanger;
 import com.stirante.RuneChanger.model.RunePage;
 import com.stirante.RuneChanger.util.RuneSelectedListener;
 import com.stirante.RuneChanger.util.SimplePreferences;
@@ -25,20 +25,20 @@ public class RuneButton extends JPanel {
     private static final boolean DISPLAY_FAKE = false;
     private final Map<?, ?> desktopHints;
     private final List<RunePage> pages = new ArrayList<>();
-    private RuneSelectedListener runeSelectedListener;
-    private Font mFont;
-    private boolean opened = false;
-    private int selected = -1;
     private final Color textColor = new Color(0xc8aa6e);
     private final Color backgroundColor = new Color(0x010a13);
     private final Color lightenColor = new Color(1f, 1f, 1f, 0.2f);
     private final Color dividerColor = new Color(0x1e2328);
     private final Color darkenColor = new Color(0f, 0f, 0f, 0.01f);
-    private BufferedImage icon;
-    private BufferedImage fake;
     private final Rectangle botButton = new Rectangle(0, 0, 0, 0);
     private final Rectangle midButton = new Rectangle(0, 0, 0, 0);
     private final Rectangle topButton = new Rectangle(0, 0, 0, 0);
+    private RuneSelectedListener runeSelectedListener;
+    private Font mFont;
+    private boolean opened = false;
+    private int selected = -1;
+    private BufferedImage icon;
+    private BufferedImage fake;
     private float lastX = 0f;
     private float lastY = 0f;
 
@@ -203,13 +203,13 @@ public class RuneButton extends JPanel {
         }
         else {
             if (botButton.contains(e.getX(), e.getY())) {
-                InGameButton.sendMessageToChampSelect(BOT.toLowerCase());
+                RuneChanger.sendMessageToChampSelect(BOT.toLowerCase());
             }
             else if (midButton.contains(e.getX(), e.getY())) {
-                InGameButton.sendMessageToChampSelect(MID.toLowerCase());
+                RuneChanger.sendMessageToChampSelect(MID.toLowerCase());
             }
             else if (topButton.contains(e.getX(), e.getY())) {
-                InGameButton.sendMessageToChampSelect(TOP.toLowerCase());
+                RuneChanger.sendMessageToChampSelect(TOP.toLowerCase());
             }
         }
         repaint();

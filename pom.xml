@@ -13,6 +13,13 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
+    <repositories>
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
+    </repositories>
+
     <dependencies>
         <dependency>
             <groupId>com.google.code.gson</groupId>
@@ -21,9 +28,9 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>com.stirante</groupId>
+            <groupId>com.github.stirante</groupId>
             <artifactId>lol-client-java-api</artifactId>
-            <version>1.0.6</version>
+            <version>1.0.9</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
@@ -48,6 +55,7 @@
 			<groupId>com.jfoenix</groupId>
 			<artifactId>jfoenix</artifactId>
 			<version>8.0.8</version>
+            <scope>compile</scope>
 		</dependency>
     </dependencies>
 
@@ -69,7 +77,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>com.stirante.RuneChanger.InGameButton</mainClass>
+                            <mainClass>com.stirante.RuneChanger.RuneChanger</mainClass>
                         </manifest>
                     </archive>
                 </configuration>

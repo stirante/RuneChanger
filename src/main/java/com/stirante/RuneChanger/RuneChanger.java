@@ -1,6 +1,6 @@
 package com.stirante.RuneChanger;
 
-import com.stirante.RuneChanger.crawler.RuneCrawler;
+import com.stirante.RuneChanger.runestore.RuneStore;
 import com.stirante.RuneChanger.gui.GuiHandler;
 import com.stirante.RuneChanger.gui.Settings;
 import com.stirante.RuneChanger.model.Champion;
@@ -23,16 +23,15 @@ import java.net.SocketTimeoutException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-public class InGameButton {
+public class RuneChanger {
 
     //Used for testing the UI
     private static final boolean MOCK_SESSION = false;
-
+    private static final ResourceBundle resourceBundle = LangHelper.getLang();
     private static ClientApi api;
     private static GuiHandler gui;
     private static List<RunePage> runes;
     private static Champion champion;
-    private static final ResourceBundle resourceBundle = LangHelper.getLang();
     private static LolSummonerSummoner currentSummoner;
     private static ClientWebSocket socket;
 
@@ -89,7 +88,7 @@ public class InGameButton {
                     return;
                 }
                 d("Downloading runes");
-                runes = RuneCrawler.getRunes(champion);
+                runes = RuneStore.getRunes(champion);
                 if (runes == null || runes.isEmpty()) {
                     d("Runes for champion not available");
                 }
@@ -114,19 +113,20 @@ public class InGameButton {
                             if (!page1.isEditable || !page1.isActive) {
                                 page1 = availablePages.get(0);
                             }
-                            page1.primaryStyleId = page.getMainStyle().getId();
-                            page1.subStyleId = page.getSubStyle().getId();
-                            page1.name = (finalChamp.getName() + ":" + page.getName());
-                            //limit name to 25 characters (client limit)
-                            page1.name = page1.name.substring(0, Math.min(25, page1.name.length()));
-                            page1.selectedPerkIds.clear();
-                            for (Rune rune : page.getRunes()) {
-                                page1.selectedPerkIds.add(rune.getId());
-                            }
-                            for (Modifier mod : page.getModifiers()) {
-                                page1.selectedPerkIds.add(mod.getId());
-                            }
-                            page1.isActive = true;
+                            page.toClient(page1);
+//                            page1.primaryStyleId = page.getMainStyle().getId();
+//                            page1.subStyleId = page.getSubStyle().getId();
+//                            page1.name = (finalChamp.getName() + ":" + page.getName());
+//                            //limit name to 25 characters (client limit)
+//                            page1.name = page1.name.substring(0, Math.min(25, page1.name.length()));
+//                            page1.selectedPerkIds.clear();
+//                            for (Rune rune : page.getRunes()) {
+//                                page1.selectedPerkIds.add(rune.getId());
+//                            }
+//                            for (Modifier mod : page.getModifiers()) {
+//                                page1.selectedPerkIds.add(mod.getId());
+//                            }
+//                            page1.isActive = true;
                             api.executeDelete("/lol-perks/v1/pages/" + page1.id);
                             api.executePost("/lol-perks/v1/pages/", page1);
                         } catch (IOException ex) {
@@ -275,7 +275,7 @@ public class InGameButton {
     public static void sendMessageToChampSelect(String msg) {
         new Thread(() -> {
             try {
-                LolChampSelectChampSelectSession session = InGameButton.getApi()
+                LolChampSelectChampSelectSession session = RuneChanger.getApi()
                         .executeGet("/lol-champ-select/v1/session", LolChampSelectChampSelectSession.class);
                 String name = session.chatDetails.chatRoomName;
                 if (name == null) {
@@ -286,7 +286,7 @@ public class InGameButton {
                 message.body = msg;
                 message.type = "chat";
                 try {
-                    InGameButton.getApi().executePost("/lol-chat/v1/conversations/" + name + "/messages", message);
+                    RuneChanger.getApi().executePost("/lol-chat/v1/conversations/" + name + "/messages", message);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
