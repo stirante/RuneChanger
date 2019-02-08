@@ -72,7 +72,7 @@ public class SettingsController {
         rt.setOnFinished(event -> syncButton.setDisable(false));
     }
 
-    static void showWarning(String title, String header, String content) {
+    public static void showWarning(String title, String header, String content) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle(title);
         alert.setHeaderText(header);

@@ -2,6 +2,7 @@ package com.stirante.RuneChanger.util;
 
 import com.jfoenix.controls.JFXListView;
 import com.stirante.RuneChanger.RuneChanger;
+import static com.stirante.RuneChanger.gui.SettingsController.showWarning;
 import com.stirante.RuneChanger.model.RunePage;
 import generated.LolPerksPerkPageResource;
 import javafx.embed.swing.SwingFXUtils;
@@ -100,4 +101,37 @@ public class RuneBook {
             e.printStackTrace();
         }
     }
+
+	public static void loadAction(JFXListView<Label> list)
+	{
+		if (list.getFocusModel().getFocusedItem() == null)
+		{
+			System.out.println("No selection made to load");
+			return;
+		}
+		try
+		{
+			LolPerksPerkPageResource page1;
+			page1 = getSelectedPage();
+
+			if (!page1.isEditable)
+			{
+				showWarning("Page not editable!","The page you have chosen is not editable.","To continue you need to choose a editable page in the league client and try again.");
+				return;
+			}
+
+			page1.selectedPerkIds = processPerks(SimplePreferences.getRuneBookValue(list.getFocusModel().getFocusedItem().getText()));
+			page1.name = list.getFocusModel().getFocusedItem().getText();
+			page1.isActive = true;
+			page1.primaryStyleId = primaryStyle;
+			page1.subStyleId = subStyle;
+			api.executeDelete("/lol-perks/v1/pages/" + page1.id);
+			api.executePost("/lol-perks/v1/pages/", page1);
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+
+	}
 }
