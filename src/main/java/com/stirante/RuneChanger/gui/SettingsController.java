@@ -27,6 +27,8 @@ public class SettingsController {
     private JFXButton craftKeyBtn;
     @FXML
     private JFXButton addBtn;
+	@FXML
+	private JFXButton loadBtn;
     @FXML
     private JFXButton removeBtn;
     @FXML
@@ -157,6 +159,9 @@ public class SettingsController {
         else if (e.getTarget() == removeBtn) {
             RuneBook.deleteRunePage(localRunes);
         }
+        else if (e.getTarget() == loadBtn) {
+        	RuneBook.loadAction(localRunes);
+		}
     }
 
     @FXML
