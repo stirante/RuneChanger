@@ -6,6 +6,7 @@ import com.jfoenix.controls.JFXListView;
 import com.jfoenix.controls.JFXToggleButton;
 import com.stirante.RuneChanger.util.RuneBook;
 import com.stirante.RuneChanger.util.SimplePreferences;
+import javafx.animation.FadeTransition;
 import javafx.animation.RotateTransition;
 import javafx.event.Event;
 import javafx.fxml.FXML;
@@ -44,6 +45,10 @@ public class SettingsController {
     private AnchorPane creditsPane;
     @FXML
     private AnchorPane runebookPane;
+	@FXML
+	private AnchorPane mainPane;
+	@FXML
+	private AnchorPane toolbarPane;
     @FXML
     private JFXToggleButton quickReplyBtn;
     @FXML
@@ -52,6 +57,8 @@ public class SettingsController {
     private JFXToggleButton noAwayBtn;
     @FXML
     private JFXListView<Label> localRunes, clientRunes;
+
+    private static AnchorPane currentPane = null;
 
     private static void rotateSyncButton(ImageView syncButton) {
         if (syncButton.isDisabled()) {
@@ -73,23 +80,39 @@ public class SettingsController {
         alert.showAndWait();
     }
 
+	private FadeTransition fade(AnchorPane pane, int duration, int from, int to)
+	{
+		FadeTransition ft = new FadeTransition(Duration.millis(duration), pane);
+		ft.setFromValue(from);
+		ft.setToValue(to);
+		return ft;
+	}
+
     @FXML
     void handleMenuSelection(MouseEvent event) {
-        if (event.getTarget() == btn_settings) {
+        if (event.getTarget() == btn_settings && currentPane != settingsPane) {
             settingsPane.setVisible(true);
             runebookPane.setVisible(false);
             creditsPane.setVisible(false);
-
+			fade(currentPane,700,1,0).playFromStart();
+			fade(settingsPane,700,0,1).playFromStart();
+			currentPane = settingsPane;
         }
-        else if (event.getTarget() == btn_credits) {
+        else if (event.getTarget() == btn_credits && currentPane != creditsPane) {
             settingsPane.setVisible(false);
             runebookPane.setVisible(false);
             creditsPane.setVisible(true);
+			fade(currentPane,700,1,0).playFromStart();
+			fade(creditsPane,700,0,1).playFromStart();
+			currentPane = creditsPane;
         }
-        else if (event.getTarget() == btn_runebook) {
+        else if (event.getTarget() == btn_runebook && currentPane != runebookPane) {
             runebookPane.setVisible(true);
             creditsPane.setVisible(false);
             settingsPane.setVisible(false);
+			fade(currentPane,700,1,0).playFromStart();
+			fade(runebookPane,700,0,1).playFromStart();
+            currentPane = runebookPane;
         }
         else if (event.getTarget() == btn_exit) {
             mainStage.hide();
@@ -140,7 +163,9 @@ public class SettingsController {
     void initialize() {
         SimplePreferences.load();
         loadPreferences();
-        settingsPane.setVisible(true);
+		settingsPane.setVisible(true);
+		currentPane = settingsPane;
+		fade(mainPane,1750,0,1).playFromStart();
     }
 
     private void loadPreferences() {
