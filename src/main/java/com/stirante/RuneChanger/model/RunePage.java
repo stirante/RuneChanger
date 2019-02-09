@@ -205,11 +205,10 @@ public class RunePage {
         page.name = name.substring(0, Math.min(25, name.length()));
         page.primaryStyleId = mainStyle.getId();
         page.subStyleId = subStyle.getId();
-        if (page.selectedPerkIds == null)
-		{
-			List list = new ArrayList();
-			page.selectedPerkIds = list;
-		}
+        if (page.selectedPerkIds == null) {
+            List list = new ArrayList();
+            page.selectedPerkIds = list;
+        }
         page.selectedPerkIds.clear();
         for (Rune rune : runes) {
             page.selectedPerkIds.add(rune.getId());
