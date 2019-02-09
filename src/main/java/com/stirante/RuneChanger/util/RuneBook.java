@@ -107,33 +107,55 @@ public class RuneBook {
         }
     }
 
-	public static void loadAction(JFXListView<Label> list)
+	private static HashMap<String, Integer> getSortedPageIds() {
+		HashMap<String, Integer> map = new HashMap();
+		try {
+			LolPerksPerkPageResource[] pages;
+			pages = RuneChanger.getApi().executeGet("/lol-perks/v1/pages", LolPerksPerkPageResource[].class);
+			for (LolPerksPerkPageResource p : pages) {
+				if (p.isEditable && p.isValid) {
+					RunePage value = RunePage.fromClient(p);
+					if (value != null) {
+						map.put(p.name, p.id);
+					}
+				}
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return map;
+	}
+
+	public static void loadAction(JFXListView<Label> localRuneList, JFXListView<Label> clientRunesList)
 	{
 		ClientApi api = RuneChanger.getApi();
-		LolPerksPerkPageResource page1;
-		page1 = getSelectedPage();
-		if (list.getFocusModel().getFocusedItem() == null)
+		refreshAvailablePages();
+		LolPerksPerkPageResource page1 = new LolPerksPerkPageResource();
+		if (localRuneList.getFocusModel().getFocusedItem() == null || clientRunesList.getFocusModel().getFocusedItem() == null)
 		{
-			System.out.println("No selection made to load");
+			showWarning("No runepage to load to or from selected!", "Please select a runepage to load to and from from both the lists.", null);
 			return;
 		}
 
-		if (page1 == null || !page1.isEditable)
+		HashMap<String, Integer> sortedPageIds = getSortedPageIds();
+		Integer id = sortedPageIds.get(clientRunesList.getFocusModel().getFocusedItem().getText());
+		if (id == null)
 		{
-			showWarning("Page not editable!", "The page you have selected in your league of legends client is not editable!", "To continue you need to choose a editable page in the league client and try again.");
+			showWarning("The runepage you are trying to overwrite does not exist.", "Please refresh your runepages and then continue.", null);
 			return;
 		}
-		List<RunePage> runePageList = RuneStore.getLocalRunepageByName(list.getFocusModel().getFocusedItem().getText());
-		if (runePageList.isEmpty())
-		{
-			showWarning("No page by that name", "There is no locally stored runepage by the name: " + list.getFocusModel().getFocusedItem().getText(), null);
-			return;
-		}
-		runePageList.forEach(runepage -> runepage.toClient(page1));
 		new Thread(() -> {
 			try
 			{
-				api.executeDelete("/lol-perks/v1/pages/" + page1.id);
+				List<RunePage> runePageList = RuneStore.getLocalRunepageByName(localRuneList.getFocusModel().getFocusedItem().getText());
+				if (runePageList.isEmpty())
+				{
+					showWarning("No page by that name", "There is no locally stored runepage by the name: " + localRuneList.getFocusModel().getFocusedItem().getText(), null);
+					return;
+				}
+				runePageList.forEach(runepage -> runepage.toClient(page1));
+
+				api.executeDelete("/lol-perks/v1/pages/" + id);
 				api.executePost("/lol-perks/v1/pages/", page1);
 			}
 			catch (IOException e)

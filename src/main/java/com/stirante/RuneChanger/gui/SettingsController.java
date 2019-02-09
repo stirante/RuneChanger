@@ -160,7 +160,7 @@ public class SettingsController {
             RuneBook.deleteRunePage(localRunes);
         }
         else if (e.getTarget() == loadBtn) {
-        	RuneBook.loadAction(localRunes);
+        	RuneBook.loadAction(localRunes, clientRunes);
 		}
     }
 
