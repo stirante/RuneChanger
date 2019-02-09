@@ -129,14 +129,7 @@ public class RuneBook {
 			showWarning("No page by that name", "There is no locally stored runepage by the name: " + list.getFocusModel().getFocusedItem().getText(), null);
 			return;
 		}
-		runePageList.forEach(runepage -> {
-			System.out.println("Runes: " + runepage);
-			page1.subStyleId = runepage.getSubStyle().getId();
-			page1.isActive = true;
-			page1.name = runepage.getName();
-			page1.primaryStyleId = runepage.getMainStyle().getId();
-			runepage.toClient(page1);
-		});
+		runePageList.forEach(runepage -> runepage.toClient(page1));
 		new Thread(() -> {
 			try
 			{
