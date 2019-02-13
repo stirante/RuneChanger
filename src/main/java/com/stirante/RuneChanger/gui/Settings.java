@@ -46,8 +46,9 @@ public class Settings extends Application {
     }
 
     public static void main(String[] args) {
-        SimplePreferences.load();
-        launch(args);
+        RuneChanger.main(args);
+//        SimplePreferences.load();
+//        launch(args);
     }
 
     public static void craftKeys() {
