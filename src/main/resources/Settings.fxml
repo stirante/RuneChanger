@@ -139,12 +139,12 @@
             <Image url="@images/up.png" />
         </ImageView>
         <JFXListView fx:id="localRunes" layoutX="14.0" layoutY="14.0" opacity="0.65" prefHeight="357.0" prefWidth="199.0" style="-fx-background-color: #122121; -fx-border-color: #9a9557;" />
-        <JFXButton fx:id="addBtn" layoutX="220.0" layoutY="170.0" onAction="#handleRunebookButtonPressed" prefHeight="42.0" prefWidth="42.0" style="-fx-background-color: #1e2328; -fx-border-color: d9ae50;" text="←" textFill="#d9ae50">
+        <JFXButton fx:id="addBtn" layoutX="219.0" layoutY="170.0" onAction="#handleRunebookButtonPressed" prefHeight="42.0" prefWidth="42.0" style="-fx-background-color: #1e2328; -fx-border-color: d9ae50;" text="←" textFill="#d9ae50">
             <font>
                 <Font name="Beaufort for LOL Bold" size="14.0" />
             </font>
         </JFXButton>
-        <JFXButton fx:id="removeBtn" layoutX="220.0" layoutY="329.0" onAction="#handleRunebookButtonPressed" prefHeight="42.0" prefWidth="42.0" ripplerFill="#1986b1" style="-fx-background-color: #1e2328; -fx-border-color: d9ae50;" text="X" textFill="#d9ae50">
+        <JFXButton fx:id="removeBtn" layoutX="219.0" layoutY="328.0" onAction="#handleRunebookButtonPressed" prefHeight="42.0" prefWidth="42.0" ripplerFill="#1986b1" style="-fx-background-color: #1e2328; -fx-border-color: d9ae50;" text="X" textFill="#d9ae50">
             <font>
                 <Font name="Beaufort for LOL Bold" size="14.0" />
             </font>
@@ -153,7 +153,7 @@
         <ImageView fx:id="syncButton" fitHeight="31.0" fitWidth="32.0" layoutX="225.0" layoutY="14.0" onMouseReleased="#handleSyncBtn" pickOnBounds="true" preserveRatio="true">
             <Image url="@images/icons8_Synchronize_48px.png" />
         </ImageView>
-      <JFXButton fx:id="loadBtn" layoutX="220.0" layoutY="216.0" onAction="#handleRunebookButtonPressed" prefHeight="42.0" prefWidth="42.0" style="-fx-background-color: #1e2328; -fx-border-color: d9ae50;" text="→" textFill="#d9ae50">
+      <JFXButton fx:id="loadBtn" layoutX="219.0" layoutY="216.0" onAction="#handleRunebookButtonPressed" prefHeight="42.0" prefWidth="42.0" style="-fx-background-color: #1e2328; -fx-border-color: d9ae50;" text="→" textFill="#d9ae50">
          <font>
             <Font name="Beaufort for LOL Bold" size="14.0" />
          </font>
