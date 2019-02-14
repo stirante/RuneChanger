@@ -1,5 +1,6 @@
 package com.stirante.RuneChanger.model;
 
+import com.stirante.RuneChanger.RuneChanger;
 import generated.LolPerksPerkPageResource;
 
 import java.io.DataInputStream;
@@ -15,6 +16,43 @@ public class RunePage {
     private String name;
     private Style mainStyle;
     private Style subStyle;
+
+    /**
+     * Returns RunePage object based on page from client or null if page is wrong or incomplete
+     *
+     * @param page client rune page
+     * @return RunePage object
+     */
+    public static RunePage fromClient(LolPerksPerkPageResource page) {
+        // invalid page
+        if (page.selectedPerkIds.size() != 9 || !page.isValid || !page.isEditable) {
+            return null;
+        }
+
+        RunePage p = new RunePage();
+
+        // copy simple values
+        p.name = page.name;
+        p.mainStyle = Style.getById(page.primaryStyleId);
+        p.subStyle = Style.getById(page.subStyleId);
+
+        // copy selected runes
+        for (int i = 0; i < 6; i++) {
+            p.runes.add(Rune.getById(page.selectedPerkIds.get(i)));
+        }
+
+        // copy selected modifiers
+        for (int i = 6; i < 9; i++) {
+            p.modifiers.add(Modifier.getById(page.selectedPerkIds.get(i)));
+        }
+
+        // final verification
+        if (!p.verify()) {
+            return null;
+        }
+
+        return p;
+    }
 
     /**
      * Verifies rune page
@@ -154,45 +192,8 @@ public class RunePage {
             }
         }
         else {
-            System.out.println("Unknown rune page version " + version);
+            RuneChanger.d("Unknown rune page version " + version);
         }
-    }
-
-    /**
-     * Returns RunePage object based on page from client or null if page is wrong or incomplete
-     *
-     * @param page client rune page
-     * @return RunePage object
-     */
-    public static RunePage fromClient(LolPerksPerkPageResource page) {
-        // invalid page
-        if (page.selectedPerkIds.size() != 9 || !page.isValid || !page.isEditable) {
-            return null;
-        }
-
-        RunePage p = new RunePage();
-
-        // copy simple values
-        p.name = page.name;
-        p.mainStyle = Style.getById(page.primaryStyleId);
-        p.subStyle = Style.getById(page.subStyleId);
-
-        // copy selected runes
-        for (int i = 0; i < 6; i++) {
-            p.runes.add(Rune.getById(page.selectedPerkIds.get(i)));
-        }
-
-        // copy selected modifiers
-        for (int i = 6; i < 9; i++) {
-            p.modifiers.add(Modifier.getById(page.selectedPerkIds.get(i)));
-        }
-
-        // final verification
-        if (!p.verify()) {
-            return null;
-        }
-
-        return p;
     }
 
     /**
@@ -206,8 +207,7 @@ public class RunePage {
         page.primaryStyleId = mainStyle.getId();
         page.subStyleId = subStyle.getId();
         if (page.selectedPerkIds == null) {
-            List list = new ArrayList();
-            page.selectedPerkIds = list;
+            page.selectedPerkIds = new ArrayList<>();
         }
         page.selectedPerkIds.clear();
         for (Rune rune : runes) {

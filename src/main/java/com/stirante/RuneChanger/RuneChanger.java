@@ -1,12 +1,11 @@
 package com.stirante.RuneChanger;
 
-import com.stirante.RuneChanger.runestore.RuneStore;
+import com.stirante.RuneChanger.gui.Constants;
 import com.stirante.RuneChanger.gui.GuiHandler;
 import com.stirante.RuneChanger.gui.Settings;
 import com.stirante.RuneChanger.model.Champion;
-import com.stirante.RuneChanger.model.Modifier;
-import com.stirante.RuneChanger.model.Rune;
 import com.stirante.RuneChanger.model.RunePage;
+import com.stirante.RuneChanger.runestore.RuneStore;
 import com.stirante.RuneChanger.util.Elevate;
 import com.stirante.RuneChanger.util.LangHelper;
 import com.stirante.RuneChanger.util.SimplePreferences;
@@ -27,7 +26,6 @@ public class RuneChanger {
 
     //Used for testing the UI
     private static final boolean MOCK_SESSION = false;
-    private static final ResourceBundle resourceBundle = LangHelper.getLang();
     private static ClientApi api;
     private static GuiHandler gui;
     private static List<RunePage> runes;
@@ -103,8 +101,6 @@ public class RuneChanger {
                     if (champion == null || runes == null || runes.isEmpty()) {
                         return;
                     }
-                    //sometimes champion changes async and causes errors
-                    final Champion finalChamp = champion;
                     new Thread(() -> {
                         try {
                             //change pages
@@ -114,19 +110,6 @@ public class RuneChanger {
                                 page1 = availablePages.get(0);
                             }
                             page.toClient(page1);
-//                            page1.primaryStyleId = page.getMainStyle().getId();
-//                            page1.subStyleId = page.getSubStyle().getId();
-//                            page1.name = (finalChamp.getName() + ":" + page.getName());
-//                            //limit name to 25 characters (client limit)
-//                            page1.name = page1.name.substring(0, Math.min(25, page1.name.length()));
-//                            page1.selectedPerkIds.clear();
-//                            for (Rune rune : page.getRunes()) {
-//                                page1.selectedPerkIds.add(rune.getId());
-//                            }
-//                            for (Modifier mod : page.getModifiers()) {
-//                                page1.selectedPerkIds.add(mod.getId());
-//                            }
-//                            page1.isActive = true;
                             api.executeDelete("/lol-perks/v1/pages/" + page1.id);
                             api.executePost("/lol-perks/v1/pages/", page1);
                         } catch (IOException ex) {
@@ -141,7 +124,8 @@ public class RuneChanger {
         } catch (ConnectException e) {
             //can't connect to client api, probably client is closed
             e.printStackTrace();
-            JOptionPane.showMessageDialog(null, resourceBundle.getString("clientOff"), "RuneChanger", JOptionPane.INFORMATION_MESSAGE);
+            JOptionPane.showMessageDialog(null, LangHelper.getLang().getString("client_off"), Constants.APP_NAME,
+                    JOptionPane.INFORMATION_MESSAGE);
             System.exit(0);
         } catch (SSLHandshakeException e) {
             d("SSLHandshakeException: Nothing too serious unless this message spams whole console");
@@ -161,7 +145,7 @@ public class RuneChanger {
             Champion.init();
         } catch (IOException e) {
             e.printStackTrace();
-            JOptionPane.showMessageDialog(null, resourceBundle.getString("initDataError"), "RuneChanger",
+            JOptionPane.showMessageDialog(null, LangHelper.getLang().getString("init_data_error"), Constants.APP_NAME,
                     JOptionPane.WARNING_MESSAGE);
             System.exit(0);
         }
@@ -169,7 +153,8 @@ public class RuneChanger {
             api = new ClientApi();
         } catch (IllegalStateException e) {
             e.printStackTrace();
-            JOptionPane.showMessageDialog(null, resourceBundle.getString("noClient"), "RuneChanger", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(null, LangHelper.getLang()
+                    .getString("no_client"), Constants.APP_NAME, JOptionPane.WARNING_MESSAGE);
             System.exit(0);
         }
         Settings.initialize();
@@ -233,7 +218,8 @@ public class RuneChanger {
                     else if (event.getUri().equalsIgnoreCase("/riotclient/ux-state/request") &&
                             ((String) ((Map<String, Object>) event.getData()).get("state")).equalsIgnoreCase("Quit")) {
                         socket.close();
-                        JOptionPane.showMessageDialog(null, resourceBundle.getString("clientOff"), "RuneChanger", JOptionPane.INFORMATION_MESSAGE);
+                        JOptionPane.showMessageDialog(null, LangHelper.getLang()
+                                .getString("client_off"), Constants.APP_NAME, JOptionPane.INFORMATION_MESSAGE);
                         System.exit(0);
                     }
                 }
@@ -242,7 +228,8 @@ public class RuneChanger {
                 public void onClose(int i, String s) {
                     socket = null;
                     try {
-                        JOptionPane.showMessageDialog(null, resourceBundle.getString("clientOff"), "RuneChanger", JOptionPane.INFORMATION_MESSAGE);
+                        JOptionPane.showMessageDialog(null, LangHelper.getLang()
+                                .getString("client_off"), Constants.APP_NAME, JOptionPane.INFORMATION_MESSAGE);
                         System.exit(0);
                     } catch (ExceptionInInitializerError ignored) {
 
@@ -298,15 +285,12 @@ public class RuneChanger {
     }
 
     private static void checkOperatingSystem() {
-        if (!System.getProperty("os.name").startsWith("Windows")) {
-            System.out.println("User is not on a windows machine.");
-            JOptionPane.showMessageDialog(null, "This program will only work on a computer running windows.",
-                    "RuneChanger",
+        if (!System.getProperty("os.name").toLowerCase().startsWith("windows")) {
+            d("User is not on a windows machine.");
+            JOptionPane.showMessageDialog(null, LangHelper.getLang().getString("windows_only"),
+                    Constants.APP_NAME,
                     JOptionPane.WARNING_MESSAGE);
             System.exit(0);
-        }
-        else {
-            System.out.println("User is running on a windows machine.");
         }
     }
 

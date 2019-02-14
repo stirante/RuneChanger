@@ -1,7 +1,7 @@
 package com.stirante.RuneChanger.gui;
 
 import com.stirante.RuneChanger.RuneChanger;
-import com.stirante.RuneChanger.util.SimplePreferences;
+import com.stirante.RuneChanger.util.LangHelper;
 import generated.LolLootPlayerLoot;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -47,8 +47,6 @@ public class Settings extends Application {
 
     public static void main(String[] args) {
         RuneChanger.main(args);
-//        SimplePreferences.load();
-//        launch(args);
     }
 
     public static void craftKeys() {
@@ -62,7 +60,9 @@ public class Settings extends Application {
                                     keyFragments.count / 3, new String[]{"MATERIAL_key_fragment"});
                 }
                 else {
-                    Platform.runLater(() -> showWarning("ERROR", "Not enough key fragments", "You do not have enough key fragments to perform this operation!"));
+                    Platform.runLater(() -> showWarning("ERROR", LangHelper.getLang()
+                            .getString("not_enough_key_fragments"), LangHelper.getLang()
+                            .getString("not_enough_key_fragments_message")));
                 }
             } catch (IOException e) {
                 e.printStackTrace();
@@ -93,7 +93,10 @@ public class Settings extends Application {
     public void start(Stage stage) throws IOException {
         Font.loadFont(getClass().getResource("/Beaufort-Bold.ttf").toExternalForm(), 10);
         mainStage = stage;
-        Parent root = FXMLLoader.load(getClass().getResource("/Settings.fxml"));
+        FXMLLoader fxmlLoader = new FXMLLoader();
+        fxmlLoader.setResources(LangHelper.getLang());
+        fxmlLoader.setLocation(getClass().getResource("/Settings.fxml"));
+        Parent root = fxmlLoader.load();
         stage.initStyle(StageStyle.TRANSPARENT);
         root.setOnMousePressed(event -> {
             xOffset = event.getSceneX();

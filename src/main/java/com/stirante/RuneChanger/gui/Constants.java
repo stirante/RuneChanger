@@ -3,8 +3,11 @@ package com.stirante.RuneChanger.gui;
 public class Constants {
     public static final int MARGIN = 10;
 
+    //app name
+    public static final String APP_NAME = "RuneChanger";
+
     //version string
-    public static final String VERSION_STRING = "1.5";
+    public static final String VERSION_STRING = "1.8";
 
     //percentage positions and lengths
     public static final float RUNE_BUTTON_POSITION_X = 0.30546874f;

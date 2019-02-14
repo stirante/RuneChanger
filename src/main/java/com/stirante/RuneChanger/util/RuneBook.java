@@ -2,26 +2,20 @@ package com.stirante.RuneChanger.util;
 
 import com.jfoenix.controls.JFXListView;
 import com.stirante.RuneChanger.RuneChanger;
-
-import static com.stirante.RuneChanger.gui.SettingsController.showWarning;
-
 import com.stirante.RuneChanger.model.RunePage;
-import com.stirante.RuneChanger.runestore.RuneStore;
 import com.stirante.lolclient.ClientApi;
 import generated.LolPerksPerkPageResource;
-
-import java.util.List;
-
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
 import javafx.scene.paint.Color;
 
-import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.HashMap;
+
+import static com.stirante.RuneChanger.gui.SettingsController.showWarning;
 
 public class RuneBook {
     private static HashMap<String, RunePage> availablePages = new HashMap<>();
@@ -47,18 +41,19 @@ public class RuneBook {
                 .filtered(label -> label.getText().equalsIgnoreCase(focusedItem.getText()))
                 .isEmpty()) {
             Alert alert = new Alert(Alert.AlertType.WARNING);
-            alert.setTitle("Duplicate name!");
+            alert.setTitle(LangHelper.getLang().getString("duplicate_name"));
             alert.setHeaderText(null);
-            alert.setContentText("You already have rune page with name \"" + focusedItem.getText() + "\"!");
+            alert.setContentText(String.format(LangHelper.getLang()
+                    .getString("duplicate_name_msg"), focusedItem.getText()));
             alert.showAndWait();
             return;
         }
         RunePage runePage = availablePages.get(focusedItem.getText());
         if (runePage == null) {
             Alert alert = new Alert(Alert.AlertType.WARNING);
-            alert.setTitle("Missing page!");
+            alert.setTitle(LangHelper.getLang().getString("missing_page"));
             alert.setHeaderText(null);
-            alert.setContentText("The rune page you are trying to import is not available!");
+            alert.setContentText(LangHelper.getLang().getString("missing_page_message"));
             alert.showAndWait();
             return;
         }
@@ -67,21 +62,18 @@ public class RuneBook {
     }
 
     private static Label createListElement(RunePage page) {
-        try {
-            BufferedImage image = ImageIO.read(RuneBook.class.getResourceAsStream(
-                    "/runes/" + page.getRunes().get(0).getId() + ".png"));
-            Label label = new Label(page.getName());
-            label.setTextFill(Color.WHITE);
-            ImageView imageView = new ImageView(SwingFXUtils.toFXImage(image, null));
-            imageView.setFitHeight(25);
-            imageView.setFitWidth(25);
-            label.autosize();
-            label.setGraphic(imageView);
-            return label;
-        } catch (IOException e) {
-            e.printStackTrace();
+        BufferedImage image = page.getRunes().get(0).getImage();
+        if (image == null) {
             return null;
         }
+        Label label = new Label(page.getName());
+        label.setTextFill(Color.WHITE);
+        ImageView imageView = new ImageView(SwingFXUtils.toFXImage(image, null));
+        imageView.setFitHeight(25);
+        imageView.setFitWidth(25);
+        label.autosize();
+        label.setGraphic(imageView);
+        return label;
     }
 
     public static void deleteRunePage(JFXListView<Label> localList) {
@@ -110,7 +102,7 @@ public class RuneBook {
     }
 
     private static HashMap<String, Integer> getSortedPageIds() {
-        HashMap<String, Integer> map = new HashMap();
+        HashMap<String, Integer> map = new HashMap<>();
         try {
             LolPerksPerkPageResource[] pages;
             pages = RuneChanger.getApi().executeGet("/lol-perks/v1/pages", LolPerksPerkPageResource[].class);
@@ -134,26 +126,31 @@ public class RuneBook {
         LolPerksPerkPageResource page1 = new LolPerksPerkPageResource();
         if (localRuneList.getFocusModel().getFocusedItem() == null ||
                 clientRunesList.getFocusModel().getFocusedItem() == null) {
-            showWarning("No runepage to load to or from selected!", "Please select a runepage to load to and from from both the lists.", null);
+            showWarning(LangHelper.getLang().getString("no_runepage_to_load"), LangHelper.getLang()
+                    .getString("no_runepage_to_load_message"), null);
             return;
         }
 
         HashMap<String, Integer> sortedPageIds = getSortedPageIds();
         Integer id = sortedPageIds.get(clientRunesList.getFocusModel().getFocusedItem().getText());
         if (id == null) {
-            showWarning("The runepage you are trying to overwrite does not exist.", "Please refresh your runepages and then continue.", null);
+            showWarning(LangHelper.getLang().getString("no_runepage_to_overwrite"), LangHelper.getLang()
+                    .getString("no_runepage_to_overwrite_message"), null);
             return;
         }
         new Thread(() -> {
             try {
-                List<RunePage> runePageList =
-                        RuneStore.getLocalRunepageByName(localRuneList.getFocusModel().getFocusedItem().getText());
-                if (runePageList.isEmpty()) {
-                    showWarning("No page by that name", "There is no locally stored runepage by the name: " +
-                            localRuneList.getFocusModel().getFocusedItem().getText(), null);
+                RunePage runePage =
+                        SimplePreferences.getRuneBookPage(localRuneList.getFocusModel().getFocusedItem().getText());
+                if (runePage == null) {
+                    showWarning(LangHelper.getLang().getString("no_page_with_name"), String.format(LangHelper.getLang()
+                            .getString("no_page_with_name_message"), localRuneList
+                            .getFocusModel()
+                            .getFocusedItem()
+                            .getText()), null);
                     return;
                 }
-                runePageList.forEach(runepage -> runepage.toClient(page1));
+                runePage.toClient(page1);
 
                 api.executeDelete("/lol-perks/v1/pages/" + id);
                 api.executePost("/lol-perks/v1/pages/", page1);
@@ -163,13 +160,4 @@ public class RuneBook {
         }).start();
     }
 
-    private static LolPerksPerkPageResource getSelectedPage() {
-        LolPerksPerkPageResource page1 = new LolPerksPerkPageResource();
-        try {
-            page1 = RuneChanger.getApi().executeGet("/lol-perks/v1/currentpage", LolPerksPerkPageResource.class);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return page1;
-    }
 }
