@@ -155,6 +155,7 @@ public class RuneChanger {
 
     public static void main(String[] args) {
         Elevate.elevate(args);
+        checkOperatingSystem();
         SimplePreferences.load();
         try {
             Champion.init();
@@ -294,6 +295,19 @@ public class RuneChanger {
                 e.printStackTrace();
             }
         }).start();
+    }
+
+    private static void checkOperatingSystem() {
+        if (!System.getProperty("os.name").startsWith("Windows")) {
+            System.out.println("User is not on a windows machine.");
+            JOptionPane.showMessageDialog(null, "This program will only work on a computer running windows.",
+                    "RuneChanger",
+                    JOptionPane.WARNING_MESSAGE);
+            System.exit(0);
+        }
+        else {
+            System.out.println("User is running on a windows machine.");
+        }
     }
 
 }
