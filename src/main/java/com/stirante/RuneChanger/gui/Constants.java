@@ -9,6 +9,9 @@ public class Constants {
     //version string
     public static final String VERSION_STRING = "1.8";
 
+    //github latest release url
+    public static final String LATEST_RELEASE_URL = "https://api.github.com/repos/stirante/RuneChanger/releases/latest";
+
     //percentage positions and lengths
     public static final float RUNE_BUTTON_POSITION_X = 0.30546874f;
     public static final float RUNE_BUTTON_POSITION_Y = 0.9305556f;
