@@ -10,3 +10,4 @@
 - [x] Update settings GUI
 - [ ] Automatically pick user defined champion(s)
 - [ ] Automatically ban user defined champion(s)
+- [x] Fade in and out transitions 
