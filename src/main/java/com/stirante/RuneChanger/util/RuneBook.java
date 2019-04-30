@@ -52,18 +52,17 @@ public class RuneBook {
             e.printStackTrace();
         }
         if (data == null) {
-            showWarning("Error: Invalid data","Your CTRL-C buffer contains invalid data","You can only import runepages exported from Runechanger.");
+            showWarning("Error: Invalid data", "Your CTRL-C buffer contains invalid data", "You can only import runepages exported from Runechanger.");
             return;
         }
         List<String> list = stringToList(data);
         RunePage page = new RunePage();
         if (!page.importRunePage(list)) {
-            showWarning("Invalid Runepage","Invalid Runepage","This runepage does not have the required information to be imported!");
+            showWarning("Invalid Runepage", "Invalid Runepage", "This runepage does not have the required information to be imported!");
             return;
         }
-        //TODO: check for duplicate names
         if ((!localList.getItems().filtered(label -> label.getText().equalsIgnoreCase(page.getName())).isEmpty())) {
-            showWarning("Invalid Runepage","Duplicate Name Error","Another runepage with the same name already exists");
+            showWarning("Invalid Runepage", "Duplicate Name Error", "Another runepage with the same name already exists");
             return;
         }
         SimplePreferences.addRuneBookPage(page);
@@ -90,12 +89,12 @@ public class RuneBook {
         }
 
         if (!runePage.verify()) {
-            showWarning("Invalid Runepage","Error: Invalid Runepage","Please copy a valid runepage to continue.");
+            showWarning("Invalid Runepage", "Error: Invalid Runepage", "Please copy a valid runepage to continue.");
         }
 
         StringSelection selection = new StringSelection(runePage.exportRunePage().toString());
         clipboard.setContents(selection, selection);
-        showInfoAlert("Succesfully copied Rune Data","You succesfully copied the selected Rune Data!","");
+        showInfoAlert("Succesfully copied Rune Data", "You succesfully copied the selected Rune Data!", "");
     }
 
     public static void importLocalRunes(JFXListView<Label> localList, JFXListView<Label> clientList) {

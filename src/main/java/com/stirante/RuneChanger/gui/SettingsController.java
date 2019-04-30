@@ -175,14 +175,15 @@ public class SettingsController {
         }
     }
 
-	@FXML
-	void onListViewKeyPressed(KeyEvent event) {
-		if (event.getCode().equals(KeyCode.C) && event.isControlDown()) {
-			RuneBook.handleCtrlC((JFXListView<Label>) event.getSource());
-		} else if (event.getCode().equals(KeyCode.V) && event.isControlDown()) {
-			RuneBook.handleCtrlV((JFXListView<Label>) event.getSource());
-		}
-	}
+    @FXML
+    void onListViewKeyPressed(KeyEvent event) {
+        if (event.getCode().equals(KeyCode.C) && event.isControlDown()) {
+            RuneBook.handleCtrlC((JFXListView<Label>) event.getSource());
+        }
+        else if (event.getCode().equals(KeyCode.V) && event.isControlDown()) {
+            RuneBook.handleCtrlV((JFXListView<Label>) event.getSource());
+        }
+    }
 
     @FXML
     void initialize() {

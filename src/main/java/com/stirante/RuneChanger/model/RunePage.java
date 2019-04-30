@@ -264,7 +264,7 @@ public class RunePage {
         }
 
         for (int i = 3; i < 9; i++) {
-            runesImport.add(Rune.getById(Integer.parseInt((String) runepageList.get(i) )));
+            runesImport.add(Rune.getById(Integer.parseInt((String) runepageList.get(i))));
         }
 
         this.name = (String) runepageList.get(0);
