@@ -1,7 +1,10 @@
 package com.stirante.RuneChanger.util;
 
 import java.text.Normalizer;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 
 public class StringUtils {
 
@@ -38,5 +41,19 @@ public class StringUtils {
             str = Normalizer.normalize(str, Normalizer.Form.NFC);
         }
         return str;
+    }
+
+    /**
+     * Connvert a string structured like a array to a list
+     *
+     * @param str string
+     * @return List<String>
+     */
+    public static List<String> stringToList(String str) {
+        String replace = str.replace("[","");
+        String replace1 = replace.replace("]","");
+        replace1 = replace1.replace(" ", "");
+        List<String> myList = new ArrayList<>(Arrays.asList(replace1.split(",")));
+        return myList;
     }
 }
