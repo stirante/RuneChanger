@@ -9,9 +9,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.stirante.RuneChanger.gui.SettingsController.showWarning;
+
 public class RunePage {
-    private final List<Rune> runes = new ArrayList<>(6);
-    private final List<Modifier> modifiers = new ArrayList<>(3);
+    private List<Rune> runes = new ArrayList<>(6);
+    private List<Modifier> modifiers = new ArrayList<>(3);
     private String url;
     private String name;
     private Style mainStyle;
@@ -217,6 +219,60 @@ public class RunePage {
             page.selectedPerkIds.add(mod.getId());
         }
         page.isActive = true;
+    }
+
+    /**
+     * Exports runepage into a list with numbers
+     *
+     * @return list containing rune and modifier id's
+     */
+    public List exportRunePage() {
+        List runepageList = new ArrayList();
+
+        runepageList.add(name);
+        runepageList.add(mainStyle);
+        runepageList.add(subStyle);
+
+        runes.forEach(rune -> {
+            runepageList.add(rune.getId());
+        });
+
+        modifiers.forEach(modifier -> {
+            runepageList.add(modifier.getId());
+        });
+
+        return runepageList;
+    }
+
+    /**
+     * Imports runepage into a list with numbers.
+     *
+     * @param runepageList containing int's corresponding to runes
+     * @return boolean true if succesfull false if not
+     */
+    public boolean importRunePage(List runepageList) {
+
+        if (runepageList.size() != 12) {
+            return false;
+        }
+
+        List<Rune> runesImport = new ArrayList<>(6);
+        List<Modifier> modifiersImport = new ArrayList<>(3);
+
+        for (int i = 9; i < 12; i++) {
+            modifiersImport.add(Modifier.getById(Integer.parseInt((String) runepageList.get(i))));
+        }
+
+        for (int i = 3; i < 9; i++) {
+            runesImport.add(Rune.getById(Integer.parseInt((String) runepageList.get(i) )));
+        }
+
+        this.name = (String) runepageList.get(0);
+        this.mainStyle = Style.valueOf((String) runepageList.get(1));
+        this.subStyle = Style.valueOf((String) runepageList.get(2));
+        this.runes = runesImport;
+        this.modifiers = modifiersImport;
+        return this.verify();
     }
 
 }
