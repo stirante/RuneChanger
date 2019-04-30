@@ -12,8 +12,8 @@ import java.util.List;
 import static com.stirante.RuneChanger.gui.SettingsController.showWarning;
 
 public class RunePage {
-    private List<Rune> runes = new ArrayList<>(6);
-    private List<Modifier> modifiers = new ArrayList<>(3);
+    private final List<Rune> runes = new ArrayList<>(6);
+    private final List<Modifier> modifiers = new ArrayList<>(3);
     private String url;
     private String name;
     private Style mainStyle;
@@ -256,22 +256,17 @@ public class RunePage {
             return false;
         }
 
-        List<Rune> runesImport = new ArrayList<>(6);
-        List<Modifier> modifiersImport = new ArrayList<>(3);
-
         for (int i = 9; i < 12; i++) {
-            modifiersImport.add(Modifier.getById(Integer.parseInt((String) runepageList.get(i))));
+            this.modifiers.add(Modifier.getById(Integer.parseInt((String) runepageList.get(i))));
         }
 
         for (int i = 3; i < 9; i++) {
-            runesImport.add(Rune.getById(Integer.parseInt((String) runepageList.get(i))));
+            this.runes.add(Rune.getById(Integer.parseInt((String) runepageList.get(i))));
         }
 
         this.name = (String) runepageList.get(0);
         this.mainStyle = Style.valueOf((String) runepageList.get(1));
         this.subStyle = Style.valueOf((String) runepageList.get(2));
-        this.runes = runesImport;
-        this.modifiers = modifiersImport;
         return this.verify();
     }
 
