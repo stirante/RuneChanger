@@ -50,8 +50,8 @@ public class StringUtils {
      * @return List<String>
      */
     public static List<String> stringToList(String str) {
-        String replace = str.replace("[","");
-        String replace1 = replace.replace("]","");
+        String replace = str.replace("[", "");
+        String replace1 = replace.replace("]", "");
         replace1 = replace1.replace(" ", "");
         List<String> myList = new ArrayList<>(Arrays.asList(replace1.split(",")));
         return myList;
