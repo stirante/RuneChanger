@@ -54,6 +54,9 @@ public class RuneforgeSource implements RuneSource {
                     System.out.println("\t\tBAD: " + rune.getUrl());
                 }
             }
+            if (runes.size() == 0) {
+                System.out.println("\t\tNOTHING FOUND!");
+            }
         }
     }
 
@@ -124,7 +127,8 @@ public class RuneforgeSource implements RuneSource {
             }
             for (Loadout loadout : cache) {
                 if (loadout.loadout_champion_name.equalsIgnoreCase(champion.getName()) ||
-                        loadout.loadout_champion_name.equalsIgnoreCase(champion.getAlias())) {
+                        loadout.loadout_champion_name.equalsIgnoreCase(champion.getAlias()) ||
+                        loadout.loadout_champion_name.equalsIgnoreCase(champion.getInternalName())) {
                     result.add(getRunes(champion, loadout.loadout_url));
                 }
             }
