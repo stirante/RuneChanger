@@ -3,15 +3,19 @@ package com.stirante.RuneChanger.gui;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXListView;
 import com.jfoenix.controls.JFXToggleButton;
+import com.stirante.RuneChanger.model.Rune;
 import com.stirante.RuneChanger.util.RuneBook;
 import com.stirante.RuneChanger.util.SimplePreferences;
 import javafx.animation.FadeTransition;
 import javafx.animation.RotateTransition;
+import javafx.application.Platform;
 import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.util.Duration;
@@ -81,6 +85,14 @@ public class SettingsController {
         alert.showAndWait();
     }
 
+    public static void showInfoAlert(String title, String header, String content) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle(title);
+        alert.setHeaderText(header);
+        alert.setContentText(content);
+        alert.showAndWait();
+    }
+
     private FadeTransition fade(AnchorPane pane, int duration, int from, int to) {
         FadeTransition ft = new FadeTransition(Duration.millis(duration), pane);
         ft.setFromValue(from);
@@ -113,6 +125,7 @@ public class SettingsController {
             fade(currentPane, 700, 1, 0).playFromStart();
             fade(runebookPane, 700, 0, 1).playFromStart();
             currentPane = runebookPane;
+            Platform.runLater(() -> RuneBook.refreshClientRunes(clientRunes));
         }
         else if (event.getTarget() == btn_exit) {
             mainStage.hide();
@@ -159,6 +172,16 @@ public class SettingsController {
         }
         else if (e.getTarget() == loadBtn) {
             RuneBook.loadAction(localRunes, clientRunes);
+        }
+    }
+
+    @FXML
+    void onListViewKeyPressed(KeyEvent event) {
+        if (event.getCode().equals(KeyCode.C) && event.isControlDown()) {
+            RuneBook.handleCtrlC((JFXListView<Label>) event.getSource());
+        }
+        else if (event.getCode().equals(KeyCode.V) && event.isControlDown()) {
+            RuneBook.handleCtrlV((JFXListView<Label>) event.getSource());
         }
     }
 

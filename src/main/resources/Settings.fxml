@@ -89,17 +89,12 @@
                 </font>
             </Label>
             <Separator opacity="0.33" prefHeight="1.0" prefWidth="307.0" GridPane.columnSpan="2" GridPane.rowIndex="6" />
-            <JFXButton fx:id="craftKeyBtn" onAction="#handleSettingsButtonPressed" prefHeight="31.0"
-                       prefWidth="180.0" style="-fx-background-color: #1e2328; -fx-border-color: d9ae50;" text="%craft_all_keys"
-                       textFill="#d9ae50" GridPane.halignment="CENTER" GridPane.rowIndex="7" GridPane.valignment="CENTER">
+            <JFXButton fx:id="craftKeyBtn" onAction="#handleSettingsButtonPressed" prefHeight="31.0" prefWidth="180.0" style="-fx-background-color: #1e2328; -fx-border-color: d9ae50;" text="%craft_all_keys" textFill="#d9ae50" GridPane.halignment="CENTER" GridPane.rowIndex="7" GridPane.valignment="CENTER">
                 <font>
                     <Font name="Beaufort for LOL Bold" size="12.0" />
                 </font>
             </JFXButton>
-            <JFXButton fx:id="disenchantBtn" onAction="#handleSettingsButtonPressed" prefHeight="31.0"
-                       prefWidth="180.0" ripplerFill="#1986b1"
-                       style="-fx-background-color: #1e2328; -fx-border-color: d9ae50;" text="%disenchant_champions" textFill="#d9ae50"
-                       GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="7" GridPane.valignment="CENTER">
+            <JFXButton fx:id="disenchantBtn" onAction="#handleSettingsButtonPressed" prefHeight="31.0" prefWidth="180.0" ripplerFill="#1986b1" style="-fx-background-color: #1e2328; -fx-border-color: d9ae50;" text="%disenchant_champions" textFill="#d9ae50" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="7" GridPane.valignment="CENTER">
                 <font>
                     <Font name="Beaufort for LOL Bold" size="12.0" />
                 </font>
@@ -143,7 +138,7 @@
         <ImageView layoutX="177.0" layoutY="-29.0" pickOnBounds="true" preserveRatio="true">
             <Image url="@images/up.png" />
         </ImageView>
-        <JFXListView fx:id="localRunes" layoutX="14.0" layoutY="14.0" opacity="0.65" prefHeight="357.0" prefWidth="199.0" style="-fx-background-color: #122121; -fx-border-color: #9a9557;" />
+        <JFXListView fx:id="localRunes" layoutX="14.0" layoutY="14.0" onKeyPressed="#onListViewKeyPressed" opacity="0.65" prefHeight="357.0" prefWidth="199.0" style="-fx-background-color: #122121; -fx-border-color: #9a9557;" />
         <JFXButton fx:id="addBtn" layoutX="219.0" layoutY="170.0" onAction="#handleRunebookButtonPressed" prefHeight="42.0" prefWidth="42.0" style="-fx-background-color: #1e2328; -fx-border-color: d9ae50;" text="←" textFill="#d9ae50">
             <font>
                 <Font name="Beaufort for LOL Bold" size="14.0" />
