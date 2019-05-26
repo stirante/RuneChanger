@@ -1,5 +1,6 @@
 package com.stirante.RuneChanger.gui;
 
+import com.stirante.RuneChanger.DebugConsts;
 import com.stirante.RuneChanger.RuneChanger;
 import com.stirante.RuneChanger.model.RunePage;
 import com.stirante.RuneChanger.util.RuneSelectedListener;
@@ -8,6 +9,7 @@ import com.stirante.RuneChanger.util.SimplePreferences;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -22,7 +24,6 @@ public class RuneButton extends JPanel {
     public static final String BOT = "BOT";
     public static final String MID = "MID";
     public static final String TOP = "TOP";
-    private static final boolean DISPLAY_FAKE = false;
     private final Map<?, ?> desktopHints;
     private final List<RunePage> pages = new ArrayList<>();
     private final Color textColor = new Color(0xc8aa6e);
@@ -33,6 +34,7 @@ public class RuneButton extends JPanel {
     private final Rectangle botButton = new Rectangle(0, 0, 0, 0);
     private final Rectangle midButton = new Rectangle(0, 0, 0, 0);
     private final Rectangle topButton = new Rectangle(0, 0, 0, 0);
+    private Font font;
     private RuneSelectedListener runeSelectedListener;
     private Font mFont;
     private boolean opened = false;
@@ -46,10 +48,10 @@ public class RuneButton extends JPanel {
         super();
         try {
             InputStream is = getClass().getResourceAsStream("/Beaufort-Bold.ttf");
-            Font font = Font.createFont(Font.TRUETYPE_FONT, is);
+            font = Font.createFont(Font.TRUETYPE_FONT, is);
             mFont = font.deriveFont(15f);
             icon = ImageIO.read(getClass().getResourceAsStream("/images/runechanger-runeforge-icon-28x28.png"));
-            if (DISPLAY_FAKE) {
+            if (DebugConsts.DISPLAY_FAKE) {
                 fake = ImageIO.read(new File("champ select.png"));
             }
         } catch (IOException | FontFormatException e) {
@@ -57,6 +59,12 @@ public class RuneButton extends JPanel {
         }
         desktopHints = (Map<?, ?>) Toolkit.getDefaultToolkit().getDesktopProperty("awt.font.desktophints");
         setBackground(new Color(0f, 0f, 0f, 0f));
+        timer = new Timer(1, new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                repaint();
+            }
+        });
     }
 
     public void setRuneData(List<RunePage> pages, RuneSelectedListener runeSelectedListener) {
@@ -66,16 +74,28 @@ public class RuneButton extends JPanel {
         repaint();
     }
 
+    private static float ease(float currentPosition, float targetPosition) {
+        return currentPosition + ((targetPosition - currentPosition) * 0.1f);
+    }
+
+    private float currentPosition = 1f;
+    private Timer timer;
+
     @SuppressWarnings("SuspiciousNameCombination")
     @Override
     public void paintComponent(Graphics g) {
+        int fontSize = (int) (Constants.FONT_SIZE * getHeight());
+        if (mFont.getSize() != fontSize) {
+            System.out.println(mFont.getSize() + " != " + fontSize);
+            mFont = font.deriveFont((float) fontSize);
+        }
         Graphics2D g2d = (Graphics2D) g;
         g2d.clearRect(0, 0, getWidth(), getHeight());
         if (desktopHints != null) {
             g2d.setRenderingHints(desktopHints);
         }
         //fake image with champion selection for quick layout checking
-        if (DISPLAY_FAKE) {
+        if (DebugConsts.DISPLAY_FAKE) {
             g2d.drawImage(fake, 0, 0, null);
         }
         g2d.setFont(mFont);
@@ -83,42 +103,59 @@ public class RuneButton extends JPanel {
         //draw rune button
         if (pages.size() > 0) {
             g2d.drawImage(icon, (int) (getWidth() * Constants.RUNE_BUTTON_POSITION_X), (int) (getHeight() *
-                    Constants.RUNE_BUTTON_POSITION_Y), null);
+                    Constants.RUNE_BUTTON_POSITION_Y), (int) (Constants.RUNE_BUTTON_SIZE * getHeight()), (int) (
+                    Constants.RUNE_BUTTON_SIZE * getHeight()), null);
         }
         //draw rune menu
         if (opened) {
-            g2d.setColor(backgroundColor);
-            int menuX = (int) (Constants.RUNE_MENU_X * getWidth());
-            int menuY = (int) ((Constants.RUNE_MENU_Y * getHeight()) -
-                    (Constants.RUNE_ITEM_HEIGHT * getHeight() * pages.size()));
-            int itemWidth = (int) (Constants.RUNE_ITEM_WIDTH * getWidth());
-            int itemHeight = (int) (Constants.RUNE_ITEM_HEIGHT * getHeight());
-            int menuHeight = (int) (Constants.RUNE_ITEM_HEIGHT * getHeight() * pages.size());
-            g2d.fillRect(menuX, menuY, itemWidth, menuHeight);
-            g2d.setColor(textColor);
-            g2d.drawRect(menuX, menuY, itemWidth, menuHeight);
-            for (int i = 0; i < pages.size(); i++) {
-                RunePage page = pages.get(i);
-                int itemTop = (int) ((Constants.RUNE_MENU_Y - ((pages.size() - i) * Constants.RUNE_ITEM_HEIGHT)) *
-                        getHeight());
-                int itemBottom =
-                        (int) ((Constants.RUNE_MENU_Y - ((pages.size() - i - 1) * Constants.RUNE_ITEM_HEIGHT)) *
-                                getHeight());
-                if (selected == i) {
-                    g2d.setColor(lightenColor);
-                    g2d.fillRect(1 + menuX, itemTop, itemWidth, itemHeight);
-                }
-                g2d.setColor(textColor);
-                g2d.drawImage(page.getRunes().get(0).getImage(), menuX, itemTop, itemHeight, itemHeight, null);
-                drawCenteredHorizontalString(g2d, menuX + itemHeight, itemBottom, page.getName());
-                if (i != pages.size() - 1) {
-                    g2d.setColor(dividerColor);
-                    g2d.drawLine(
-                            1 + menuX, itemBottom,
-                            (int) ((Constants.RUNE_MENU_X + Constants.RUNE_ITEM_WIDTH) * getWidth()) - 1, itemBottom);
-                }
+            currentPosition = ease(currentPosition, 100f);
+            if (currentPosition < 99f) {
+                timer.restart();
+            }
+            else {
+                currentPosition = 100f;
             }
         }
+        else {
+            currentPosition = ease(currentPosition, 0f);
+            if (currentPosition > 1f) {
+                timer.restart();
+            }
+            else {
+                currentPosition = 0f;
+            }
+        }
+        int itemWidth = (int) (Constants.RUNE_ITEM_WIDTH * getWidth());
+        int itemHeight = (int) (Constants.RUNE_ITEM_HEIGHT * getHeight());
+        int menuHeight = (int) (Constants.RUNE_ITEM_HEIGHT * getHeight() * pages.size());
+        int menuX = (int) (Constants.RUNE_MENU_X * getWidth());
+        int menuY = (int) ((Constants.RUNE_MENU_Y * getHeight()) -
+                (itemHeight * pages.size() * (currentPosition / 100f)));
+        g2d.setColor(backgroundColor);
+        g2d.fillRect(menuX,
+                menuY, itemWidth,
+                menuHeight);
+        g2d.setColor(textColor);
+        g2d.drawRect(menuX, menuY, itemWidth, menuHeight);
+        for (int i = 0; i < pages.size(); i++) {
+            RunePage page = pages.get(i);
+            int itemTop = (int) ((menuY + (i * Constants.RUNE_ITEM_HEIGHT * getHeight())));
+            int itemBottom = itemTop + itemHeight;
+            if (selected == i) {
+                g2d.setColor(lightenColor);
+                g2d.fillRect(1 + menuX, itemTop, itemWidth, itemHeight);
+            }
+            g2d.setColor(textColor);
+            g2d.drawImage(page.getRunes().get(0).getImage(), menuX, itemTop, itemHeight, itemHeight, null);
+            drawCenteredHorizontalString(g2d, menuX + itemHeight, itemBottom, page.getName());
+            if (i != pages.size() - 1) {
+                g2d.setColor(dividerColor);
+                g2d.drawLine(
+                        1 + menuX, itemBottom,
+                        (int) ((Constants.RUNE_MENU_X + Constants.RUNE_ITEM_WIDTH) * getWidth()) - 1, itemBottom);
+            }
+        }
+        g2d.clearRect(menuX, (int) (Constants.RUNE_MENU_Y * getHeight()), itemWidth + 1, 1000);
         //draw quick replies
         if (Boolean.parseBoolean(SimplePreferences.getValue("quickReplies"))) {
             int chatY = (int) (Constants.QUICK_CHAT_Y * getHeight());
@@ -167,6 +204,7 @@ public class RuneButton extends JPanel {
 
     private void drawCenteredHorizontalString(Graphics2D g, int x, int bottom, String text) {
         FontMetrics metrics = g.getFontMetrics(g.getFont());
+        //we subtract item height, so we leave space for rune icon
         if (metrics.stringWidth(text) >
                 (Constants.RUNE_ITEM_WIDTH * getWidth()) - (Constants.RUNE_ITEM_HEIGHT * getHeight())) {
             while (metrics.stringWidth(text) >
@@ -179,7 +217,7 @@ public class RuneButton extends JPanel {
     }
 
     public void mouseClicked(MouseEvent e) {
-        if (DISPLAY_FAKE) {
+        if (DebugConsts.DISPLAY_FAKE) {
             float x = ((float) e.getX()) / ((float) getWidth());
             float y = ((float) e.getY()) / ((float) getHeight());
             if (e.getButton() == MouseEvent.BUTTON1) {
