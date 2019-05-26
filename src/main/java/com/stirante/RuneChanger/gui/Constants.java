@@ -7,7 +7,7 @@ public class Constants {
     public static final String APP_NAME = "RuneChanger";
 
     //version string
-    public static final String VERSION_STRING = "1.8";
+    public static final String VERSION_STRING = "1.10";
 
     //github latest release url
     public static final String LATEST_RELEASE_URL = "https://api.github.com/repos/stirante/RuneChanger/releases/latest";
@@ -21,4 +21,6 @@ public class Constants {
     public static final float RUNE_ITEM_WIDTH = 0.15000004f;
     public static final float QUICK_CHAT_X = 0.2678125f;
     public static final float QUICK_CHAT_Y = 0.96666664f;
+    public static final float RUNE_BUTTON_SIZE = 0.039f;
+    public static final float FONT_SIZE = 0.0208333f;
 }

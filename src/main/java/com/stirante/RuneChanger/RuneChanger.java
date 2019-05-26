@@ -25,8 +25,6 @@ import java.util.*;
 
 public class RuneChanger {
 
-    //Used for testing the UI
-    private static final boolean MOCK_SESSION = false;
     private static ClientApi api;
     private static GuiHandler gui;
     private static List<RunePage> runes;
@@ -164,7 +162,7 @@ public class RuneChanger {
             @Override
             public void onClientConnected() {
                 try {
-                    if (MOCK_SESSION) {
+                    if (DebugConsts.MOCK_SESSION) {
                         gui.showWarningMessage("Mocking session");
                         try {
                             currentSummoner =
@@ -172,7 +170,7 @@ public class RuneChanger {
                             LolChampSelectChampSelectSession session = new LolChampSelectChampSelectSession();
                             session.myTeam = new ArrayList<>();
                             LolChampSelectChampSelectPlayerSelection e = new LolChampSelectChampSelectPlayerSelection();
-                            e.championId = Objects.requireNonNull(Champion.getByName("darius")).getId();
+                            e.championId = Objects.requireNonNull(Champion.getByName("tahm kench")).getId();
                             e.summonerId = currentSummoner.summonerId;
                             session.myTeam.add(e);
                             handleSession(session);
