@@ -181,7 +181,7 @@ public class RuneChanger {
                         }
                     }
                     socket = api.openWebSocket();
-                    gui.showInfoMessage("Client connected");
+                    gui.showInfoMessage(LangHelper.getLang().getString("client_connected"));
                     socket.setSocketListener(new ClientWebSocket.SocketListener() {
                         @Override
                         public void onEvent(ClientWebSocket.Event event) {
@@ -235,7 +235,7 @@ public class RuneChanger {
 
             @Override
             public void onClientDisconnected() {
-                gui.showInfoMessage("Client disconnected");
+                gui.showInfoMessage(LangHelper.getLang().getString("client_disconnected"));
             }
         });
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
