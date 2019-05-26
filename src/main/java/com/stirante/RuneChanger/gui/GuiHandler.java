@@ -33,6 +33,7 @@ public class GuiHandler {
     private RuneButton canvas;
     private WinDef.HWND hwnd;
     private RuneSelectedListener runeSelectedListener;
+    private TrayIcon trayIcon;
 
     public GuiHandler() {
         handleWindowThread();
@@ -70,6 +71,18 @@ public class GuiHandler {
         if (canvas != null) {
             canvas.setRuneData(runes, onClickListener);
         }
+    }
+
+    public void showInfoMessage(String message) {
+        trayIcon.displayMessage(Constants.APP_NAME, message, TrayIcon.MessageType.INFO);
+    }
+
+    public void showErrorMessage(String message) {
+        trayIcon.displayMessage(Constants.APP_NAME, message, TrayIcon.MessageType.ERROR);
+    }
+
+    public void showWarningMessage(String message) {
+        trayIcon.displayMessage(Constants.APP_NAME, message, TrayIcon.MessageType.WARNING);
     }
 
     /**
@@ -179,7 +192,7 @@ public class GuiHandler {
             });
             trayPopupMenu.add(close);
 
-            TrayIcon trayIcon = new TrayIcon(image, "RuneChanger", trayPopupMenu);
+            trayIcon = new TrayIcon(image, "RuneChanger", trayPopupMenu);
             trayIcon.setImageAutoSize(true);
             trayIcon.addActionListener(e -> Settings.toggle());
             systemTray.add(trayIcon);

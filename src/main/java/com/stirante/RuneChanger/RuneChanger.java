@@ -10,6 +10,7 @@ import com.stirante.RuneChanger.util.Elevate;
 import com.stirante.RuneChanger.util.LangHelper;
 import com.stirante.RuneChanger.util.SimplePreferences;
 import com.stirante.lolclient.ClientApi;
+import com.stirante.lolclient.ClientConnectionListener;
 import com.stirante.lolclient.ClientWebSocket;
 import generated.*;
 
@@ -39,7 +40,7 @@ public class RuneChanger {
         champion = null;
         try {
             if (currentSummoner == null) {
-                currentSummoner = api.getCurrentSummoner();
+                currentSummoner = api.executeGet("/lol-summoner/v1/current-summoner", LolSummonerSummoner.class);
             }
             //find selected champion
             for (LolChampSelectChampSelectPlayerSelection selection : session.myTeam) {
@@ -146,7 +147,7 @@ public class RuneChanger {
         } catch (IOException e) {
             e.printStackTrace();
             JOptionPane.showMessageDialog(null, LangHelper.getLang().getString("init_data_error"), Constants.APP_NAME,
-                    JOptionPane.WARNING_MESSAGE);
+                    JOptionPane.ERROR_MESSAGE);
             System.exit(0);
         }
         try {
@@ -154,96 +155,94 @@ public class RuneChanger {
         } catch (IllegalStateException e) {
             e.printStackTrace();
             JOptionPane.showMessageDialog(null, LangHelper.getLang()
-                    .getString("no_client"), Constants.APP_NAME, JOptionPane.WARNING_MESSAGE);
+                    .getString("client_error"), Constants.APP_NAME, JOptionPane.ERROR_MESSAGE);
             System.exit(0);
         }
         Settings.initialize();
         gui = new GuiHandler();
-        if (MOCK_SESSION) {
-            try {
-                currentSummoner = api.getCurrentSummoner();
-                LolChampSelectChampSelectSession session = new LolChampSelectChampSelectSession();
-                session.myTeam = new ArrayList<>();
-                LolChampSelectChampSelectPlayerSelection e = new LolChampSelectChampSelectPlayerSelection();
-                e.championId = Objects.requireNonNull(Champion.getByName("darius")).getId();
-                e.summonerId = currentSummoner.summonerId;
-                session.myTeam.add(e);
-                handleSession(session);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        try {
-            socket = api.openWebSocket();
-            socket.setSocketListener(new ClientWebSocket.SocketListener() {
-                @SuppressWarnings("unchecked")
-                @Override
-                public void onEvent(ClientWebSocket.Event event) {
-                    //printing every event except voice for experimenting
-                    //if (!event.getUri().toLowerCase().contains("voice")) System.out.println(event);
-                    if (event.getUri().equalsIgnoreCase("/lol-chat/v1/me") &&
-                            SimplePreferences.containsKey("antiAway") &&
-                            SimplePreferences.getValue("antiAway").equalsIgnoreCase("true")) {
-                        if (((LolChatUserResource) event.getData()).availability.equalsIgnoreCase("away")) {
-                            LolChatUserResource data = (LolChatUserResource) event.getData();
-                            data.availability = "chat";
-                            new Thread(() -> {
-                                try {
-                                    api.executePut("/lol-chat/v1/me", data);
-                                } catch (IOException e) {
-                                    e.printStackTrace();
+        api.addClientConnectionListener(new ClientConnectionListener() {
+            @Override
+            public void onClientConnected() {
+                try {
+                    if (MOCK_SESSION) {
+                        gui.showWarningMessage("Mocking session");
+                        try {
+                            currentSummoner =
+                                    api.executeGet("/lol-summoner/v1/current-summoner", LolSummonerSummoner.class);
+                            LolChampSelectChampSelectSession session = new LolChampSelectChampSelectSession();
+                            session.myTeam = new ArrayList<>();
+                            LolChampSelectChampSelectPlayerSelection e = new LolChampSelectChampSelectPlayerSelection();
+                            e.championId = Objects.requireNonNull(Champion.getByName("darius")).getId();
+                            e.summonerId = currentSummoner.summonerId;
+                            session.myTeam.add(e);
+                            handleSession(session);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    socket = api.openWebSocket();
+                    gui.showInfoMessage("Client connected");
+                    socket.setSocketListener(new ClientWebSocket.SocketListener() {
+                        @Override
+                        public void onEvent(ClientWebSocket.Event event) {
+                            //printing every event except voice for experimenting
+                            //if (!event.getUri().toLowerCase().contains("voice")) System.out.println(event);
+                            if (event.getUri().equalsIgnoreCase("/lol-chat/v1/me") &&
+                                    SimplePreferences.containsKey("antiAway") &&
+                                    SimplePreferences.getValue("antiAway").equalsIgnoreCase("true")) {
+                                if (((LolChatUserResource) event.getData()).availability.equalsIgnoreCase("away")) {
+                                    LolChatUserResource data = (LolChatUserResource) event.getData();
+                                    data.availability = "chat";
+                                    new Thread(() -> {
+                                        try {
+                                            api.executePut("/lol-chat/v1/me", data);
+                                        } catch (IOException e) {
+                                            e.printStackTrace();
+                                        }
+                                    }).run();
                                 }
-                            }).run();
-                        }
-                    }
-                    if (event.getUri().equalsIgnoreCase("/lol-champ-select/v1/session")) {
-                        if (event.getEventType().equalsIgnoreCase("Delete")) {
-                            gui.tryClose();
-                        }
-                        else {
-                            handleSession((LolChampSelectChampSelectSession) event.getData());
-                        }
-                    }
-                    else if (Boolean.parseBoolean(SimplePreferences.getValue("autoAccept")) &&
-                            event.getUri().equalsIgnoreCase("/lol-lobby/v2/lobby/matchmaking/search-state")) {
-                        if (((LolLobbyLobbyMatchmakingSearchResource) event.getData()).searchState ==
-                                LolLobbyLobbyMatchmakingSearchState.FOUND) {
-                            try {
-                                api.executePost("/lol-matchmaking/v1/ready-check/accept");
-                            } catch (IOException e) {
-                                e.printStackTrace();
+                            }
+                            if (event.getUri().equalsIgnoreCase("/lol-champ-select/v1/session")) {
+                                if (event.getEventType().equalsIgnoreCase("Delete")) {
+                                    gui.tryClose();
+                                }
+                                else {
+                                    handleSession((LolChampSelectChampSelectSession) event.getData());
+                                }
+                            }
+                            else if (Boolean.parseBoolean(SimplePreferences.getValue("autoAccept")) &&
+                                    event.getUri().equalsIgnoreCase("/lol-lobby/v2/lobby/matchmaking/search-state")) {
+                                if (((LolLobbyLobbyMatchmakingSearchResource) event.getData()).searchState ==
+                                        LolLobbyLobbyMatchmakingSearchState.FOUND) {
+                                    try {
+                                        api.executePost("/lol-matchmaking/v1/ready-check/accept");
+                                    } catch (IOException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
                             }
                         }
-                    }
-                    else if (event.getUri().equalsIgnoreCase("/riotclient/ux-state/request") &&
-                            ((String) ((Map<String, Object>) event.getData()).get("state")).equalsIgnoreCase("Quit")) {
-                        socket.close();
-                        JOptionPane.showMessageDialog(null, LangHelper.getLang()
-                                .getString("client_off"), Constants.APP_NAME, JOptionPane.INFORMATION_MESSAGE);
-                        System.exit(0);
-                    }
-                }
 
-                @Override
-                public void onClose(int i, String s) {
-                    socket = null;
-                    try {
-                        JOptionPane.showMessageDialog(null, LangHelper.getLang()
-                                .getString("client_off"), Constants.APP_NAME, JOptionPane.INFORMATION_MESSAGE);
-                        System.exit(0);
-                    } catch (ExceptionInInitializerError ignored) {
+                        @Override
+                        public void onClose(int i, String s) {
+                            socket = null;
+                        }
+                    });
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
 
-                    }
-                }
-            });
-            Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-                if (socket != null) {
-                    socket.close();
-                }
-            }));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+            @Override
+            public void onClientDisconnected() {
+                gui.showInfoMessage("Client disconnected");
+            }
+        });
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            if (socket != null) {
+                socket.close();
+            }
+        }));
     }
 
     /**
