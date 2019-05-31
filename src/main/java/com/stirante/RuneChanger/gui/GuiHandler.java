@@ -1,8 +1,11 @@
 package com.stirante.RuneChanger.gui;
 
+import com.stirante.RuneChanger.DebugConsts;
+import com.stirante.RuneChanger.model.Champion;
 import com.stirante.RuneChanger.model.RunePage;
 import com.stirante.RuneChanger.util.LangHelper;
 import com.stirante.RuneChanger.util.RuneSelectedListener;
+import com.stirante.RuneChanger.util.SuggestedChampionSelectedListener;
 import com.sun.jna.Native;
 import com.sun.jna.platform.win32.User32;
 import com.sun.jna.platform.win32.WinDef;
@@ -16,10 +19,8 @@ import java.awt.event.MouseMotionListener;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.ResourceBundle;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class GuiHandler {
@@ -30,10 +31,13 @@ public class GuiHandler {
     private final List<RunePage> runes = Collections.synchronizedList(new ArrayList<>());
     private final ResourceBundle resourceBundle = LangHelper.getLang();
     private JWindow win;
-    private RuneButton canvas;
+    private ClientOverlay clientOverlay;
     private WinDef.HWND hwnd;
     private RuneSelectedListener runeSelectedListener;
     private TrayIcon trayIcon;
+    private SceneType type = SceneType.NONE;
+    private HashSet<Champion> suggestedChampions;
+    private SuggestedChampionSelectedListener suggestedChampionSelectedListener;
 
     public GuiHandler() {
         handleWindowThread();
@@ -64,25 +68,48 @@ public class GuiHandler {
         closeCommand.set(true);
     }
 
+    public SceneType getSceneType() {
+        return type;
+    }
+
+    public void setSceneType(SceneType type) {
+        this.type = type;
+        if (clientOverlay != null) {
+            clientOverlay.setSceneType(type);
+        }
+        if (type == SceneType.NONE) {
+            runes.clear();
+            if (clientOverlay != null) {
+                clientOverlay.setRuneData(runes, null);
+            }
+        }
+    }
+
     public void setRunes(List<RunePage> runeList, RuneSelectedListener onClickListener) {
         runes.clear();
         runes.addAll(runeList);
         runeSelectedListener = onClickListener;
-        if (canvas != null) {
-            canvas.setRuneData(runes, onClickListener);
+        if (clientOverlay != null) {
+            clientOverlay.setRuneData(runes, onClickListener);
         }
     }
 
     public void showInfoMessage(String message) {
-        trayIcon.displayMessage(Constants.APP_NAME, message, TrayIcon.MessageType.INFO);
+        if (!DebugConsts.DISABLE_NOTIFICATIONS) {
+            trayIcon.displayMessage(Constants.APP_NAME, message, TrayIcon.MessageType.INFO);
+        }
     }
 
     public void showErrorMessage(String message) {
-        trayIcon.displayMessage(Constants.APP_NAME, message, TrayIcon.MessageType.ERROR);
+        if (!DebugConsts.DISABLE_NOTIFICATIONS) {
+            trayIcon.displayMessage(Constants.APP_NAME, message, TrayIcon.MessageType.ERROR);
+        }
     }
 
     public void showWarningMessage(String message) {
-        trayIcon.displayMessage(Constants.APP_NAME, message, TrayIcon.MessageType.WARNING);
+        if (!DebugConsts.DISABLE_NOTIFICATIONS) {
+            trayIcon.displayMessage(Constants.APP_NAME, message, TrayIcon.MessageType.WARNING);
+        }
     }
 
     /**
@@ -95,21 +122,22 @@ public class GuiHandler {
             win.dispose();
         }
         win = new JWindow();
-        canvas = new RuneButton();
-        canvas.setRuneData(runes, runeSelectedListener);
-        win.setContentPane(canvas);
+        clientOverlay = new ClientOverlay();
+        clientOverlay.setRuneData(runes, runeSelectedListener);
+        clientOverlay.setSuggestedChampions(suggestedChampions, suggestedChampionSelectedListener);
+        clientOverlay.setSceneType(type);
+        win.setContentPane(clientOverlay);
         win.setAlwaysOnTop(true);
         win.setAutoRequestFocus(false);
         win.setFocusable(false);
         win.pack();
-        win.setSize(rect.width, rect.height);
+        win.setSize((int) (rect.width + (Constants.CHAMPION_SUGGESTION_WIDTH * rect.height)), rect.height);
         win.setBackground(new Color(0f, 0f, 0f, 0f));
-        canvas.setSize(rect.width, rect.height);
+        clientOverlay.setSize(rect.width, rect.height);
         trackPosition(rect);
         win.setVisible(true);
         win.setOpacity(1f);
-        canvas.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        canvas.addMouseMotionListener(new MouseMotionListener() {
+        clientOverlay.addMouseMotionListener(new MouseMotionListener() {
             @Override
             public void mouseDragged(MouseEvent e) {
 
@@ -117,13 +145,13 @@ public class GuiHandler {
 
             @Override
             public void mouseMoved(MouseEvent e) {
-                canvas.mouseMoved(e);
+                clientOverlay.mouseMoved(e);
             }
         });
-        canvas.addMouseListener(new MouseListener() {
+        clientOverlay.addMouseListener(new MouseListener() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                canvas.mouseClicked(e);
+                clientOverlay.mouseClicked(e);
             }
 
             @Override
@@ -142,7 +170,7 @@ public class GuiHandler {
 
             @Override
             public void mouseExited(MouseEvent e) {
-                canvas.mouseExited(e);
+                clientOverlay.mouseExited(e);
             }
         });
     }
@@ -202,6 +230,18 @@ public class GuiHandler {
         }
         new Thread(() -> {
             while (running.get()) {
+                //command to open and close window at the same time
+                if (openCommand.get() && closeCommand.get()) {
+                    if (win != null) {
+                        win.dispose();
+                        win = null;
+                    }
+                    windowOpen.set(false);
+                    closeCommand.set(false);
+                    startWindow();
+                    openCommand.set(false);
+                    windowOpen.set(true);
+                }
                 //command to open window
                 if (openCommand.get()) {
                     //don't open window, when it's already open
@@ -299,6 +339,14 @@ public class GuiHandler {
      */
     public void openWindow() {
         openCommand.set(true);
+    }
+
+    public void setSuggestedChampions(HashSet<Champion> lastChampions, SuggestedChampionSelectedListener suggestedChampionSelectedListener) {
+        this.suggestedChampions = lastChampions;
+        this.suggestedChampionSelectedListener = suggestedChampionSelectedListener;
+        if (clientOverlay != null) {
+            clientOverlay.setSuggestedChampions(lastChampions, suggestedChampionSelectedListener);
+        }
     }
 
     /**
