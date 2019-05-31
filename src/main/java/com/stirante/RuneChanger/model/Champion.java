@@ -1,28 +1,41 @@
 package com.stirante.RuneChanger.model;
 
 import com.google.gson.Gson;
+import com.stirante.RuneChanger.RuneChanger;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import javax.imageio.ImageIO;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.*;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class Champion {
 
+    private static File portraitsDir = new File("assets/champions/");
     private static List<Champion> values = new ArrayList<>(256);
+    private static final AtomicBoolean IMAGES_READY = new AtomicBoolean(false);
+
+    static {
+        portraitsDir.mkdirs();
+    }
 
     private final int id;
     private final String internalName;
     private final String name;
     private final String alias;
+    private final String url;
+    private java.awt.Image image;
 
-    Champion(int id, String internalName, String name, String alias) {
+    private Champion(int id, String internalName, String name, String alias, String url) {
         this.id = id;
         this.internalName = internalName;
         this.name = name;
         this.alias = alias;
+        this.url = url;
     }
 
     /**
@@ -78,10 +91,13 @@ public class Champion {
         in.close();
         List<ChampionDTO> values = new ArrayList<>(champions.data.values());
         values.sort(Comparator.comparing(o -> o.name));
+
         for (ChampionDTO champion : values) {
             Champion.values.add(new Champion(Integer.parseInt(champion.key), champion.id, champion.name,
-                    champion.name.replaceAll(" ", "")));
+                    champion.name.replaceAll(" ", ""), "https://cdn.communitydragon.org/" + patch + "/champion" +
+                    "/" + champion.key + "/tile"));
         }
+        new DownloadThread().start();
     }
 
     /**
@@ -95,6 +111,13 @@ public class Champion {
         URL urlObject = new URL(url);
         HttpURLConnection urlConnection = (HttpURLConnection) urlObject.openConnection();
         return urlConnection.getInputStream();
+    }
+
+    /**
+     * Returns image with champion's portrait
+     */
+    public java.awt.Image getPortrait() {
+        return image;
     }
 
     /**
@@ -131,6 +154,51 @@ public class Champion {
      */
     public String getAlias() {
         return alias;
+    }
+
+    /**
+     * Returns whether all images are downloaded and loaded into memory.
+     */
+    public static boolean areImagesReady() {
+        return IMAGES_READY.get();
+    }
+
+    private static class DownloadThread extends Thread {
+
+        @Override
+        public void run() {
+            for (Champion value : values) {
+                File f = new File(portraitsDir, value.id + ".jpg");
+                if (!f.exists()) {
+                    try {
+                        RuneChanger.d("Downloading portrait for " + value.getName());
+                        HttpURLConnection conn = (HttpURLConnection) new URL(value.url).openConnection();
+                        conn.addRequestProperty("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36");
+                        BufferedInputStream in = new BufferedInputStream(conn.getInputStream());
+                        FileOutputStream fileOutputStream = new FileOutputStream(f);
+                        byte[] dataBuffer = new byte[1024];
+                        int bytesRead;
+                        while ((bytesRead = in.read(dataBuffer, 0, 1024)) != -1) {
+                            fileOutputStream.write(dataBuffer, 0, bytesRead);
+                        }
+                        in.close();
+                        fileOutputStream.flush();
+                        fileOutputStream.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+                try {
+                    value.image = ImageIO.read(f);
+                    value.image = value.image.getScaledInstance(70, 70, java.awt.Image.SCALE_SMOOTH);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            RuneChanger.d("Champions initialized");
+            IMAGES_READY.set(true);
+        }
     }
 
     public class ChampionDTO {
