@@ -1,6 +1,7 @@
 package com.stirante.RuneChanger.gui;
 
 import com.stirante.RuneChanger.DebugConsts;
+import com.stirante.RuneChanger.RuneChanger;
 import com.stirante.RuneChanger.model.Champion;
 import com.stirante.RuneChanger.model.RunePage;
 import com.stirante.RuneChanger.util.LangHelper;
@@ -30,16 +31,18 @@ public class GuiHandler {
     private final AtomicBoolean closeCommand = new AtomicBoolean(false);
     private final List<RunePage> runes = Collections.synchronizedList(new ArrayList<>());
     private final ResourceBundle resourceBundle = LangHelper.getLang();
+    private final RuneChanger runeChanger;
     private JWindow win;
     private ClientOverlay clientOverlay;
     private WinDef.HWND hwnd;
     private RuneSelectedListener runeSelectedListener;
     private TrayIcon trayIcon;
     private SceneType type = SceneType.NONE;
-    private HashSet<Champion> suggestedChampions;
+    private ArrayList<Champion> suggestedChampions;
     private SuggestedChampionSelectedListener suggestedChampionSelectedListener;
 
-    public GuiHandler() {
+    public GuiHandler(RuneChanger runeChanger) {
+        this.runeChanger = runeChanger;
         handleWindowThread();
     }
 
@@ -122,7 +125,7 @@ public class GuiHandler {
             win.dispose();
         }
         win = new JWindow();
-        clientOverlay = new ClientOverlay();
+        clientOverlay = new ClientOverlay(runeChanger);
         clientOverlay.setRuneData(runes, runeSelectedListener);
         clientOverlay.setSuggestedChampions(suggestedChampions, suggestedChampionSelectedListener);
         clientOverlay.setSceneType(type);
@@ -151,7 +154,6 @@ public class GuiHandler {
         clientOverlay.addMouseListener(new MouseListener() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                clientOverlay.mouseClicked(e);
             }
 
             @Override
@@ -161,7 +163,7 @@ public class GuiHandler {
 
             @Override
             public void mouseReleased(MouseEvent e) {
-
+                clientOverlay.mouseClicked(e);
             }
 
             @Override
@@ -341,7 +343,8 @@ public class GuiHandler {
         openCommand.set(true);
     }
 
-    public void setSuggestedChampions(HashSet<Champion> lastChampions, SuggestedChampionSelectedListener suggestedChampionSelectedListener) {
+    public void setSuggestedChampions(ArrayList<Champion> lastChampions,
+                                      SuggestedChampionSelectedListener suggestedChampionSelectedListener) {
         this.suggestedChampions = lastChampions;
         this.suggestedChampionSelectedListener = suggestedChampionSelectedListener;
         if (clientOverlay != null) {

@@ -107,7 +107,6 @@ public class Champion {
      * @return InputStream from provided url
      */
     private static InputStream getUrl(String url) throws IOException {
-        System.out.println(url);
         URL urlObject = new URL(url);
         HttpURLConnection urlConnection = (HttpURLConnection) urlObject.openConnection();
         return urlConnection.getInputStream();

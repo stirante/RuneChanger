@@ -18,7 +18,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 
 public class ClientOverlay extends JPanel {
@@ -36,6 +35,7 @@ public class ClientOverlay extends JPanel {
     private final Rectangle botButton = new Rectangle(0, 0, 0, 0);
     private final Rectangle midButton = new Rectangle(0, 0, 0, 0);
     private final Rectangle topButton = new Rectangle(0, 0, 0, 0);
+    private final RuneChanger runeChanger;
     private Font font;
     private RuneSelectedListener runeSelectedListener;
     private Font mFont;
@@ -53,8 +53,9 @@ public class ClientOverlay extends JPanel {
     private float currentChampionsPosition = 0f;
     private Timer timer;
 
-    public ClientOverlay() {
+    public ClientOverlay(RuneChanger runeChanger) {
         super();
+        this.runeChanger = runeChanger;
         try {
             InputStream is = getClass().getResourceAsStream("/Beaufort-Bold.ttf");
             font = Font.createFont(Font.TRUETYPE_FONT, is);
@@ -113,7 +114,8 @@ public class ClientOverlay extends JPanel {
             if (Champion.areImagesReady()) {
                 drawChampionSuggestions(g2d);
             }
-        } else {
+        }
+        else {
             if (Champion.areImagesReady() && currentChampionsPosition > 1f) {
                 drawChampionSuggestions(g2d);
             }
@@ -122,6 +124,7 @@ public class ClientOverlay extends JPanel {
 
     private void drawChampionSuggestions(Graphics2D g2d) {
         if (lastChampions == null) {
+            System.out.println("last champions null in draw");
             return;
         }
         if (type != SceneType.CHAMPION_SELECT) {
@@ -132,7 +135,8 @@ public class ClientOverlay extends JPanel {
             else {
                 currentChampionsPosition = 0f;
             }
-        } else {
+        }
+        else {
             currentChampionsPosition = ease(currentChampionsPosition, 100f);
             if (currentChampionsPosition < 99f) {
                 timer.restart();
@@ -213,6 +217,10 @@ public class ClientOverlay extends JPanel {
         topButton.height = topWidth;
         g2d.setColor(textColor);
         g2d.drawString(TOP, chatX, chatY);
+
+        chatY = (int) (Constants.QUICK_CHAT_Y * getHeight());
+        chatX = (int) (Constants.QUICK_CHAT_X * getClientWidth());
+        g2d.rotate(Math.toRadians(90), chatX, chatY);
     }
 
     private int getClientWidth() {
@@ -334,15 +342,17 @@ public class ClientOverlay extends JPanel {
             suggestedChampionSelectedListener.onChampionSelected(lastChampions.get(selectedChampionIndex));
         }
         else {
-            if (botButton.contains(e.getX(), e.getY())) {
-                RuneChanger.sendMessageToChampSelect(BOT.toLowerCase());
-            }
-            else if (midButton.contains(e.getX(), e.getY())) {
-                RuneChanger.sendMessageToChampSelect(MID.toLowerCase());
-            }
-            else if (topButton.contains(e.getX(), e.getY())) {
-                RuneChanger.sendMessageToChampSelect(TOP.toLowerCase());
-            }
+            new Thread(() -> {
+                if (botButton.contains(e.getX(), e.getY())) {
+                    runeChanger.getChampionSelectionModule().sendMessageToChampSelect(BOT.toLowerCase());
+                }
+                else if (midButton.contains(e.getX(), e.getY())) {
+                    runeChanger.getChampionSelectionModule().sendMessageToChampSelect(MID.toLowerCase());
+                }
+                else if (topButton.contains(e.getX(), e.getY())) {
+                    runeChanger.getChampionSelectionModule().sendMessageToChampSelect(TOP.toLowerCase());
+                }
+            }).start();
         }
         repaint();
     }
@@ -386,6 +396,12 @@ public class ClientOverlay extends JPanel {
             selectedChampionIndex = championIndex;
             repaint();
         }
+
+        if (botButton.contains(e.getX(), e.getY()) ||
+                midButton.contains(e.getX(), e.getY()) ||
+                topButton.contains(e.getX(), e.getY())) {
+            setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        }
     }
 
     public void mouseExited(MouseEvent e) {
@@ -404,13 +420,9 @@ public class ClientOverlay extends JPanel {
         timer.restart();
     }
 
-    public void setSuggestedChampions(HashSet<Champion> lastChampions, SuggestedChampionSelectedListener suggestedChampionSelectedListener) {
-        if (lastChampions != null) {
-            this.lastChampions = new ArrayList<>(lastChampions);
-        }
-        else {
-            this.lastChampions = null;
-        }
+    public void setSuggestedChampions(ArrayList<Champion> lastChampions,
+                                      SuggestedChampionSelectedListener suggestedChampionSelectedListener) {
+        this.lastChampions = lastChampions;
         this.suggestedChampionSelectedListener = suggestedChampionSelectedListener;
     }
 }
