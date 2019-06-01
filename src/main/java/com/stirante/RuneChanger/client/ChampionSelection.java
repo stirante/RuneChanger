@@ -61,7 +61,7 @@ public class ChampionSelection extends ClientModule {
                     Map<String, Object> a = (Map<String, Object>) action;
                     //no idea why, but cell id gets recognized here as Double
                     if (((Double) a.get("actorCellId")).intValue() == self.cellId.intValue() &&
-                            a.get("type").equals("pick") && a.get("completed").equals(false)) {
+                            a.get("type").equals("pick")) {
                         this.action = a;
                     }
                 }
@@ -101,6 +101,13 @@ public class ChampionSelection extends ClientModule {
         return gameMode;
     }
 
+    public boolean isChampionLocked() {
+        if (action != null && action.containsKey("completed")) {
+            return ((boolean) action.get("completed"));
+        }
+        return false;
+    }
+
     private void updateGameMode() {
         try {
             LolLobbyLobbyDto lolLobbyLobbyDto = getApi().executeGet("/lol-lobby/v2/lobby", LolLobbyLobbyDto.class);
@@ -114,6 +121,7 @@ public class ChampionSelection extends ClientModule {
     public void onSession(LolChampSelectChampSelectSession session) {
         findCurrentAction(session);
         findSelectedChampion(session);
+        updateGameMode();
     }
 
 

@@ -131,7 +131,7 @@ public class ClientOverlay extends JPanel {
         if (runeChanger.getChampionSelectionModule().getGameMode() == GameMode.ARAM) {
             return;
         }
-        if (type != SceneType.CHAMPION_SELECT) {
+        if (type != SceneType.CHAMPION_SELECT || runeChanger.getChampionSelectionModule().isChampionLocked()) {
             currentChampionsPosition = ease(currentChampionsPosition, 0f);
             if (currentChampionsPosition > 1f) {
                 timer.restart();
