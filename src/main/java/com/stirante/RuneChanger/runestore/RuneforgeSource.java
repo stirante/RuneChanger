@@ -51,7 +51,7 @@ public class RuneforgeSource implements RuneSource {
             List<RunePage> runes = src.getForChampion(champion);
             for (RunePage rune : runes) {
                 if (!rune.verify()) {
-                    System.out.println("\t\tBAD: " + rune.getUrl());
+                    System.out.println("\t\tBAD: " + rune.getSource());
                 }
             }
             if (runes.size() == 0) {
@@ -71,7 +71,7 @@ public class RuneforgeSource implements RuneSource {
             //get web page
             Document parse = Jsoup.parse(new URL(url), TIMEOUT);
             RunePage r = new RunePage();
-            r.setUrl(url);
+            r.setSource(url);
             //get rune page name
             r.setName(champion.getName() + ":" + StringUtils.fixString(parse.select("h2.loadout-title").text()));
             Element style = parse.getElementsByClass("rune-path--primary").first();
@@ -102,7 +102,7 @@ public class RuneforgeSource implements RuneSource {
         } catch (IOException e) {
             System.out.println(e.getMessage());
             RunePage runePage = new RunePage();
-            runePage.setUrl(url);
+            runePage.setSource(url);
             return runePage;
         }
     }

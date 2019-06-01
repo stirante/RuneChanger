@@ -64,6 +64,7 @@ public class SettingsController {
     private JFXListView<Label> localRunes, clientRunes;
 
     private static AnchorPane currentPane = null;
+    private Settings settings;
 
     private static void rotateSyncButton(ImageView syncButton) {
         if (syncButton.isDisabled()) {
@@ -135,10 +136,10 @@ public class SettingsController {
     @FXML
     void handleSettingsButtonPressed(Event e) {
         if (e.getTarget() == craftKeyBtn) {
-            craftKeys();
+            settings.craftKeys();
         }
         else if (e.getTarget() == disenchantBtn) {
-            disenchantChampions();
+            settings.disenchantChampions();
         }
     }
 
@@ -211,4 +212,7 @@ public class SettingsController {
         }
     }
 
+    public void init(Settings settings) {
+        this.settings = settings;
+    }
 }

@@ -9,12 +9,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.stirante.RuneChanger.gui.SettingsController.showWarning;
-
 public class RunePage {
     private final List<Rune> runes = new ArrayList<>(6);
     private final List<Modifier> modifiers = new ArrayList<>(3);
-    private String url;
+    private String source;
     private String name;
     private Style mainStyle;
     private Style subStyle;
@@ -37,6 +35,7 @@ public class RunePage {
         p.name = page.name;
         p.mainStyle = Style.getById(page.primaryStyleId);
         p.subStyle = Style.getById(page.subStyleId);
+        p.source = String.valueOf(page.id);
 
         // copy selected runes
         for (int i = 0; i < 6; i++) {
@@ -95,7 +94,7 @@ public class RunePage {
     @Override
     public String toString() {
         return "RunePage{" +
-                "url='" + url + '\'' +
+                "source='" + source + '\'' +
                 ", name='" + name + '\'' +
                 ", mainStyle=" + mainStyle +
                 ", subStyle=" + subStyle +
@@ -104,12 +103,12 @@ public class RunePage {
                 '}';
     }
 
-    public String getUrl() {
-        return url;
+    public String getSource() {
+        return source;
     }
 
-    public void setUrl(String url) {
-        this.url = url;
+    public void setSource(String source) {
+        this.source = source;
     }
 
     public String getName() {

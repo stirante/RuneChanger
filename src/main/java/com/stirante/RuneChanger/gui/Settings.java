@@ -1,8 +1,8 @@
 package com.stirante.RuneChanger.gui;
 
 import com.stirante.RuneChanger.RuneChanger;
+import com.stirante.RuneChanger.client.Loot;
 import com.stirante.RuneChanger.util.LangHelper;
-import generated.LolLootPlayerLoot;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
@@ -23,6 +23,8 @@ public class Settings extends Application {
     public static Stage mainStage;
     private double xOffset = 0;
     private double yOffset = 0;
+    private RuneChanger runeChanger;
+    private Loot lootModule;
 
     public static void initialize() {
         new Thread(Application::launch).start();
@@ -49,54 +51,31 @@ public class Settings extends Application {
         RuneChanger.main(args);
     }
 
-    public static void craftKeys() {
+    public void craftKeys() {
         new Thread(() -> {
-            try {
-                LolLootPlayerLoot keyFragments = RuneChanger.getApi()
-                        .executeGet("/lol-loot/v1/player-loot/MATERIAL_key_fragment", LolLootPlayerLoot.class);
-                if (keyFragments.count >= 3) {
-                    RuneChanger.getApi()
-                            .executePost("/lol-loot/v1/recipes/MATERIAL_key_fragment_forge/craft?repeat=" +
-                                    keyFragments.count / 3, new String[]{"MATERIAL_key_fragment"});
-                }
-                else {
-                    Platform.runLater(() -> showWarning("ERROR", LangHelper.getLang()
-                            .getString("not_enough_key_fragments"), LangHelper.getLang()
-                            .getString("not_enough_key_fragments_message")));
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
+            if (lootModule.craftKeys() == 0) {
+                Platform.runLater(() -> showWarning("ERROR", LangHelper.getLang()
+                        .getString("not_enough_key_fragments"), LangHelper.getLang()
+                        .getString("not_enough_key_fragments_message")));
             }
         }).start();
     }
 
-    public static void disenchantChampions() {
-        new Thread(() -> {
-            try {
-                LolLootPlayerLoot[] loot =
-                        RuneChanger.getApi().executeGet("/lol-loot/v1/player-loot", LolLootPlayerLoot[].class);
-                for (LolLootPlayerLoot item : loot) {
-                    if (item.lootId.startsWith("CHAMPION_RENTAL_")) {
-                        for (int i = 0; i < item.count; i++) {
-                            RuneChanger.getApi()
-                                    .executePost("/lol-loot/v1/recipes/CHAMPION_RENTAL_disenchant/craft", new String[]{item.lootId});
-                        }
-                    }
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }).start();
+    public void disenchantChampions() {
+        new Thread(() -> lootModule.disenchantChampions()).start();
     }
 
     @Override
     public void start(Stage stage) throws IOException {
+        runeChanger = RuneChanger.getInstance();
+        lootModule = new Loot(runeChanger.getApi());
         Font.loadFont(getClass().getResource("/Beaufort-Bold.ttf").toExternalForm(), 10);
         mainStage = stage;
         FXMLLoader fxmlLoader = new FXMLLoader();
         fxmlLoader.setResources(LangHelper.getLang());
         fxmlLoader.setLocation(getClass().getResource("/Settings.fxml"));
         Parent root = fxmlLoader.load();
+        ((SettingsController) fxmlLoader.getController()).init(this);
         stage.initStyle(StageStyle.TRANSPARENT);
         root.setOnMousePressed(event -> {
             xOffset = event.getSceneX();
