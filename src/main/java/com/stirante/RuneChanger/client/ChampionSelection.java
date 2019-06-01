@@ -1,8 +1,8 @@
 package com.stirante.RuneChanger.client;
 
 import com.stirante.RuneChanger.DebugConsts;
-import com.stirante.RuneChanger.RuneChanger;
 import com.stirante.RuneChanger.model.Champion;
+import com.stirante.RuneChanger.model.GameMode;
 import com.stirante.lolclient.ClientApi;
 import generated.*;
 
@@ -13,6 +13,8 @@ public class ChampionSelection extends ClientModule {
 
     private Map<String, Object> action;
     private Champion champion;
+    private GameMode gameMode;
+    private boolean positionSelector;
 
     public ChampionSelection(ClientApi api) {
         super(api);
@@ -95,6 +97,20 @@ public class ChampionSelection extends ClientModule {
         }
     }
 
+    public GameMode getGameMode() {
+        return gameMode;
+    }
+
+    private void updateGameMode() {
+        try {
+            LolLobbyLobbyDto lolLobbyLobbyDto = getApi().executeGet("/lol-lobby/v2/lobby", LolLobbyLobbyDto.class);
+            gameMode = GameMode.valueOf(lolLobbyLobbyDto.gameConfig.gameMode);
+            positionSelector = lolLobbyLobbyDto.gameConfig.showPositionSelector;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     public void onSession(LolChampSelectChampSelectSession session) {
         findCurrentAction(session);
         findSelectedChampion(session);
@@ -138,4 +154,7 @@ public class ChampionSelection extends ClientModule {
         }
     }
 
+    public boolean isPositionSelector() {
+        return positionSelector;
+    }
 }
