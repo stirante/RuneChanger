@@ -3,6 +3,7 @@ package com.stirante.RuneChanger.gui;
 import com.stirante.RuneChanger.DebugConsts;
 import com.stirante.RuneChanger.RuneChanger;
 import com.stirante.RuneChanger.model.Champion;
+import com.stirante.RuneChanger.model.GameMode;
 import com.stirante.RuneChanger.model.RunePage;
 import com.stirante.RuneChanger.util.RuneSelectedListener;
 import com.stirante.RuneChanger.util.SimplePreferences;
@@ -127,6 +128,9 @@ public class ClientOverlay extends JPanel {
             System.out.println("last champions null in draw");
             return;
         }
+        if (runeChanger.getChampionSelectionModule().getGameMode() == GameMode.ARAM) {
+            return;
+        }
         if (type != SceneType.CHAMPION_SELECT) {
             currentChampionsPosition = ease(currentChampionsPosition, 0f);
             if (currentChampionsPosition > 1f) {
@@ -175,6 +179,9 @@ public class ClientOverlay extends JPanel {
 
     @SuppressWarnings("SuspiciousNameCombination")
     private void drawQuickReplies(Graphics2D g2d) {
+        if (!runeChanger.getChampionSelectionModule().isPositionSelector()) {
+            return;
+        }
         int chatY = (int) (Constants.QUICK_CHAT_Y * getHeight());
         int chatX = (int) (Constants.QUICK_CHAT_X * getClientWidth());
         g2d.rotate(Math.toRadians(-90), chatX, chatY);
