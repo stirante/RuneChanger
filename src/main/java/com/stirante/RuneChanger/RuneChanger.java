@@ -192,6 +192,7 @@ public class RuneChanger {
                 if (event.getUri().equalsIgnoreCase("/lol-champ-select/v1/session")) {
                     if (event.getEventType().equalsIgnoreCase("Delete")) {
                         gui.setSceneType(SceneType.NONE);
+                        champSelectModule.clearSession();
                     }
                     else {
                         handleSession((LolChampSelectChampSelectSession) event.getData());

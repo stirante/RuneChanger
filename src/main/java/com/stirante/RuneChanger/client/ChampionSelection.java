@@ -134,7 +134,6 @@ public class ChampionSelection extends ClientModule {
             action.put("completed", false);
             getApi().executePatch("/lol-champ-select/v1/session/actions/" +
                     ((Double) action.get("id")).intValue(), action);
-            this.champion = champion;
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -164,5 +163,12 @@ public class ChampionSelection extends ClientModule {
 
     public boolean isPositionSelector() {
         return positionSelector;
+    }
+
+    public void clearSession() {
+        champion = null;
+        action = null;
+        positionSelector = false;
+        gameMode = null;
     }
 }

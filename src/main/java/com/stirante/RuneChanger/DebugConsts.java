@@ -6,7 +6,7 @@ public class DebugConsts {
     public static final boolean DISPLAY_FAKE = false;
 
     //those are really annoying while testing
-    public static final boolean DISABLE_NOTIFICATIONS = true;
+    public static final boolean DISABLE_NOTIFICATIONS = false;
 
     //logs every event (except for voice) to System.out
     public static final boolean PRINT_EVENTS = false;
