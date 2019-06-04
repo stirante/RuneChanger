@@ -179,7 +179,7 @@ public class ClientOverlay extends JPanel {
 
     @SuppressWarnings("SuspiciousNameCombination")
     private void drawQuickReplies(Graphics2D g2d) {
-        if (!runeChanger.getChampionSelectionModule().isPositionSelector()) {
+        if (runeChanger.getChampionSelectionModule().isPositionSelector()) {
             return;
         }
         int chatY = (int) (Constants.QUICK_CHAT_Y * getHeight());
