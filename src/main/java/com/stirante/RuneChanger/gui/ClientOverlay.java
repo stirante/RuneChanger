@@ -5,9 +5,8 @@ import com.stirante.RuneChanger.RuneChanger;
 import com.stirante.RuneChanger.model.Champion;
 import com.stirante.RuneChanger.model.GameMode;
 import com.stirante.RuneChanger.model.RunePage;
-import com.stirante.RuneChanger.util.RuneSelectedListener;
+import com.stirante.RuneChanger.util.RunnableWithArgument;
 import com.stirante.RuneChanger.util.SimplePreferences;
-import com.stirante.RuneChanger.util.SuggestedChampionSelectedListener;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -38,7 +37,7 @@ public class ClientOverlay extends JPanel {
     private final Rectangle topButton = new Rectangle(0, 0, 0, 0);
     private final RuneChanger runeChanger;
     private Font font;
-    private RuneSelectedListener runeSelectedListener;
+    private RunnableWithArgument<RunePage> runeSelectedListener;
     private Font mFont;
     private boolean opened = false;
     private int selectedRunePageIndex = -1;
@@ -49,7 +48,8 @@ public class ClientOverlay extends JPanel {
     private float lastY = 0f;
     private SceneType type;
     private ArrayList<Champion> lastChampions;
-    private SuggestedChampionSelectedListener suggestedChampionSelectedListener;
+    private ArrayList<Champion> bannedChampions;
+    private RunnableWithArgument<Champion> suggestedChampionSelectedListener;
     private float currentRuneMenuPosition = 0f;
     private float currentChampionsPosition = 0f;
     private Timer timer;
@@ -77,7 +77,7 @@ public class ClientOverlay extends JPanel {
         });
     }
 
-    public void setRuneData(List<RunePage> pages, RuneSelectedListener runeSelectedListener) {
+    public void setRuneData(List<RunePage> pages, RunnableWithArgument<RunePage> runeSelectedListener) {
         this.runeSelectedListener = runeSelectedListener;
         this.pages.clear();
         this.pages.addAll(pages);
@@ -125,7 +125,6 @@ public class ClientOverlay extends JPanel {
 
     private void drawChampionSuggestions(Graphics2D g2d) {
         if (lastChampions == null) {
-            System.out.println("last champions null in draw");
             return;
         }
         if (runeChanger.getChampionSelectionModule().getGameMode() == GameMode.ARAM) {
@@ -156,23 +155,27 @@ public class ClientOverlay extends JPanel {
         g2d.setColor(backgroundColor);
         g2d.fillRect(getWidth() - barWidth + (int) (currentChampionsPosition / 100f * barWidth) - barWidth, 1,
                 barWidth - 1, getHeight() - 2);
-        for (int i = 0; i < lastChampions.size(); i++) {
-            Champion champion = lastChampions.get(i);
+        int tileIndex = 0;
+        for (Champion champion : lastChampions) {
+            if (bannedChampions.contains(champion)) {
+                continue;
+            }
             Image img = champion.getPortrait();
             int tileSize = (int) (Constants.CHAMPION_TILE_SIZE * getHeight());
             int rowSize = getHeight() / 6;
-            if (selectedChampionIndex == i) {
+            if (selectedChampionIndex == tileIndex) {
                 g2d.setColor(lightenColor);
-                g2d.fillRect(getClientWidth(), rowSize * i, barWidth, rowSize);
+                g2d.fillRect(getClientWidth(), rowSize * tileIndex, barWidth, rowSize);
             }
             g2d.drawImage(img,
                     (getClientWidth() + (barWidth - tileSize) / 2) +
                             (int) (currentChampionsPosition / 100f * barWidth) - barWidth,
-                    (rowSize - tileSize) / 2 + (rowSize * i),
+                    (rowSize - tileSize) / 2 + (rowSize * tileIndex),
                     tileSize, tileSize, null);
-            if (i >= 6) {
+            if (tileIndex >= 6) {
                 break;
             }
+            tileIndex++;
         }
         g2d.clearRect(getClientWidth() - barWidth, 0, barWidth, getHeight());
     }
@@ -342,11 +345,11 @@ public class ClientOverlay extends JPanel {
             opened = !opened;
         }
         else if (selectedRunePageIndex != -1 && runeSelectedListener != null) {
-            runeSelectedListener.onRuneSelected(pages.get(selectedRunePageIndex));
+            runeSelectedListener.run(pages.get(selectedRunePageIndex));
             opened = !opened;
         }
         else if (selectedChampionIndex != -1 && suggestedChampionSelectedListener != null) {
-            suggestedChampionSelectedListener.onChampionSelected(lastChampions.get(selectedChampionIndex));
+            suggestedChampionSelectedListener.run(lastChampions.get(selectedChampionIndex));
         }
         else {
             new Thread(() -> {
@@ -428,8 +431,9 @@ public class ClientOverlay extends JPanel {
     }
 
     public void setSuggestedChampions(ArrayList<Champion> lastChampions,
-                                      SuggestedChampionSelectedListener suggestedChampionSelectedListener) {
+                                      ArrayList<Champion> bannedChampions, RunnableWithArgument<Champion> suggestedChampionSelectedListener) {
         this.lastChampions = lastChampions;
+        this.bannedChampions = bannedChampions;
         this.suggestedChampionSelectedListener = suggestedChampionSelectedListener;
     }
 }

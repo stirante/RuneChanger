@@ -7,7 +7,10 @@ import com.stirante.lolclient.ClientApi;
 import generated.*;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 public class ChampionSelection extends ClientModule {
 
@@ -15,6 +18,7 @@ public class ChampionSelection extends ClientModule {
     private Champion champion;
     private GameMode gameMode;
     private boolean positionSelector;
+    private ArrayList<Champion> banned = new ArrayList<>();
 
     public ChampionSelection(ClientApi api) {
         super(api);
@@ -22,18 +26,26 @@ public class ChampionSelection extends ClientModule {
 
     public ArrayList<Champion> getLastChampions() {
         try {
-            HashSet<Champion> lastChampions = new HashSet<>();
+            ArrayList<Champion> lastChampions = new ArrayList<>();
             LolMatchHistoryMatchHistoryList historyList =
                     getApi().executeGet("/lol-match-history/v2/matchlist?begIndex=0&endIndex=20",
                             LolMatchHistoryMatchHistoryList.class);
-            for (LolMatchHistoryMatchHistoryGame game : historyList.games.games) {
+            List<LolMatchHistoryMatchHistoryGame> games = historyList.games.games;
+            historyList =
+                    getApi().executeGet("/lol-match-history/v2/matchlist?begIndex=20&endIndex=40",
+                            LolMatchHistoryMatchHistoryList.class);
+            games.addAll(historyList.games.games);
+            games.sort((o1, o2) -> o2.gameCreation.compareTo(o1.gameCreation));
+            for (LolMatchHistoryMatchHistoryGame game : games) {
                 LolMatchHistoryMatchHistoryParticipant p = game.participants.stream()
                         .findFirst()
                         .orElse(null);
                 if (p == null) {
                     continue;
                 }
-                lastChampions.add(Champion.getById(p.championId));
+                if (!lastChampions.contains(Champion.getById(p.championId))) {
+                    lastChampions.add(Champion.getById(p.championId));
+                }
             }
             return new ArrayList<>(lastChampions);
         } catch (Exception e) {
@@ -46,8 +58,13 @@ public class ChampionSelection extends ClientModule {
         return champion;
     }
 
+    public ArrayList<Champion> getBannedChampions() {
+        return banned;
+    }
+
     @SuppressWarnings("unchecked")
     private void findCurrentAction(LolChampSelectChampSelectSession session) {
+        banned.clear();
         //we need to find summoner's cell id
         LolChampSelectChampSelectPlayerSelection self =
                 session.myTeam.stream()
@@ -63,6 +80,12 @@ public class ChampionSelection extends ClientModule {
                     if (((Double) a.get("actorCellId")).intValue() == self.cellId.intValue() &&
                             a.get("type").equals("pick")) {
                         this.action = a;
+                    }
+                    if (a.get("type").equals("ban") && ((Boolean) a.get("completed"))) {
+                        int championId = ((Double) a.get("championId")).intValue();
+                        if (championId != 0) {
+                            banned.add(Champion.getById(championId));
+                        }
                     }
                 }
             }
@@ -121,7 +144,9 @@ public class ChampionSelection extends ClientModule {
     public void onSession(LolChampSelectChampSelectSession session) {
         findCurrentAction(session);
         findSelectedChampion(session);
-        updateGameMode();
+        if (!DebugConsts.MOCK_SESSION) {
+            updateGameMode();
+        }
     }
 
 
