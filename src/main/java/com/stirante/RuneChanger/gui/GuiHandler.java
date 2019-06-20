@@ -5,8 +5,7 @@ import com.stirante.RuneChanger.RuneChanger;
 import com.stirante.RuneChanger.model.Champion;
 import com.stirante.RuneChanger.model.RunePage;
 import com.stirante.RuneChanger.util.LangHelper;
-import com.stirante.RuneChanger.util.RuneSelectedListener;
-import com.stirante.RuneChanger.util.SuggestedChampionSelectedListener;
+import com.stirante.RuneChanger.util.RunnableWithArgument;
 import com.sun.jna.Native;
 import com.sun.jna.platform.win32.User32;
 import com.sun.jna.platform.win32.WinDef;
@@ -35,11 +34,12 @@ public class GuiHandler {
     private JWindow win;
     private ClientOverlay clientOverlay;
     private WinDef.HWND hwnd;
-    private RuneSelectedListener runeSelectedListener;
+    private RunnableWithArgument<RunePage> runeSelectedListener;
     private TrayIcon trayIcon;
     private SceneType type = SceneType.NONE;
     private ArrayList<Champion> suggestedChampions;
-    private SuggestedChampionSelectedListener suggestedChampionSelectedListener;
+    private RunnableWithArgument<Champion> suggestedChampionSelectedListener;
+    private ArrayList<Champion> bannedChampions;
 
     public GuiHandler(RuneChanger runeChanger) {
         this.runeChanger = runeChanger;
@@ -88,7 +88,7 @@ public class GuiHandler {
         }
     }
 
-    public void setRunes(List<RunePage> runeList, RuneSelectedListener onClickListener) {
+    public void setRunes(List<RunePage> runeList, RunnableWithArgument<RunePage> onClickListener) {
         runes.clear();
         runes.addAll(runeList);
         runeSelectedListener = onClickListener;
@@ -127,7 +127,7 @@ public class GuiHandler {
         win = new JWindow();
         clientOverlay = new ClientOverlay(runeChanger);
         clientOverlay.setRuneData(runes, runeSelectedListener);
-        clientOverlay.setSuggestedChampions(suggestedChampions, suggestedChampionSelectedListener);
+        clientOverlay.setSuggestedChampions(suggestedChampions, bannedChampions, suggestedChampionSelectedListener);
         clientOverlay.setSceneType(type);
         win.setContentPane(clientOverlay);
         win.setAlwaysOnTop(true);
@@ -344,11 +344,12 @@ public class GuiHandler {
     }
 
     public void setSuggestedChampions(ArrayList<Champion> lastChampions,
-                                      SuggestedChampionSelectedListener suggestedChampionSelectedListener) {
+                                      ArrayList<Champion> bannedChampions, RunnableWithArgument<Champion> suggestedChampionSelectedListener) {
         this.suggestedChampions = lastChampions;
         this.suggestedChampionSelectedListener = suggestedChampionSelectedListener;
+        this.bannedChampions = bannedChampions;
         if (clientOverlay != null) {
-            clientOverlay.setSuggestedChampions(lastChampions, suggestedChampionSelectedListener);
+            clientOverlay.setSuggestedChampions(lastChampions, bannedChampions, suggestedChampionSelectedListener);
         }
     }
 

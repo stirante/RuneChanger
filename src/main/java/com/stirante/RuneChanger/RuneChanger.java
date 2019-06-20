@@ -38,6 +38,7 @@ public class RuneChanger {
     private ClientWebSocket socket;
 
     private void init() {
+        ClientApi.setDisableEndpointWarnings(true);
         try {
             api = new ClientApi();
         } catch (IllegalStateException e) {
@@ -117,34 +118,39 @@ public class RuneChanger {
         }));
     }
 
+    private void onChampionChanged(Champion champion) {
+        d("Player chose champion " + champion.getName());
+        d("Downloading runes");
+        runes = RuneStore.getRunes(champion);
+        if (runes == null || runes.isEmpty()) {
+            d("Runes for champion not available");
+        }
+        d(runes);
+        //remove all invalid rune pages
+        runes.removeIf(rune -> !rune.verify());
+        if (runes.isEmpty()) {
+            d("Found error in rune source");
+        }
+        d("Runes available. Showing button");
+        gui.setRunes(runes, (page) -> {
+            if (runes == null || runes.isEmpty()) {
+                return;
+            }
+            new Thread(() -> runesModule.setCurrentRunePage(page)).start();
+        });
+    }
+
     private void handleSession(LolChampSelectChampSelectSession session) {
         Champion oldChampion = champSelectModule.getSelectedChampion();
         champSelectModule.onSession(session);
         if (gui.getSceneType() == SceneType.NONE) {
-            gui.setSuggestedChampions(champSelectModule.getLastChampions(), champSelectModule::selectChampion);
+            gui.setSuggestedChampions(champSelectModule.getLastChampions(), champSelectModule.getBannedChampions(),
+                    champSelectModule::selectChampion);
         }
         gui.setSceneType(SceneType.CHAMPION_SELECT);
         if (champSelectModule.getSelectedChampion() != null &&
                 champSelectModule.getSelectedChampion() != oldChampion) {
-            d("Player chose champion " + champSelectModule.getSelectedChampion().getName());
-            d("Downloading runes");
-            runes = RuneStore.getRunes(champSelectModule.getSelectedChampion());
-            if (runes == null || runes.isEmpty()) {
-                d("Runes for champion not available");
-            }
-            d(runes);
-            //remove all invalid rune pages
-            runes.removeIf(rune -> !rune.verify());
-            if (runes.isEmpty()) {
-                d("Found error in rune source");
-            }
-            d("Runes available. Showing button");
-            gui.setRunes(runes, (page) -> {
-                if (champSelectModule.getSelectedChampion() == null || runes == null || runes.isEmpty()) {
-                    return;
-                }
-                new Thread(() -> runesModule.setCurrentRunePage(page)).start();
-            });
+            onChampionChanged(champSelectModule.getSelectedChampion());
         }
     }
 

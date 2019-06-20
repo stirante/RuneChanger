@@ -162,6 +162,21 @@ public class Champion {
         return IMAGES_READY.get();
     }
 
+    @Override
+    public int hashCode() {
+        return id;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return obj instanceof Champion && ((Champion) obj).id == id;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("%s(%d)", name, id);
+    }
+
     private static class DownloadThread extends Thread {
 
         @Override
