@@ -349,7 +349,16 @@ public class ClientOverlay extends JPanel {
             opened = !opened;
         }
         else if (selectedChampionIndex != -1 && suggestedChampionSelectedListener != null) {
-            suggestedChampionSelectedListener.run(lastChampions.get(selectedChampionIndex));
+            // Fix wrong champion selected, when one or more of them are banned
+            int index = selectedChampionIndex;
+            for (int i = 0; i <= index; i++) {
+                if (bannedChampions.contains(lastChampions.get(i))) {
+                    index++;
+                }
+            }
+            if (index < lastChampions.size()) {
+                suggestedChampionSelectedListener.run(lastChampions.get(index));
+            }
         }
         else {
             new Thread(() -> {

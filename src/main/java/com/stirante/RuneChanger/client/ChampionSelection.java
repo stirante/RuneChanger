@@ -90,6 +90,13 @@ public class ChampionSelection extends ClientModule {
                 }
             }
         }
+        else if (DebugConsts.MOCK_SESSION) {
+            //mock some banned champions
+            banned.add(Champion.getByName("blitzcrank"));
+            banned.add(Champion.getByName("morgana"));
+            banned.add(Champion.getByName("kayle"));
+            banned.add(Champion.getByName("leona"));
+        }
     }
 
     private void findSelectedChampion(LolChampSelectChampSelectSession session) {
@@ -132,21 +139,26 @@ public class ChampionSelection extends ClientModule {
     }
 
     private void updateGameMode() {
-        try {
-            LolLobbyLobbyDto lolLobbyLobbyDto = getApi().executeGet("/lol-lobby/v2/lobby", LolLobbyLobbyDto.class);
-            gameMode = GameMode.valueOf(lolLobbyLobbyDto.gameConfig.gameMode);
-            positionSelector = lolLobbyLobbyDto.gameConfig.showPositionSelector;
-        } catch (IOException e) {
-            e.printStackTrace();
+        if (!DebugConsts.MOCK_SESSION) {
+            try {
+                LolLobbyLobbyDto lolLobbyLobbyDto = getApi().executeGet("/lol-lobby/v2/lobby", LolLobbyLobbyDto.class);
+                gameMode = GameMode.valueOf(lolLobbyLobbyDto.gameConfig.gameMode);
+                positionSelector = lolLobbyLobbyDto.gameConfig.showPositionSelector;
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        else {
+            //mock classic game without positions selector
+            gameMode = GameMode.CLASSIC;
+            positionSelector = false;
         }
     }
 
     public void onSession(LolChampSelectChampSelectSession session) {
         findCurrentAction(session);
         findSelectedChampion(session);
-        if (!DebugConsts.MOCK_SESSION) {
-            updateGameMode();
-        }
+        updateGameMode();
     }
 
 
