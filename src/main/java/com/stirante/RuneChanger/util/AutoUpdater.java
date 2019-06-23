@@ -73,7 +73,8 @@ public class AutoUpdater {
     }
 
     /**
-     * Downloads update with progress and continues update process
+     * Downloads update with progress and continues update process.
+     * From https://stackoverflow.com/a/22273319/6459649
      */
     private static void downloadUpdate(String fileUrl) {
         final JProgressBar jProgressBar = new JProgressBar();
@@ -114,7 +115,7 @@ public class AutoUpdater {
                 in.close();
                 Files.write(Paths.get(currentFile.getParentFile()
                                 .getAbsolutePath(), UPDATE_SCRIPT_FILENAME),
-                        String.format("@echo off\r\necho %s\r\ntimeout 5\r\ndel \"%s\"\r\nren \"%s\" \"%s\"\r\nstart %s\r\n",
+                        String.format("@echo off\r\necho %s\r\ntimeout 3\r\ndel \"%s\"\r\nren \"%s\" \"%s\"\r\nstart %s\r\nexit\r\n",
                                 LangHelper.getLang().getString("restart_in_3_seconds"),
                                 currentFile.getAbsolutePath(),
                                 UPDATE_JAR_FILENAME,
