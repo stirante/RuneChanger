@@ -41,3 +41,6 @@ hs_err_pid*
 *.iml
 
 *.dat
+
+# Zanata
+.zanata-cache/

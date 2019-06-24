@@ -1,6 +1,7 @@
 package com.stirante.RuneChanger.util;
 
 import com.google.gson.Gson;
+import com.stirante.RuneChanger.DebugConsts;
 import com.stirante.RuneChanger.gui.Constants;
 import com.stirante.RuneChanger.model.github.Asset;
 import com.stirante.RuneChanger.model.github.Release;
@@ -45,9 +46,13 @@ public class AutoUpdater {
 
     /**
      * Checks whether RuneChanger is up to date
+     *
      * @return true, if RuneChanger is up to date
      */
     public static boolean check() throws IOException {
+        if (DebugConsts.DISABLE_AUTOUPDATE) {
+            return true;
+        }
         if (cachedRelease == null) {
             fetchRelease();
         }

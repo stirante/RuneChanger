@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<config xmlns="http://zanata.org/namespace/config/">
+  <url>https://translate.zanata.org/</url>
+  <project>runechanger</project>
+  <project-version>1.11</project-version>
+  <project-type>utf8properties</project-type>
+  <trans-dir>src/main/resources/lang</trans-dir>
+  <src-dir>src/main/resources/lang</src-dir>
+</config>
