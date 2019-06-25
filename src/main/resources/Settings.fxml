@@ -1,14 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import com.jfoenix.controls.*?>
+<?import com.jfoenix.controls.JFXButton?>
+<?import com.jfoenix.controls.JFXListView?>
+<?import com.jfoenix.controls.JFXToggleButton?>
 <?import javafx.geometry.Insets?>
 <?import javafx.geometry.Rectangle2D?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.image.*?>
-<?import javafx.scene.layout.*?>
-<?import javafx.scene.text.*?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.text.Font?>
+
 <AnchorPane id="AnchorPane" fx:id="mainPane" prefHeight="470.0" prefWidth="480.0"
-            style="-fx-background-color: transparent;" xmlns="http://javafx.com/javafx/8.0.172-ea"
+            style="-fx-background-color: transparent;" xmlns="http://javafx.com/javafx/10.0.1"
             xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.stirante.RuneChanger.gui.SettingsController">
     <ImageView fitHeight="444.0" fitWidth="480.0" layoutY="86.0" preserveRatio="true">
         <Image url="@images/blueBackground.png"/>
@@ -44,6 +52,8 @@
                 <ColumnConstraints halignment="RIGHT" hgrow="SOMETIMES" minWidth="10.0" prefWidth="270.0"/>
             </columnConstraints>
             <rowConstraints>
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
                 <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
                 <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
                 <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
@@ -89,11 +99,11 @@
                     <Font size="13.0"/>
                 </font>
             </Label>
-            <Separator opacity="0.33" prefHeight="1.0" prefWidth="307.0" GridPane.columnSpan="2" GridPane.rowIndex="6"/>
+            <Separator opacity="0.33" prefHeight="1.0" prefWidth="307.0" GridPane.columnSpan="2" GridPane.rowIndex="8"/>
             <JFXButton fx:id="craftKeyBtn" maxWidth="1.7976931348623157E308" onAction="#handleSettingsButtonPressed"
                        prefHeight="31.0" prefWidth="180.0"
                        style="-fx-background-color: #1e2328; -fx-border-color: d9ae50;" text="%craft_all_keys"
-                       textFill="#d9ae50" GridPane.halignment="CENTER" GridPane.hgrow="ALWAYS" GridPane.rowIndex="7"
+                       textFill="#d9ae50" GridPane.halignment="CENTER" GridPane.hgrow="ALWAYS" GridPane.rowIndex="9"
                        GridPane.valignment="CENTER">
                 <font>
                     <Font name="System Bold" size="11.0"/>
@@ -102,7 +112,7 @@
             <JFXButton fx:id="disenchantBtn" maxWidth="1.7976931348623157E308" onAction="#handleSettingsButtonPressed"
                        prefHeight="31.0" prefWidth="180.0" ripplerFill="#1986b1"
                        style="-fx-background-color: #1e2328; -fx-border-color: d9ae50;" text="%disenchant_champions"
-                       textFill="#d9ae50" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="7"
+                       textFill="#d9ae50" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="9"
                        GridPane.valignment="CENTER">
                 <font>
                     <Font name="System Bold" size="11.0"/>
@@ -127,6 +137,23 @@
                              prefWidth="120.0" size="11.0" text="On" textFill="#eda678" toggleColor="#eda678"
                              toggleLineColor="#eba478e2" GridPane.columnIndex="1" GridPane.rowIndex="4"
                              GridPane.rowSpan="2">
+                <font>
+                    <Font size="13.0"/>
+                </font>
+            </JFXToggleButton>
+            <Label text="%autoupdate_state" textFill="WHITE" GridPane.rowIndex="6">
+                <font>
+                    <Font size="16.0"/>
+                </font>
+            </Label>
+            <Label text="%autoupdate_message" textFill="#f2efef" wrapText="true" GridPane.rowIndex="7">
+                <font>
+                    <Font size="13.0"/>
+                </font>
+            </Label>
+            <JFXToggleButton fx:id="autoUpdateBtn" onAction="#handleToggleButtonPressed" prefHeight="60.0"
+                             prefWidth="120.0" size="11.0" text="On" textFill="#eda678" toggleColor="#eda678"
+                             toggleLineColor="#eba478e2" GridPane.columnIndex="1" GridPane.rowIndex="7">
                 <font>
                     <Font size="13.0"/>
                 </font>

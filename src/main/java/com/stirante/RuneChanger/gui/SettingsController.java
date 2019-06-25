@@ -61,6 +61,8 @@ public class SettingsController {
     @FXML
     private JFXToggleButton noAwayBtn;
     @FXML
+    private JFXToggleButton autoUpdateBtn;
+    @FXML
     private JFXListView<Label> localRunes, clientRunes;
 
     private static AnchorPane currentPane = null;
@@ -154,6 +156,9 @@ public class SettingsController {
         else if (e.getTarget() == quickReplyBtn) {
             SimplePreferences.putValue("quickReplies", String.valueOf(quickReplyBtn.isSelected()));
         }
+        else if (e.getTarget() == autoUpdateBtn) {
+            SimplePreferences.putValue("autoUpdate", String.valueOf(autoUpdateBtn.isSelected()));
+        }
         SimplePreferences.save();
     }
 
@@ -206,6 +211,10 @@ public class SettingsController {
         if (SimplePreferences.getValue("quickReplies") != null &&
                 SimplePreferences.getValue("quickReplies").equals("true")) {
             quickReplyBtn.setSelected(true);
+        }
+        if (SimplePreferences.getValue("autoUpdate") != null &&
+                SimplePreferences.getValue("autoUpdate").equals("true")) {
+            autoUpdateBtn.setSelected(true);
         }
         if (SimplePreferences.runeBookValues != null && !SimplePreferences.runeBookValues.isEmpty()) {
             RuneBook.refreshLocalRunes(localRunes);
