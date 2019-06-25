@@ -162,10 +162,15 @@ public class RuneChanger {
         try {
             AutoUpdater.cleanup();
             if (!AutoUpdater.check()) {
+                JFrame frame = new JFrame();
+                frame.setUndecorated(true);
+                frame.setVisible(true);
+                frame.setLocationRelativeTo(null);
                 int dialogResult =
-                        JOptionPane.showConfirmDialog(null, LangHelper.getLang()
+                        JOptionPane.showConfirmDialog(frame, LangHelper.getLang()
                                 .getString("update_question"), LangHelper.getLang()
                                 .getString("update_available"), JOptionPane.YES_NO_OPTION);
+                frame.dispose();
                 if (dialogResult == JOptionPane.YES_OPTION) {
                     AutoUpdater.performUpdate();
                     return;
