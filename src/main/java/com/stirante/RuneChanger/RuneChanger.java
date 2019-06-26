@@ -9,6 +9,7 @@ import com.stirante.RuneChanger.gui.Settings;
 import com.stirante.RuneChanger.model.Champion;
 import com.stirante.RuneChanger.model.RunePage;
 import com.stirante.RuneChanger.runestore.RuneStore;
+import com.stirante.RuneChanger.util.AutoUpdater;
 import com.stirante.RuneChanger.util.Elevate;
 import com.stirante.RuneChanger.util.LangHelper;
 import com.stirante.RuneChanger.util.SimplePreferences;
@@ -158,6 +159,26 @@ public class RuneChanger {
         Elevate.elevate(args);
         checkOperatingSystem();
         SimplePreferences.load();
+        try {
+            AutoUpdater.cleanup();
+            if (!AutoUpdater.check()) {
+                JFrame frame = new JFrame();
+                frame.setUndecorated(true);
+                frame.setVisible(true);
+                frame.setLocationRelativeTo(null);
+                int dialogResult =
+                        JOptionPane.showConfirmDialog(frame, LangHelper.getLang()
+                                .getString("update_question"), LangHelper.getLang()
+                                .getString("update_available"), JOptionPane.YES_NO_OPTION);
+                frame.dispose();
+                if (dialogResult == JOptionPane.YES_OPTION) {
+                    AutoUpdater.performUpdate();
+                    return;
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         try {
             Champion.init();
         } catch (IOException e) {

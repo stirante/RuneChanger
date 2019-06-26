@@ -1,4 +1,4 @@
-# RuneChanger
+# RuneChanger [![Chat](https://img.shields.io/discord/593147882496851978.svg?label=&logo=discord&logoColor=ffffff&color=7389D8&labelColor=6A7EC2)](https://discord.gg/9tEsjhj)
 
 RuneChanger is an app that improves and speeds up the use of LoL client.
 
@@ -34,6 +34,9 @@ mvn package
 
 ## Running
 Just run jar or start it using ``java -jar RuneChanger.jar`` for extra logging
+
+## Translating
+Right now translation is done through [Zanata](https://translate.zanata.org/project/view/runechanger). Feel free to translate this project into your language.
 
 ## How it works
 RuneChanger uses internal LoL client API. If it finds active session it gets rune pages for currently selected champion and displays option to set those runes to active rune page.

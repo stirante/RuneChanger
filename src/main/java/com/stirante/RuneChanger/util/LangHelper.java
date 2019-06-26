@@ -1,5 +1,7 @@
 package com.stirante.RuneChanger.util;
 
+import com.stirante.RuneChanger.DebugConsts;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -19,9 +21,15 @@ public class LangHelper {
      *
      * @return default resource bundle
      */
+    @SuppressWarnings("ConstantConditions")
     public static ResourceBundle getLang() {
         if (resourceBundle == null) {
-            resourceBundle = ResourceBundle.getBundle("lang.messages", new UTF8Control());
+            if (DebugConsts.OVERRIDE_LANGUAGE != null) {
+                resourceBundle = ResourceBundle.getBundle("lang.messages", Locale.forLanguageTag(DebugConsts.OVERRIDE_LANGUAGE), new UTF8Control());
+            }
+            else {
+                resourceBundle = ResourceBundle.getBundle("lang.messages", new UTF8Control());
+            }
         }
         return resourceBundle;
     }

@@ -7,7 +7,10 @@ public class Constants {
     public static final String APP_NAME = "RuneChanger";
 
     //version string
-    public static final String VERSION_STRING = "1.10";
+    public static final String VERSION_STRING = "1.11";
+
+    //github latest release url
+    public static final String LATEST_RELEASE_URL = "https://api.github.com/repos/stirante/RuneChanger/releases/latest";
 
     //percentage positions and lengths
     public static final float RUNE_BUTTON_POSITION_X = 0.3015625f;
