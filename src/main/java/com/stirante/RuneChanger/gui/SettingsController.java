@@ -3,7 +3,6 @@ package com.stirante.RuneChanger.gui;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXListView;
 import com.jfoenix.controls.JFXToggleButton;
-import com.stirante.RuneChanger.model.Rune;
 import com.stirante.RuneChanger.util.RuneBook;
 import com.stirante.RuneChanger.util.SimplePreferences;
 import javafx.animation.FadeTransition;
@@ -67,6 +66,17 @@ public class SettingsController {
 
     private static AnchorPane currentPane = null;
     private Settings settings;
+
+    private void loadPreferences() {
+        setupPreference("quickReplies", "false", quickReplyBtn);
+        setupPreference("autoAccept", "false", autoQueueBtn);
+        setupPreference("antiAway", "false", noAwayBtn);
+        setupPreference("autoUpdate", "true", autoUpdateBtn);
+
+        if (!SimplePreferences.runeBookValues.isEmpty()) {
+            RuneBook.refreshLocalRunes(localRunes);
+        }
+    }
 
     private static void rotateSyncButton(ImageView syncButton) {
         if (syncButton.isDisabled()) {
@@ -200,24 +210,12 @@ public class SettingsController {
         fade(mainPane, 1750, 0, 1).playFromStart();
     }
 
-    private void loadPreferences() {
-        if (SimplePreferences.getValue("autoAccept") != null &&
-                SimplePreferences.getValue("autoAccept").equals("true")) {
-            autoQueueBtn.setSelected(true);
+    private void setupPreference(String key, String defaultValue, JFXToggleButton button) {
+        if (SimplePreferences.getValue(key) == null) {
+            SimplePreferences.putValue(key, defaultValue);
         }
-        if (SimplePreferences.getValue("antiAway") != null && SimplePreferences.getValue("antiAway").equals("true")) {
-            noAwayBtn.setSelected(true);
-        }
-        if (SimplePreferences.getValue("quickReplies") != null &&
-                SimplePreferences.getValue("quickReplies").equals("true")) {
-            quickReplyBtn.setSelected(true);
-        }
-        if (SimplePreferences.getValue("autoUpdate") != null &&
-                SimplePreferences.getValue("autoUpdate").equals("true")) {
-            autoUpdateBtn.setSelected(true);
-        }
-        if (SimplePreferences.runeBookValues != null && !SimplePreferences.runeBookValues.isEmpty()) {
-            RuneBook.refreshLocalRunes(localRunes);
+        if (SimplePreferences.getValue(key).equals("true")) {
+            Platform.runLater(() -> button.setSelected(true));
         }
     }
 

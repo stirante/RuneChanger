@@ -52,7 +52,7 @@ public class AutoUpdater {
     public static boolean check() throws IOException {
         if (DebugConsts.DISABLE_AUTOUPDATE ||
                 (SimplePreferences.getValue("autoUpdate") != null &&
-                        SimplePreferences.getValue("autoUpdate").equals("true"))) {
+                        SimplePreferences.getValue("autoUpdate").equals("false"))) {
             return true;
         }
         if (cachedRelease == null) {
