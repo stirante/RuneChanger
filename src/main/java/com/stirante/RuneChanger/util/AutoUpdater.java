@@ -50,7 +50,9 @@ public class AutoUpdater {
      * @return true, if RuneChanger is up to date
      */
     public static boolean check() throws IOException {
-        if (DebugConsts.DISABLE_AUTOUPDATE) {
+        if (DebugConsts.DISABLE_AUTOUPDATE ||
+                (SimplePreferences.getValue("autoUpdate") != null &&
+                        SimplePreferences.getValue("autoUpdate").equals("false"))) {
             return true;
         }
         if (cachedRelease == null) {
