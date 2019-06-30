@@ -31,7 +31,7 @@ public class LangHelper {
             else if (SimplePreferences.getValue("force_english") != null &&
                     SimplePreferences.getValue("force_english").equalsIgnoreCase("true")) {
                 resourceBundle =
-                        ResourceBundle.getBundle("lang.messages", Locale.forLanguageTag("en-GB"), new UTF8Control());
+                        ResourceBundle.getBundle("lang.messages", Locale.ROOT, new UTF8Control());
             }
             else {
                 resourceBundle = ResourceBundle.getBundle("lang.messages", new UTF8Control());
