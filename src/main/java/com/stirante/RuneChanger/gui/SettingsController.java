@@ -3,6 +3,7 @@ package com.stirante.RuneChanger.gui;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXListView;
 import com.jfoenix.controls.JFXToggleButton;
+import com.stirante.RuneChanger.util.LangHelper;
 import com.stirante.RuneChanger.util.RuneBook;
 import com.stirante.RuneChanger.util.SimplePreferences;
 import javafx.animation.FadeTransition;
@@ -18,6 +19,8 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.util.Duration;
+
+import javax.swing.*;
 
 import static com.stirante.RuneChanger.gui.Settings.*;
 
@@ -56,6 +59,8 @@ public class SettingsController {
     @FXML
     private JFXToggleButton quickReplyBtn;
     @FXML
+    private JFXToggleButton force_english_btn;
+    @FXML
     private JFXToggleButton autoQueueBtn;
     @FXML
     private JFXToggleButton noAwayBtn;
@@ -72,6 +77,7 @@ public class SettingsController {
         setupPreference("autoAccept", "false", autoQueueBtn);
         setupPreference("antiAway", "false", noAwayBtn);
         setupPreference("autoUpdate", "true", autoUpdateBtn);
+        setupPreference("force_english", "false", force_english_btn);
 
         if (!SimplePreferences.runeBookValues.isEmpty()) {
             RuneBook.refreshLocalRunes(localRunes);
@@ -169,6 +175,14 @@ public class SettingsController {
         else if (e.getTarget() == autoUpdateBtn) {
             SimplePreferences.putValue("autoUpdate", String.valueOf(autoUpdateBtn.isSelected()));
         }
+        else if (e.getTarget() == force_english_btn) {
+            SimplePreferences.putValue("force_english", String.valueOf(force_english_btn.isSelected()));
+            boolean restart =
+                    showConfirmationScreen("Restart neccesary", "Runechanger requires a restart to apply changed settings.\n Do you want to close RuneChanger now?");
+            if (restart) {
+                System.exit(0);
+            }
+        }
         SimplePreferences.save();
     }
 
@@ -216,6 +230,21 @@ public class SettingsController {
         }
         if (SimplePreferences.getValue(key).equals("true")) {
             Platform.runLater(() -> button.setSelected(true));
+        }
+    }
+
+    private boolean showConfirmationScreen(String title, String message) {
+        JFrame frame = new JFrame();
+        frame.setUndecorated(true);
+        frame.setVisible(true);
+        frame.setLocationRelativeTo(null);
+        int dialogResult = JOptionPane.showConfirmDialog(frame, message, title, JOptionPane.YES_NO_OPTION);
+        frame.dispose();
+        if (dialogResult == JOptionPane.YES_OPTION) {
+            return true;
+        }
+        else {
+            return false;
         }
     }
 
