@@ -13,6 +13,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseWheelEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -52,6 +53,7 @@ public class ClientOverlay extends JPanel {
     private RunnableWithArgument<Champion> suggestedChampionSelectedListener;
     private float currentRuneMenuPosition = 0f;
     private float currentChampionsPosition = 0f;
+    private float scroll = 0f;
     private Timer timer;
 
     public ClientOverlay(RuneChanger runeChanger) {
@@ -177,7 +179,7 @@ public class ClientOverlay extends JPanel {
             }
             tileIndex++;
         }
-        g2d.clearRect(getClientWidth() - barWidth, 0, barWidth, getHeight());
+        clearRect(g2d, getClientWidth() - barWidth, 0, barWidth, getHeight());
     }
 
     @SuppressWarnings("SuspiciousNameCombination")
@@ -262,11 +264,13 @@ public class ClientOverlay extends JPanel {
         }
         else {
             currentRuneMenuPosition = ease(currentRuneMenuPosition, 0f);
-            if (currentRuneMenuPosition > 1f) {
+            scroll = ease(scroll, 0f);
+            if (currentRuneMenuPosition > 1f || scroll > 1f) {
                 timer.restart();
             }
             else {
                 currentRuneMenuPosition = 0f;
+                scroll = 0f;
             }
         }
         //positions and dimensions
@@ -275,7 +279,7 @@ public class ClientOverlay extends JPanel {
         int menuHeight = (int) (Constants.RUNE_ITEM_HEIGHT * getHeight() * pages.size());
         int menuX = (int) (Constants.RUNE_MENU_X * (getClientWidth()));
         int menuY = (int) ((Constants.RUNE_MENU_Y * getHeight()) -
-                (itemHeight * pages.size() * (currentRuneMenuPosition / 100f)));
+                (Math.min(10 * itemHeight, itemHeight * pages.size()) * (currentRuneMenuPosition / 100f)) - scroll);
 
         //draw menu background
         g2d.setColor(backgroundColor);
@@ -308,7 +312,24 @@ public class ClientOverlay extends JPanel {
             }
         }
         //clear everything under menu
-        g2d.clearRect(menuX, (int) (Constants.RUNE_MENU_Y * getHeight()), itemWidth + 1, 1000);
+        clearRect(g2d, menuX, (int) (Constants.RUNE_MENU_Y * getHeight()), itemWidth + 1, getHeight() - (int) (Constants.RUNE_MENU_Y * getHeight()));
+        //clear everything above menu
+        int upperY = (int) (Math.min(
+                Constants.RUNE_ITEM_HEIGHT * 10 - (1 - Constants.RUNE_MENU_Y),
+                Constants.RUNE_ITEM_HEIGHT * pages.size() - (1 - Constants.RUNE_MENU_Y)) * getHeight());
+        clearRect(g2d, menuX, 0, itemWidth + 1, upperY);
+        //draw top line, if menu is scrollable and menu is scrolled
+        g2d.setColor(textColor);
+        if (pages.size() > 10 && opened && scroll > 0f) {
+            g2d.drawLine(menuX, upperY, menuX + itemWidth, upperY);
+        }
+    }
+
+    private void clearRect(Graphics2D g2d, int x, int y, int w, int h) {
+        g2d.clearRect(x, y, w, h);
+        if (DebugConsts.DISPLAY_FAKE) {
+            g2d.drawImage(fake.getSubimage(x, y, w, Math.max(1, Math.min(fake.getHeight(), h))), x, y, null);
+        }
     }
 
     private void drawCenteredHorizontalString(Graphics2D g, int x, int bottom, String text) {
@@ -386,15 +407,20 @@ public class ClientOverlay extends JPanel {
                 e.getY() < (getHeight() * Constants.RUNE_BUTTON_POSITION_Y) + icon.getHeight()) {
             setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         }
-        if (e.getY() > Constants.RUNE_MENU_Y * (getClientWidth()) ||
-                e.getY() < (Constants.RUNE_MENU_Y - pages.size()) * getHeight()
+        if (e.getY() > Constants.RUNE_MENU_Y * getClientWidth() ||
+                e.getY() < Math.min(
+                        Constants.RUNE_ITEM_HEIGHT * 10 - (1 - Constants.RUNE_MENU_Y),
+                        Constants.RUNE_ITEM_HEIGHT * pages.size() - (1 - Constants.RUNE_MENU_Y)) *
+                        getHeight()
                 || e.getX() < Constants.RUNE_MENU_X * (getClientWidth()) ||
                 e.getX() > (Constants.RUNE_MENU_X + Constants.RUNE_ITEM_WIDTH) * (getClientWidth())) {
             runePageIndex = -1;
         }
         else {
-            runePageIndex = (int) ((e.getY() -
-                    ((Constants.RUNE_MENU_Y - (Constants.RUNE_ITEM_HEIGHT * pages.size())) * getHeight())) /
+            runePageIndex = (int) (((e.getY() + scroll) -
+                    ((Constants.RUNE_MENU_Y - Math.min(
+                            Constants.RUNE_ITEM_HEIGHT * 10,
+                            Constants.RUNE_ITEM_HEIGHT * pages.size())) * getHeight())) /
                     (Constants.RUNE_ITEM_HEIGHT * getHeight()));
             setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         }
@@ -444,5 +470,10 @@ public class ClientOverlay extends JPanel {
         this.lastChampions = lastChampions;
         this.bannedChampions = bannedChampions;
         this.suggestedChampionSelectedListener = suggestedChampionSelectedListener;
+    }
+
+    public void mouseWheelMoved(MouseWheelEvent e) {
+        scroll += e.getUnitsToScroll() * e.getScrollAmount();
+        scroll = (int)Math.max(0, Math.min(scroll, (pages.size() - 10) * Constants.RUNE_ITEM_HEIGHT * getHeight()));
     }
 }
