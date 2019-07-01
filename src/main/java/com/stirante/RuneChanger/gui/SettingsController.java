@@ -21,8 +21,10 @@ import javafx.scene.layout.AnchorPane;
 import javafx.util.Duration;
 
 import javax.swing.*;
+import java.io.File;
+import java.util.ArrayList;
 
-import static com.stirante.RuneChanger.gui.Settings.*;
+import static com.stirante.RuneChanger.gui.Settings.mainStage;
 
 public class SettingsController {
 
@@ -178,8 +180,39 @@ public class SettingsController {
         else if (e.getTarget() == force_english_btn) {
             SimplePreferences.putValue("force_english", String.valueOf(force_english_btn.isSelected()));
             boolean restart =
-                    showConfirmationScreen("Restart neccesary", "Runechanger requires a restart to apply changed settings.\n Do you want to close RuneChanger now?");
+                    showConfirmationScreen(LangHelper.getLang().getString("restart_necessary"), LangHelper.getLang()
+                            .getString("restart_necessary_description"));
             if (restart) {
+                SimplePreferences.save();
+                try {
+                    //From https://stackoverflow.com/a/4194224/6459649
+                    //find java executable path
+                    final String javaBin =
+                            System.getProperty("java.home") + File.separator + "bin" + File.separator + "java";
+
+                    //find path to the current jar
+                    final File currentJar =
+                            new File(SettingsController.class.getProtectionDomain()
+                                    .getCodeSource()
+                                    .getLocation()
+                                    .toURI());
+
+                    //if it's not a jar, just close it (probably running from IDE)
+                    if (!currentJar.getName().endsWith(".jar")) {
+                        System.exit(0);
+                    }
+
+                    //construct command and run it
+                    final ArrayList<String> command = new ArrayList<>();
+                    command.add(javaBin);
+                    command.add("-jar");
+                    command.add(currentJar.getPath());
+
+                    final ProcessBuilder builder = new ProcessBuilder(command);
+                    builder.start();
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
                 System.exit(0);
             }
         }

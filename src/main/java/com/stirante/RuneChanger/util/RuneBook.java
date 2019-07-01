@@ -96,8 +96,8 @@ public class RuneBook {
 
         StringSelection selection = new StringSelection(runePage.exportRunePage().toString());
         clipboard.setContents(selection, selection);
-        showInfoAlert(LangHelper.getLang().getString("succesfull_rune_copy"), LangHelper.getLang()
-                .getString("succesfull_rune_copy"), "");
+        showInfoAlert(LangHelper.getLang().getString("successful_rune_copy"), LangHelper.getLang()
+                .getString("successful_rune_copy"), "");
     }
 
     public static void importLocalRunes(JFXListView<Label> localList, JFXListView<Label> clientList) {
