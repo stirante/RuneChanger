@@ -25,7 +25,13 @@ public class LangHelper {
     public static ResourceBundle getLang() {
         if (resourceBundle == null) {
             if (DebugConsts.OVERRIDE_LANGUAGE != null) {
-                resourceBundle = ResourceBundle.getBundle("lang.messages", Locale.forLanguageTag(DebugConsts.OVERRIDE_LANGUAGE), new UTF8Control());
+                resourceBundle =
+                        ResourceBundle.getBundle("lang.messages", Locale.forLanguageTag(DebugConsts.OVERRIDE_LANGUAGE), new UTF8Control());
+            }
+            else if (SimplePreferences.getValue("force_english") != null &&
+                    SimplePreferences.getValue("force_english").equalsIgnoreCase("true")) {
+                resourceBundle =
+                        ResourceBundle.getBundle("lang.messages", Locale.ROOT, new UTF8Control());
             }
             else {
                 resourceBundle = ResourceBundle.getBundle("lang.messages", new UTF8Control());

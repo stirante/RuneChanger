@@ -3,6 +3,7 @@ package com.stirante.RuneChanger.gui;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXListView;
 import com.jfoenix.controls.JFXToggleButton;
+import com.stirante.RuneChanger.util.LangHelper;
 import com.stirante.RuneChanger.util.RuneBook;
 import com.stirante.RuneChanger.util.SimplePreferences;
 import javafx.animation.FadeTransition;
@@ -19,7 +20,11 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.util.Duration;
 
-import static com.stirante.RuneChanger.gui.Settings.*;
+import javax.swing.*;
+import java.io.File;
+import java.util.ArrayList;
+
+import static com.stirante.RuneChanger.gui.Settings.mainStage;
 
 public class SettingsController {
 
@@ -56,6 +61,8 @@ public class SettingsController {
     @FXML
     private JFXToggleButton quickReplyBtn;
     @FXML
+    private JFXToggleButton force_english_btn;
+    @FXML
     private JFXToggleButton autoQueueBtn;
     @FXML
     private JFXToggleButton noAwayBtn;
@@ -72,6 +79,7 @@ public class SettingsController {
         setupPreference("autoAccept", "false", autoQueueBtn);
         setupPreference("antiAway", "false", noAwayBtn);
         setupPreference("autoUpdate", "true", autoUpdateBtn);
+        setupPreference("force_english", "false", force_english_btn);
 
         if (!SimplePreferences.runeBookValues.isEmpty()) {
             RuneBook.refreshLocalRunes(localRunes);
@@ -169,6 +177,45 @@ public class SettingsController {
         else if (e.getTarget() == autoUpdateBtn) {
             SimplePreferences.putValue("autoUpdate", String.valueOf(autoUpdateBtn.isSelected()));
         }
+        else if (e.getTarget() == force_english_btn) {
+            SimplePreferences.putValue("force_english", String.valueOf(force_english_btn.isSelected()));
+            boolean restart =
+                    showConfirmationScreen(LangHelper.getLang().getString("restart_necessary"), LangHelper.getLang()
+                            .getString("restart_necessary_description"));
+            if (restart) {
+                SimplePreferences.save();
+                try {
+                    //From https://stackoverflow.com/a/4194224/6459649
+                    //find java executable path
+                    final String javaBin =
+                            System.getProperty("java.home") + File.separator + "bin" + File.separator + "java";
+
+                    //find path to the current jar
+                    final File currentJar =
+                            new File(SettingsController.class.getProtectionDomain()
+                                    .getCodeSource()
+                                    .getLocation()
+                                    .toURI());
+
+                    //if it's not a jar, just close it (probably running from IDE)
+                    if (!currentJar.getName().endsWith(".jar")) {
+                        System.exit(0);
+                    }
+
+                    //construct command and run it
+                    final ArrayList<String> command = new ArrayList<>();
+                    command.add(javaBin);
+                    command.add("-jar");
+                    command.add(currentJar.getPath());
+
+                    final ProcessBuilder builder = new ProcessBuilder(command);
+                    builder.start();
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+                System.exit(0);
+            }
+        }
         SimplePreferences.save();
     }
 
@@ -216,6 +263,21 @@ public class SettingsController {
         }
         if (SimplePreferences.getValue(key).equals("true")) {
             Platform.runLater(() -> button.setSelected(true));
+        }
+    }
+
+    private boolean showConfirmationScreen(String title, String message) {
+        JFrame frame = new JFrame();
+        frame.setUndecorated(true);
+        frame.setVisible(true);
+        frame.setLocationRelativeTo(null);
+        int dialogResult = JOptionPane.showConfirmDialog(frame, message, title, JOptionPane.YES_NO_OPTION);
+        frame.dispose();
+        if (dialogResult == JOptionPane.YES_OPTION) {
+            return true;
+        }
+        else {
+            return false;
         }
     }
 
