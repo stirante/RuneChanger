@@ -257,7 +257,10 @@ public class SettingsController {
         loadPreferences();
         settingsPane.setVisible(true);
         currentPane = settingsPane;
-        fade(mainPane, 1750, 0, 1).playFromStart();
+        FadeTransition fadeTransition = fade(mainPane, 400, 0, 1);
+        fadeTransition.setOnFinished(event -> settingsScrollPane.setVvalue(0.0));
+        fadeTransition.playFromStart();
+
     }
 
     private void setupPreference(String key, String defaultValue, JFXToggleButton button) {
