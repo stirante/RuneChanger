@@ -13,6 +13,7 @@ import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
@@ -70,6 +71,8 @@ public class SettingsController {
     private JFXToggleButton autoUpdateBtn;
     @FXML
     private JFXListView<Label> localRunes, clientRunes;
+    @FXML
+    private ScrollPane settingsScrollPane;
 
     private static AnchorPane currentPane = null;
     private Settings settings;
