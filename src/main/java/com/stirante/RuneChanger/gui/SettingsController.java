@@ -6,6 +6,7 @@ import com.jfoenix.controls.JFXToggleButton;
 import com.stirante.RuneChanger.util.LangHelper;
 import com.stirante.RuneChanger.util.RuneBook;
 import com.stirante.RuneChanger.util.SimplePreferences;
+import com.stirante.RuneChanger.util.WinRegistry;
 import javafx.animation.FadeTransition;
 import javafx.animation.RotateTransition;
 import javafx.application.Platform;
@@ -23,6 +24,7 @@ import javafx.util.Duration;
 
 import javax.swing.*;
 import java.io.File;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 
 import static com.stirante.RuneChanger.gui.Settings.mainStage;
@@ -258,9 +260,7 @@ public class SettingsController {
         settingsPane.setVisible(true);
         currentPane = settingsPane;
         FadeTransition fadeTransition = fade(mainPane, 400, 0, 1);
-        fadeTransition.setOnFinished(event -> settingsScrollPane.setVvalue(0.0));
         fadeTransition.playFromStart();
-
     }
 
     private void setupPreference(String key, String defaultValue, JFXToggleButton button) {
@@ -285,6 +285,53 @@ public class SettingsController {
         else {
             return false;
         }
+    }
+
+    private boolean setStartupProgramSettings(boolean setAsStartupProgram) {
+        if (setAsStartupProgram) {
+            String javaHome = System.getProperty("java.home");
+            String userDir = System.getProperty("user.dir");
+            if (userDir.contains("System32")) {
+                System.out.println("Runechanger most likely was just started up by windows autostart.");
+                return false;
+            }
+
+            File f = new File(javaHome);
+            f = new File(f, "bin");
+            f = new File(f, "java.exe"); //TODO: change to javaw
+            String jarName = new java.io.File(SettingsController.class.getProtectionDomain()
+                    .getCodeSource()
+                    .getLocation()
+                    .getPath())
+                    .getName();
+            String value = "\"" + f.getAbsolutePath() + "\" -jar " + userDir + "\\" + jarName;
+            System.out.println("Value of runechanger path: " + value);
+            try {
+                WinRegistry.writeStringValue(WinRegistry.HKEY_CURRENT_USER, "Software\\Microsoft\\Windows\\CurrentVersion\\Run",
+                        "Runechanger",
+                        value);
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+                return false;
+            } catch (InvocationTargetException e) {
+                e.printStackTrace();
+                return false;
+            }
+        }
+        else {
+            try {
+                WinRegistry.deleteValue(WinRegistry.HKEY_CURRENT_USER,
+                        "Software\\Microsoft\\Windows\\CurrentVersion\\Run",
+                        "Runechanger");
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+                return false;
+            } catch (InvocationTargetException e) {
+                e.printStackTrace();
+                return false;
+            }
+        }
+        return true;
     }
 
     public void init(Settings settings) {
