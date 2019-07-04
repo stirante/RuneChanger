@@ -14,7 +14,6 @@ import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
@@ -24,7 +23,9 @@ import javafx.util.Duration;
 
 import javax.swing.*;
 import java.io.File;
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.InvocationTargetException;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 
 import static com.stirante.RuneChanger.gui.Settings.mainStage;
@@ -68,13 +69,13 @@ public class SettingsController {
     @FXML
     private JFXToggleButton autoQueueBtn;
     @FXML
+    private JFXToggleButton autostart_btn;
+    @FXML
     private JFXToggleButton noAwayBtn;
     @FXML
     private JFXToggleButton autoUpdateBtn;
     @FXML
     private JFXListView<Label> localRunes, clientRunes;
-    @FXML
-    private ScrollPane settingsScrollPane;
 
     private static AnchorPane currentPane = null;
     private Settings settings;
@@ -85,6 +86,10 @@ public class SettingsController {
         setupPreference("antiAway", "false", noAwayBtn);
         setupPreference("autoUpdate", "true", autoUpdateBtn);
         setupPreference("force_english", "false", force_english_btn);
+
+        if (checkStartupProgramSettings()) {
+            autostart_btn.setSelected(true);
+        }
 
         if (!SimplePreferences.runeBookValues.isEmpty()) {
             RuneBook.refreshLocalRunes(localRunes);
@@ -170,6 +175,14 @@ public class SettingsController {
 
     @FXML
     void handleToggleButtonPressed(Event e) {
+        if (e.getTarget() == autostart_btn) {
+            if (checkStartupProgramSettings()) {
+                setStartupProgramSettings(false);
+            }
+            else {
+                setStartupProgramSettings(true);
+            }
+        }
         if (e.getTarget() == autoQueueBtn) {
             SimplePreferences.putValue("autoAccept", String.valueOf(autoQueueBtn.isSelected()));
         }
@@ -255,6 +268,14 @@ public class SettingsController {
 
     @FXML
     void initialize() {
+        String path = SettingsController.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+        String decodedPath = "NULL";
+        try {
+            decodedPath = URLDecoder.decode(path, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        System.out.println("Runechanger is located in: " + decodedPath);
         SimplePreferences.load();
         loadPreferences();
         settingsPane.setVisible(true);
@@ -287,25 +308,47 @@ public class SettingsController {
         }
     }
 
+    /*
+    Returns true if runechanger is set as a startup program
+     */
+    private boolean checkStartupProgramSettings() {
+        try {
+            String value = WinRegistry.readString(WinRegistry.HKEY_CURRENT_USER,
+                    "Software\\Microsoft\\Windows\\CurrentVersion\\Run",
+                    "Runechanger");
+            if (value != null) {
+                return true;
+            }
+            else {
+                return false;
+            }
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+            return false;
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
     private boolean setStartupProgramSettings(boolean setAsStartupProgram) {
         if (setAsStartupProgram) {
             String javaHome = System.getProperty("java.home");
-            String userDir = System.getProperty("user.dir");
-            if (userDir.contains("System32")) {
-                System.out.println("Runechanger most likely was just started up by windows autostart.");
+            String path = SettingsController.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+            try {
+                path = URLDecoder.decode(path, "UTF-8");
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
                 return false;
             }
 
             File f = new File(javaHome);
             f = new File(f, "bin");
-            f = new File(f, "java.exe"); //TODO: change to javaw
-            String jarName = new java.io.File(SettingsController.class.getProtectionDomain()
-                    .getCodeSource()
-                    .getLocation()
-                    .getPath())
-                    .getName();
-            String value = "\"" + f.getAbsolutePath() + "\" -jar " + userDir + "\\" + jarName;
+            f = new File(f, "javaw.exe");
+            path = path.substring(1);
+            String value = "\"" + f.getAbsolutePath() + "\" -jar " + path;
             System.out.println("Value of runechanger path: " + value);
+
             try {
                 WinRegistry.writeStringValue(WinRegistry.HKEY_CURRENT_USER, "Software\\Microsoft\\Windows\\CurrentVersion\\Run",
                         "Runechanger",
