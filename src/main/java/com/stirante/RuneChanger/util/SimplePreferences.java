@@ -18,7 +18,6 @@ public class SimplePreferences {
         String path = SimplePreferences.class.getProtectionDomain().getCodeSource().getLocation().getPath();
         File temp = new File(path);
         temp = temp.getParentFile();
-        System.out.println(temp.getAbsolutePath() + "\\RuneChangerSettings.dat");
         return (temp.getAbsolutePath() + "\\RuneChangerSettings.dat");
     }
 

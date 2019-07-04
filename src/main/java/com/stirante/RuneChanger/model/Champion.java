@@ -44,7 +44,6 @@ public class Champion {
         temp = temp.getParentFile();
         temp = new File(temp, "assets");
         temp = new File(temp, "champions");
-        System.out.println(temp.getAbsolutePath());
         return temp;
     }
 
