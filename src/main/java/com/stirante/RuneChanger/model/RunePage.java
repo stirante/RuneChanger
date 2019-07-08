@@ -72,19 +72,19 @@ public class RunePage {
         for (int i = 0; i < getRunes().size(); i++) {
             Rune rune = getRunes().get(i);
             if (i < 4 && rune.getStyle() != getMainStyle()) {
-                System.out.println("Primary path contains runes from another style");
+                RuneChanger.d("Primary path contains runes from another style");
                 return false;
             }
             else if (i >= 4 && rune.getStyle() != getSubStyle()) {
-                System.out.println("Secondary path contains runes from another style");
+                RuneChanger.d("Secondary path contains runes from another style");
                 return false;
             }
             if (i < 4 && rune.getSlot() != i) {
-                System.out.println("Rune does not belong to this slot");
+                RuneChanger.d("Rune does not belong to this slot");
                 return false;
             }
             if (i == 4 && rune.getSlot() == getRunes().get(5).getSlot()) {
-                System.out.println("Secondary path contains runes from the same slot");
+                RuneChanger.d("Secondary path contains runes from the same slot");
                 return false;
             }
         }

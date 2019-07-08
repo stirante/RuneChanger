@@ -1,6 +1,7 @@
 package com.stirante.RuneChanger.runestore;
 
 import com.google.gson.Gson;
+import com.stirante.RuneChanger.RuneChanger;
 import com.stirante.RuneChanger.model.*;
 import com.stirante.RuneChanger.util.StringUtils;
 import org.jsoup.Jsoup;
@@ -100,7 +101,7 @@ public class RuneforgeSource implements RuneSource {
             }
             return r;
         } catch (IOException e) {
-            System.out.println(e.getMessage());
+            RuneChanger.d(e.getMessage());
             RunePage runePage = new RunePage();
             runePage.setSource(url);
             return runePage;

@@ -1,6 +1,5 @@
 package com.stirante.RuneChanger.util;
 
-import com.stirante.RuneChanger.gui.SettingsController;
 import com.stirante.RuneChanger.model.RunePage;
 
 import java.io.*;
@@ -9,19 +8,19 @@ import java.util.HashMap;
 
 public class SimplePreferences {
 
-    private static final String SETTINGS_FILENAME = SETTINGS_FILENAME_GENERATOR();
-    private static final String RUNEBOOK_FILENAME = RUNEBOOK_FILENAME_GENERATOR();
+    private static final String SETTINGS_FILENAME = settingsFilenameGenerator();
+    private static final String RUNEBOOK_FILENAME = runebookFilenameGenerator();
     public static ArrayList<RunePage> runeBookValues;
     private static HashMap<String, String> settingsValues;
 
-    private static final String SETTINGS_FILENAME_GENERATOR() {
+    private static String settingsFilenameGenerator() {
         String path = SimplePreferences.class.getProtectionDomain().getCodeSource().getLocation().getPath();
         File temp = new File(path);
         temp = temp.getParentFile();
         return (temp.getAbsolutePath() + "\\RuneChangerSettings.dat");
     }
 
-    private static final String RUNEBOOK_FILENAME_GENERATOR() {
+    private static String runebookFilenameGenerator() {
         String path = SimplePreferences.class.getProtectionDomain().getCodeSource().getLocation().getPath();
         File temp = new File(path);
         temp = temp.getParentFile();

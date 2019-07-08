@@ -3,6 +3,7 @@ package com.stirante.RuneChanger.gui;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXListView;
 import com.jfoenix.controls.JFXToggleButton;
+import com.stirante.RuneChanger.RuneChanger;
 import com.stirante.RuneChanger.util.LangHelper;
 import com.stirante.RuneChanger.util.RuneBook;
 import com.stirante.RuneChanger.util.SimplePreferences;
@@ -32,6 +33,7 @@ import static com.stirante.RuneChanger.gui.Settings.mainStage;
 
 public class SettingsController {
 
+    public static final String AUTO_RUN_PATH = "Software\\Microsoft\\Windows\\CurrentVersion\\Run";
     @FXML
     private JFXButton disenchantBtn;
     @FXML
@@ -256,6 +258,7 @@ public class SettingsController {
         }
     }
 
+    @SuppressWarnings("unchecked")
     @FXML
     void onListViewKeyPressed(KeyEvent event) {
         if (event.getCode().equals(KeyCode.C) && event.isControlDown()) {
@@ -275,7 +278,7 @@ public class SettingsController {
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
-        System.out.println("Runechanger is located in: " + decodedPath);
+        RuneChanger.d("Runechanger is located in: " + decodedPath);
         SimplePreferences.load();
         loadPreferences();
         settingsPane.setVisible(true);
@@ -300,38 +303,25 @@ public class SettingsController {
         frame.setLocationRelativeTo(null);
         int dialogResult = JOptionPane.showConfirmDialog(frame, message, title, JOptionPane.YES_NO_OPTION);
         frame.dispose();
-        if (dialogResult == JOptionPane.YES_OPTION) {
-            return true;
-        }
-        else {
-            return false;
-        }
+        return dialogResult == JOptionPane.YES_OPTION;
     }
 
-    /*
-    Returns true if runechanger is set as a startup program
-     */
+    /**
+     * Returns true if runechanger is set as a startup program
+     **/
     private boolean checkStartupProgramSettings() {
         try {
             String value = WinRegistry.readString(WinRegistry.HKEY_CURRENT_USER,
-                    "Software\\Microsoft\\Windows\\CurrentVersion\\Run",
-                    "Runechanger");
-            if (value != null) {
-                return true;
-            }
-            else {
-                return false;
-            }
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-            return false;
-        } catch (InvocationTargetException e) {
+                    AUTO_RUN_PATH,
+                    Constants.APP_NAME);
+            return value != null;
+        } catch (IllegalAccessException | InvocationTargetException e) {
             e.printStackTrace();
             return false;
         }
     }
 
-    private boolean setStartupProgramSettings(boolean setAsStartupProgram) {
+    private void setStartupProgramSettings(boolean setAsStartupProgram) {
         if (setAsStartupProgram) {
             String javaHome = System.getProperty("java.home");
             String path = SettingsController.class.getProtectionDomain().getCodeSource().getLocation().getPath();
@@ -339,7 +329,7 @@ public class SettingsController {
                 path = URLDecoder.decode(path, "UTF-8");
             } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
-                return false;
+                return;
             }
 
             File f = new File(javaHome);
@@ -347,34 +337,25 @@ public class SettingsController {
             f = new File(f, "javaw.exe");
             path = path.substring(1);
             String value = "\"" + f.getAbsolutePath() + "\" -jar " + path;
-            System.out.println("Value of runechanger path: " + value);
+            RuneChanger.d("Value of runechanger path: " + value);
 
             try {
-                WinRegistry.writeStringValue(WinRegistry.HKEY_CURRENT_USER, "Software\\Microsoft\\Windows\\CurrentVersion\\Run",
-                        "Runechanger",
+                WinRegistry.writeStringValue(WinRegistry.HKEY_CURRENT_USER, AUTO_RUN_PATH,
+                        Constants.APP_NAME,
                         value);
-            } catch (IllegalAccessException e) {
+            } catch (IllegalAccessException | InvocationTargetException e) {
                 e.printStackTrace();
-                return false;
-            } catch (InvocationTargetException e) {
-                e.printStackTrace();
-                return false;
             }
         }
         else {
             try {
                 WinRegistry.deleteValue(WinRegistry.HKEY_CURRENT_USER,
-                        "Software\\Microsoft\\Windows\\CurrentVersion\\Run",
-                        "Runechanger");
-            } catch (IllegalAccessException e) {
+                        AUTO_RUN_PATH,
+                        Constants.APP_NAME);
+            } catch (IllegalAccessException | InvocationTargetException e) {
                 e.printStackTrace();
-                return false;
-            } catch (InvocationTargetException e) {
-                e.printStackTrace();
-                return false;
             }
         }
-        return true;
     }
 
     public void init(Settings settings) {

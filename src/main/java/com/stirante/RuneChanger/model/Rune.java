@@ -1,5 +1,7 @@
 package com.stirante.RuneChanger.model;
 
+import com.stirante.RuneChanger.RuneChanger;
+
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
@@ -96,7 +98,7 @@ public enum Rune {
                 return rune;
             }
         }
-        System.out.println(name + " not found");
+        RuneChanger.d(name + " not found");
         return null;
     }
 
@@ -112,7 +114,7 @@ public enum Rune {
                 return rune;
             }
         }
-        System.out.println(id + " not found");
+        RuneChanger.d(id + " not found");
         return null;
     }
 

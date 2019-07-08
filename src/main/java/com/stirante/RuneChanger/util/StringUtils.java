@@ -1,5 +1,7 @@
 package com.stirante.RuneChanger.util;
 
+import com.stirante.RuneChanger.RuneChanger;
+
 import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -34,7 +36,7 @@ public class StringUtils {
         }
         for (int i = 0; i < str.length(); i++) {
             if (str.charAt(i) > 127) {
-                System.out.println("Non standard character: \"" + str.charAt(i) + "\"");
+                RuneChanger.d("Non standard character: \"" + str.charAt(i) + "\"");
             }
         }
         if (!Normalizer.isNormalized(str, Normalizer.Form.NFC)) {
