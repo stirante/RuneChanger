@@ -3,9 +3,11 @@ package com.stirante.RuneChanger.gui;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXListView;
 import com.jfoenix.controls.JFXToggleButton;
+import com.stirante.RuneChanger.RuneChanger;
 import com.stirante.RuneChanger.util.LangHelper;
 import com.stirante.RuneChanger.util.RuneBook;
 import com.stirante.RuneChanger.util.SimplePreferences;
+import com.stirante.RuneChanger.util.WinRegistry;
 import javafx.animation.FadeTransition;
 import javafx.animation.RotateTransition;
 import javafx.application.Platform;
@@ -22,12 +24,16 @@ import javafx.util.Duration;
 
 import javax.swing.*;
 import java.io.File;
+import java.io.UnsupportedEncodingException;
+import java.lang.reflect.InvocationTargetException;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 
 import static com.stirante.RuneChanger.gui.Settings.mainStage;
 
 public class SettingsController {
 
+    public static final String AUTO_RUN_PATH = "Software\\Microsoft\\Windows\\CurrentVersion\\Run";
     @FXML
     private JFXButton disenchantBtn;
     @FXML
@@ -65,6 +71,8 @@ public class SettingsController {
     @FXML
     private JFXToggleButton autoQueueBtn;
     @FXML
+    private JFXToggleButton autostart_btn;
+    @FXML
     private JFXToggleButton noAwayBtn;
     @FXML
     private JFXToggleButton autoUpdateBtn;
@@ -80,6 +88,10 @@ public class SettingsController {
         setupPreference("antiAway", "false", noAwayBtn);
         setupPreference("autoUpdate", "true", autoUpdateBtn);
         setupPreference("force_english", "false", force_english_btn);
+
+        if (checkStartupProgramSettings()) {
+            autostart_btn.setSelected(true);
+        }
 
         if (!SimplePreferences.runeBookValues.isEmpty()) {
             RuneBook.refreshLocalRunes(localRunes);
@@ -165,6 +177,14 @@ public class SettingsController {
 
     @FXML
     void handleToggleButtonPressed(Event e) {
+        if (e.getTarget() == autostart_btn) {
+            if (checkStartupProgramSettings()) {
+                setStartupProgramSettings(false);
+            }
+            else {
+                setStartupProgramSettings(true);
+            }
+        }
         if (e.getTarget() == autoQueueBtn) {
             SimplePreferences.putValue("autoAccept", String.valueOf(autoQueueBtn.isSelected()));
         }
@@ -238,6 +258,7 @@ public class SettingsController {
         }
     }
 
+    @SuppressWarnings("unchecked")
     @FXML
     void onListViewKeyPressed(KeyEvent event) {
         if (event.getCode().equals(KeyCode.C) && event.isControlDown()) {
@@ -250,11 +271,20 @@ public class SettingsController {
 
     @FXML
     void initialize() {
+        String path = SettingsController.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+        String decodedPath = "NULL";
+        try {
+            decodedPath = URLDecoder.decode(path, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        RuneChanger.d("Runechanger is located in: " + decodedPath);
         SimplePreferences.load();
         loadPreferences();
         settingsPane.setVisible(true);
         currentPane = settingsPane;
-        fade(mainPane, 1750, 0, 1).playFromStart();
+        FadeTransition fadeTransition = fade(mainPane, 400, 0, 1);
+        fadeTransition.playFromStart();
     }
 
     private void setupPreference(String key, String defaultValue, JFXToggleButton button) {
@@ -273,11 +303,58 @@ public class SettingsController {
         frame.setLocationRelativeTo(null);
         int dialogResult = JOptionPane.showConfirmDialog(frame, message, title, JOptionPane.YES_NO_OPTION);
         frame.dispose();
-        if (dialogResult == JOptionPane.YES_OPTION) {
-            return true;
+        return dialogResult == JOptionPane.YES_OPTION;
+    }
+
+    /**
+     * Returns true if runechanger is set as a startup program
+     **/
+    private boolean checkStartupProgramSettings() {
+        try {
+            String value = WinRegistry.readString(WinRegistry.HKEY_CURRENT_USER,
+                    AUTO_RUN_PATH,
+                    Constants.APP_NAME);
+            return value != null;
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    private void setStartupProgramSettings(boolean setAsStartupProgram) {
+        if (setAsStartupProgram) {
+            String javaHome = System.getProperty("java.home");
+            String path = SettingsController.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+            try {
+                path = URLDecoder.decode(path, "UTF-8");
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+                return;
+            }
+
+            File f = new File(javaHome);
+            f = new File(f, "bin");
+            f = new File(f, "javaw.exe");
+            path = path.substring(1);
+            String value = "\"" + f.getAbsolutePath() + "\" -jar " + path;
+            RuneChanger.d("Value of runechanger path: " + value);
+
+            try {
+                WinRegistry.writeStringValue(WinRegistry.HKEY_CURRENT_USER, AUTO_RUN_PATH,
+                        Constants.APP_NAME,
+                        value);
+            } catch (IllegalAccessException | InvocationTargetException e) {
+                e.printStackTrace();
+            }
         }
         else {
-            return false;
+            try {
+                WinRegistry.deleteValue(WinRegistry.HKEY_CURRENT_USER,
+                        AUTO_RUN_PATH,
+                        Constants.APP_NAME);
+            } catch (IllegalAccessException | InvocationTargetException e) {
+                e.printStackTrace();
+            }
         }
     }
 

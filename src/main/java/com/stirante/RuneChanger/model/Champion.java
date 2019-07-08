@@ -15,7 +15,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class Champion {
 
-    private static File portraitsDir = new File("assets/champions/");
+    private static File portraitsDir = portraitsDirGenerator();
     private static List<Champion> values = new ArrayList<>(256);
     private static final AtomicBoolean IMAGES_READY = new AtomicBoolean(false);
 
@@ -36,6 +36,15 @@ public class Champion {
         this.name = name;
         this.alias = alias;
         this.url = url;
+    }
+
+    private static File portraitsDirGenerator() {
+        String path = Champion.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+        File temp = new File(path);
+        temp = temp.getParentFile();
+        temp = new File(temp, "assets");
+        temp = new File(temp, "champions");
+        return temp;
     }
 
     /**

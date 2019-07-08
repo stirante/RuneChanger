@@ -1,5 +1,7 @@
 package com.stirante.RuneChanger.model;
 
+import com.stirante.RuneChanger.RuneChanger;
+
 public enum Modifier {
     //from https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/perks.json
     RUNE_5001(5001, "+15-90 Health"),
@@ -35,7 +37,7 @@ public enum Modifier {
                 return mod;
             }
         }
-        System.out.println(name + " not found");
+        RuneChanger.d(name + " not found");
         return null;
     }
 
@@ -51,7 +53,7 @@ public enum Modifier {
                 return mod;
             }
         }
-        System.out.println(id + " not found");
+        RuneChanger.d(id + " not found");
         return null;
     }
 
