@@ -7,7 +7,7 @@ import com.stirante.RuneChanger.RuneChanger;
 import com.stirante.RuneChanger.util.LangHelper;
 import com.stirante.RuneChanger.util.RuneBook;
 import com.stirante.RuneChanger.util.SimplePreferences;
-import com.stirante.RuneChanger.util.WinRegistry;
+import com.sun.jna.platform.win32.Advapi32Util;
 import javafx.animation.FadeTransition;
 import javafx.animation.RotateTransition;
 import javafx.application.Platform;
@@ -25,15 +25,15 @@ import javafx.util.Duration;
 import javax.swing.*;
 import java.io.File;
 import java.io.UnsupportedEncodingException;
-import java.lang.reflect.InvocationTargetException;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 
 import static com.stirante.RuneChanger.gui.Settings.mainStage;
+import static com.sun.jna.platform.win32.WinReg.HKEY_CURRENT_USER;
 
 public class SettingsController {
 
-    public static final String AUTO_RUN_PATH = "Software\\Microsoft\\Windows\\CurrentVersion\\Run";
+    public static final String REGISTRY_AUTOSTART_KEY = "Software\\Microsoft\\Windows\\CurrentVersion\\Run";
     @FXML
     private JFXButton disenchantBtn;
     @FXML
@@ -89,7 +89,7 @@ public class SettingsController {
         setupPreference("autoUpdate", "true", autoUpdateBtn);
         setupPreference("force_english", "false", force_english_btn);
 
-        if (checkStartupProgramSettings()) {
+        if (Advapi32Util.registryValueExists(HKEY_CURRENT_USER, REGISTRY_AUTOSTART_KEY, Constants.APP_NAME)) {
             autostart_btn.setSelected(true);
         }
 
@@ -178,7 +178,7 @@ public class SettingsController {
     @FXML
     void handleToggleButtonPressed(Event e) {
         if (e.getTarget() == autostart_btn) {
-            if (checkStartupProgramSettings()) {
+            if (Advapi32Util.registryValueExists(HKEY_CURRENT_USER, REGISTRY_AUTOSTART_KEY, Constants.APP_NAME)) {
                 setStartupProgramSettings(false);
             }
             else {
@@ -306,21 +306,6 @@ public class SettingsController {
         return dialogResult == JOptionPane.YES_OPTION;
     }
 
-    /**
-     * Returns true if runechanger is set as a startup program
-     **/
-    private boolean checkStartupProgramSettings() {
-        try {
-            String value = WinRegistry.readString(WinRegistry.HKEY_CURRENT_USER,
-                    AUTO_RUN_PATH,
-                    Constants.APP_NAME);
-            return value != null;
-        } catch (IllegalAccessException | InvocationTargetException e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-
     private void setStartupProgramSettings(boolean setAsStartupProgram) {
         if (setAsStartupProgram) {
             String javaHome = System.getProperty("java.home");
@@ -339,22 +324,11 @@ public class SettingsController {
             String value = "\"" + f.getAbsolutePath() + "\" -jar " + path;
             RuneChanger.d("Value of runechanger path: " + value);
 
-            try {
-                WinRegistry.writeStringValue(WinRegistry.HKEY_CURRENT_USER, AUTO_RUN_PATH,
-                        Constants.APP_NAME,
-                        value);
-            } catch (IllegalAccessException | InvocationTargetException e) {
-                e.printStackTrace();
-            }
+            Advapi32Util.registryCreateKey(HKEY_CURRENT_USER, REGISTRY_AUTOSTART_KEY);
+            Advapi32Util.registrySetStringValue(HKEY_CURRENT_USER, REGISTRY_AUTOSTART_KEY, Constants.APP_NAME, value);
         }
         else {
-            try {
-                WinRegistry.deleteValue(WinRegistry.HKEY_CURRENT_USER,
-                        AUTO_RUN_PATH,
-                        Constants.APP_NAME);
-            } catch (IllegalAccessException | InvocationTargetException e) {
-                e.printStackTrace();
-            }
+            Advapi32Util.registryDeleteValue(HKEY_CURRENT_USER, REGISTRY_AUTOSTART_KEY, Constants.APP_NAME);
         }
     }
 
