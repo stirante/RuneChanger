@@ -75,6 +75,8 @@ public class SettingsController {
     @FXML
     private JFXToggleButton noAwayBtn;
     @FXML
+    private JFXToggleButton alwaysOnTopBtn;
+    @FXML
     private JFXToggleButton autoUpdateBtn;
     @FXML
     private JFXListView<Label> localRunes, clientRunes;
@@ -88,6 +90,7 @@ public class SettingsController {
         setupPreference("antiAway", "false", noAwayBtn);
         setupPreference("autoUpdate", "true", autoUpdateBtn);
         setupPreference("force_english", "false", force_english_btn);
+        setupPreference("alwaysOnTop", "false", alwaysOnTopBtn);
 
         if (checkStartupProgramSettings()) {
             autostart_btn.setSelected(true);
@@ -197,6 +200,10 @@ public class SettingsController {
         else if (e.getTarget() == autoUpdateBtn) {
             SimplePreferences.putValue("autoUpdate", String.valueOf(autoUpdateBtn.isSelected()));
         }
+        else if (e.getTarget() == alwaysOnTopBtn) {
+            SimplePreferences.putValue("alwaysOnTop", String.valueOf(alwaysOnTopBtn.isSelected()));
+            mainStage.setAlwaysOnTop(alwaysOnTopBtn.isSelected());
+        }
         else if (e.getTarget() == force_english_btn) {
             SimplePreferences.putValue("force_english", String.valueOf(force_english_btn.isSelected()));
             boolean restart =
@@ -282,6 +289,9 @@ public class SettingsController {
         SimplePreferences.load();
         loadPreferences();
         settingsPane.setVisible(true);
+        if (SimplePreferences.getValue("alwaysOnTop").equalsIgnoreCase("true")) {
+            mainStage.setAlwaysOnTop(true);
+        }
         currentPane = settingsPane;
         FadeTransition fadeTransition = fade(mainPane, 400, 0, 1);
         fadeTransition.playFromStart();
