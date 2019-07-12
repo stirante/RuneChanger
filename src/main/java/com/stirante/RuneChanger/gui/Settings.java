@@ -15,6 +15,7 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 import static com.stirante.RuneChanger.gui.SettingsController.showWarning;
 
@@ -98,7 +99,8 @@ public class Settings extends Application {
         stage.setX(primaryScreenBounds.getMinX() + primaryScreenBounds.getWidth() - stage.getWidth());
         stage.setY(primaryScreenBounds.getMinY() + primaryScreenBounds.getHeight() - stage.getHeight());
         Platform.setImplicitExit(false);
-        stage.show();
+        if (!Arrays.asList(runeChanger.programArguments).contains("-minimized")) {
+            stage.show();
+        }
     }
-
 }

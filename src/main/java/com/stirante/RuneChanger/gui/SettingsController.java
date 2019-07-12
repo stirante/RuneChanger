@@ -336,7 +336,7 @@ public class SettingsController {
             f = new File(f, "bin");
             f = new File(f, "javaw.exe");
             path = path.substring(1);
-            String value = "\"" + f.getAbsolutePath() + "\" -jar " + path;
+            String value = "\"" + f.getAbsolutePath() + "\" -jar " + path + " -minimized";
             RuneChanger.d("Value of runechanger path: " + value);
 
             try {
