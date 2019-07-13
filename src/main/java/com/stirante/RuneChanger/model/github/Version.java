@@ -1,11 +1,14 @@
 package com.stirante.RuneChanger.model.github;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import com.google.gson.*;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.reflect.Type;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class Version {
@@ -16,7 +19,21 @@ public class Version {
         Version inst = new Version();
         try {
             InputStream stream = Version.class.getResourceAsStream("/version.json");
-            inst = new GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ssZ").create().fromJson(new InputStreamReader(stream), Version.class);
+            //Add our own date deserializer, which will return current date in case of parsing error
+            //It's added, so it won't crash when running from IDE
+            JsonDeserializer<Date> dateDeserializer = new JsonDeserializer<Date>() {
+                DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
+                @Override
+                public Date deserialize(final JsonElement json, final Type typeOfT, final JsonDeserializationContext context)
+                        throws JsonParseException {
+                    try {
+                        return df.parse(json.getAsString());
+                    } catch (ParseException e) {
+                        return new Date();
+                    }
+                }
+            };
+            inst = new GsonBuilder().registerTypeAdapter(Date.class, dateDeserializer).create().fromJson(new InputStreamReader(stream), Version.class);
             stream.close();
         } catch (IOException e) {
             e.printStackTrace();
