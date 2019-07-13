@@ -22,8 +22,6 @@ import javafx.util.Duration;
 
 import javax.swing.*;
 import java.io.File;
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
 import java.util.ArrayList;
 
 import static com.stirante.RuneChanger.gui.Settings.mainStage;
@@ -31,7 +29,6 @@ import static com.sun.jna.platform.win32.WinReg.HKEY_CURRENT_USER;
 
 public class SettingsController {
 
-    public static final String REGISTRY_AUTOSTART_KEY = "Software\\Microsoft\\Windows\\CurrentVersion\\Run";
     @FXML
     private JFXButton disenchantBtn;
     @FXML
@@ -90,7 +87,7 @@ public class SettingsController {
         setupPreference("force_english", "false", force_english_btn);
         setupPreference("alwaysOnTop", "false", alwaysOnTopBtn);
 
-        if (Advapi32Util.registryValueExists(HKEY_CURRENT_USER, REGISTRY_AUTOSTART_KEY, Constants.APP_NAME)) {
+        if (AutoStartUtils.isAutoStartEnabled()) {
             autostart_btn.setSelected(true);
         }
 
@@ -179,12 +176,7 @@ public class SettingsController {
     @FXML
     void handleToggleButtonPressed(Event e) {
         if (e.getTarget() == autostart_btn) {
-            if (Advapi32Util.registryValueExists(HKEY_CURRENT_USER, REGISTRY_AUTOSTART_KEY, Constants.APP_NAME)) {
-                setStartupProgramSettings(false);
-            }
-            else {
-                setStartupProgramSettings(true);
-            }
+            AutoStartUtils.setAutoStart(autostart_btn.isSelected());
         }
         if (e.getTarget() == autoQueueBtn) {
             SimplePreferences.putValue("autoAccept", String.valueOf(autoQueueBtn.isSelected()));
@@ -305,32 +297,6 @@ public class SettingsController {
         int dialogResult = JOptionPane.showConfirmDialog(frame, message, title, JOptionPane.YES_NO_OPTION);
         frame.dispose();
         return dialogResult == JOptionPane.YES_OPTION;
-    }
-
-    private void setStartupProgramSettings(boolean setAsStartupProgram) {
-        if (setAsStartupProgram) {
-            String javaHome = System.getProperty("java.home");
-            String path = SettingsController.class.getProtectionDomain().getCodeSource().getLocation().getPath();
-            try {
-                path = URLDecoder.decode(path, "UTF-8");
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
-                return;
-            }
-
-            File f = new File(javaHome);
-            f = new File(f, "bin");
-            f = new File(f, "javaw.exe");
-            path = path.substring(1);
-            String value = "\"" + f.getAbsolutePath() + "\" -jar " + path + " -minimized";
-            RuneChanger.d("Value of runechanger path: " + value);
-
-            Advapi32Util.registryCreateKey(HKEY_CURRENT_USER, REGISTRY_AUTOSTART_KEY);
-            Advapi32Util.registrySetStringValue(HKEY_CURRENT_USER, REGISTRY_AUTOSTART_KEY, Constants.APP_NAME, value);
-        }
-        else {
-            Advapi32Util.registryDeleteValue(HKEY_CURRENT_USER, REGISTRY_AUTOSTART_KEY, Constants.APP_NAME);
-        }
     }
 
     public void init(Settings settings) {

@@ -26,4 +26,12 @@ public class PathUtils {
         return new File(getWorkingDirectory(), "assets");
     }
 
+    public static String getJavawPath() {
+        String javaHome = System.getProperty("java.home");
+        File f = new File(javaHome);
+        f = new File(f, "bin");
+        f = new File(f, "javaw.exe");
+        return f.getAbsolutePath();
+    }
+
 }

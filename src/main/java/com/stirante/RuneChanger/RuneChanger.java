@@ -10,10 +10,7 @@ import com.stirante.RuneChanger.model.Champion;
 import com.stirante.RuneChanger.model.RunePage;
 import com.stirante.RuneChanger.model.github.Version;
 import com.stirante.RuneChanger.runestore.RuneStore;
-import com.stirante.RuneChanger.util.AutoUpdater;
-import com.stirante.RuneChanger.util.Elevate;
-import com.stirante.RuneChanger.util.LangHelper;
-import com.stirante.RuneChanger.util.SimplePreferences;
+import com.stirante.RuneChanger.util.*;
 import com.stirante.lolclient.ClientApi;
 import com.stirante.lolclient.ClientConnectionListener;
 import com.stirante.lolclient.ClientWebSocket;
@@ -25,7 +22,10 @@ import java.io.IOException;
 import java.net.ConnectException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Objects;
 
 public class RuneChanger {
 
@@ -44,6 +44,7 @@ public class RuneChanger {
         SimplePreferences.load();
         try {
             AutoUpdater.cleanup();
+            AutoStartUtils.checkAutoStartPath();
             if (!AutoUpdater.check()) {
                 JFrame frame = new JFrame();
                 frame.setUndecorated(true);
@@ -102,7 +103,8 @@ public class RuneChanger {
     private void init() {
         d("Starting RuneChanger version " + Constants.VERSION_STRING + " (" + Version.INSTANCE.branch + "@" +
                 Version.INSTANCE.commitIdAbbrev + " built at " +
-                SimpleDateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT).format(Version.INSTANCE.buildTime) + ")");
+                SimpleDateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT)
+                        .format(Version.INSTANCE.buildTime) + ")");
         ClientApi.setDisableEndpointWarnings(true);
         try {
             api = new ClientApi();
