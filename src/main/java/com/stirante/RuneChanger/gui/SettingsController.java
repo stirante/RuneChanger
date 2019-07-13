@@ -4,10 +4,7 @@ import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXListView;
 import com.jfoenix.controls.JFXToggleButton;
 import com.stirante.RuneChanger.RuneChanger;
-import com.stirante.RuneChanger.util.LangHelper;
-import com.stirante.RuneChanger.util.RuneBook;
-import com.stirante.RuneChanger.util.SimplePreferences;
-import com.stirante.RuneChanger.util.WinRegistry;
+import com.stirante.RuneChanger.util.*;
 import javafx.animation.FadeTransition;
 import javafx.animation.RotateTransition;
 import javafx.application.Platform;
@@ -271,14 +268,7 @@ public class SettingsController {
 
     @FXML
     void initialize() {
-        String path = SettingsController.class.getProtectionDomain().getCodeSource().getLocation().getPath();
-        String decodedPath = "NULL";
-        try {
-            decodedPath = URLDecoder.decode(path, "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
-        RuneChanger.d("Runechanger is located in: " + decodedPath);
+        RuneChanger.d("Runechanger is located in: " + PathUtils.getWorkingDirectory());
         SimplePreferences.load();
         loadPreferences();
         settingsPane.setVisible(true);

@@ -1,5 +1,7 @@
 package com.stirante.RuneChanger.gui;
 
+import com.stirante.RuneChanger.model.github.Version;
+
 public class Constants {
     public static final int MARGIN = 10;
 
@@ -7,7 +9,7 @@ public class Constants {
     public static final String APP_NAME = "RuneChanger";
 
     //version string
-    public static final String VERSION_STRING = "1.11";
+    public static final String VERSION_STRING = Version.INSTANCE.version;
 
     //github latest release url
     public static final String LATEST_RELEASE_URL = "https://api.github.com/repos/stirante/RuneChanger/releases/latest";

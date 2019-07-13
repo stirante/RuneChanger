@@ -8,24 +8,10 @@ import java.util.HashMap;
 
 public class SimplePreferences {
 
-    private static final String SETTINGS_FILENAME = settingsFilenameGenerator();
-    private static final String RUNEBOOK_FILENAME = runebookFilenameGenerator();
+    private static final String SETTINGS_FILENAME = new File(PathUtils.getWorkingDirectory(), "RuneChangerSettings.dat").getAbsolutePath();
+    private static final String RUNEBOOK_FILENAME = new File(PathUtils.getWorkingDirectory(), "RuneChangerRuneBook.dat").getAbsolutePath();
     public static ArrayList<RunePage> runeBookValues;
     private static HashMap<String, String> settingsValues;
-
-    private static String settingsFilenameGenerator() {
-        String path = SimplePreferences.class.getProtectionDomain().getCodeSource().getLocation().getPath();
-        File temp = new File(path);
-        temp = temp.getParentFile();
-        return (temp.getAbsolutePath() + "\\RuneChangerSettings.dat");
-    }
-
-    private static String runebookFilenameGenerator() {
-        String path = SimplePreferences.class.getProtectionDomain().getCodeSource().getLocation().getPath();
-        File temp = new File(path);
-        temp = temp.getParentFile();
-        return (temp.getAbsolutePath() + "\\RuneChangerRuneBook.dat");
-    }
 
     public static void load() {
         File settingsValuesFile = new File(SETTINGS_FILENAME);

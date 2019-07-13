@@ -1,5 +1,6 @@
 package com.stirante.RuneChanger.model.github;
 
+import java.util.Date;
 import java.util.List;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
@@ -44,10 +45,10 @@ public class Release {
     public Boolean prerelease;
     @SerializedName("created_at")
     @Expose
-    public String createdAt;
+    public Date createdAt;
     @SerializedName("published_at")
     @Expose
-    public String publishedAt;
+    public Date publishedAt;
     @SerializedName("assets")
     @Expose
     public List<Asset> assets = null;
