@@ -1,10 +1,12 @@
 package com.stirante.RuneChanger.util;
 
-import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.stirante.RuneChanger.DebugConsts;
+import com.stirante.RuneChanger.RuneChanger;
 import com.stirante.RuneChanger.gui.Constants;
 import com.stirante.RuneChanger.model.github.Asset;
 import com.stirante.RuneChanger.model.github.Release;
+import com.stirante.RuneChanger.model.github.Version;
 
 import javax.swing.*;
 import java.awt.*;
@@ -13,6 +15,8 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 
 public class AutoUpdater {
 
@@ -28,7 +32,9 @@ public class AutoUpdater {
         URL url = new URL(Constants.LATEST_RELEASE_URL);
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         InputStream in = conn.getInputStream();
-        Release latest = new Gson().fromJson(new InputStreamReader(in), Release.class);
+        Release latest = new GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'")
+                .create()
+                .fromJson(new InputStreamReader(in), Release.class);
         in.close();
         cachedRelease = latest;
     }
@@ -58,7 +64,18 @@ public class AutoUpdater {
         if (cachedRelease == null) {
             fetchRelease();
         }
-        return cachedRelease.tagName.equalsIgnoreCase(Constants.VERSION_STRING);
+        //If jar update date on github is later than build time of current version, then we need to update
+        for (Asset asset : cachedRelease.assets) {
+            if (asset.name.endsWith(".jar") && asset.name.startsWith("RuneChanger-")) {
+                RuneChanger.d("Github version is from " +
+                        SimpleDateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT)
+                                .format(asset.updatedAt));
+                //Build time will always be earlier than publish time, so we check, if those differ by more than 6h
+                return asset.updatedAt.getTime() - Version.INSTANCE.buildTime.getTime() < 21600000;
+            }
+        }
+        //If we don't find the jar in latest release (which SHOULD NOT happen), we return, that it's up to date
+        return true;
     }
 
     /**
@@ -100,8 +117,7 @@ public class AutoUpdater {
 
         Runnable updateThread = () -> {
             try {
-                File currentFile =
-                        new File(AutoUpdater.class.getProtectionDomain().getCodeSource().getLocation().toURI());
+                File currentFile = new File(PathUtils.getJarLocation());
                 URL url = new URL(fileUrl);
                 HttpURLConnection httpConnection = (HttpURLConnection) (url.openConnection());
                 long completeFileSize = httpConnection.getContentLength();

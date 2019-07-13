@@ -3,6 +3,8 @@ package com.stirante.RuneChanger.model.github;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
+import java.util.Date;
+
 public class Asset {
 
     @SerializedName("url")
@@ -37,10 +39,10 @@ public class Asset {
     public Integer downloadCount;
     @SerializedName("created_at")
     @Expose
-    public String createdAt;
+    public Date createdAt;
     @SerializedName("updated_at")
     @Expose
-    public String updatedAt;
+    public Date updatedAt;
     @SerializedName("browser_download_url")
     @Expose
     public String browserDownloadUrl;

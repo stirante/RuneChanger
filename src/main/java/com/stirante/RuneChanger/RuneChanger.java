@@ -8,6 +8,7 @@ import com.stirante.RuneChanger.gui.SceneType;
 import com.stirante.RuneChanger.gui.Settings;
 import com.stirante.RuneChanger.model.Champion;
 import com.stirante.RuneChanger.model.RunePage;
+import com.stirante.RuneChanger.model.github.Version;
 import com.stirante.RuneChanger.runestore.RuneStore;
 import com.stirante.RuneChanger.util.AutoUpdater;
 import com.stirante.RuneChanger.util.Elevate;
@@ -22,11 +23,9 @@ import org.java_websocket.exceptions.WebsocketNotConnectedException;
 import javax.swing.*;
 import java.io.IOException;
 import java.net.ConnectException;
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 public class RuneChanger {
 
@@ -39,7 +38,71 @@ public class RuneChanger {
     private Runes runesModule;
     private ClientWebSocket socket;
 
+    public static void main(String[] args) {
+        Elevate.elevate(args);
+        checkOperatingSystem();
+        SimplePreferences.load();
+        try {
+            AutoUpdater.cleanup();
+            if (!AutoUpdater.check()) {
+                JFrame frame = new JFrame();
+                frame.setUndecorated(true);
+                frame.setVisible(true);
+                frame.setLocationRelativeTo(null);
+                int dialogResult =
+                        JOptionPane.showConfirmDialog(frame, LangHelper.getLang()
+                                .getString("update_question"), LangHelper.getLang()
+                                .getString("update_available"), JOptionPane.YES_NO_OPTION);
+                frame.dispose();
+                if (dialogResult == JOptionPane.YES_OPTION) {
+                    AutoUpdater.performUpdate();
+                    return;
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        try {
+            Champion.init();
+        } catch (IOException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(null, LangHelper.getLang().getString("init_data_error"), Constants.APP_NAME,
+                    JOptionPane.ERROR_MESSAGE);
+            System.exit(0);
+        }
+        instance = new RuneChanger();
+        instance.programArguments = args;
+        instance.init();
+    }
+
+    /**
+     * Debug message
+     *
+     * @param message message
+     */
+    public static void d(Object message) {
+        System.out.println("[" + SimpleDateFormat.getTimeInstance().format(new Date()) + "] " +
+                (message != null ? message.toString() : "null"));
+    }
+
+    public static RuneChanger getInstance() {
+        return instance;
+    }
+
+    private static void checkOperatingSystem() {
+        if (!System.getProperty("os.name").toLowerCase().startsWith("windows")) {
+            d("User is not on a windows machine.");
+            JOptionPane.showMessageDialog(null, LangHelper.getLang().getString("windows_only"),
+                    Constants.APP_NAME,
+                    JOptionPane.WARNING_MESSAGE);
+            System.exit(0);
+        }
+    }
+
     private void init() {
+        d("Starting RuneChanger version " + Constants.VERSION_STRING + " (" + Version.INSTANCE.branch + "@" +
+                Version.INSTANCE.commitIdAbbrev + " built at " +
+                SimpleDateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT).format(Version.INSTANCE.buildTime) + ")");
         ClientApi.setDisableEndpointWarnings(true);
         try {
             api = new ClientApi();
@@ -156,43 +219,6 @@ public class RuneChanger {
         }
     }
 
-    public static void main(String[] args) {
-        Elevate.elevate(args);
-        checkOperatingSystem();
-        SimplePreferences.load();
-        try {
-            AutoUpdater.cleanup();
-            if (!AutoUpdater.check()) {
-                JFrame frame = new JFrame();
-                frame.setUndecorated(true);
-                frame.setVisible(true);
-                frame.setLocationRelativeTo(null);
-                int dialogResult =
-                        JOptionPane.showConfirmDialog(frame, LangHelper.getLang()
-                                .getString("update_question"), LangHelper.getLang()
-                                .getString("update_available"), JOptionPane.YES_NO_OPTION);
-                frame.dispose();
-                if (dialogResult == JOptionPane.YES_OPTION) {
-                    AutoUpdater.performUpdate();
-                    return;
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        try {
-            Champion.init();
-        } catch (IOException e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(null, LangHelper.getLang().getString("init_data_error"), Constants.APP_NAME,
-                    JOptionPane.ERROR_MESSAGE);
-            System.exit(0);
-        }
-        instance = new RuneChanger();
-        instance.programArguments = args;
-        instance.init();
-    }
-
     private void openSocket() throws Exception {
         socket = api.openWebSocket();
         gui.showInfoMessage(LangHelper.getLang().getString("client_connected"));
@@ -252,32 +278,8 @@ public class RuneChanger {
         });
     }
 
-    /**
-     * Debug message
-     *
-     * @param message message
-     */
-    public static void d(Object message) {
-        System.out.println("[" + SimpleDateFormat.getTimeInstance().format(new Date()) + "] " +
-                (message != null ? message.toString() : "null"));
-    }
-
-    public static RuneChanger getInstance() {
-        return instance;
-    }
-
     public ClientApi getApi() {
         return api;
-    }
-
-    private static void checkOperatingSystem() {
-        if (!System.getProperty("os.name").toLowerCase().startsWith("windows")) {
-            d("User is not on a windows machine.");
-            JOptionPane.showMessageDialog(null, LangHelper.getLang().getString("windows_only"),
-                    Constants.APP_NAME,
-                    JOptionPane.WARNING_MESSAGE);
-            System.exit(0);
-        }
     }
 
     public ChampionSelection getChampionSelectionModule() {

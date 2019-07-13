@@ -1,0 +1,7 @@
+{
+  "branch" : "${git.branch}",
+  "buildTime" : "${git.build.time}",
+  "version" : "${version}",
+  "commitId" : "${git.commit.id}",
+  "commitIdAbbrev" : "${git.commit.id.abbrev}"
+}
