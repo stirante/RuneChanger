@@ -1,14 +1,12 @@
 package com.stirante.RuneChanger.util;
 
-import com.stirante.RuneChanger.RuneChanger;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class temp {
-    public static void doSomething() {
-        Logger logger = LoggerFactory.getLogger(temp.class);
-        System.out.println("level: " + logger.isDebugEnabled());
-        logger.debug("debug");
-        logger.warn("warn");
+    public void doSomething() {
+        System.out.println("level: " + log.isDebugEnabled());
+        log.debug("debug");
+        log.warn("warn");
     }
 }

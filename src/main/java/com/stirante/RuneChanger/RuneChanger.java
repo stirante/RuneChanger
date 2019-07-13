@@ -48,7 +48,8 @@ public class RuneChanger {
             logger.setLevel(Level.DEBUG);
             logger.debug("Runechanger started with debug mode enabled");
         }
-        temp.doSomething();
+        temp t = new temp();
+        t.doSomething();
         try {
             AutoUpdater.cleanup();
             AutoStartUtils.checkAutoStartPath();
