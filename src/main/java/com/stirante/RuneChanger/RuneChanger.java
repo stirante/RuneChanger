@@ -30,6 +30,7 @@ import java.util.Objects;
 
 public class RuneChanger {
 
+    public String[] programArguments;
     private static RuneChanger instance;
     private ClientApi api;
     private GuiHandler gui;
@@ -188,6 +189,7 @@ public class RuneChanger {
             System.exit(0);
         }
         instance = new RuneChanger();
+        instance.programArguments = args;
         instance.init();
     }
 
