@@ -1,5 +1,6 @@
 package com.stirante.RuneChanger;
 
+import ch.qos.logback.classic.Level;
 import com.stirante.RuneChanger.client.ChampionSelection;
 import com.stirante.RuneChanger.client.Runes;
 import com.stirante.RuneChanger.gui.Constants;
@@ -16,16 +17,15 @@ import com.stirante.lolclient.ClientConnectionListener;
 import com.stirante.lolclient.ClientWebSocket;
 import generated.*;
 import org.java_websocket.exceptions.WebsocketNotConnectedException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import java.io.IOException;
 import java.net.ConnectException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 public class RuneChanger {
 
@@ -42,6 +42,13 @@ public class RuneChanger {
         Elevate.elevate(args);
         checkOperatingSystem();
         SimplePreferences.load();
+        if (Arrays.asList(args).contains("-debug-mode")) {
+            ch.qos.logback.classic.Logger logger =
+                    (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
+            logger.setLevel(Level.DEBUG);
+            logger.debug("Runechanger started with debug mode enabled");
+        }
+        temp.doSomething();
         try {
             AutoUpdater.cleanup();
             AutoStartUtils.checkAutoStartPath();
