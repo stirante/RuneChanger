@@ -1,5 +1,6 @@
 package com.stirante.RuneChanger;
 
+import ch.qos.logback.classic.Level;
 import com.stirante.RuneChanger.client.ChampionSelection;
 import com.stirante.RuneChanger.client.Runes;
 import com.stirante.RuneChanger.gui.Constants;
@@ -15,18 +16,19 @@ import com.stirante.lolclient.ClientApi;
 import com.stirante.lolclient.ClientConnectionListener;
 import com.stirante.lolclient.ClientWebSocket;
 import generated.*;
+import lombok.extern.slf4j.Slf4j;
 import org.java_websocket.exceptions.WebsocketNotConnectedException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import java.io.IOException;
 import java.net.ConnectException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
+@Slf4j
 public class RuneChanger {
 
     public String[] programArguments;
@@ -39,9 +41,20 @@ public class RuneChanger {
     private ClientWebSocket socket;
 
     public static void main(String[] args) {
+        setDefaultUncaughtExceptionHandler();
         Elevate.elevate(args);
         checkOperatingSystem();
         SimplePreferences.load();
+        ch.qos.logback.classic.Logger logger =
+                (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
+        if (Arrays.asList(args).contains("-debug-mode")) {
+            logger.setLevel(Level.DEBUG);
+            logger.debug("Runechanger started with debug mode enabled");
+        }
+        if (Arrays.asList(args).contains("-nologs")) {
+            logger.detachAppender("FILE");
+            logger.warn("warning");
+        }
         try {
             AutoUpdater.cleanup();
             AutoStartUtils.checkAutoStartPath();
@@ -278,6 +291,14 @@ public class RuneChanger {
                 socket = null;
             }
         });
+    }
+
+    private static void setDefaultUncaughtExceptionHandler() {
+        try {
+            Thread.setDefaultUncaughtExceptionHandler((t, e) -> log.error("Uncaught Exception detected in thread " + t, e));
+        } catch (SecurityException e) {
+            log.error("Could not set the Default Uncaught Exception Handler", e);
+        }
     }
 
     public ClientApi getApi() {
