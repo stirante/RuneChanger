@@ -16,6 +16,7 @@ import com.stirante.lolclient.ClientApi;
 import com.stirante.lolclient.ClientConnectionListener;
 import com.stirante.lolclient.ClientWebSocket;
 import generated.*;
+import lombok.extern.slf4j.Slf4j;
 import org.java_websocket.exceptions.WebsocketNotConnectedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,8 +26,12 @@ import java.io.IOException;
 import java.net.ConnectException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
 
+@Slf4j
 public class RuneChanger {
 
     public String[] programArguments;
@@ -39,17 +44,20 @@ public class RuneChanger {
     private ClientWebSocket socket;
 
     public static void main(String[] args) {
+        setDefaultUncaughtExceptionHandler();
         Elevate.elevate(args);
         checkOperatingSystem();
         SimplePreferences.load();
+        ch.qos.logback.classic.Logger logger =
+                (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
         if (Arrays.asList(args).contains("-debug-mode")) {
-            ch.qos.logback.classic.Logger logger =
-                    (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
             logger.setLevel(Level.DEBUG);
             logger.debug("Runechanger started with debug mode enabled");
         }
-        temp t = new temp();
-        t.doSomething();
+        if (Arrays.asList(args).contains("-nologs")) {
+            logger.detachAppender("FILE");
+            logger.warn("warning");
+        }
         try {
             AutoUpdater.cleanup();
             AutoStartUtils.checkAutoStartPath();
@@ -84,23 +92,13 @@ public class RuneChanger {
         instance.init();
     }
 
-    /**
-     * Debug message
-     *
-     * @param message message
-     */
-    public static void d(Object message) {
-        System.out.println("[" + SimpleDateFormat.getTimeInstance().format(new Date()) + "] " +
-                (message != null ? message.toString() : "null"));
-    }
-
     public static RuneChanger getInstance() {
         return instance;
     }
 
     private static void checkOperatingSystem() {
         if (!System.getProperty("os.name").toLowerCase().startsWith("windows")) {
-            d("User is not on a windows machine.");
+            log.error("User is not on a windows machine");
             JOptionPane.showMessageDialog(null, LangHelper.getLang().getString("windows_only"),
                     Constants.APP_NAME,
                     JOptionPane.WARNING_MESSAGE);
@@ -109,7 +107,7 @@ public class RuneChanger {
     }
 
     private void init() {
-        d("Starting RuneChanger version " + Constants.VERSION_STRING + " (" + Version.INSTANCE.branch + "@" +
+        log.info("Starting RuneChanger version " + Constants.VERSION_STRING + " (" + Version.INSTANCE.branch + "@" +
                 Version.INSTANCE.commitIdAbbrev + " built at " +
                 SimpleDateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT)
                         .format(Version.INSTANCE.buildTime) + ")");
@@ -159,7 +157,7 @@ public class RuneChanger {
                                 return;
                             }
                             if (e instanceof WebsocketNotConnectedException || e instanceof ConnectException) {
-                                d("Connection failed, retrying in a second...");
+                                log.error("Connection failed, retrying in a second..");
                                 //try again in a second
                                 try {
                                     Thread.sleep(1000);
@@ -194,19 +192,18 @@ public class RuneChanger {
     }
 
     private void onChampionChanged(Champion champion) {
-        d("Player chose champion " + champion.getName());
-        d("Downloading runes");
+        log.info("Downloading runes for champion: " + champion.getName());
         runes = RuneStore.getRunes(champion);
         if (runes == null || runes.isEmpty()) {
-            d("Runes for champion not available");
+            log.warn("Runes for champion not available");
         }
-        d(runes);
+        log.info("Found runes: " + runes);
         //remove all invalid rune pages
         runes.removeIf(rune -> !rune.verify());
         if (runes.isEmpty()) {
-            d("Found error in rune source");
+            log.error("Found error in rune source");
         }
-        d("Runes available. Showing button");
+        log.info("Runes available. Showing button");
         gui.setRunes(runes, (page) -> {
             if (runes == null || runes.isEmpty()) {
                 return;
@@ -237,7 +234,7 @@ public class RuneChanger {
             public void onEvent(ClientWebSocket.Event event) {
                 //printing every event except voice for experimenting
                 if (DebugConsts.PRINT_EVENTS && !event.getUri().toLowerCase().contains("voice")) {
-                    System.out.println(event);
+                    log.info("Event: " + event);
                 }
                 if (event.getUri().equalsIgnoreCase("/lol-chat/v1/me") &&
                         SimplePreferences.containsKey("antiAway") &&
@@ -286,6 +283,14 @@ public class RuneChanger {
                 socket = null;
             }
         });
+    }
+
+    private static void setDefaultUncaughtExceptionHandler() {
+        try {
+            Thread.setDefaultUncaughtExceptionHandler((t, e) -> log.error("Uncaught Exception detected in thread " + t, e));
+        } catch (SecurityException e) {
+            log.error("Could not set the Default Uncaught Exception Handler", e);
+        }
     }
 
     public ClientApi getApi() {

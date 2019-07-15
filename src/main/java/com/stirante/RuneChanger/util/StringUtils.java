@@ -1,6 +1,6 @@
 package com.stirante.RuneChanger.util;
 
-import com.stirante.RuneChanger.RuneChanger;
+import lombok.extern.slf4j.Slf4j;
 
 import java.text.Normalizer;
 import java.util.ArrayList;
@@ -8,6 +8,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
+@Slf4j
 public class StringUtils {
 
     /**
@@ -36,7 +37,7 @@ public class StringUtils {
         }
         for (int i = 0; i < str.length(); i++) {
             if (str.charAt(i) > 127) {
-                RuneChanger.d("Non standard character: \"" + str.charAt(i) + "\"");
+                log.warn("Non standard character: \"" + str.charAt(i) + "\"");
             }
         }
         if (!Normalizer.isNormalized(str, Normalizer.Form.NFC)) {

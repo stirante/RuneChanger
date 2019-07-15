@@ -1,7 +1,7 @@
 package com.stirante.RuneChanger.model;
 
-import com.stirante.RuneChanger.RuneChanger;
 import generated.LolPerksPerkPageResource;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 public class RunePage {
     private final List<Rune> runes = new ArrayList<>(6);
     private final List<Modifier> modifiers = new ArrayList<>(3);
@@ -72,19 +73,19 @@ public class RunePage {
         for (int i = 0; i < getRunes().size(); i++) {
             Rune rune = getRunes().get(i);
             if (i < 4 && rune.getStyle() != getMainStyle()) {
-                RuneChanger.d("Primary path contains runes from another style");
+                log.error("Primary path contains runes from another style");
                 return false;
             }
             else if (i >= 4 && rune.getStyle() != getSubStyle()) {
-                RuneChanger.d("Secondary path contains runes from another style");
+                log.error("Secondary path contains runes from another style");
                 return false;
             }
             if (i < 4 && rune.getSlot() != i) {
-                RuneChanger.d("Rune does not belong to this slot");
+                log.error("Rune does not belong to this slot");
                 return false;
             }
             if (i == 4 && rune.getSlot() == getRunes().get(5).getSlot()) {
-                RuneChanger.d("Secondary path contains runes from the same slot");
+                log.error("Secondary path contains runes from the same slot");
                 return false;
             }
         }
@@ -193,7 +194,7 @@ public class RunePage {
             }
         }
         else {
-            RuneChanger.d("Unknown rune page version " + version);
+            log.warn("Unknown rune page version " + version);
         }
     }
 

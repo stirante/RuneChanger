@@ -3,7 +3,6 @@ package com.stirante.RuneChanger.util;
 import com.jfoenix.controls.JFXListView;
 import com.stirante.RuneChanger.RuneChanger;
 import com.stirante.RuneChanger.model.RunePage;
-import generated.LolPerksPerkPageResource;
 import javafx.application.Platform;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.control.Alert;

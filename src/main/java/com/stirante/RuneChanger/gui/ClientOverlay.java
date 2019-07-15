@@ -7,6 +7,7 @@ import com.stirante.RuneChanger.model.GameMode;
 import com.stirante.RuneChanger.model.RunePage;
 import com.stirante.RuneChanger.util.RunnableWithArgument;
 import com.stirante.RuneChanger.util.SimplePreferences;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -20,6 +21,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 public class ClientOverlay extends JPanel {
 
     public static final String BOT = "BOT";
@@ -332,10 +334,10 @@ public class ClientOverlay extends JPanel {
             if (e.getButton() == MouseEvent.BUTTON1) {
                 lastX = x;
                 lastY = y;
-                System.out.println(x + " x " + y);
+                log.debug("Left click event registered [x = " + x + " y = " + y + "]");
             }
             else {
-                System.out.println("Distance: " + (x - lastX) + " x " + (y - lastY));
+                log.debug("Distance of click event: " + (x - lastX) + " x " + (y - lastY));
             }
         }
         if (pages.size() > 0 && e.getX() > ((getClientWidth()) * Constants.RUNE_BUTTON_POSITION_X) &&
