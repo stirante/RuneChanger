@@ -1,18 +1,14 @@
 package com.stirante.RuneChanger.model;
 
 import com.google.gson.Gson;
-import com.stirante.RuneChanger.RuneChanger;
 import com.stirante.RuneChanger.util.PathUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.imageio.ImageIO;
-import java.awt.*;
-import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.*;
-import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @Slf4j

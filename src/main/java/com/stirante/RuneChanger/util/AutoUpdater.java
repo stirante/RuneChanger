@@ -2,7 +2,6 @@ package com.stirante.RuneChanger.util;
 
 import com.google.gson.GsonBuilder;
 import com.stirante.RuneChanger.DebugConsts;
-import com.stirante.RuneChanger.RuneChanger;
 import com.stirante.RuneChanger.gui.Constants;
 import com.stirante.RuneChanger.model.github.Asset;
 import com.stirante.RuneChanger.model.github.Release;

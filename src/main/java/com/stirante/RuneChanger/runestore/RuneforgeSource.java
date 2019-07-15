@@ -1,7 +1,6 @@
 package com.stirante.RuneChanger.runestore;
 
 import com.google.gson.Gson;
-import com.stirante.RuneChanger.RuneChanger;
 import com.stirante.RuneChanger.model.*;
 import com.stirante.RuneChanger.util.StringUtils;
 import lombok.extern.slf4j.Slf4j;

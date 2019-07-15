@@ -1,6 +1,5 @@
 package com.stirante.RuneChanger.util;
 
-import com.stirante.RuneChanger.RuneChanger;
 import lombok.extern.slf4j.Slf4j;
 
 import java.text.Normalizer;

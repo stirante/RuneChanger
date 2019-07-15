@@ -1,6 +1,5 @@
 package com.stirante.RuneChanger.model;
 
-import com.stirante.RuneChanger.RuneChanger;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.imageio.ImageIO;
