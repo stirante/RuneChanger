@@ -19,6 +19,7 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.util.Duration;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.swing.*;
 import java.io.File;
@@ -27,6 +28,7 @@ import java.util.ArrayList;
 import static com.stirante.RuneChanger.gui.Settings.mainStage;
 import static com.sun.jna.platform.win32.WinReg.HKEY_CURRENT_USER;
 
+@Slf4j
 public class SettingsController {
 
     @FXML
@@ -268,7 +270,7 @@ public class SettingsController {
 
     @FXML
     void initialize() {
-        RuneChanger.d("Runechanger is located in: " + PathUtils.getWorkingDirectory());
+        log.debug("Runechanger is located in: " + PathUtils.getWorkingDirectory());
         SimplePreferences.load();
         loadPreferences();
         settingsPane.setVisible(true);

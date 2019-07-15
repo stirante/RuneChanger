@@ -1,13 +1,14 @@
 package com.stirante.RuneChanger.util;
 
-import com.stirante.RuneChanger.RuneChanger;
 import com.sun.jna.platform.win32.Kernel32;
 import com.sun.jna.platform.win32.Kernel32Util;
 import com.sun.jna.platform.win32.Shell32;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Source: https://stackoverflow.com/questions/30082838/elevate-java-application-while-running
  */
+@Slf4j
 public class Elevate {
 
     /**
@@ -28,7 +29,7 @@ public class Elevate {
         if (args.length > 0) {
             elevate = args[args.length - 1].equals(ELEVATE_ARG);
         }
-        RuneChanger.d("Elevate: " + elevate);
+        log.info("Elevate: " + elevate);
         if (elevate) {
             // Get the command and remove the elevation marker.
             String command = System.getProperty("sun.java.command");

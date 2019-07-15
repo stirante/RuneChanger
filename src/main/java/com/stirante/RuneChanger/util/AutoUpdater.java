@@ -7,6 +7,7 @@ import com.stirante.RuneChanger.gui.Constants;
 import com.stirante.RuneChanger.model.github.Asset;
 import com.stirante.RuneChanger.model.github.Release;
 import com.stirante.RuneChanger.model.github.Version;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.swing.*;
 import java.awt.*;
@@ -18,6 +19,7 @@ import java.nio.file.Paths;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
+@Slf4j
 public class AutoUpdater {
 
     public static final String UPDATE_JAR_FILENAME = "RuneChangerUpdate.jar";
@@ -67,7 +69,7 @@ public class AutoUpdater {
         //If jar update date on github is later than build time of current version, then we need to update
         for (Asset asset : cachedRelease.assets) {
             if (asset.name.endsWith(".jar") && asset.name.startsWith("RuneChanger-")) {
-                RuneChanger.d("Github version is from " +
+                log.info("Github version is from " +
                         SimpleDateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT)
                                 .format(asset.updatedAt));
                 //Build time will always be earlier than publish time, so we check, if those differ by more than 6h
@@ -154,8 +156,8 @@ public class AutoUpdater {
     }
 
     public static void main(String[] args) throws Exception {
-        System.out.println("Is up to date: " + check());
-        System.out.println("Forcing update");
+        log.info("Runechanger is up to date: " + check());
+        log.info("Forcing update..");
         performUpdate();
     }
 

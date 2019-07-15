@@ -1,11 +1,13 @@
 package com.stirante.RuneChanger.model;
 
 import com.stirante.RuneChanger.RuneChanger;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 
+@Slf4j
 public enum Rune {
     //Generated on 2019-05-26 13:38:34
     RUNE_8005(8005, 8000, 0, "Press the Attack"),
@@ -98,7 +100,7 @@ public enum Rune {
                 return rune;
             }
         }
-        RuneChanger.d(name + " not found");
+        log.error("Rune name: " + name + " not found");
         return null;
     }
 
@@ -114,7 +116,7 @@ public enum Rune {
                 return rune;
             }
         }
-        RuneChanger.d(id + " not found");
+        log.error("Rune id: " + id + " not found");
         return null;
     }
 

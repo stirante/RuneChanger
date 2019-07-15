@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.stirante.RuneChanger.RuneChanger;
 import com.stirante.RuneChanger.model.*;
 import com.stirante.RuneChanger.util.StringUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -17,6 +18,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+@Slf4j
 public class RuneforgeSource implements RuneSource {
 
     private static final String URL_ADDRESS = "https://runeforge.gg/all-loadouts-data.json";
@@ -48,15 +50,15 @@ public class RuneforgeSource implements RuneSource {
         }
         RuneforgeSource src = new RuneforgeSource();
         for (Champion champion : Champion.values()) {
-            System.out.println(champion.getName() + ":");
+            log.info("Champion source name: " + champion.getName());
             List<RunePage> runes = src.getForChampion(champion);
             for (RunePage rune : runes) {
                 if (!rune.verify()) {
-                    System.out.println("\t\tBAD: " + rune.getSource());
+                    log.error("Bad rune source: " + rune.getSource());
                 }
             }
             if (runes.size() == 0) {
-                System.out.println("\t\tNOTHING FOUND!");
+                log.error("Bad rune source, reason: EMPTY");
             }
         }
     }
@@ -101,7 +103,7 @@ public class RuneforgeSource implements RuneSource {
             }
             return r;
         } catch (IOException e) {
-            RuneChanger.d(e.getMessage());
+            log.error(e.getMessage());
             RunePage runePage = new RunePage();
             runePage.setSource(url);
             return runePage;
