@@ -101,6 +101,7 @@ public class RuneChanger {
         try {
             //find path to the current jar
             File currentJar = new File(PathUtils.getJarLocation());
+            //If this is true then the jar was most likely started by autostart
             if (!new File(System.getProperty("user.dir")).getAbsolutePath().equals(currentJar.getParentFile().getAbsolutePath())) {
                 //if it's not a jar (probably running from IDE)
                 if (!currentJar.getName().endsWith(".jar")) {
@@ -112,10 +113,14 @@ public class RuneChanger {
                 command.add(PathUtils.getJavawPath());
                 command.add("-jar");
                 command.add(currentJar.getPath());
+                command.add("-minimized");
 
                 final ProcessBuilder builder = new ProcessBuilder(command);
                 builder.directory(currentJar.getParentFile());
                 builder.start();
+                log.warn("Runechanger was started from a unusual jvm location most likely due to autostart. " +
+                        "Restarting client now to fix pathing errors..");
+                log.info("Restart command: " + command.toString());
                 System.exit(0);
             }
         } catch (Exception e) {
