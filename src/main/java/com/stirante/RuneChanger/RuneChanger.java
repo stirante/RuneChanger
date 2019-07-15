@@ -1,12 +1,13 @@
 package com.stirante.RuneChanger;
 
 import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.Appender;
+import ch.qos.logback.core.FileAppender;
 import com.stirante.RuneChanger.client.ChampionSelection;
 import com.stirante.RuneChanger.client.Runes;
-import com.stirante.RuneChanger.gui.Constants;
-import com.stirante.RuneChanger.gui.GuiHandler;
-import com.stirante.RuneChanger.gui.SceneType;
-import com.stirante.RuneChanger.gui.Settings;
+import com.stirante.RuneChanger.gui.*;
 import com.stirante.RuneChanger.model.Champion;
 import com.stirante.RuneChanger.model.RunePage;
 import com.stirante.RuneChanger.model.github.Version;
@@ -22,14 +23,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
+import java.io.File;
 import java.io.IOException;
 import java.net.ConnectException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 @Slf4j
 public class RuneChanger {
@@ -44,6 +43,8 @@ public class RuneChanger {
     private ClientWebSocket socket;
 
     public static void main(String[] args) {
+        changeWorkingDir();
+        cleanupLogs();
         setDefaultUncaughtExceptionHandler();
         Elevate.elevate(args);
         checkOperatingSystem();
@@ -94,6 +95,32 @@ public class RuneChanger {
 
     public static RuneChanger getInstance() {
         return instance;
+    }
+
+    private static void changeWorkingDir() {
+        try {
+            //find path to the current jar
+            File currentJar = new File(PathUtils.getJarLocation());
+            if (!new File(System.getProperty("user.dir")).getAbsolutePath().equals(currentJar.getParentFile().getAbsolutePath())) {
+                //if it's not a jar (probably running from IDE)
+                if (!currentJar.getName().endsWith(".jar")) {
+                    return;
+                }
+
+                //construct command and run it
+                final ArrayList<String> command = new ArrayList<>();
+                command.add(PathUtils.getJavawPath());
+                command.add("-jar");
+                command.add(currentJar.getPath());
+
+                final ProcessBuilder builder = new ProcessBuilder(command);
+                builder.directory(currentJar.getParentFile());
+                builder.start();
+                System.exit(0);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private static void checkOperatingSystem() {
@@ -287,9 +314,33 @@ public class RuneChanger {
 
     private static void setDefaultUncaughtExceptionHandler() {
         try {
-            Thread.setDefaultUncaughtExceptionHandler((t, e) -> log.error("Uncaught Exception detected in thread " + t, e));
+            Thread.setDefaultUncaughtExceptionHandler((t, e) -> log.error(
+                    "Uncaught Exception detected in thread " + t, e));
         } catch (SecurityException e) {
             log.error("Could not set the Default Uncaught Exception Handler", e);
+        }
+    }
+
+    private static void cleanupLogs() {
+        Calendar c = Calendar.getInstance();
+        c.add(Calendar.DAY_OF_YEAR, -30);
+        LoggerContext context = (LoggerContext) LoggerFactory.getILoggerFactory();
+        for (ch.qos.logback.classic.Logger logger : context.getLoggerList()) {
+            for (Iterator<Appender<ILoggingEvent>> index = logger.iteratorForAppenders(); index.hasNext(); ) {
+                Appender<ILoggingEvent> appender = index.next();
+                if (appender instanceof FileAppender) {
+                    FileAppender<ILoggingEvent> fa = (FileAppender<ILoggingEvent>) appender;
+                    File logFile = new File(PathUtils.getWorkingDirectory(), fa.getFile());
+                    //Remove logs older than 30 days
+                    if (logFile.getParentFile().exists()) {
+                        for (File file : Objects.requireNonNull(logFile.getParentFile().listFiles())) {
+                            if (new Date(file.lastModified()).before(c.getTime())) {
+                                file.delete();
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 
