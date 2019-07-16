@@ -3,6 +3,7 @@ package com.stirante.RuneChanger.util;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.stirante.RuneChanger.model.Rune;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -15,6 +16,7 @@ import java.util.*;
 /**
  * Internal class for generating enums and resources
  */
+@Slf4j
 public class DataUpdater {
 
     private static final String RUNE_ENUM_PREFIX = "package com.stirante.RuneChanger.model;\n" +
@@ -134,7 +136,7 @@ public class DataUpdater {
 
 
     private static InputStream getEndpoint(String endpoint) throws IOException {
-        System.out.println(endpoint);
+        log.debug("Endpoint: " + endpoint);
         URL url = new URL(endpoint);
         HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
         return urlConnection.getInputStream();

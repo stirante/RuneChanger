@@ -1,17 +1,22 @@
 package com.stirante.RuneChanger.gui;
 
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.Appender;
+import ch.qos.logback.core.FileAppender;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXListView;
 import com.jfoenix.controls.JFXToggleButton;
-import com.stirante.RuneChanger.RuneChanger;
+import com.stirante.RuneChanger.model.LogRequest;
 import com.stirante.RuneChanger.util.*;
-import com.sun.jna.platform.win32.Advapi32Util;
 import javafx.animation.FadeTransition;
 import javafx.animation.RotateTransition;
 import javafx.application.Platform;
 import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
@@ -19,14 +24,24 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.util.Duration;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
+import java.awt.*;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.StringSelection;
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.Optional;
 
 import static com.stirante.RuneChanger.gui.Settings.mainStage;
-import static com.sun.jna.platform.win32.WinReg.HKEY_CURRENT_USER;
 
+@Slf4j
 public class SettingsController {
 
     @FXML
@@ -203,10 +218,6 @@ public class SettingsController {
                 SimplePreferences.save();
                 try {
                     //From https://stackoverflow.com/a/4194224/6459649
-                    //find java executable path
-                    final String javaBin =
-                            System.getProperty("java.home") + File.separator + "bin" + File.separator + "java";
-
                     //find path to the current jar
                     final File currentJar =
                             new File(SettingsController.class.getProtectionDomain()
@@ -221,7 +232,7 @@ public class SettingsController {
 
                     //construct command and run it
                     final ArrayList<String> command = new ArrayList<>();
-                    command.add(javaBin);
+                    command.add(PathUtils.getJavawPath());
                     command.add("-jar");
                     command.add(currentJar.getPath());
 
@@ -268,7 +279,7 @@ public class SettingsController {
 
     @FXML
     void initialize() {
-        RuneChanger.d("Runechanger is located in: " + PathUtils.getWorkingDirectory());
+        log.debug("Runechanger is located in: " + PathUtils.getWorkingDirectory());
         SimplePreferences.load();
         loadPreferences();
         settingsPane.setVisible(true);
@@ -301,5 +312,36 @@ public class SettingsController {
 
     public void init(Settings settings) {
         this.settings = settings;
+    }
+
+    public void debug() {
+        LoggerContext context = (LoggerContext) LoggerFactory.getILoggerFactory();
+        for (Logger logger : context.getLoggerList()) {
+            for (Iterator<Appender<ILoggingEvent>> index = logger.iteratorForAppenders(); index.hasNext(); ) {
+                Appender<ILoggingEvent> appender = index.next();
+                if (appender instanceof FileAppender) {
+                    try {
+                        byte[] encoded =
+                                Files.readAllBytes(Paths.get(((FileAppender<ILoggingEvent>) appender).getFile()));
+                        String code = new LogRequest(new String(encoded)).submit();
+                        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                        alert.setTitle(LangHelper.getLang().getString("logs_sent"));
+                        alert.setHeaderText(null);
+                        alert.setContentText(
+                                String.format(LangHelper.getLang().getString("logs_sent_msg"), code));
+                        ButtonType btn = new ButtonType(LangHelper.getLang().getString("copy_code"));
+                        alert.getButtonTypes().add(btn);
+                        Optional<ButtonType> buttonType = alert.showAndWait();
+                        if (buttonType.isPresent() && buttonType.get() == btn) {
+                            StringSelection stringSelection = new StringSelection(code);
+                            Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+                            clipboard.setContents(stringSelection, null);
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
     }
 }

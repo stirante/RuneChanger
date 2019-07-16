@@ -5,6 +5,7 @@
 <?import com.jfoenix.controls.JFXToggleButton?>
 <?import javafx.geometry.Insets?>
 <?import javafx.geometry.Rectangle2D?>
+<?import javafx.scene.Cursor?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.Separator?>
@@ -17,7 +18,7 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane id="AnchorPane" fx:id="mainPane" prefHeight="470.0" prefWidth="480.0" style="-fx-background-color: transparent;" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.stirante.RuneChanger.gui.SettingsController">
+<AnchorPane id="AnchorPane" fx:id="mainPane" prefHeight="470.0" prefWidth="480.0" style="-fx-background-color: transparent;" xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.stirante.RuneChanger.gui.SettingsController">
     <ImageView fitHeight="444.0" fitWidth="480.0" layoutY="86.0" preserveRatio="true">
         <Image url="@images/blueBackground.png" />
         <viewport>
@@ -30,15 +31,27 @@
         </ImageView>
         <ImageView fx:id="btn_settings" fitHeight="31.0" fitWidth="42.0" layoutX="78.0" layoutY="23.0" onMouseReleased="#handleMenuSelection" pickOnBounds="true" preserveRatio="true">
             <Image url="@images/settings.png" />
+         <cursor>
+            <Cursor fx:constant="HAND" />
+         </cursor>
         </ImageView>
         <ImageView fx:id="btn_runebook" fitHeight="31.0" fitWidth="31.0" layoutX="173.0" layoutY="23.0" onMouseReleased="#handleMenuSelection" pickOnBounds="true" preserveRatio="true">
             <Image url="@images/icons8_Book_24px_1.png" />
+         <cursor>
+            <Cursor fx:constant="HAND" />
+         </cursor>
         </ImageView>
         <ImageView fx:id="btn_credits" fitHeight="31.0" fitWidth="31.0" layoutX="278.0" layoutY="23.0" onMouseReleased="#handleMenuSelection" pickOnBounds="true" preserveRatio="true">
             <Image url="@images/user.png" />
+         <cursor>
+            <Cursor fx:constant="HAND" />
+         </cursor>
         </ImageView>
         <ImageView fx:id="btn_exit" fitHeight="25.0" fitWidth="31.0" layoutX="380.0" layoutY="25.0" onMouseReleased="#handleMenuSelection" pickOnBounds="true" preserveRatio="true">
             <Image url="@images/shutdown.png" />
+         <cursor>
+            <Cursor fx:constant="HAND" />
+         </cursor>
         </ImageView>
     </AnchorPane>
     <AnchorPane fx:id="settingsPane" layoutY="86.0" prefHeight="381.0" prefWidth="380.0">
@@ -110,11 +123,17 @@
                               <font>
                                   <Font name="System Bold" size="11.0" />
                               </font>
+                        <cursor>
+                           <Cursor fx:constant="HAND" />
+                        </cursor>
                           </JFXButton>
                           <JFXButton fx:id="disenchantBtn" focusTraversable="false" maxWidth="1.7976931348623157E308" onAction="#handleSettingsButtonPressed" prefHeight="31.0" prefWidth="180.0" ripplerFill="#1986b1" style="-fx-background-color: #1e2328; -fx-border-color: d9ae50;" text="%disenchant_champions" textFill="#d9ae50" HBox.hgrow="ALWAYS">
                               <font>
                                   <Font name="System Bold" size="11.0" />
                               </font>
+                        <cursor>
+                           <Cursor fx:constant="HAND" />
+                        </cursor>
                           </JFXButton>
                   </children>
                </HBox>
@@ -198,16 +217,24 @@
         </ScrollPane>
     </AnchorPane>
     <AnchorPane fx:id="creditsPane" layoutY="87.0" prefHeight="385.0" prefWidth="480.0" visible="false">
-        <Label layoutX="163.0" layoutY="163.0" text="%credits_core" textFill="WHITE">
+        <Label alignment="CENTER" contentDisplay="CENTER" layoutX="201.0" layoutY="161.0" text="%credits_core" textAlignment="CENTER" textFill="WHITE" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0">
             <font>
                 <Font name="System Bold" size="12.0" />
             </font>
         </Label>
-        <Label layoutX="171.0" layoutY="185.0" text="%credits_gui" textFill="WHITE">
+        <Label alignment="CENTER" contentDisplay="CENTER" layoutX="209.0" layoutY="185.0" text="%credits_gui" textAlignment="CENTER" textFill="WHITE" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0">
             <font>
                 <Font size="11.0" />
             </font>
         </Label>
+      <JFXButton fx:id="sendLogsBtn" focusTraversable="false" layoutX="150.0" layoutY="340.0" maxWidth="1.7976931348623157E308" onAction="#debug" prefHeight="31.0" prefWidth="180.0" style="-fx-background-color: #1e2328; -fx-border-color: d9ae50;" text="%send_logs" textFill="#d9ae50">
+         <font>
+            <Font name="System Bold" size="11.0" />
+         </font>
+         <cursor>
+            <Cursor fx:constant="HAND" />
+         </cursor>
+      </JFXButton>
         <ImageView layoutX="283.0" layoutY="-29.0" pickOnBounds="true" preserveRatio="true">
             <Image url="@images/up.png" />
         </ImageView>
@@ -221,20 +248,32 @@
             <font>
                 <Font name="Beaufort for LOL Bold" size="14.0" />
             </font>
+         <cursor>
+            <Cursor fx:constant="HAND" />
+         </cursor>
         </JFXButton>
         <JFXButton fx:id="removeBtn" layoutX="219.0" layoutY="328.0" onAction="#handleRunebookButtonPressed" prefHeight="42.0" prefWidth="42.0" ripplerFill="#1986b1" style="-fx-background-color: #1e2328; -fx-border-color: d9ae50;" text="X" textFill="#d9ae50">
             <font>
                 <Font name="Beaufort for LOL Bold" size="14.0" />
             </font>
+         <cursor>
+            <Cursor fx:constant="HAND" />
+         </cursor>
         </JFXButton>
         <JFXListView fx:id="clientRunes" layoutX="267.0" layoutY="14.0" opacity="0.65" prefHeight="357.0" prefWidth="199.0" style="-fx-background-color: #122121; -fx-border-color: #9a9557;" />
         <ImageView fx:id="syncButton" fitHeight="31.0" fitWidth="32.0" layoutX="225.0" layoutY="14.0" onMouseReleased="#handleSyncBtn" pickOnBounds="true" preserveRatio="true">
             <Image url="@images/icons8_Synchronize_48px.png" />
+         <cursor>
+            <Cursor fx:constant="HAND" />
+         </cursor>
         </ImageView>
         <JFXButton fx:id="loadBtn" layoutX="219.0" layoutY="216.0" onAction="#handleRunebookButtonPressed" prefHeight="42.0" prefWidth="42.0" style="-fx-background-color: #1e2328; -fx-border-color: d9ae50;" text="→" textFill="#d9ae50">
             <font>
                 <Font name="Beaufort for LOL Bold" size="14.0" />
             </font>
+         <cursor>
+            <Cursor fx:constant="HAND" />
+         </cursor>
         </JFXButton>
     </AnchorPane>
 </AnchorPane>

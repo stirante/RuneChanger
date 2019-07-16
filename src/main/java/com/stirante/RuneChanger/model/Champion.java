@@ -1,19 +1,17 @@
 package com.stirante.RuneChanger.model;
 
 import com.google.gson.Gson;
-import com.stirante.RuneChanger.RuneChanger;
 import com.stirante.RuneChanger.util.PathUtils;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.imageio.ImageIO;
-import java.awt.*;
-import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.*;
-import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+@Slf4j
 public class Champion {
 
     private static File portraitsDir = new File(PathUtils.getAssetsDir(), "champions");
@@ -186,7 +184,7 @@ public class Champion {
                 File f = new File(portraitsDir, value.id + ".jpg");
                 if (!f.exists()) {
                     try {
-                        RuneChanger.d("Downloading portrait for " + value.getName());
+                        log.debug("Downloading portrait for " + value.getName());
                         HttpURLConnection conn = (HttpURLConnection) new URL(value.url).openConnection();
                         conn.addRequestProperty("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36");
                         BufferedInputStream in = new BufferedInputStream(conn.getInputStream());
@@ -211,7 +209,7 @@ public class Champion {
                 }
             }
 
-            RuneChanger.d("Champions initialized");
+            log.info("Champions initialized");
             IMAGES_READY.set(true);
         }
     }
