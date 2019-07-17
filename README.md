@@ -1,4 +1,4 @@
-# RuneChanger [![Build Status](https://travis-ci.org/stirante/RuneChanger.svg?branch=master)](https://travis-ci.org/stirante/RuneChanger)[![Chat](https://img.shields.io/discord/593147882496851978.svg?label=&logo=discord&logoColor=ffffff&color=7389D8&labelColor=6A7EC2)](https://discord.gg/9tEsjhj)
+# RuneChanger [![Chat](https://img.shields.io/discord/593147882496851978.svg?label=&logo=discord&logoColor=ffffff&color=7389D8&labelColor=6A7EC2)](https://discord.gg/9tEsjhj)
 
 RuneChanger is an app that improves and speeds up the use of LoL client.
 
@@ -18,9 +18,9 @@ RuneChanger is an app that improves and speeds up the use of LoL client.
 ## Requirements
 #### Running
 * Windows
-* JRE 8 or later
+* JRE 8
 #### Building
-* JDK 8 or later
+* JDK 8
 * Maven
 
 ## Building
