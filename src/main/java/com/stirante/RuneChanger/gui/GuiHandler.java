@@ -13,7 +13,9 @@ import com.sun.jna.platform.win32.WinDef;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -193,7 +195,7 @@ public class GuiHandler {
         try {
             //Create icon in system tray and right click menu
             SystemTray systemTray = SystemTray.getSystemTray();
-            //this actually don't work
+            //this actually doesn't work
             Image image =
                     ImageIO.read(GuiHandler.class.getResourceAsStream("/images/runechanger-runeforge-icon-32x32.png"));
             PopupMenu trayPopupMenu = new PopupMenu();

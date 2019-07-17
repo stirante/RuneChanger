@@ -7,7 +7,10 @@ import ch.qos.logback.core.Appender;
 import ch.qos.logback.core.FileAppender;
 import com.stirante.RuneChanger.client.ChampionSelection;
 import com.stirante.RuneChanger.client.Runes;
-import com.stirante.RuneChanger.gui.*;
+import com.stirante.RuneChanger.gui.Constants;
+import com.stirante.RuneChanger.gui.GuiHandler;
+import com.stirante.RuneChanger.gui.SceneType;
+import com.stirante.RuneChanger.gui.Settings;
 import com.stirante.RuneChanger.model.Champion;
 import com.stirante.RuneChanger.model.RunePage;
 import com.stirante.RuneChanger.model.github.Version;
@@ -26,6 +29,9 @@ import javax.swing.*;
 import java.io.File;
 import java.io.IOException;
 import java.net.ConnectException;
+import java.nio.channels.FileChannel;
+import java.nio.channels.FileLock;
+import java.nio.file.StandardOpenOption;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -43,6 +49,7 @@ public class RuneChanger {
     private ClientWebSocket socket;
 
     public static void main(String[] args) {
+        checkAndCreateLockfile();
         changeWorkingDir();
         cleanupLogs();
         setDefaultUncaughtExceptionHandler();
@@ -315,6 +322,24 @@ public class RuneChanger {
                 socket = null;
             }
         });
+    }
+
+    private static void checkAndCreateLockfile() {
+        String userHome = PathUtils.getWorkingDirectory();
+        File file = new File(userHome, "runechanger.lock");
+        try {
+            FileChannel fc = FileChannel.open(file.toPath(),
+                    StandardOpenOption.CREATE,
+                    StandardOpenOption.WRITE);
+            FileLock lock = fc.tryLock();
+            if (lock == null) {
+                log.error("Another instance of runechanger is open. Exiting program now.");
+                System.exit(1);
+            }
+        } catch (IOException e) {
+            log.error("Error creating lockfile" + e);
+            System.exit(1);
+        }
     }
 
     private static void setDefaultUncaughtExceptionHandler() {
