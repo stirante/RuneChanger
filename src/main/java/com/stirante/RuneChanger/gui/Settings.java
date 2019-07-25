@@ -2,6 +2,7 @@ package com.stirante.RuneChanger.gui;
 
 import com.stirante.RuneChanger.RuneChanger;
 import com.stirante.RuneChanger.client.Loot;
+import com.stirante.RuneChanger.gui.controllers.MainController;
 import com.stirante.RuneChanger.util.LangHelper;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -74,31 +75,24 @@ public class Settings extends Application {
         mainStage = stage;
         FXMLLoader fxmlLoader = new FXMLLoader();
         fxmlLoader.setResources(LangHelper.getLang());
-        fxmlLoader.setLocation(getClass().getResource("/Settings.fxml"));
+        fxmlLoader.setLocation(getClass().getResource("/fxml/Main.fxml"));
         Parent root = fxmlLoader.load();
-        ((SettingsController) fxmlLoader.getController()).init(this);
+        ((MainController) fxmlLoader.getController()).init(this);
         stage.initStyle(StageStyle.TRANSPARENT);
-        root.setOnMousePressed(event -> {
-            xOffset = event.getSceneX();
-            yOffset = event.getSceneY();
-        });
-        root.setOnMouseDragged(event -> {
-            stage.setX(event.getScreenX() - xOffset);
-            stage.setY(event.getScreenY() - yOffset);
-        });
         Rectangle2D primaryScreenBounds = Screen.getPrimary().getVisualBounds();
 
         Scene scene = new Scene(root);
-        scene.getStylesheets().add(getClass().getResource("/style.css").toExternalForm());
+        scene.getStylesheets().add(getClass().getResource("/stylesheet.css").toExternalForm());
         scene.setFill(null);
         stage.setScene(scene);
+        stage.setTitle(Constants.APP_NAME);
 
-        //set Stage boundaries to the lower right corner of the visible bounds of the main screen
-        stage.setHeight(470);
-        stage.setWidth(480);
-        stage.setX(primaryScreenBounds.getMinX() + primaryScreenBounds.getWidth() - stage.getWidth());
-        stage.setY(primaryScreenBounds.getMinY() + primaryScreenBounds.getHeight() - stage.getHeight());
+        //set Stage to the middle of the screen
+        stage.setX((primaryScreenBounds.getWidth() - stage.getWidth()) / 2);
+        stage.setY((primaryScreenBounds.getHeight() - stage.getHeight()) / 2);
+
         Platform.setImplicitExit(false);
+
         if (!Arrays.asList(runeChanger.programArguments).contains("-minimized")) {
             stage.show();
         }
