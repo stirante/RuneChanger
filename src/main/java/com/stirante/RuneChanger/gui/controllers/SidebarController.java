@@ -24,7 +24,7 @@ public class SidebarController implements Initializable {
     }
 
     private void setVideoLoop() {
-        Media video = new Media(getClass().getResource("/images/sidebarBackground.mp4").toString());
+        Media video = new Media(getClass().getResource("/images/background_ambient.mp4").toString());
         MediaPlayer player = new MediaPlayer(video);
         backgroundMediaView.setMediaPlayer(player);
         player.play();

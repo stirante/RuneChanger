@@ -10,200 +10,193 @@
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.RowConstraints?>
-<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.media.MediaView?>
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
 
-<StackPane xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.stirante.RuneChanger.gui.controllers.ContentAreaController">
+<VBox fx:id="content_area" alignment="CENTER" fillWidth="false" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="620.0" prefWidth="774.0" style="-fx-background-color: #010A13;" stylesheets="@../stylesheet.css" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.stirante.RuneChanger.gui.controllers.ContentAreaController">
    <children>
-      <MediaView fx:id="mediaBackground" fitHeight="620.0" fitWidth="774.0" preserveRatio="false" smooth="false" />
-      <VBox fx:id="content_area" alignment="CENTER" fillWidth="false" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="620.0" prefWidth="774.0" style="-fx-background-color: #ffffff00;" stylesheets="@../stylesheet.css">
+      <HBox alignment="CENTER_LEFT" maxHeight="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="55.0" prefWidth="774.0" style="-fx-background-color: #010A13; -fx-border-color: #1E282D; -fx-border-width: 0px 0px 1px 0px;" stylesheets="@../stylesheet.css">
          <children>
-            <HBox alignment="CENTER_LEFT" maxHeight="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="55.0" prefWidth="774.0" style="-fx-background-color: #fff; -fx-border-color: #000000; -fx-border-width: 0px 0px 1px 0px;" stylesheets="@../stylesheet.css">
+            <JFXButton alignment="CENTER" contentDisplay="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" onAction="#open_sidebar" prefHeight="50.0" prefWidth="50.0" ripplerFill="WHITE">
+               <graphic>
+                  <FontAwesomeIcon iconName="TH_LIST" size="2em" styleClass="menu-bar-btns-icon" />
+               </graphic>
+            </JFXButton>
+            <HBox alignment="CENTER" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" prefHeight="50.0" prefWidth="622.0" styleClass="menu-bar-search-field-box" HBox.hgrow="ALWAYS">
+               <HBox.margin>
+                  <Insets />
+               </HBox.margin>
+               <padding>
+                  <Insets left="20.0" />
+               </padding>
                <children>
-                  <JFXButton alignment="CENTER" contentDisplay="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" onAction="#open_sidebar" prefHeight="50.0" prefWidth="50.0" ripplerFill="WHITE" styleClass="menu-bar-btns">
+                  <Text fill="#f0e6d2" strokeType="OUTSIDE" strokeWidth="0.0" text="Runechanger">
+                     <font>
+                        <Font name="Segoe UI Bold" size="20.0" />
+                     </font>
+                  </Text>
+               </children>
+            </HBox>
+            <HBox alignment="CENTER_RIGHT" layoutX="10.0" layoutY="10.0" prefHeight="54.0" prefWidth="61.0" HBox.hgrow="NEVER">
+               <children>
+                  <JFXButton alignment="CENTER" contentDisplay="CENTER" layoutX="442.0" layoutY="11.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="50.0" prefWidth="50.0" ripplerFill="WHITE" style="-fx-border-width: 0px 0px 0px 1px;" styleClass="menu-bar-btns">
                      <graphic>
-                        <FontAwesomeIcon iconName="TH_LIST" size="2em" styleClass="menu-bar-btns-icon" />
+                        <FontAwesomeIcon iconName="MINUS" size="2em" styleClass="menu-bar-btns-icon" />
                      </graphic>
                   </JFXButton>
-                  <HBox alignment="CENTER" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" prefHeight="50.0" prefWidth="622.0" styleClass="menu-bar-search-field-box" HBox.hgrow="ALWAYS">
-                     <HBox.margin>
-                        <Insets />
-                     </HBox.margin>
-                     <padding>
-                        <Insets left="20.0" />
-                     </padding>
-                     <children>
-                        <Text fill="#cdc7c7" strokeType="OUTSIDE" strokeWidth="0.0" text="Runechanger">
-                           <font>
-                              <Font name="Segoe UI Bold" size="20.0" />
-                           </font>
-                        </Text>
-                     </children>
-                  </HBox>
-                  <HBox alignment="CENTER_RIGHT" layoutX="10.0" layoutY="10.0" prefHeight="54.0" prefWidth="61.0" HBox.hgrow="NEVER">
-                     <children>
-                        <JFXButton alignment="CENTER" contentDisplay="CENTER" layoutX="442.0" layoutY="11.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="50.0" prefWidth="50.0" ripplerFill="WHITE" style="-fx-border-width: 0px 0px 0px 1px;" styleClass="menu-bar-btns">
-                           <graphic>
-                              <FontAwesomeIcon iconName="MINUS" size="2em" styleClass="menu-bar-btns-icon" />
-                           </graphic>
-                        </JFXButton>
-                        <JFXButton alignment="CENTER" contentDisplay="CENTER" layoutX="482.0" layoutY="11.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="50.0" prefWidth="50.0" ripplerFill="WHITE" style="-fx-border-width: 0px 0px 0px 0px;" styleClass="menu-bar-btns">
-                           <graphic>
-                              <FontAwesomeIcon iconName="POWER_OFF" size="2em" styleClass="menu-bar-btns-icon" />
-                           </graphic>
-                        </JFXButton>
-                     </children>
-                  </HBox>
-               </children>
-               <VBox.margin>
-                  <Insets bottom="2.0" />
-               </VBox.margin>
-            </HBox>
-            <HBox alignment="CENTER" prefHeight="803.0" prefWidth="774.0">
-               <children>
-                  <ScrollPane hbarPolicy="NEVER" prefHeight="631.0" prefWidth="774.0" stylesheets="@../style.css">
-                     <content>
-                        <GridPane hgap="10.0" maxHeight="-Infinity" prefHeight="569.0" prefWidth="794.0">
-                           <columnConstraints>
-                              <ColumnConstraints halignment="LEFT" hgrow="SOMETIMES" maxWidth="-Infinity" minWidth="497.0" prefWidth="900.0" />
-                              <ColumnConstraints halignment="RIGHT" hgrow="SOMETIMES" maxWidth="1.7976931348623157E308" minWidth="222.0" prefWidth="270.0" />
-                           </columnConstraints>
-                           <rowConstraints>
-                              <RowConstraints maxHeight="-Infinity" minHeight="35.0" prefHeight="30.0" />
-                              <RowConstraints maxHeight="-Infinity" minHeight="35.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                              <RowConstraints maxHeight="-Infinity" minHeight="35.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                              <RowConstraints maxHeight="-Infinity" minHeight="35.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                              <RowConstraints maxHeight="-Infinity" minHeight="35.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                              <RowConstraints maxHeight="-Infinity" minHeight="35.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                              <RowConstraints maxHeight="-Infinity" minHeight="35.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                              <RowConstraints maxHeight="-Infinity" minHeight="35.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                              <RowConstraints maxHeight="-Infinity" minHeight="35.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                              <RowConstraints maxHeight="-Infinity" minHeight="35.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                              <RowConstraints maxHeight="-Infinity" minHeight="35.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                              <RowConstraints maxHeight="-Infinity" minHeight="35.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                              <RowConstraints maxHeight="-Infinity" minHeight="35.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                              <RowConstraints maxHeight="-Infinity" minHeight="35.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                           </rowConstraints>
-                           <padding>
-                              <Insets bottom="20.0" left="30.0" right="30.0" top="20.0" />
-                           </padding>
-                           <children>
-                              <Label focusTraversable="false" text="no_away" textFill="WHITE" GridPane.valignment="BOTTOM">
-                                 <font>
-                                    <Font size="18.0" />
-                                 </font>
-                              </Label>
-                              <Label alignment="TOP_LEFT" focusTraversable="false" text="no_away_message" textFill="#f2efef" wrapText="true" GridPane.rowIndex="1" GridPane.valignment="TOP">
-                                 <font>
-                                    <Font size="18.0" />
-                                 </font>
-                              </Label>
-                              <Label focusTraversable="false" text="auto_queue" textFill="WHITE" GridPane.rowIndex="2" GridPane.valignment="BOTTOM">
-                                 <font>
-                                    <Font size="18.0" />
-                                 </font>
-                              </Label>
-                              <Label focusTraversable="false" text="auto_queue_message" textFill="#f2efef" wrapText="true" GridPane.rowIndex="3" GridPane.valignment="TOP">
-                                 <font>
-                                    <Font size="18.0" />
-                                 </font>
-                              </Label>
-                              <Label focusTraversable="false" text="quick_replies" textFill="WHITE" GridPane.rowIndex="4" GridPane.valignment="BOTTOM">
-                                 <font>
-                                    <Font size="18.0" />
-                                 </font>
-                              </Label>
-                              <Label focusTraversable="false" text="quick_replies_message" textFill="#f2efef" wrapText="true" GridPane.rowIndex="5" GridPane.valignment="TOP">
-                                 <font>
-                                    <Font size="18.0" />
-                                 </font>
-                              </Label>
-                              <JFXToggleButton focusTraversable="false" prefHeight="60.0" prefWidth="120.0" size="13.0" text="On" textFill="#eda678" toggleColor="#eda678" toggleLineColor="#eba478e2" GridPane.columnIndex="1" GridPane.rowIndex="0" GridPane.rowSpan="2">
-                                 <font>
-                                    <Font size="13.0" />
-                                 </font>
-                              </JFXToggleButton>
-                              <JFXToggleButton focusTraversable="false" prefHeight="60.0" prefWidth="120.0" size="13.0" text="On" textFill="#eda678" toggleColor="#eda678" toggleLineColor="#eba478e2" GridPane.columnIndex="1" GridPane.rowIndex="2" GridPane.rowSpan="2">
-                                 <font>
-                                    <Font size="13.0" />
-                                 </font>
-                              </JFXToggleButton>
-                              <JFXToggleButton focusTraversable="false" prefHeight="60.0" prefWidth="120.0" size="13.0" text="On" textFill="#eda678" toggleColor="#eda678" toggleLineColor="#eba478e2" GridPane.columnIndex="1" GridPane.rowIndex="4" GridPane.rowSpan="2">
-                                 <font>
-                                    <Font size="13.0" />
-                                 </font>
-                              </JFXToggleButton>
-                              <Label focusTraversable="false" text="autoupdate_state" textFill="WHITE" GridPane.rowIndex="6" GridPane.valignment="BOTTOM">
-                                 <font>
-                                    <Font size="18.0" />
-                                 </font>
-                              </Label>
-                              <Label focusTraversable="false" text="autoupdate_message" textFill="#f2efef" wrapText="true" GridPane.rowIndex="7" GridPane.valignment="TOP">
-                                 <font>
-                                    <Font size="18.0" />
-                                 </font>
-                              </Label>
-                              <JFXToggleButton focusTraversable="false" prefHeight="60.0" prefWidth="120.0" size="13.0" text="On" textFill="#eda678" toggleColor="#eda678" toggleLineColor="#eba478e2" GridPane.columnIndex="1" GridPane.rowIndex="6" GridPane.rowSpan="2">
-                                 <font>
-                                    <Font size="13.0" />
-                                 </font>
-                              </JFXToggleButton>
-                              <Label focusTraversable="false" text="force_english" textFill="WHITE" GridPane.rowIndex="12" GridPane.valignment="BOTTOM">
-                                 <font>
-                                    <Font size="18.0" />
-                                 </font>
-                              </Label>
-                              <Label focusTraversable="false" text="force_english_message" textFill="#f2efef" wrapText="true" GridPane.rowIndex="13" GridPane.valignment="TOP">
-                                 <font>
-                                    <Font size="18.0" />
-                                 </font>
-                              </Label>
-                              <JFXToggleButton focusTraversable="false" prefHeight="60.0" prefWidth="120.0" size="13.0" text="On" textFill="#eda678" toggleColor="#eda678" toggleLineColor="#eba478e2" GridPane.columnIndex="1" GridPane.rowIndex="12" GridPane.rowSpan="2">
-                                 <font>
-                                    <Font size="13.0" />
-                                 </font>
-                              </JFXToggleButton>
-                              <Label focusTraversable="false" text="autostart" textFill="WHITE" GridPane.rowIndex="10" GridPane.valignment="BOTTOM">
-                                 <font>
-                                    <Font size="18.0" />
-                                 </font>
-                              </Label>
-                              <Label focusTraversable="false" text="autostart_message" textFill="#f2efef" wrapText="true" GridPane.rowIndex="11" GridPane.valignment="TOP">
-                                 <font>
-                                    <Font size="18.0" />
-                                 </font>
-                              </Label>
-                              <JFXToggleButton focusTraversable="false" prefHeight="60.0" prefWidth="120.0" size="13.0" text="On" textFill="#eda678" toggleColor="#eda678" toggleLineColor="#eba478e2" GridPane.columnIndex="1" GridPane.rowIndex="10" GridPane.rowSpan="2">
-                                 <font>
-                                    <Font size="13.0" />
-                                 </font>
-                              </JFXToggleButton>
-                              <Label focusTraversable="false" text="always_on_top" textFill="WHITE" GridPane.rowIndex="8" GridPane.valignment="BOTTOM">
-                                 <font>
-                                    <Font size="18.0" />
-                                 </font>
-                              </Label>
-                              <Label focusTraversable="false" text="always_on_top_message" textFill="#f2efef" wrapText="true" GridPane.rowIndex="9" GridPane.valignment="TOP">
-                                 <font>
-                                    <Font size="18.0" />
-                                 </font>
-                              </Label>
-                              <JFXToggleButton focusTraversable="false" prefHeight="60.0" prefWidth="120.0" size="13.0" text="On" textFill="#eda678" toggleColor="#eda678" toggleLineColor="#eba478e2" GridPane.columnIndex="1" GridPane.rowIndex="8" GridPane.rowSpan="2">
-                                 <font>
-                                    <Font size="13.0" />
-                                 </font>
-                              </JFXToggleButton>
-                           </children>
-                        </GridPane>
-                     </content>
-                  </ScrollPane>
+                  <JFXButton alignment="CENTER" contentDisplay="CENTER" layoutX="482.0" layoutY="11.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="50.0" prefWidth="50.0" ripplerFill="WHITE" style="-fx-border-width: 0px 0px 0px 0px;" styleClass="menu-bar-btns">
+                     <graphic>
+                        <FontAwesomeIcon iconName="POWER_OFF" size="2em" styleClass="menu-bar-btns-icon" />
+                     </graphic>
+                  </JFXButton>
                </children>
             </HBox>
          </children>
-      </VBox>
+         <VBox.margin>
+            <Insets bottom="2.0" />
+         </VBox.margin>
+      </HBox>
+      <HBox alignment="CENTER" prefHeight="803.0" prefWidth="774.0" style="-fx-background-color: #010A13;">
+         <children>
+            <ScrollPane hbarPolicy="NEVER" prefHeight="631.0" prefWidth="774.0" stylesheets="@../style.css">
+               <content>
+                  <GridPane hgap="10.0" maxHeight="-Infinity" prefHeight="569.0" prefWidth="794.0">
+                     <columnConstraints>
+                        <ColumnConstraints halignment="LEFT" hgrow="SOMETIMES" maxWidth="-Infinity" minWidth="497.0" prefWidth="900.0" />
+                        <ColumnConstraints halignment="RIGHT" hgrow="SOMETIMES" maxWidth="1.7976931348623157E308" minWidth="222.0" prefWidth="270.0" />
+                     </columnConstraints>
+                     <rowConstraints>
+                        <RowConstraints maxHeight="-Infinity" minHeight="35.0" prefHeight="30.0" />
+                        <RowConstraints maxHeight="-Infinity" minHeight="35.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                        <RowConstraints maxHeight="-Infinity" minHeight="35.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                        <RowConstraints maxHeight="-Infinity" minHeight="35.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                        <RowConstraints maxHeight="-Infinity" minHeight="35.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                        <RowConstraints maxHeight="-Infinity" minHeight="35.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                        <RowConstraints maxHeight="-Infinity" minHeight="35.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                        <RowConstraints maxHeight="-Infinity" minHeight="35.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                        <RowConstraints maxHeight="-Infinity" minHeight="35.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                        <RowConstraints maxHeight="-Infinity" minHeight="35.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                        <RowConstraints maxHeight="-Infinity" minHeight="35.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                        <RowConstraints maxHeight="-Infinity" minHeight="35.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                        <RowConstraints maxHeight="-Infinity" minHeight="35.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                        <RowConstraints maxHeight="-Infinity" minHeight="35.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                     </rowConstraints>
+                     <padding>
+                        <Insets bottom="20.0" left="30.0" right="30.0" top="20.0" />
+                     </padding>
+                     <children>
+                        <Label focusTraversable="false" text="no_away" textFill="#f0e6d2" GridPane.valignment="BOTTOM">
+                           <font>
+                              <Font name="Segoe UI" size="18.0" />
+                           </font>
+                        </Label>
+                        <Label alignment="TOP_LEFT" focusTraversable="false" text="no_away_message" textFill="#f0e6d2" wrapText="true" GridPane.rowIndex="1" GridPane.valignment="TOP">
+                           <font>
+                              <Font name="Segoe UI" size="18.0" />
+                           </font>
+                        </Label>
+                        <Label focusTraversable="false" text="auto_queue" textFill="#f0e6d2" GridPane.rowIndex="2" GridPane.valignment="BOTTOM">
+                           <font>
+                              <Font name="Segoe UI" size="18.0" />
+                           </font>
+                        </Label>
+                        <Label focusTraversable="false" text="auto_queue_message" textFill="#f0e6d2" wrapText="true" GridPane.rowIndex="3" GridPane.valignment="TOP">
+                           <font>
+                              <Font name="Segoe UI" size="18.0" />
+                           </font>
+                        </Label>
+                        <Label focusTraversable="false" text="quick_replies" textFill="#f0e6d2" GridPane.rowIndex="4" GridPane.valignment="BOTTOM">
+                           <font>
+                              <Font name="Segoe UI" size="18.0" />
+                           </font>
+                        </Label>
+                        <Label focusTraversable="false" text="quick_replies_message" textFill="#f0e6d2" wrapText="true" GridPane.rowIndex="5" GridPane.valignment="TOP">
+                           <font>
+                              <Font name="Segoe UI" size="18.0" />
+                           </font>
+                        </Label>
+                        <JFXToggleButton focusTraversable="false" prefHeight="60.0" prefWidth="120.0" size="13.0" text="On" textFill="#eda678" toggleColor="#eda678" toggleLineColor="#eba478e2" GridPane.columnIndex="1" GridPane.rowIndex="0" GridPane.rowSpan="2">
+                           <font>
+                              <Font size="13.0" />
+                           </font>
+                        </JFXToggleButton>
+                        <JFXToggleButton focusTraversable="false" prefHeight="60.0" prefWidth="120.0" size="13.0" text="On" textFill="#eda678" toggleColor="#eda678" toggleLineColor="#eba478e2" GridPane.columnIndex="1" GridPane.rowIndex="2" GridPane.rowSpan="2">
+                           <font>
+                              <Font size="13.0" />
+                           </font>
+                        </JFXToggleButton>
+                        <JFXToggleButton focusTraversable="false" prefHeight="60.0" prefWidth="120.0" size="13.0" text="On" textFill="#eda678" toggleColor="#eda678" toggleLineColor="#eba478e2" GridPane.columnIndex="1" GridPane.rowIndex="4" GridPane.rowSpan="2">
+                           <font>
+                              <Font size="13.0" />
+                           </font>
+                        </JFXToggleButton>
+                        <Label focusTraversable="false" text="autoupdate_state" textFill="#f0e6d2" GridPane.rowIndex="6" GridPane.valignment="BOTTOM">
+                           <font>
+                              <Font name="Segoe UI" size="18.0" />
+                           </font>
+                        </Label>
+                        <Label focusTraversable="false" text="autoupdate_message" textFill="#f0e6d2" wrapText="true" GridPane.rowIndex="7" GridPane.valignment="TOP">
+                           <font>
+                              <Font name="Segoe UI" size="18.0" />
+                           </font>
+                        </Label>
+                        <JFXToggleButton focusTraversable="false" prefHeight="60.0" prefWidth="120.0" size="13.0" text="On" textFill="#eda678" toggleColor="#eda678" toggleLineColor="#eba478e2" GridPane.columnIndex="1" GridPane.rowIndex="6" GridPane.rowSpan="2">
+                           <font>
+                              <Font size="13.0" />
+                           </font>
+                        </JFXToggleButton>
+                        <Label focusTraversable="false" text="force_english" textFill="#f0e6d2" GridPane.rowIndex="12" GridPane.valignment="BOTTOM">
+                           <font>
+                              <Font name="Segoe UI" size="18.0" />
+                           </font>
+                        </Label>
+                        <Label focusTraversable="false" text="force_english_message" textFill="#f0e6d2" wrapText="true" GridPane.rowIndex="13" GridPane.valignment="TOP">
+                           <font>
+                              <Font name="Segoe UI" size="18.0" />
+                           </font>
+                        </Label>
+                        <JFXToggleButton focusTraversable="false" prefHeight="60.0" prefWidth="120.0" size="13.0" text="On" textFill="#eda678" toggleColor="#eda678" toggleLineColor="#eba478e2" GridPane.columnIndex="1" GridPane.rowIndex="12" GridPane.rowSpan="2">
+                           <font>
+                              <Font size="13.0" />
+                           </font>
+                        </JFXToggleButton>
+                        <Label focusTraversable="false" text="autostart" textFill="#f0e6d2" GridPane.rowIndex="10" GridPane.valignment="BOTTOM">
+                           <font>
+                              <Font name="Segoe UI" size="18.0" />
+                           </font>
+                        </Label>
+                        <Label focusTraversable="false" text="autostart_message" textFill="#f0e6d2" wrapText="true" GridPane.rowIndex="11" GridPane.valignment="TOP">
+                           <font>
+                              <Font name="Segoe UI" size="18.0" />
+                           </font>
+                        </Label>
+                        <JFXToggleButton focusTraversable="false" prefHeight="60.0" prefWidth="120.0" size="13.0" text="On" textFill="#eda678" toggleColor="#eda678" toggleLineColor="#eba478e2" GridPane.columnIndex="1" GridPane.rowIndex="10" GridPane.rowSpan="2">
+                           <font>
+                              <Font size="13.0" />
+                           </font>
+                        </JFXToggleButton>
+                        <Label focusTraversable="false" text="always_on_top" textFill="#f0e6d2" GridPane.rowIndex="8" GridPane.valignment="BOTTOM">
+                           <font>
+                              <Font name="Segoe UI" size="18.0" />
+                           </font>
+                        </Label>
+                        <Label focusTraversable="false" text="always_on_top_message" textFill="#f0e6d2" wrapText="true" GridPane.rowIndex="9" GridPane.valignment="TOP">
+                           <font>
+                              <Font name="Segoe UI" size="18.0" />
+                           </font>
+                        </Label>
+                        <JFXToggleButton focusTraversable="false" prefHeight="60.0" prefWidth="120.0" size="13.0" text="On" textFill="#eda678" toggleColor="#eda678" toggleLineColor="#eba478e2" GridPane.columnIndex="1" GridPane.rowIndex="8" GridPane.rowSpan="2">
+                           <font>
+                              <Font size="13.0" />
+                           </font>
+                        </JFXToggleButton>
+                     </children>
+                  </GridPane>
+               </content>
+            </ScrollPane>
+         </children>
+      </HBox>
    </children>
-</StackPane>
+</VBox>

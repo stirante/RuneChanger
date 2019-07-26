@@ -22,15 +22,11 @@ import java.util.ResourceBundle;
 @Slf4j
 public class ContentAreaController implements Initializable {
 
-    @FXML
-    private MediaView mediaBackground;
-
     boolean flag = true;
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         log.info("Content Area Controller initializing");
-        setVideoLoop();
     }
 
     @FXML
@@ -45,19 +41,5 @@ public class ContentAreaController implements Initializable {
             border_pane.setLeft(null);
             flag = true;
         }
-    }
-
-    private void setVideoLoop() {
-        Media video = new Media(getClass().getResource("/images/background_ambient.mp4").toString());
-        MediaPlayer player = new MediaPlayer(video);
-        mediaBackground.setMediaPlayer(player);
-        player.play();
-        player.setOnEndOfMedia(new Runnable() {
-            @Override
-            public void run() {
-                player.seek(Duration.ZERO);
-                player.play();
-            }
-        });
     }
 }
