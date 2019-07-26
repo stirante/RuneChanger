@@ -75,7 +75,7 @@ public class Settings extends Application {
         mainStage = stage;
         FXMLLoader fxmlLoader = new FXMLLoader();
         fxmlLoader.setResources(LangHelper.getLang());
-        fxmlLoader.setLocation(getClass().getResource("/fxml/ContentArea.fxml"));
+        fxmlLoader.setLocation(getClass().getResource("/fxml/Main.fxml"));
         Parent root = fxmlLoader.load();
         ((MainController) fxmlLoader.getController()).init(this);
         stage.initStyle(StageStyle.TRANSPARENT);
