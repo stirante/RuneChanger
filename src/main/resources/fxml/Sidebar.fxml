@@ -4,147 +4,155 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.media.MediaView?>
 <?import javafx.scene.text.Font?>
 
-<VBox maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="620.0" prefWidth="250.0" spacing="4.0" styleClass="sidebar" stylesheets="@../stylesheet.css" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.stirante.RuneChanger.gui.controllers.SidebarController">
+
+<StackPane xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.stirante.RuneChanger.gui.controllers.SidebarController">
    <children>
-      <Label maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefWidth="250.0" text="Main" textFill="#b8b1b1">
-         <font>
-            <Font name="Calibri Bold" size="14.0" />
-         </font>
-         <padding>
-            <Insets left="10.0" />
-         </padding>
-         <VBox.margin>
-            <Insets bottom="10.0" top="10.0" />
-         </VBox.margin>
-      </Label>
-      <HBox alignment="CENTER_LEFT" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="35.0" prefWidth="250.0" styleClass="sidebar-btn" VBox.vgrow="ALWAYS">
-         <VBox.margin>
-            <Insets />
-         </VBox.margin>
-         <padding>
-            <Insets left="20.0" />
-         </padding>
+      <MediaView fx:id="backgroundMediaView" fitHeight="620.0" fitWidth="250.0" preserveRatio="false" smooth="false" />
+      <VBox maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="620.0" prefWidth="250.0" spacing="4.0" stylesheets="@../stylesheet.css">
          <children>
-            <FontAwesomeIcon iconName="COG" size="1.5em" styleClass="sidebar-btn-icon" />
-            <Label text="Settings" textFill="#b8b1b1">
+            <Label maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefWidth="250.0" text="Main" textFill="#b8b1b1">
                <font>
-                  <Font name="Consolas Bold" size="13.0" />
+                  <Font name="Calibri Bold" size="14.0" />
                </font>
-               <HBox.margin>
-                  <Insets left="15.0" />
-               </HBox.margin>
+               <padding>
+                  <Insets left="10.0" />
+               </padding>
+               <VBox.margin>
+                  <Insets bottom="10.0" top="10.0" />
+               </VBox.margin>
             </Label>
-         </children>
-      </HBox>
-      <HBox alignment="CENTER_LEFT" layoutX="10.0" layoutY="162.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="35.0" prefWidth="250.0" styleClass="sidebar-btn">
-         <padding>
-            <Insets left="20.0" />
-         </padding>
-         <children>
-            <FontAwesomeIcon iconName="BOOK" size="1.5em" styleClass="sidebar-btn-icon" />
-            <Label text="Runebook" textFill="#b8b1b1">
+            <HBox alignment="CENTER_LEFT" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="35.0" prefWidth="250.0" styleClass="sidebar-btn" VBox.vgrow="ALWAYS">
+               <VBox.margin>
+                  <Insets />
+               </VBox.margin>
+               <padding>
+                  <Insets left="20.0" />
+               </padding>
+               <children>
+                  <FontAwesomeIcon iconName="COG" size="1.5em" styleClass="sidebar-btn-icon" />
+                  <Label text="Settings" textFill="#b8b1b1">
+                     <font>
+                        <Font name="Consolas Bold" size="13.0" />
+                     </font>
+                     <HBox.margin>
+                        <Insets left="15.0" />
+                     </HBox.margin>
+                  </Label>
+               </children>
+            </HBox>
+            <HBox alignment="CENTER_LEFT" layoutX="10.0" layoutY="162.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="35.0" prefWidth="250.0" styleClass="sidebar-btn">
+               <padding>
+                  <Insets left="20.0" />
+               </padding>
+               <children>
+                  <FontAwesomeIcon iconName="BOOK" size="1.5em" styleClass="sidebar-btn-icon" />
+                  <Label text="Runebook" textFill="#b8b1b1">
+                     <font>
+                        <Font name="Consolas Bold" size="13.0" />
+                     </font>
+                     <HBox.margin>
+                        <Insets left="15.0" />
+                     </HBox.margin>
+                  </Label>
+               </children>
+            </HBox>
+            <HBox alignment="CENTER_LEFT" layoutX="10.0" layoutY="232.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="35.0" prefWidth="250.0" styleClass="sidebar-btn">
+               <padding>
+                  <Insets left="20.0" />
+               </padding>
+               <children>
+                  <FontAwesomeIcon iconName="BOOKMARK_ALT" size="1.5em" styleClass="sidebar-btn-icon" />
+                  <Label text="Ingame Settings" textFill="#b8b1b1">
+                     <font>
+                        <Font name="Consolas Bold" size="13.0" />
+                     </font>
+                     <HBox.margin>
+                        <Insets left="15.0" />
+                     </HBox.margin>
+                  </Label>
+               </children>
+            </HBox>
+            <HBox alignment="CENTER_LEFT" layoutX="10.0" layoutY="162.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="35.0" prefWidth="250.0" styleClass="sidebar-btn">
+               <padding>
+                  <Insets left="20.0" />
+               </padding>
+               <children>
+                  <FontAwesomeIcon iconName="SUITCASE" size="1.5em" styleClass="sidebar-btn-icon" />
+                  <Label text="Item Builds" textFill="#b8b1b1">
+                     <font>
+                        <Font name="Consolas Bold" size="13.0" />
+                     </font>
+                     <HBox.margin>
+                        <Insets left="15.0" />
+                     </HBox.margin>
+                  </Label>
+               </children>
+            </HBox>
+            <HBox alignment="CENTER_LEFT" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="35.0" prefWidth="250.0" styleClass="sidebar-btn">
+               <padding>
+                  <Insets left="20.0" />
+               </padding>
+               <children>
+                  <FontAwesomeIcon iconName="BOLT" size="1.5em" styleClass="sidebar-btn-icon" />
+                  <Label text="Hextech Crafting" textFill="#b8b1b1">
+                     <font>
+                        <Font name="Consolas Bold" size="13.0" />
+                     </font>
+                     <HBox.margin>
+                        <Insets left="15.0" />
+                     </HBox.margin>
+                  </Label>
+               </children>
+            </HBox>
+            <Label layoutX="10.0" layoutY="137.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefWidth="250.0" text="Other" textFill="#b8b1b1">
                <font>
-                  <Font name="Consolas Bold" size="13.0" />
+                  <Font name="Calibri Bold" size="14.0" />
                </font>
-               <HBox.margin>
-                  <Insets left="15.0" />
-               </HBox.margin>
+               <padding>
+                  <Insets left="10.0" />
+               </padding>
+               <VBox.margin>
+                  <Insets top="20.0" />
+               </VBox.margin>
             </Label>
+            <HBox alignment="CENTER_LEFT" layoutX="10.0" layoutY="164.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="35.0" prefWidth="250.0" styleClass="sidebar-btn">
+               <padding>
+                  <Insets left="20.0" />
+               </padding>
+               <children>
+                  <FontAwesomeIcon iconName="USERS" size="1.5em" styleClass="sidebar-btn-icon" />
+                  <Label text="Credits" textFill="#b8b1b1">
+                     <font>
+                        <Font name="Consolas Bold" size="13.0" />
+                     </font>
+                     <HBox.margin>
+                        <Insets left="15.0" />
+                     </HBox.margin>
+                  </Label>
+               </children>
+            </HBox>
+            <HBox alignment="CENTER_LEFT" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="35.0" prefWidth="250.0" styleClass="sidebar-btn">
+               <padding>
+                  <Insets left="20.0" />
+               </padding>
+               <children>
+                  <FontAwesomeIcon iconName="FILE_ALT" size="1.5em" styleClass="sidebar-btn-icon" />
+                  <Label text="Logs" textFill="#b8b1b1">
+                     <font>
+                        <Font name="Consolas Bold" size="13.0" />
+                     </font>
+                     <HBox.margin>
+                        <Insets left="15.0" />
+                     </HBox.margin>
+                  </Label>
+               </children>
+            </HBox>
          </children>
-      </HBox>
-      <HBox alignment="CENTER_LEFT" layoutX="10.0" layoutY="232.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="35.0" prefWidth="250.0" styleClass="sidebar-btn">
-         <padding>
-            <Insets left="20.0" />
-         </padding>
-         <children>
-            <FontAwesomeIcon iconName="BOOKMARK_ALT" size="1.5em" styleClass="sidebar-btn-icon" />
-            <Label text="Ingame Settings" textFill="#b8b1b1">
-               <font>
-                  <Font name="Consolas Bold" size="13.0" />
-               </font>
-               <HBox.margin>
-                  <Insets left="15.0" />
-               </HBox.margin>
-            </Label>
-         </children>
-      </HBox>
-      <HBox alignment="CENTER_LEFT" layoutX="10.0" layoutY="162.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="35.0" prefWidth="250.0" styleClass="sidebar-btn">
-         <padding>
-            <Insets left="20.0" />
-         </padding>
-         <children>
-            <FontAwesomeIcon iconName="SUITCASE" size="1.5em" styleClass="sidebar-btn-icon" />
-            <Label text="Item Builds" textFill="#b8b1b1">
-               <font>
-                  <Font name="Consolas Bold" size="13.0" />
-               </font>
-               <HBox.margin>
-                  <Insets left="15.0" />
-               </HBox.margin>
-            </Label>
-         </children>
-      </HBox>
-      <HBox alignment="CENTER_LEFT" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="35.0" prefWidth="250.0" styleClass="sidebar-btn">
-         <padding>
-            <Insets left="20.0" />
-         </padding>
-         <children>
-            <FontAwesomeIcon iconName="BOLT" size="1.5em" styleClass="sidebar-btn-icon" />
-            <Label text="Hextech Crafting" textFill="#b8b1b1">
-               <font>
-                  <Font name="Consolas Bold" size="13.0" />
-               </font>
-               <HBox.margin>
-                  <Insets left="15.0" />
-               </HBox.margin>
-            </Label>
-         </children>
-      </HBox>
-      <Label layoutX="10.0" layoutY="137.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefWidth="250.0" text="Other" textFill="#b8b1b1">
-         <font>
-            <Font name="Calibri Bold" size="14.0" />
-         </font>
-         <padding>
-            <Insets left="10.0" />
-         </padding>
-         <VBox.margin>
-            <Insets top="20.0" />
-         </VBox.margin>
-      </Label>
-      <HBox alignment="CENTER_LEFT" layoutX="10.0" layoutY="164.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="35.0" prefWidth="250.0" styleClass="sidebar-btn">
-         <padding>
-            <Insets left="20.0" />
-         </padding>
-         <children>
-            <FontAwesomeIcon iconName="USERS" size="1.5em" styleClass="sidebar-btn-icon" />
-            <Label text="Credits" textFill="#b8b1b1">
-               <font>
-                  <Font name="Consolas Bold" size="13.0" />
-               </font>
-               <HBox.margin>
-                  <Insets left="15.0" />
-               </HBox.margin>
-            </Label>
-         </children>
-      </HBox>
-      <HBox alignment="CENTER_LEFT" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="35.0" prefWidth="250.0" styleClass="sidebar-btn">
-         <padding>
-            <Insets left="20.0" />
-         </padding>
-         <children>
-            <FontAwesomeIcon iconName="FILE_ALT" size="1.5em" styleClass="sidebar-btn-icon" />
-            <Label text="Logs" textFill="#b8b1b1">
-               <font>
-                  <Font name="Consolas Bold" size="13.0" />
-               </font>
-               <HBox.margin>
-                  <Insets left="15.0" />
-               </HBox.margin>
-            </Label>
-         </children>
-      </HBox>
+      </VBox>
    </children>
-</VBox>
+</StackPane>

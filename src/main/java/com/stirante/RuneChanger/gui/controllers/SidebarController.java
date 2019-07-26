@@ -1,8 +1,10 @@
 package com.stirante.RuneChanger.gui.controllers;
 
+import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
+import javafx.scene.media.MediaView;
 import javafx.util.Duration;
 import lombok.extern.slf4j.Slf4j;
 
@@ -12,15 +14,19 @@ import java.util.ResourceBundle;
 @Slf4j
 public class SidebarController implements Initializable {
 
+    @FXML
+    private MediaView backgroundMediaView;
+
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         log.info("Sidebar Controller initializing");
+        setVideoLoop();
     }
 
     private void setVideoLoop() {
         Media video = new Media(getClass().getResource("/images/background_ambient.mp4").toString());
         MediaPlayer player = new MediaPlayer(video);
-        media.setMediaPlayer(player);
+        backgroundMediaView.setMediaPlayer(player);
         player.play();
         player.setOnEndOfMedia(new Runnable() {
             @Override
