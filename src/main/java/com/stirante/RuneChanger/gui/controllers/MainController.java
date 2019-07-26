@@ -55,14 +55,7 @@ public class MainController implements Initializable {
             public void handle(MouseEvent event) {
                 Settings.mainStage.setX(event.getScreenX() - xOffset);
                 Settings.mainStage.setY(event.getScreenY() - yOffset);
-                Settings.mainStage.setOpacity(0.9f);
             }
-        });
-        border_pane.setOnDragDone((e) -> {
-            Settings.mainStage.setOpacity(1.0f);
-        });
-        border_pane.setOnMouseReleased((e) -> {
-            Settings.mainStage.setOpacity(1.0f);
         });
 
     }

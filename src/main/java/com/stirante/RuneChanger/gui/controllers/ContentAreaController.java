@@ -5,6 +5,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.layout.BorderPane;
@@ -30,6 +31,7 @@ public class ContentAreaController implements Initializable {
         if (flag == true) {
             Parent sidebar = FXMLLoader.load(getClass().getResource("/fxml/Sidebar.fxml"));
             border_pane.setLeft(sidebar);
+            BorderPane.setAlignment(sidebar, Pos.CENTER_LEFT);
             flag = false;
         } else {
             border_pane.setLeft(null);

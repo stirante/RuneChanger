@@ -14,7 +14,7 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<VBox fx:id="content_area" alignment="CENTER" fillWidth="false" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="620.0" prefWidth="774.0" style="-fx-background-color: #FFF;" stylesheets="@../stylesheet.css" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.stirante.RuneChanger.gui.controllers.ContentAreaController">
+<VBox fx:id="content_area" alignment="CENTER" fillWidth="false" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="620.0" prefWidth="774.0" style="-fx-background-color: #02101E;" stylesheets="@../stylesheet.css" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.stirante.RuneChanger.gui.controllers.ContentAreaController">
    <children>
       <HBox alignment="CENTER_LEFT" maxHeight="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="55.0" prefWidth="774.0" style="-fx-background-color: #fff; -fx-border-color: #000000; -fx-border-width: 0px 0px 1px 0px;" stylesheets="@../stylesheet.css">
          <children>
