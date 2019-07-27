@@ -2,6 +2,7 @@ package com.stirante.RuneChanger.gui.controllers;
 
 import com.stirante.RuneChanger.gui.Constants;
 import com.stirante.RuneChanger.gui.Settings;
+import com.stirante.RuneChanger.util.LangHelper;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -34,7 +35,10 @@ public class MainController implements Initializable {
         log.info("Main Controller initializing");
         makeStageDrageable();
         try {
-            Parent contentArea = FXMLLoader.load(MainController.class.getResource("/fxml/ContentArea.fxml"));
+            FXMLLoader fxmlLoader = new FXMLLoader();
+            fxmlLoader.setResources(LangHelper.getLang());
+            fxmlLoader.setLocation(getClass().getResource("/fxml/ContentArea.fxml"));
+            Parent contentArea = fxmlLoader.load();
             border_pane.setCenter(contentArea);
         } catch (IOException e) {
             e.printStackTrace();

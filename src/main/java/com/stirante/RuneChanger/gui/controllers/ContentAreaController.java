@@ -3,6 +3,7 @@ package com.stirante.RuneChanger.gui.controllers;
 import com.jfoenix.controls.JFXButton;
 import com.stirante.RuneChanger.gui.Constants;
 import com.stirante.RuneChanger.gui.Settings;
+import com.stirante.RuneChanger.util.LangHelper;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -53,7 +54,10 @@ public class ContentAreaController implements Initializable {
     private void open_sidebar(ActionEvent event) throws IOException {
         BorderPane border_pane = (BorderPane) ((Node) event.getSource()).getScene().getRoot();
         if (flag == true) {
-            Parent sidebar = FXMLLoader.load(getClass().getResource("/fxml/Sidebar.fxml"));
+            FXMLLoader fxmlLoader = new FXMLLoader();
+            fxmlLoader.setResources(LangHelper.getLang());
+            fxmlLoader.setLocation(getClass().getResource("/fxml/Sidebar.fxml"));
+            Parent sidebar = fxmlLoader.load();
             border_pane.setLeft(sidebar);
             BorderPane.setAlignment(sidebar, Pos.CENTER_LEFT);
             flag = false;
