@@ -1,77 +1,126 @@
-.backdrop-magic{
-    -fx-background-image:url("images/backdrop-magic.png");
-}
-.sidebar-user-btn{
-    -fx-background-color: transparent;
-    -fx-background-radius: 0px;
-    -fx-text-fill: #b8b1b1;
+.backdrop-magic {
+	-fx-background-image: url("images/backdrop-magic.png");
 }
 
-.sidebar-btn{
-    -fx-background-color: transparent;
-    -fx-background-radius: 0px;
-    -fx-text-fill: #b8b1b1;
-}
-.sidebar-btn:hover{
-    -fx-background-color: transparent;
-    -fx-background-radius: 0px;
-    -fx-text-fill: #b8b1b1;
-    -fx-border-color: #5C461E;
-    -fx-border-width: 0px 0px 0px 3px;
-}
-.label{
-    -fx-text-fill: #b8b1b1;
-}
-.sidebar-btn:pressed .label{
-    -fx-background-color: transparent;
-    -fx-background-radius: 0px;
-    -fx-text-fill: #0099ff;
-}
-.sidebar-btn:pressed .sidebar-btn-icon{
-    -fx-fill: #0099ff;
-}
-.sidebar-btn-icon{
-    -fx-fill: #b8b1b1;
+.sidebar-user-btn {
+	-fx-background-color: transparent;
+	-fx-background-radius: 0px;
+	-fx-text-fill: #b8b1b1;
 }
 
-.menu-bar-btns{
-    -fx-background-color: #ffffff00;
-}
-.menu-bar-btns-icon{
-    -fx-fill: #999;
-}
-.menu-bar-btns:hover .menu-bar-btns-icon{
-    -fx-fill: #fff;
+.sidebar-btn {
+	-fx-background-color: transparent;
+	-fx-background-radius: 0px;
+	-fx-text-fill: #b8b1b1;
 }
 
-.scroll-pane > .viewport {
-   -fx-background-color: transparent;
+.sidebar-btn:hover {
+	-fx-background-color: transparent;
+	-fx-background-radius: 0px;
+	-fx-text-fill: #b8b1b1;
+	-fx-border-color: #5C461E;
+	-fx-border-width: 0px 0px 0px 3px;
+}
+
+.label {
+	-fx-text-fill: #8D897D;
+}
+
+.sidebar-btn:pressed .label {
+	-fx-background-color: transparent;
+	-fx-background-radius: 0px;
+	-fx-text-fill: #0099ff;
+}
+
+.sidebar-btn:pressed .sidebar-btn-icon {
+	-fx-fill: #0099ff;
+}
+
+.sidebar-btn-icon {
+	-fx-fill: #b8b1b1;
+}
+
+.menu-bar-btns {
+	-fx-background-color: #ffffff00;
+}
+
+.menu-bar-btns-icon {
+	-fx-fill: #999;
+}
+
+.menu-bar-btns:hover .menu-bar-btns-icon {
+	-fx-fill: #fff;
+}
+
+
+/*******************************************************************************
+*                                                                              *
+* Scroll bar                                                                   *
+*                                                                              *
+*******************************************************************************/
+
+.scroll-pane>.viewport {
+	-fx-background-color: transparent;
 }
 
 .scroll-pane {
-   -fx-background-color: transparent;
+	-fx-background-color: transparent;
 }
 
-.scroll-bar:horizontal, .scroll-bar:vertical{
-    -fx-background-color:transparent;
+.scroll-bar:horizontal,
+.scroll-bar:vertical {
+	-fx-background-color: transparent;
 }
 
 .scroll-bar:horizontal .track,
-.scroll-bar:vertical .track{
-    -fx-background-color: transparent;
-    -fx-border-color: transparent;
-    -fx-background-radius: 0em;
+.scroll-bar:vertical .track {
+	-fx-background-color: transparent;
+	-fx-border-color: transparent;
+	-fx-background-radius: 0em;
 }
 
 .scroll-bar:horizontal .thumb,
 .scroll-bar:vertical .thumb {
-    -fx-background-color: #785A28;
-    -fx-background-radius: 5em;
+	-fx-background-color: #785A28;
+	-fx-background-radius: 5em;
 }
 
 .scroll-bar .increment-arrow,
-.scroll-bar .decrement-arrow
-{
-    -fx-shape: " "; 
-    -fx-padding:3;
+.scroll-bar .decrement-arrow {
+	-fx-shape: " ";
+	-fx-padding: 3;
+}
+
+
+/*******************************************************************************
+*                                                                              *
+* JFX Check Box                                                                *
+*                                                                              *
+*******************************************************************************/
+
+.runechanger-check-box {
+	-fx-text-fill: #8D897D;
+}
+
+.runechanger-check-box .box {
+	-jfx-checked-color: #997B42;
+	-jfx-unchecked-color: #997B42;
+	-fx-pref-height: 35;
+	-fx-pref-width: 35;
+}
+
+.runechanger-check-box .mark {
+	-fx-max-width: 25;
+	-fx-max-height: 20;/* width * 0.8 */
+	-fx-border-color: #8E7131;
+}
+/* Hovered */
+.runechanger-check-box:hover {
+	-fx-text-fill: #D7CEBE;
+}
+
+.runechanger-check-box:hover .mark {
+	-fx-max-width: 25;
+	-fx-max-height: 20; /* width * 0.8 */
+	-fx-border-color: #B4B0A2;
 }

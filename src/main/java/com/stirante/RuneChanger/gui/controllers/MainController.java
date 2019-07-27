@@ -1,6 +1,6 @@
 package com.stirante.RuneChanger.gui.controllers;
 
-import com.stirante.RuneChanger.gui.Constants;
+import com.stirante.RuneChanger.gui.ControllerUtil;
 import com.stirante.RuneChanger.gui.Settings;
 import com.stirante.RuneChanger.util.LangHelper;
 import javafx.event.EventHandler;
@@ -40,6 +40,7 @@ public class MainController implements Initializable {
             fxmlLoader.setLocation(getClass().getResource("/fxml/ContentArea.fxml"));
             Parent contentArea = fxmlLoader.load();
             border_pane.setCenter(contentArea);
+            ControllerUtil.getInstance().fade(contentArea, 1000, 0, 1).playFromStart();
         } catch (IOException e) {
             e.printStackTrace();
         }

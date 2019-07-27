@@ -25,7 +25,7 @@
                   <Insets bottom="10.0" top="10.0" />
                </VBox.margin>
             </Label>
-            <HBox alignment="CENTER_LEFT" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="35.0" prefWidth="250.0" styleClass="sidebar-btn" VBox.vgrow="ALWAYS">
+            <HBox fx:id="settingsButton" alignment="CENTER_LEFT" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" onMouseClicked="#handleSideBarButtonPressed" prefHeight="35.0" prefWidth="250.0" styleClass="sidebar-btn" VBox.vgrow="ALWAYS">
                <VBox.margin>
                   <Insets />
                </VBox.margin>
@@ -34,7 +34,7 @@
                </padding>
                <children>
                   <FontAwesomeIcon iconName="COG" size="1.5em" styleClass="sidebar-btn-icon" />
-                  <Label fx:id="settingsButton" onMouseClicked="#handleSideBarButtonPressed" text="Settings" textFill="#b8b1b1">
+                  <Label text="Settings" textFill="#b8b1b1">
                      <font>
                         <Font name="Consolas Bold" size="13.0" />
                      </font>
