@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.jfoenix.controls.JFXToggleButton?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.text.Font?>
+
+<ScrollPane hbarPolicy="NEVER" prefHeight="631.0" prefWidth="774.0" stylesheets="@../stylesheet.css" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1">
+   <content>
+      <GridPane hgap="10.0" maxHeight="-Infinity" prefHeight="569.0" prefWidth="794.0">
+         <columnConstraints>
+            <ColumnConstraints halignment="LEFT" hgrow="SOMETIMES" maxWidth="-Infinity" minWidth="497.0" prefWidth="900.0" />
+            <ColumnConstraints halignment="RIGHT" hgrow="SOMETIMES" maxWidth="1.7976931348623157E308" minWidth="222.0" prefWidth="270.0" />
+         </columnConstraints>
+         <rowConstraints>
+            <RowConstraints maxHeight="-Infinity" minHeight="35.0" prefHeight="30.0" />
+            <RowConstraints maxHeight="-Infinity" minHeight="35.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            <RowConstraints maxHeight="-Infinity" minHeight="35.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            <RowConstraints maxHeight="-Infinity" minHeight="35.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            <RowConstraints maxHeight="-Infinity" minHeight="35.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            <RowConstraints maxHeight="-Infinity" minHeight="35.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            <RowConstraints maxHeight="-Infinity" minHeight="35.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            <RowConstraints maxHeight="-Infinity" minHeight="35.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            <RowConstraints maxHeight="-Infinity" minHeight="35.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            <RowConstraints maxHeight="-Infinity" minHeight="35.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            <RowConstraints maxHeight="-Infinity" minHeight="35.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            <RowConstraints maxHeight="-Infinity" minHeight="35.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            <RowConstraints maxHeight="-Infinity" minHeight="35.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            <RowConstraints maxHeight="-Infinity" minHeight="35.0" prefHeight="30.0" vgrow="SOMETIMES" />
+         </rowConstraints>
+         <padding>
+            <Insets bottom="20.0" left="30.0" right="30.0" top="20.0" />
+         </padding>
+         <children>
+            <Label focusTraversable="false" text="%no_away" textFill="#f0e6d2" GridPane.valignment="BOTTOM">
+               <font>
+                  <Font name="FrizQuadrataStd" size="20.0" />
+               </font>
+            </Label>
+            <Label alignment="TOP_LEFT" focusTraversable="false" text="%no_away_message" textFill="#f0e6d2" wrapText="true" GridPane.rowIndex="1" GridPane.valignment="TOP">
+               <font>
+                  <Font name="FrizQuadrataStd" size="20.0" />
+               </font>
+            </Label>
+            <Label focusTraversable="false" text="%auto_queue" textFill="#f0e6d2" GridPane.rowIndex="2" GridPane.valignment="BOTTOM">
+               <font>
+                  <Font name="FrizQuadrataStd" size="20.0" />
+               </font>
+            </Label>
+            <Label focusTraversable="false" text="%auto_queue_message" textFill="#f0e6d2" wrapText="true" GridPane.rowIndex="3" GridPane.valignment="TOP">
+               <font>
+                  <Font name="FrizQuadrataStd" size="20.0" />
+               </font>
+            </Label>
+            <Label focusTraversable="false" text="%quick_replies" textFill="#f0e6d2" GridPane.rowIndex="4" GridPane.valignment="BOTTOM">
+               <font>
+                  <Font name="FrizQuadrataStd" size="20.0" />
+               </font>
+            </Label>
+            <Label focusTraversable="false" text="%quick_replies_message" textFill="#f0e6d2" wrapText="true" GridPane.rowIndex="5" GridPane.valignment="TOP">
+               <font>
+                  <Font name="FrizQuadrataStd" size="20.0" />
+               </font>
+            </Label>
+            <JFXToggleButton focusTraversable="false" prefHeight="60.0" prefWidth="120.0" size="13.0" text="On" textFill="#eda678" toggleColor="#eda678" toggleLineColor="#eba478e2" GridPane.columnIndex="1" GridPane.rowIndex="0" GridPane.rowSpan="2">
+               <font>
+                  <Font size="13.0" />
+               </font>
+            </JFXToggleButton>
+            <JFXToggleButton focusTraversable="false" prefHeight="60.0" prefWidth="120.0" size="13.0" text="On" textFill="#eda678" toggleColor="#eda678" toggleLineColor="#eba478e2" GridPane.columnIndex="1" GridPane.rowIndex="2" GridPane.rowSpan="2">
+               <font>
+                  <Font size="13.0" />
+               </font>
+            </JFXToggleButton>
+            <JFXToggleButton focusTraversable="false" prefHeight="60.0" prefWidth="120.0" size="13.0" text="On" textFill="#eda678" toggleColor="#eda678" toggleLineColor="#eba478e2" GridPane.columnIndex="1" GridPane.rowIndex="4" GridPane.rowSpan="2">
+               <font>
+                  <Font size="13.0" />
+               </font>
+            </JFXToggleButton>
+            <Label focusTraversable="false" text="%autoupdate_state" textFill="#f0e6d2" GridPane.rowIndex="6" GridPane.valignment="BOTTOM">
+               <font>
+                  <Font name="FrizQuadrataStd" size="20.0" />
+               </font>
+            </Label>
+            <Label focusTraversable="false" text="%autoupdate_message" textFill="#f0e6d2" wrapText="true" GridPane.rowIndex="7" GridPane.valignment="TOP">
+               <font>
+                  <Font name="FrizQuadrataStd" size="20.0" />
+               </font>
+            </Label>
+            <JFXToggleButton focusTraversable="false" prefHeight="60.0" prefWidth="120.0" size="13.0" text="On" textFill="#eda678" toggleColor="#eda678" toggleLineColor="#eba478e2" GridPane.columnIndex="1" GridPane.rowIndex="6" GridPane.rowSpan="2">
+               <font>
+                  <Font size="13.0" />
+               </font>
+            </JFXToggleButton>
+            <Label focusTraversable="false" text="%force_english" textFill="#f0e6d2" GridPane.rowIndex="12" GridPane.valignment="BOTTOM">
+               <font>
+                  <Font name="FrizQuadrataStd" size="20.0" />
+               </font>
+            </Label>
+            <Label focusTraversable="false" text="%force_english_message" textFill="#f0e6d2" wrapText="true" GridPane.rowIndex="13" GridPane.valignment="TOP">
+               <font>
+                  <Font name="FrizQuadrataStd" size="20.0" />
+               </font>
+            </Label>
+            <JFXToggleButton focusTraversable="false" prefHeight="60.0" prefWidth="120.0" size="13.0" text="On" textFill="#eda678" toggleColor="#eda678" toggleLineColor="#eba478e2" GridPane.columnIndex="1" GridPane.rowIndex="12" GridPane.rowSpan="2">
+               <font>
+                  <Font size="13.0" />
+               </font>
+            </JFXToggleButton>
+            <Label focusTraversable="false" text="%autostart" textFill="#f0e6d2" GridPane.rowIndex="10" GridPane.valignment="BOTTOM">
+               <font>
+                  <Font name="FrizQuadrataStd" size="20.0" />
+               </font>
+            </Label>
+            <Label focusTraversable="false" text="%autostart_message" textFill="#f0e6d2" wrapText="true" GridPane.rowIndex="11" GridPane.valignment="TOP">
+               <font>
+                  <Font name="FrizQuadrataStd" size="20.0" />
+               </font>
+            </Label>
+            <JFXToggleButton focusTraversable="false" prefHeight="60.0" prefWidth="120.0" size="13.0" text="On" textFill="#eda678" toggleColor="#eda678" toggleLineColor="#eba478e2" GridPane.columnIndex="1" GridPane.rowIndex="10" GridPane.rowSpan="2">
+               <font>
+                  <Font size="13.0" />
+               </font>
+            </JFXToggleButton>
+            <Label focusTraversable="false" text="%always_on_top" textFill="#f0e6d2" GridPane.rowIndex="8" GridPane.valignment="BOTTOM">
+               <font>
+                  <Font name="FrizQuadrataStd" size="20.0" />
+               </font>
+            </Label>
+            <Label focusTraversable="false" text="%always_on_top_message" textFill="#f0e6d2" wrapText="true" GridPane.rowIndex="9" GridPane.valignment="TOP">
+               <font>
+                  <Font name="FrizQuadrataStd" size="20.0" />
+               </font>
+            </Label>
+            <JFXToggleButton focusTraversable="false" prefHeight="60.0" prefWidth="120.0" size="13.0" text="On" textFill="#eda678" toggleColor="#eda678" toggleLineColor="#eba478e2" GridPane.columnIndex="1" GridPane.rowIndex="8" GridPane.rowSpan="2">
+               <font>
+                  <Font size="13.0" />
+               </font>
+            </JFXToggleButton>
+         </children>
+      </GridPane>
+   </content>
+</ScrollPane>

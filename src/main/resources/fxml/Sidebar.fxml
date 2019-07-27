@@ -34,7 +34,7 @@
                </padding>
                <children>
                   <FontAwesomeIcon iconName="COG" size="1.5em" styleClass="sidebar-btn-icon" />
-                  <Label text="Settings" textFill="#b8b1b1">
+                  <Label fx:id="settingsButton" onMouseClicked="#handleSideBarButtonPressed" text="Settings" textFill="#b8b1b1">
                      <font>
                         <Font name="Consolas Bold" size="13.0" />
                      </font>
