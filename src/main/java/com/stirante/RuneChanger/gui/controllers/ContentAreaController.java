@@ -1,6 +1,8 @@
 package com.stirante.RuneChanger.gui.controllers;
 
+import com.jfoenix.controls.JFXButton;
 import com.stirante.RuneChanger.gui.Constants;
+import com.stirante.RuneChanger.gui.Settings;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -22,11 +24,29 @@ import java.util.ResourceBundle;
 @Slf4j
 public class ContentAreaController implements Initializable {
 
+    @FXML
+    private JFXButton minimizeButton;
+
+    @FXML
+    private JFXButton shutdownButton;
+
     boolean flag = true;
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         log.info("Content Area Controller initializing");
+    }
+
+    @FXML
+    void handleMenuBarButtonPressed(ActionEvent event) {
+        JFXButton target = (JFXButton) event.getTarget();
+        if (target.equals(minimizeButton)) {
+            Settings.mainStage.hide();
+        }
+        else if (target.equals(shutdownButton)) {
+            log.warn("User requested program shutdown");
+            System.exit(0);
+        }
     }
 
     @FXML
@@ -37,7 +57,8 @@ public class ContentAreaController implements Initializable {
             border_pane.setLeft(sidebar);
             BorderPane.setAlignment(sidebar, Pos.CENTER_LEFT);
             flag = false;
-        } else {
+        }
+        else {
             border_pane.setLeft(null);
             flag = true;
         }

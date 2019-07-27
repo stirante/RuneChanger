@@ -1,5 +1,5 @@
-.sidebar{
-    -fx-background-image:url("images/blueBackground2.png");
+.backdrop-magic{
+    -fx-background-image:url("images/backdrop-magic.png");
 }
 .sidebar-user-btn{
     -fx-background-color: transparent;
@@ -16,7 +16,7 @@
     -fx-background-color: transparent;
     -fx-background-radius: 0px;
     -fx-text-fill: #b8b1b1;
-    -fx-border-color: rgb(22,169,250);
+    -fx-border-color: #5C461E;
     -fx-border-width: 0px 0px 0px 3px;
 }
 .label{
@@ -35,49 +35,11 @@
 }
 
 .menu-bar-btns{
-    -fx-background-color: #010A13;
-    -fx-border-color: #1E282D;
-}
-.menu-bar-btns:hover{
-    -fx-background-color: #0099ff;
+    -fx-background-color: #ffffff00;
 }
 .menu-bar-btns-icon{
     -fx-fill: #999;
 }
 .menu-bar-btns:hover .menu-bar-btns-icon{
     -fx-fill: #fff;
-}
-.menu-bar-search-field{
-    -fx-prompt-text-fill: #b8b1b1;
-    -fx-text-fill: #000;
-}
-.menu-bar-search-field-box{
-    -fx-prompt-text-fill: #b8b1b1;
-    -fx-text-fill: #000;
-    -fx-border-color: #1E282D;
-    -fx-border-width: 0px 0px 0px 1px;
-}
-
-.content-area-circle-btns{
-    -fx-background-color: #fff;
-    -fx-background-radius: 100px;
-    -fx-border-color: #cccccc;
-    -fx-border-radius: 100%;
-}
-.content-area-circle-btns:hover{
-    -fx-background-color: #0099ff;
-    -fx-background-radius: 100px;
-    -fx-text-fill: #fff;
-}
-.content-area-circle-btns-icon{
-    -fx-fill: #b8b1b1;
-}
-.content-area-circle-btns:hover .content-area-circle-btns-icon{
-    -fx-fill: #fff;
-}
-.lbl2{
-    -fx-text-fill: #757373;
-}
-.lbl3{
-    -fx-text-fill: #00a1ff;
 }
