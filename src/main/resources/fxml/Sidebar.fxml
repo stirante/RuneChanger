@@ -1,15 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon?>
-<?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.StackPane?>
-<?import javafx.scene.layout.VBox?>
+<?import de.jensd.fx.glyphs.fontawesome.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
 <?import javafx.scene.media.MediaView?>
-<?import javafx.scene.text.Font?>
-
-<StackPane prefHeight="0.0" prefWidth="0.0" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.stirante.RuneChanger.gui.controllers.SidebarController">
+<?import javafx.scene.text.*?>
+<StackPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" prefHeight="573.0" prefWidth="0.0" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.stirante.RuneChanger.gui.controllers.SidebarController">
    <children>
       <MediaView fx:id="backgroundMediaView" fitHeight="620.0" fitWidth="250.0" preserveRatio="false" smooth="false" />
       <VBox maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="620.0" prefWidth="250.0" spacing="4.0" style="-fx-border-color: #5C461E; -fx-border-width: 0px 1px 0px 0px;" stylesheets="@../stylesheet.css">
@@ -44,7 +41,7 @@
                   </Label>
                </children>
             </HBox>
-            <HBox alignment="CENTER_LEFT" layoutX="10.0" layoutY="162.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="35.0" prefWidth="250.0" styleClass="sidebar-btn">
+            <HBox fx:id="runebookButton" alignment="CENTER_LEFT" layoutX="10.0" layoutY="162.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" onMouseClicked="#handleSideBarButtonPressed" prefHeight="35.0" prefWidth="250.0" styleClass="sidebar-btn">
                <padding>
                   <Insets left="20.0" />
                </padding>
@@ -99,6 +96,22 @@
                <children>
                   <FontAwesomeIcon iconName="BOLT" size="1.5em" styleClass="sidebar-btn-icon" />
                   <Label text="Hextech Crafting" textFill="#b8b1b1">
+                     <font>
+                        <Font name="Consolas Bold" size="13.0" />
+                     </font>
+                     <HBox.margin>
+                        <Insets left="15.0" />
+                     </HBox.margin>
+                  </Label>
+               </children>
+            </HBox>
+            <HBox alignment="CENTER_LEFT" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="35.0" prefWidth="250.0" styleClass="sidebar-btn">
+               <padding>
+                  <Insets left="20.0" />
+               </padding>
+               <children>
+                  <FontAwesomeIcon iconName="BOLT" size="1.5em" styleClass="sidebar-btn-icon" />
+                  <Label text="Champion Sidebar" textFill="#b8b1b1">
                      <font>
                         <Font name="Consolas Bold" size="13.0" />
                      </font>

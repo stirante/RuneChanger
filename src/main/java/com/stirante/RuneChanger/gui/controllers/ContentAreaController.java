@@ -4,12 +4,15 @@ import com.jfoenix.controls.JFXButton;
 import com.stirante.RuneChanger.gui.ControllerUtil;
 import com.stirante.RuneChanger.gui.Settings;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Parent;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
@@ -28,12 +31,18 @@ public class ContentAreaController implements Initializable {
     @FXML
     private BorderPane contentPane;
 
+    @FXML
+    private HBox titleBar;
+
     boolean flag = true;
+    private double xOffset = 0;
+    private double yOffset = 0;
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         log.info("Content Area Controller initializing");
         ControllerUtil.getInstance().setContentPane(contentPane);
+        makeStageDrageable(titleBar);
     }
 
     @FXML
@@ -61,5 +70,24 @@ public class ContentAreaController implements Initializable {
             border_pane.setLeft(null);
             flag = true;
         }
+    }
+
+    private <T> void makeStageDrageable(T t) {
+        Node node = (Node) t;
+        node.setOnMousePressed(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                xOffset = event.getSceneX();
+                yOffset = event.getSceneY();
+            }
+        });
+        node.setOnMouseDragged(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                Settings.mainStage.setX(event.getScreenX() - xOffset);
+                Settings.mainStage.setY(event.getScreenY() - yOffset);
+            }
+        });
+
     }
 }

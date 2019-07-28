@@ -105,13 +105,13 @@
 .runechanger-check-box .box {
 	-jfx-checked-color: #997B42;
 	-jfx-unchecked-color: #997B42;
-	-fx-pref-height: 35;
-	-fx-pref-width: 35;
+	-fx-pref-height: 25;
+	-fx-pref-width: 25;
 }
 
 .runechanger-check-box .mark {
-	-fx-max-width: 25;
-	-fx-max-height: 20;/* width * 0.8 */
+	-fx-max-width: 20;
+	-fx-max-height: 16;/* width * 0.8 */
 	-fx-border-color: #8E7131;
 }
 /* Hovered */
@@ -120,7 +120,111 @@
 }
 
 .runechanger-check-box:hover .mark {
-	-fx-max-width: 25;
-	-fx-max-height: 20; /* width * 0.8 */
+	-fx-max-width: 20;
+	-fx-max-height: 16; /* width * 0.8 */
 	-fx-border-color: #B4B0A2;
 }
+
+.runechanger-check-box:hover .box {
+	-jfx-checked-color: #997B42;
+	-jfx-unchecked-color: #997B42;
+	-fx-pref-height: 25;
+	-fx-pref-width: 25;
+}
+/*******************************************************************************
+ *                                                                             *
+ * JFX Dialog Layout                                                           *
+ *                                                                             *
+ ******************************************************************************/
+
+.jfx-dialog-overlay-pane {
+    -fx-background-color: #010A13;
+}
+
+.dialog-trigger {
+    -fx-background-color: #010A13;
+    -jfx-button-type: RAISED;
+    -fx-font-size: 14.0px;
+}
+
+.jfx-layout-heading .label {
+    -fx-font-size: 20.0px;
+}
+
+.dialog-accept {
+    -fx-text-fill: #010A13;
+    -fx-font-weight: BOLD;
+    -fx-padding: 0.7em 0.8em;
+}
+
+/*******************************************************************************
+ *                                                                             *
+ * Circular buttons                                                            *
+ *                                                                             *
+ ******************************************************************************/
+ .content-area-circle-btns{
+     -fx-background-color: #fff;
+     -fx-background-radius: 100px;
+     -fx-border-color: #cccccc;
+     -fx-border-radius: 100%;
+ }
+ .content-area-circle-btns:hover{
+     -fx-background-color: #0099ff;
+     -fx-background-radius: 100px;
+     -fx-text-fill: #fff;
+ }
+ .content-area-circle-btns-icon{
+     -fx-fill: #b8b1b1;
+ }
+ .content-area-circle-btns:hover .content-area-circle-btns-icon{
+     -fx-fill: #fff;
+ }
+
+ /*******************************************************************************
+ *                                                                              *
+ * JFX Textfield                                                                *
+ *                                                                              *
+ *******************************************************************************/
+
+ .jfx-text-field {
+     -fx-background-color: #020206;
+     -fx-font-weight: BOLD;
+     -fx-text-fill: #D0C7B6;
+     -fx-alignment: top-left;
+     -jfx-focus-color: #B2945B;
+     -jfx-unfocus-color: #9a9557;
+     -fx-border-color: #9a9557;
+     -fx-border-width: 1px 1px 0px 1px;
+     -fx-alignment: center;
+ }
+
+.jfx-text-field:hover {
+     -fx-background-color: #10151F;
+      -fx-font-weight: BOLD;
+      -fx-text-fill: #D0C7B6;
+      -fx-alignment: top-left;
+     -jfx-focus-color: #B2945B;
+     -jfx-unfocus-color: #9a9557;
+     -fx-border-color: #B2945B;
+     -fx-border-width: 1px 1px 0px 1px;
+     -fx-alignment: center;
+}
+
+ .jfx-text-area .viewport {
+     -fx-background-color: #F4F4F4;
+ }
+
+  /*******************************************************************************
+  *                                                                              *
+  * Runepage Button                                                              *
+  *                                                                              *
+  *******************************************************************************/
+
+  .runepage-button {
+-fx-background-color: #020206;
+-fx-border-color: #9a9557;
+  }
+
+  .runepage-button:hover {
+-fx-background-color: #10151F;
+  }

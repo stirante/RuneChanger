@@ -1,11 +1,18 @@
 package com.stirante.RuneChanger.gui;
 
+import com.jfoenix.controls.JFXAlert;
+import com.jfoenix.controls.JFXButton;
+import com.jfoenix.controls.JFXDialogLayout;
 import com.stirante.RuneChanger.util.LangHelper;
 import javafx.animation.FadeTransition;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
+import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
+import javafx.stage.Modality;
 import javafx.util.Duration;
+
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ControllerUtil {
     private final static ControllerUtil instance = new ControllerUtil();
@@ -27,6 +34,32 @@ public class ControllerUtil {
         ft.setFromValue(from);
         ft.setToValue(to);
         return ft;
+    }
+
+    public boolean showConfirmationScreen(String title, String body) {
+        // stage must have a scene
+        AtomicBoolean returnVal = new AtomicBoolean(false);
+        JFXAlert alert = new JFXAlert(Settings.mainStage);
+        alert.initModality(Modality.APPLICATION_MODAL);
+        alert.setOverlayClose(false);
+        JFXDialogLayout layout = new JFXDialogLayout();
+        layout.setHeading(new Label(title));
+        layout.setBody(new Label(body));
+
+        JFXButton yesButton = new JFXButton("Yes");
+        yesButton.getStyleClass().add("dialog-accept");
+        yesButton.focusTraversableProperty().setValue(false);
+        yesButton.setOnAction(event -> {alert.hideWithAnimation(); returnVal.set(true);});
+
+        JFXButton noButton = new JFXButton("No");
+        noButton.getStyleClass().add("dialog-accept");
+        noButton.focusTraversableProperty().setValue(false);
+        noButton.setOnAction(event -> {alert.hideWithAnimation(); returnVal.set(false);});
+
+        layout.setActions(yesButton, noButton);
+        alert.setContent(layout);
+        alert.showAndWait();
+        return returnVal.get();
     }
 
     public BorderPane getContentPane() {

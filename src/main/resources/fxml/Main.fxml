@@ -2,4 +2,4 @@
 
 
 <?import javafx.scene.layout.BorderPane?>
-<BorderPane fx:id="border_pane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="825.0" prefWidth="1024.0" style="-fx-background-color: #ffffff00;" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.stirante.RuneChanger.gui.controllers.MainController" />
+<BorderPane fx:id="border_pane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="574.0" prefWidth="933.0" style="-fx-background-color: #ffffff00;" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.stirante.RuneChanger.gui.controllers.MainController" />

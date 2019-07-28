@@ -26,6 +26,9 @@ public class SidebarController implements Initializable {
     @FXML
     private HBox settingsButton;
 
+    @FXML
+    private HBox runebookButton;
+
     private BorderPane contentPane;
     private HBox currentContentShown = null;
 
@@ -48,6 +51,9 @@ public class SidebarController implements Initializable {
             contentPane.setCenter(settings);
             ControllerUtil.getInstance().fade(settings, 700, 0, 1).playFromStart();
             currentContentShown = pressedHBox;
+        }
+        else if (runebookButton.equals(pressedHBox)) {
+
         }
     }
 

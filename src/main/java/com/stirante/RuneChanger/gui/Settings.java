@@ -95,6 +95,8 @@ public class Settings extends Application {
 
         if (!Arrays.asList(runeChanger.programArguments).contains("-minimized")) {
             stage.show();
+            stage.setAlwaysOnTop(true);
+            stage.setAlwaysOnTop(false);
         }
     }
 }
