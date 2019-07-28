@@ -121,12 +121,12 @@
                               <DropShadow />
                            </effect>
                         </JFXButton>
-                        <JFXButton fx:id="runeforgeButton" buttonType="RAISED" layoutX="123.0" layoutY="201.0" prefHeight="34.0" prefWidth="100.0" style="-fx-border-width: 1px 0px 0px 0px;" styleClass="runepage-button" stylesheets="@../stylesheet.css" text="Runeforge">
+                        <JFXButton buttonType="RAISED" layoutX="123.0" layoutY="201.0" prefHeight="34.0" prefWidth="100.0" style="-fx-border-width: 1px 0px 0px 0px;" styleClass="runepage-button" stylesheets="@../stylesheet.css" text="Client Pages">
                            <effect>
                               <DropShadow />
                            </effect>
                         </JFXButton>
-                        <JFXButton buttonType="RAISED" disable="true" layoutX="223.0" layoutY="201.0" prefHeight="34.0" prefWidth="100.0" style="-fx-border-width: 1px 0px 0px 0px;" styleClass="runepage-button" stylesheets="@../stylesheet.css">
+                        <JFXButton fx:id="runeforgeButton" buttonType="RAISED" layoutX="223.0" layoutY="201.0" prefHeight="34.0" prefWidth="100.0" style="-fx-border-width: 1px 0px 0px 0px;" styleClass="runepage-button" stylesheets="@../stylesheet.css" text="RuneForge">
                            <effect>
                               <DropShadow />
                            </effect>

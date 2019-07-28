@@ -53,7 +53,10 @@ public class SidebarController implements Initializable {
             currentContentShown = pressedHBox;
         }
         else if (runebookButton.equals(pressedHBox)) {
-
+            Parent settings = ControllerUtil.getInstance().getLoader("/fxml/Runebook.fxml").load();
+            contentPane.setCenter(settings);
+            ControllerUtil.getInstance().fade(settings, 700, 0, 1).playFromStart();
+            currentContentShown = pressedHBox;
         }
     }
 
