@@ -6,29 +6,27 @@ import com.stirante.RuneChanger.gui.ControllerUtil;
 import com.stirante.RuneChanger.model.Champion;
 import com.stirante.RuneChanger.util.ImageUtils;
 import com.stirante.RuneChanger.util.RuneBook;
-import impl.org.controlsfx.autocompletion.AutoCompletionTextFieldBinding;
+import javafx.application.Platform;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
-import javafx.scene.input.InputMethodEvent;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.paint.ImagePattern;
 import javafx.scene.shape.Circle;
-import javafx.util.Callback;
 import lombok.extern.slf4j.Slf4j;
-import org.controlsfx.control.textfield.AutoCompletionBinding;
 import org.controlsfx.control.textfield.TextFields;
 
 import java.awt.image.BufferedImage;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.ResourceBundle;
 
 @Slf4j
 public class RunebookController implements Initializable {
@@ -37,7 +35,10 @@ public class RunebookController implements Initializable {
     private Circle championPortret;
 
     @FXML
-    private JFXListView<Label> runeListView;
+    private JFXListView<RuneBook.LocalPages.LocalPageCell> localPageView;
+
+    @FXML
+    private JFXListView<RuneBook.ClientPages.ClientPageCell> clientPageView;
 
     @FXML
     private JFXButton localPagesButton;
@@ -55,6 +56,7 @@ public class RunebookController implements Initializable {
     private AnchorPane runebookPane;
 
     private static List<String> allChampionNames = new ArrayList<>();
+    public static String currentChosenChampion = "";
 
     @FXML
     void handleTextFieldTyped(KeyEvent event) {
@@ -65,7 +67,12 @@ public class RunebookController implements Initializable {
 
     @FXML
     void onClientPagesButton(ActionEvent event) {
-        RuneBook.refreshClientRunes(runeListView);
+        RuneBook.ClientPages.refreshClientRunes(clientPageView);
+    }
+
+    @FXML
+    void onLocalPagesButton(ActionEvent event) {
+        RuneBook.LocalPages.refreshLocalRunes(localPageView);
     }
 
     @Override
@@ -79,6 +86,10 @@ public class RunebookController implements Initializable {
         });
         TextFields.bindAutoCompletion(championTextField, allChampionNames);
         new Thread(this::handleTextField).start();
+        Platform.runLater(() -> {
+            RuneBook.init(clientPageView, localPageView);
+            RuneBook.LocalPages.refreshLocalRunes(localPageView);
+        });
     }
 
     private void handleTextField() {
@@ -89,6 +100,12 @@ public class RunebookController implements Initializable {
                 Champion champion = Champion.getByName(championTextField.getText());
                 BufferedImage bufferedImage = ImageUtils.imageToBufferedImage(champion.getPortrait());
                 Image m = SwingFXUtils.toFXImage(bufferedImage, null);
+                championPortret.setFill(new ImagePattern(m));
+                currentChosenChampion = champion.getName();
+            }
+            else if (currentChosenChampion != "") {
+                currentChosenChampion = "";
+                Image m = new Image("\\images\\unknownchamp.png");
                 championPortret.setFill(new ImagePattern(m));
             }
             try {

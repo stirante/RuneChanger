@@ -18,7 +18,6 @@ import javafx.stage.StageStyle;
 import java.io.IOException;
 import java.util.Arrays;
 
-import static com.stirante.RuneChanger.gui.SettingsController.showWarning;
 
 public class Settings extends Application {
 
@@ -56,7 +55,7 @@ public class Settings extends Application {
     public void craftKeys() {
         new Thread(() -> {
             if (lootModule.craftKeys() == 0) {
-                Platform.runLater(() -> showWarning("ERROR", LangHelper.getLang()
+                Platform.runLater(() -> ControllerUtil.getInstance().showInfo(LangHelper.getLang()
                         .getString("not_enough_key_fragments"), LangHelper.getLang()
                         .getString("not_enough_key_fragments_message")));
             }

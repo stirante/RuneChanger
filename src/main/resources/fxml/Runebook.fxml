@@ -4,44 +4,22 @@
 <?import com.jfoenix.controls.JFXListView?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.effect.DropShadow?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.shape.Circle?>
+<?import javafx.scene.text.Font?>
 
-<AnchorPane fx:id="runebookPane" prefHeight="200.0" prefWidth="200.0" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.stirante.RuneChanger.gui.controllers.RunebookController">
+<AnchorPane fx:id="runebookPane" prefHeight="200.0" prefWidth="200.0" stylesheets="@../stylesheet.css" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.stirante.RuneChanger.gui.controllers.RunebookController">
    <children>
-      <JFXListView fx:id="runeListView" focusTraversable="false" layoutX="23.0" layoutY="235.0" opacity="0.65" prefHeight="263.0" prefWidth="640.0" style="-fx-background-color: #122121; -fx-border-color: #9a9557;" />
-      <JFXButton fx:id="localPagesButton" buttonType="RAISED" focusTraversable="false" layoutX="23.0" layoutY="201.0" prefHeight="34.0" prefWidth="100.0" style="-fx-border-width: 1px 0px 0px 1px;" styleClass="runepage-button" stylesheets="@../stylesheet.css" text="Local Pages">
+      <JFXListView fx:id="localPageView" focusTraversable="false" layoutX="6.0" layoutY="64.0" maxHeight="-Infinity" opacity="0.65" prefHeight="449.0" prefWidth="400.0" style="-fx-background-color: #122121; -fx-border-color: #9a9557; -fx-border-width: 1px 1px 1px 1px;" />
+      <JFXButton fx:id="localPagesButton" buttonType="RAISED" focusTraversable="false" layoutX="6.0" layoutY="29.0" onAction="#onLocalPagesButton" prefHeight="34.0" prefWidth="199.0" style="-fx-border-width: 1px 0px 0px 1px;" styleClass="runepage-button" stylesheets="@../stylesheet.css" text="Local Pages">
          <effect>
             <DropShadow />
          </effect>
       </JFXButton>
-      <JFXButton fx:id="clientPagesButton" buttonType="RAISED" focusTraversable="false" layoutX="123.0" layoutY="201.0" onAction="#onClientPagesButton" prefHeight="34.0" prefWidth="100.0" style="-fx-border-width: 1px 0px 0px 0px;" styleClass="runepage-button" stylesheets="@../stylesheet.css" text="Client Pages">
-         <effect>
-            <DropShadow />
-         </effect>
-      </JFXButton>
-      <JFXButton fx:id="runeforgeButton" buttonType="RAISED" focusTraversable="false" layoutX="223.0" layoutY="201.0" prefHeight="34.0" prefWidth="100.0" style="-fx-border-width: 1px 0px 0px 0px;" styleClass="runepage-button" stylesheets="@../stylesheet.css" text="RuneForge">
-         <effect>
-            <DropShadow />
-         </effect>
-      </JFXButton>
-      <JFXButton buttonType="RAISED" disable="true" layoutX="323.0" layoutY="201.0" prefHeight="34.0" prefWidth="100.0" style="-fx-border-width: 1px 0px 0px 0px;" styleClass="runepage-button" stylesheets="@../stylesheet.css">
-         <effect>
-            <DropShadow />
-         </effect>
-      </JFXButton>
-      <JFXButton buttonType="RAISED" disable="true" layoutX="423.0" layoutY="201.0" prefHeight="34.0" prefWidth="100.0" style="-fx-border-width: 1px 0px 0px 0px;" styleClass="runepage-button" stylesheets="@../stylesheet.css">
-         <effect>
-            <DropShadow />
-         </effect>
-      </JFXButton>
-      <JFXButton buttonType="RAISED" disable="true" layoutX="523.0" layoutY="201.0" prefHeight="34.0" prefWidth="140.0" style="-fx-border-width: 1px 1px 0px 0px;" styleClass="runepage-button" stylesheets="@../stylesheet.css">
-         <effect>
-            <DropShadow />
-         </effect>
-      </JFXButton>
-      <VBox alignment="CENTER" layoutX="217.0" prefHeight="186.0" prefWidth="217.0" spacing="18.0">
+      <VBox alignment="CENTER" layoutX="439.0" layoutY="2.0" prefHeight="186.0" prefWidth="217.0" spacing="18.0">
          <children>
             <Circle fx:id="championPortret" fill="#45351400" radius="47.0" stroke="#d9ae50" strokeType="INSIDE">
                <effect>
@@ -51,5 +29,26 @@
             <TextField fx:id="championTextField" alignment="CENTER" focusTraversable="false" maxWidth="-Infinity" onKeyTyped="#handleTextFieldTyped" prefHeight="27.0" prefWidth="165.0" promptText="Champion..." stylesheets="@../stylesheet.css" />
          </children>
       </VBox>
+      <JFXListView fx:id="clientPageView" focusTraversable="false" layoutX="421.0" layoutY="228.0" maxHeight="-Infinity" opacity="0.65" prefHeight="285.0" prefWidth="256.0" style="-fx-background-color: #122121; -fx-border-color: #9a9557; -fx-border-width: 1px 1px 1px 1px;" />
+      <JFXButton fx:id="runeforgeButton" buttonType="RAISED" focusTraversable="false" layoutX="200.0" layoutY="29.0" prefHeight="34.0" prefWidth="206.0" style="-fx-border-width: 1px 1px 0px 0px;" styleClass="runepage-button" stylesheets="@../stylesheet.css" text="RuneForge">
+         <effect>
+            <DropShadow />
+         </effect>
+      </JFXButton>
+      <JFXButton fx:id="clientPagesButton" buttonType="RAISED" focusTraversable="false" layoutX="421.0" layoutY="193.0" onAction="#onClientPagesButton" prefHeight="34.0" prefWidth="256.0" ripplerFill="TRANSPARENT" style="-fx-border-width: 1px 1px 0px 1px;" styleClass="runepage-button" stylesheets="@../stylesheet.css" text="Client Pages">
+         <effect>
+            <DropShadow />
+         </effect>
+         <graphic>
+            <ImageView fitHeight="12.0" fitWidth="38.0" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@../images/icons8_Synchronize_48px.png" />
+               </image>
+            </ImageView>
+         </graphic>
+         <font>
+            <Font size="14.0" />
+         </font>
+      </JFXButton>
    </children>
 </AnchorPane>

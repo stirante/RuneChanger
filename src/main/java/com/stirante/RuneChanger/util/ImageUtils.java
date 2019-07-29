@@ -3,10 +3,11 @@ https://www.rgagnon.com/javadetails/java-0601.html
  */
 package com.stirante.RuneChanger.util;
 
+import javax.imageio.ImageIO;
 import java.awt.*;
-import java.awt.image.*;
-import javax.imageio.*;
-import java.io.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 
 public class ImageUtils {
 

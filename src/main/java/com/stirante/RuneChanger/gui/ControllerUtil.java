@@ -38,7 +38,6 @@ public class ControllerUtil {
     }
 
     public boolean showConfirmationScreen(String title, String body) {
-        // stage must have a scene
         AtomicBoolean returnVal = new AtomicBoolean(false);
         JFXAlert alert = new JFXAlert(Settings.mainStage);
         alert.initModality(Modality.APPLICATION_MODAL);
@@ -61,6 +60,24 @@ public class ControllerUtil {
         alert.setContent(layout);
         alert.showAndWait();
         return returnVal.get();
+    }
+
+    public void showInfo(String title, String body) {
+        JFXAlert alert = new JFXAlert(Settings.mainStage);
+        alert.initModality(Modality.APPLICATION_MODAL);
+        alert.setOverlayClose(false);
+        JFXDialogLayout layout = new JFXDialogLayout();
+        layout.setHeading(new Label(title));
+        layout.setBody(new Label(body));
+
+        JFXButton yesButton = new JFXButton("Ok");
+        yesButton.getStyleClass().add("dialog-accept");
+        yesButton.focusTraversableProperty().setValue(false);
+        yesButton.setOnAction(event -> alert.hideWithAnimation());
+
+        layout.setActions(yesButton);
+        alert.setContent(layout);
+        alert.showAndWait();
     }
 
     public BorderPane getMainPane() {
