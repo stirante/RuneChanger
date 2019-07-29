@@ -85,10 +85,10 @@ public class RunebookController implements Initializable {
             allChampionNames.add(val.getName());
         });
         TextFields.bindAutoCompletion(championTextField, allChampionNames);
-        new Thread(this::handleTextField).start();
         Platform.runLater(() -> {
             RuneBook.init(clientPageView, localPageView);
             RuneBook.LocalPages.refreshLocalRunes(localPageView);
+            new Thread(this::handleTextField).start();
         });
     }
 

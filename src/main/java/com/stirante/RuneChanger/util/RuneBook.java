@@ -131,6 +131,7 @@ public class RuneBook {
                         .getString("no_runepage_to_overwrite_message"));
                 return;
             }
+
             new Thread(() -> {
                 RunePage runePage =
                         SimplePreferences.getRuneBookPage(label.getText());
@@ -139,7 +140,7 @@ public class RuneBook {
                             .getString("no_page_with_name_message"), label.getText()));
                     return;
                 }
-                RuneChanger.getInstance().getRunesModule().setCurrentRunePage(runePage);
+                    RuneChanger.getInstance().getRunesModule().replaceRunePage(runePage, id);
                 try {
                     Thread.sleep(1000);
                 } catch (InterruptedException e) {
@@ -148,6 +149,7 @@ public class RuneBook {
                 availablePages = RuneChanger.getInstance().getRunesModule().getRunePages();
                 Platform.runLater(() -> ClientPages.refreshClientRunes(clientPageListView));
             }).start();
+
         }
 
         public static LocalPageCell createLocalElement(RunePage page) {

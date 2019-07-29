@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import com.jfoenix.controls.JFXButton?>
-<?import com.jfoenix.controls.JFXListView?>
+<?import com.jfoenix.controls.*?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.effect.DropShadow?>
 <?import javafx.scene.image.Image?>
@@ -10,7 +9,6 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.shape.Circle?>
 <?import javafx.scene.text.Font?>
-
 <AnchorPane fx:id="runebookPane" prefHeight="200.0" prefWidth="200.0" stylesheets="@../stylesheet.css" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.stirante.RuneChanger.gui.controllers.RunebookController">
    <children>
       <JFXListView fx:id="localPageView" focusTraversable="false" layoutX="6.0" layoutY="64.0" maxHeight="-Infinity" opacity="0.65" prefHeight="449.0" prefWidth="400.0" style="-fx-background-color: #122121; -fx-border-color: #9a9557; -fx-border-width: 1px 1px 1px 1px;" />
