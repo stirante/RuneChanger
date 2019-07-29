@@ -255,15 +255,15 @@ public class SettingsController {
 
     @FXML
     void handleRunebookButtonPressed(Event e) {
-        if (e.getTarget() == addBtn) {
-            RuneBook.importLocalRunes(localRunes, clientRunes);
-        }
-        else if (e.getTarget() == removeBtn) {
-            RuneBook.deleteRunePage(localRunes);
-        }
-        else if (e.getTarget() == loadBtn) {
-            RuneBook.loadAction(localRunes, clientRunes);
-        }
+//        if (e.getTarget() == addBtn) {
+//            RuneBook.importLocalRunes(localRunes, clientRunes);
+//        }
+//        else if (e.getTarget() == removeBtn) {
+//            RuneBook.deleteRunePage(localRunes);
+//        }
+//        else if (e.getTarget() == loadBtn) {
+//            RuneBook.loadAction(localRunes, clientRunes);
+//        }
     }
 
     @SuppressWarnings("unchecked")

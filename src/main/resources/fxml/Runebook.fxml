@@ -5,22 +5,18 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.effect.DropShadow?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.VBox?>
 <?import javafx.scene.shape.Circle?>
 
 <AnchorPane fx:id="runebookPane" prefHeight="200.0" prefWidth="200.0" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.stirante.RuneChanger.gui.controllers.RunebookController">
    <children>
-      <Circle fx:id="championPortret" fill="#45351400" layoutX="332.0" layoutY="64.0" radius="50.0" stroke="#d9ae50" strokeType="INSIDE">
-         <effect>
-            <DropShadow />
-         </effect>
-      </Circle>
       <JFXListView fx:id="runeListView" focusTraversable="false" layoutX="23.0" layoutY="235.0" opacity="0.65" prefHeight="263.0" prefWidth="640.0" style="-fx-background-color: #122121; -fx-border-color: #9a9557;" />
       <JFXButton fx:id="localPagesButton" buttonType="RAISED" focusTraversable="false" layoutX="23.0" layoutY="201.0" prefHeight="34.0" prefWidth="100.0" style="-fx-border-width: 1px 0px 0px 1px;" styleClass="runepage-button" stylesheets="@../stylesheet.css" text="Local Pages">
          <effect>
             <DropShadow />
          </effect>
       </JFXButton>
-      <JFXButton fx:id="clientPagesButton" buttonType="RAISED" focusTraversable="false" layoutX="123.0" layoutY="201.0" prefHeight="34.0" prefWidth="100.0" style="-fx-border-width: 1px 0px 0px 0px;" styleClass="runepage-button" stylesheets="@../stylesheet.css" text="Client Pages">
+      <JFXButton fx:id="clientPagesButton" buttonType="RAISED" focusTraversable="false" layoutX="123.0" layoutY="201.0" onAction="#onClientPagesButton" prefHeight="34.0" prefWidth="100.0" style="-fx-border-width: 1px 0px 0px 0px;" styleClass="runepage-button" stylesheets="@../stylesheet.css" text="Client Pages">
          <effect>
             <DropShadow />
          </effect>
@@ -45,6 +41,15 @@
             <DropShadow />
          </effect>
       </JFXButton>
-      <TextField fx:id="championTextField" alignment="CENTER" focusTraversable="false" layoutX="243.0" layoutY="132.0" onKeyTyped="#handleTextFieldTyped" promptText="Champion..." stylesheets="@../stylesheet.css" />
+      <VBox alignment="CENTER" layoutX="217.0" prefHeight="186.0" prefWidth="217.0" spacing="18.0">
+         <children>
+            <Circle fx:id="championPortret" fill="#45351400" radius="47.0" stroke="#d9ae50" strokeType="INSIDE">
+               <effect>
+                  <DropShadow />
+               </effect>
+            </Circle>
+            <TextField fx:id="championTextField" alignment="CENTER" focusTraversable="false" maxWidth="-Infinity" onKeyTyped="#handleTextFieldTyped" prefHeight="27.0" prefWidth="165.0" promptText="Champion..." stylesheets="@../stylesheet.css" />
+         </children>
+      </VBox>
    </children>
 </AnchorPane>

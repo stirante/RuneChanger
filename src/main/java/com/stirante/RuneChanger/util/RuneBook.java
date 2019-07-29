@@ -14,6 +14,7 @@ import java.awt.*;
 import java.awt.datatransfer.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -129,17 +130,20 @@ public class RuneBook {
     }
 
     private static Label createListElement(RunePage page) {
-        BufferedImage image = page.getRunes().get(0).getImage();
-        if (image == null) {
-            return null;
+        List<BufferedImage> list = new ArrayList<>();
+        for (int i = 0; i < 6; i++) {
+            BufferedImage image = page.getRunes().get(i).getImage();
+            if (image == null) {
+                return null;
+            }
         }
         Label label = new Label(page.getName());
         label.setTextFill(Color.WHITE);
-        ImageView imageView = new ImageView(SwingFXUtils.toFXImage(image, null));
-        imageView.setFitHeight(25);
-        imageView.setFitWidth(25);
-        label.autosize();
-        label.setGraphic(imageView);
+//        ImageView imageView = new ImageView(SwingFXUtils.toFXImage(image, null));
+//        imageView.setFitHeight(25);
+//        imageView.setFitWidth(25);
+//        label.autosize();
+//        label.setGraphic(imageView);
         return label;
     }
 
