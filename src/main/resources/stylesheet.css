@@ -105,13 +105,13 @@
 .runechanger-check-box .box {
 	-jfx-checked-color: #997B42;
 	-jfx-unchecked-color: #997B42;
-	-fx-pref-height: 25;
-	-fx-pref-width: 25;
+	-fx-pref-height: 20;
+	-fx-pref-width: 20;
 }
 
 .runechanger-check-box .mark {
-	-fx-max-width: 20;
-	-fx-max-height: 16;/* width * 0.8 */
+	-fx-max-width: 16;
+	-fx-max-height: 12.8;/* width * 0.8 */
 	-fx-border-color: #8E7131;
 }
 /* Hovered */
@@ -120,16 +120,16 @@
 }
 
 .runechanger-check-box:hover .mark {
-	-fx-max-width: 20;
-	-fx-max-height: 16; /* width * 0.8 */
+	-fx-max-width: 16;
+	-fx-max-height: 12.8; /* width * 0.8 */
 	-fx-border-color: #B4B0A2;
 }
 
 .runechanger-check-box:hover .box {
 	-jfx-checked-color: #997B42;
 	-jfx-unchecked-color: #997B42;
-	-fx-pref-height: 25;
-	-fx-pref-width: 25;
+	-fx-pref-height: 20;
+	-fx-pref-width: 20;
 }
 /*******************************************************************************
  *                                                                             *
@@ -182,11 +182,11 @@
 
  /*******************************************************************************
  *                                                                              *
- * JFX Textfield                                                                *
+ * Runechanger Textfield                                                        *
  *                                                                              *
  *******************************************************************************/
 
- .jfx-text-field {
+ .text-field {
      -fx-background-color: #020206;
      -fx-font-weight: BOLD;
      -fx-text-fill: #D0C7B6;
@@ -194,11 +194,11 @@
      -jfx-focus-color: #B2945B;
      -jfx-unfocus-color: #9a9557;
      -fx-border-color: #9a9557;
-     -fx-border-width: 1px 1px 0px 1px;
+     -fx-border-width: 1px 1px 1px 1px;
      -fx-alignment: center;
  }
 
-.jfx-text-field:hover {
+.text-field:focused, .text-field:hover {
      -fx-background-color: #10151F;
       -fx-font-weight: BOLD;
       -fx-text-fill: #D0C7B6;
@@ -206,13 +206,10 @@
      -jfx-focus-color: #B2945B;
      -jfx-unfocus-color: #9a9557;
      -fx-border-color: #B2945B;
-     -fx-border-width: 1px 1px 0px 1px;
+     -fx-border-width: 1px 1px 1px 1px;
      -fx-alignment: center;
 }
 
- .jfx-text-area .viewport {
-     -fx-background-color: #F4F4F4;
- }
 
   /*******************************************************************************
   *                                                                              *

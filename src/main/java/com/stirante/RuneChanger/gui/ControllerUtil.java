@@ -16,6 +16,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ControllerUtil {
     private final static ControllerUtil instance = new ControllerUtil();
+    private BorderPane mainPane;
     private BorderPane contentPane;
 
     public static ControllerUtil getInstance() {
@@ -60,6 +61,14 @@ public class ControllerUtil {
         alert.setContent(layout);
         alert.showAndWait();
         return returnVal.get();
+    }
+
+    public BorderPane getMainPane() {
+        return mainPane;
+    }
+
+    public void setMainPane(BorderPane p) {
+        this.mainPane = p;
     }
 
     public BorderPane getContentPane() {

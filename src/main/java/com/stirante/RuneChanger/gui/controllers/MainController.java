@@ -31,8 +31,9 @@ public class MainController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         log.debug("Runechanger is located in: " + PathUtils.getWorkingDirectory());
-        SimplePreferences.load();
         log.info("Main Controller initializing");
+        SimplePreferences.load();
+        ControllerUtil.getInstance().setMainPane(border_pane);
         try {
             FXMLLoader fxmlLoader = new FXMLLoader();
             fxmlLoader.setResources(LangHelper.getLang());

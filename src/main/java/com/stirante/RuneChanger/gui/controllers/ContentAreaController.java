@@ -34,7 +34,8 @@ public class ContentAreaController implements Initializable {
     @FXML
     private HBox titleBar;
 
-    boolean flag = true;
+    private boolean flag = false;
+    private Parent sidebar;
     private double xOffset = 0;
     private double yOffset = 0;
 
@@ -43,6 +44,14 @@ public class ContentAreaController implements Initializable {
         log.info("Content Area Controller initializing");
         ControllerUtil.getInstance().setContentPane(contentPane);
         makeStageDrageable(titleBar);
+        sidebar = null;
+        try {
+            sidebar = ControllerUtil.getInstance().getLoader("/fxml/Sidebar.fxml").load();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        ControllerUtil.getInstance().getMainPane().setLeft(sidebar);
+        BorderPane.setAlignment(sidebar, Pos.CENTER_LEFT);
     }
 
     @FXML
@@ -58,16 +67,13 @@ public class ContentAreaController implements Initializable {
     }
 
     @FXML
-    private void open_sidebar(ActionEvent event) throws IOException {
-        BorderPane border_pane = (BorderPane) ((Node) event.getSource()).getScene().getRoot();
+    private void open_sidebar(ActionEvent event) {
         if (flag == true) {
-            Parent sidebar = ControllerUtil.getInstance().getLoader("/fxml/Sidebar.fxml").load();
-            border_pane.setLeft(sidebar);
-            BorderPane.setAlignment(sidebar, Pos.CENTER_LEFT);
+            sidebar.setVisible(true);
             flag = false;
         }
         else {
-            border_pane.setLeft(null);
+            sidebar.setVisible(false);
             flag = true;
         }
     }
