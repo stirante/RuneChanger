@@ -5,6 +5,7 @@ import com.jfoenix.controls.JFXListView;
 import com.stirante.RuneChanger.gui.ControllerUtil;
 import com.stirante.RuneChanger.model.Champion;
 import com.stirante.RuneChanger.util.ImageUtils;
+import com.stirante.RuneChanger.util.LangHelper;
 import com.stirante.RuneChanger.util.RuneBook;
 import javafx.application.Platform;
 import javafx.embed.swing.SwingFXUtils;
@@ -67,7 +68,12 @@ public class RunebookController implements Initializable {
 
     @FXML
     void onClientPagesButton(ActionEvent event) {
-        RuneBook.ClientPages.refreshClientRunes(clientPageView);
+        try {
+            RuneBook.ClientPages.refreshClientRunes(clientPageView);
+        } catch (IllegalStateException e) {
+            ControllerUtil.getInstance().showInfo(LangHelper.getLang().getString("client_not_connected_title"),
+                    LangHelper.getLang().getString("client_not_connected_message"));
+        }
     }
 
     @FXML

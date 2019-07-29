@@ -34,7 +34,7 @@ public class RuneBook {
 
     public static class ClientPages {
 
-        public static void refreshClientRunes(JFXListView<ClientPageCell> clientList) {
+        public static void refreshClientRunes(JFXListView<ClientPageCell> clientList) throws IllegalStateException {
             availablePages.clear();
             availablePages = RuneChanger.getInstance().getRunesModule().getRunePages();
             clientList.getItems().clear();
