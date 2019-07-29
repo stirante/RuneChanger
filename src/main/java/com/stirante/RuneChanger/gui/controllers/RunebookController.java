@@ -78,7 +78,7 @@ public class RunebookController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         log.info("Runebook Controller initializing");
-        Image m = new Image("\\images\\unknownchamp.png");
+        Image m = new Image("/images/unknownchamp.png");
         championPortret.setFill(new ImagePattern(m));
         allChampionNames.clear();
         Champion.values().forEach(val -> {
@@ -105,7 +105,7 @@ public class RunebookController implements Initializable {
             }
             else if (currentChosenChampion != "") {
                 currentChosenChampion = "";
-                Image m = new Image("\\images\\unknownchamp.png");
+                Image m = new Image("/images/unknownchamp.png");
                 championPortret.setFill(new ImagePattern(m));
             }
             try {
