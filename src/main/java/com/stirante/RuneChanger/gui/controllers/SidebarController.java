@@ -29,6 +29,9 @@ public class SidebarController implements Initializable {
     @FXML
     private HBox runebookButton;
 
+    @FXML
+    private HBox logsButton;
+
     private BorderPane contentPane;
     private HBox currentContentShown = null;
 
@@ -47,15 +50,21 @@ public class SidebarController implements Initializable {
         }
 
         if (settingsButton.equals(pressedHBox)) {
-            Parent settings = ControllerUtil.getInstance().getLoader("/fxml/Settings.fxml").load();
-            contentPane.setCenter(settings);
-            ControllerUtil.getInstance().fade(settings, 700, 0, 1).playFromStart();
+            Parent node = ControllerUtil.getInstance().getLoader("/fxml/Settings.fxml").load();
+            contentPane.setCenter(node);
+            ControllerUtil.getInstance().fade(node, 700, 0, 1).playFromStart();
             currentContentShown = pressedHBox;
         }
         else if (runebookButton.equals(pressedHBox)) {
-            Parent settings = ControllerUtil.getInstance().getLoader("/fxml/Runebook.fxml").load();
-            contentPane.setCenter(settings);
-            ControllerUtil.getInstance().fade(settings, 700, 0, 1).playFromStart();
+            Parent node = ControllerUtil.getInstance().getLoader("/fxml/Runebook.fxml").load();
+            contentPane.setCenter(node);
+            ControllerUtil.getInstance().fade(node, 700, 0, 1).playFromStart();
+            currentContentShown = pressedHBox;
+        }
+        else if (logsButton.equals(pressedHBox)) {
+            Parent node = ControllerUtil.getInstance().getLoader("/fxml/Logs.fxml").load();
+            contentPane.setCenter(node);
+            ControllerUtil.getInstance().fade(node, 700, 0, 1).playFromStart();
             currentContentShown = pressedHBox;
         }
     }

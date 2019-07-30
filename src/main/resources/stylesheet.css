@@ -229,3 +229,26 @@
 	-fx-border-color: #E2CA9A;
 	-fx-text-fill: #EAE0CD;
 }
+
+/*******************************************************************************
+*                                                                              *
+* Runechanger progress bar                                                     *
+*                                                                              *
+*******************************************************************************/
+.jfx-progress-bar {
+    -fx-border-width: 1px 1px 1px 1px;
+    fx-border-color: #2B2219;
+}
+
+.jfx-progress-bar > .track, .jfx-progress-bar > .bar {
+    -fx-background-radius: 0;
+    -fx-background-insets: 0;
+}
+
+.jfx-progress-bar > .bar {
+    -fx-background-color: #0994A2;
+}
+
+.jfx-progress-bar > .track {
+    -fx-background-color: #1E2328;
+}

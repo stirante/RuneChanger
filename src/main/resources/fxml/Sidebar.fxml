@@ -1,11 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import de.jensd.fx.glyphs.fontawesome.*?>
-<?import javafx.geometry.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
+<?import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
 <?import javafx.scene.media.MediaView?>
-<?import javafx.scene.text.*?>
+<?import javafx.scene.text.Font?>
+
 <StackPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" prefHeight="573.0" prefWidth="0.0" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.stirante.RuneChanger.gui.controllers.SidebarController">
    <children>
       <MediaView fx:id="backgroundMediaView" fitHeight="620.0" fitWidth="250.0" preserveRatio="false" smooth="false" />
@@ -132,45 +135,13 @@
                   <Insets top="20.0" />
                </VBox.margin>
             </Label>
-            <HBox alignment="CENTER_LEFT" layoutX="10.0" layoutY="164.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="35.0" prefWidth="250.0" styleClass="sidebar-btn">
-               <padding>
-                  <Insets left="20.0" />
-               </padding>
-               <children>
-                  <FontAwesomeIcon iconName="USERS" size="1.5em" styleClass="sidebar-btn-icon" />
-                  <Label text="Credits" textFill="#b8b1b1">
-                     <font>
-                        <Font name="Consolas Bold" size="13.0" />
-                     </font>
-                     <HBox.margin>
-                        <Insets left="15.0" />
-                     </HBox.margin>
-                  </Label>
-               </children>
-            </HBox>
-            <HBox alignment="CENTER_LEFT" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="35.0" prefWidth="250.0" styleClass="sidebar-btn">
+            <HBox fx:id="logsButton" alignment="CENTER_LEFT" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" onMouseClicked="#handleSideBarButtonPressed" prefHeight="35.0" prefWidth="250.0" styleClass="sidebar-btn">
                <padding>
                   <Insets left="20.0" />
                </padding>
                <children>
                   <FontAwesomeIcon iconName="FILE_ALT" size="1.5em" styleClass="sidebar-btn-icon" />
                   <Label text="Logs" textFill="#b8b1b1">
-                     <font>
-                        <Font name="Consolas Bold" size="13.0" />
-                     </font>
-                     <HBox.margin>
-                        <Insets left="15.0" />
-                     </HBox.margin>
-                  </Label>
-               </children>
-            </HBox>
-            <HBox alignment="CENTER_LEFT" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="35.0" prefWidth="250.0" styleClass="sidebar-btn">
-               <padding>
-                  <Insets left="20.0" />
-               </padding>
-               <children>
-                  <FontAwesomeIcon iconName="INFO_CIRCLE" size="1.5em" styleClass="sidebar-btn-icon" />
-                  <Label text="Runechanger Information" textFill="#b8b1b1">
                      <font>
                         <Font name="Consolas Bold" size="13.0" />
                      </font>

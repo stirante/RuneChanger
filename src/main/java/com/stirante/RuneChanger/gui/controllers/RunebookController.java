@@ -77,6 +77,16 @@ public class RunebookController implements Initializable {
     }
 
     @FXML
+    void onListViewKeyPressed(KeyEvent event) {
+        if (event.getCode().equals(KeyCode.C) && event.isControlDown()) {
+            RuneBook.handleCtrlC(localPageView);
+        }
+        else if (event.getCode().equals(KeyCode.V) && event.isControlDown()) {
+            RuneBook.handleCtrlV(localPageView);
+        }
+    }
+
+    @FXML
     void onLocalPagesButton(ActionEvent event) {
         RuneBook.LocalPages.refreshLocalRunes(localPageView);
     }

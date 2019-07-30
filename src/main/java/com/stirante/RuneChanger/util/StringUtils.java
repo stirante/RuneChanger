@@ -53,10 +53,15 @@ public class StringUtils {
      * @return List<String>
      */
     public static List<String> stringToList(String str) {
+        log.debug("String before list conversion: " + str);
         String replace = str.replace("[", "");
         String replace1 = replace.replace("]", "");
-        replace1 = replace1.replace(" ", "");
+        String[] parts = replace1.split(",", 2);
+        String part1 = parts[0];
+        replace1 = parts[1].replace(" ", "");
+        replace1 = part1 + "," + replace1;
         List<String> myList = new ArrayList<>(Arrays.asList(replace1.split(",")));
+        log.debug("List after string to list conversion: " + myList);
         return myList;
     }
 }

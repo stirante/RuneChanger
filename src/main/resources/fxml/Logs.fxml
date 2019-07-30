@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.jfoenix.controls.JFXButton?>
+<?import com.jfoenix.controls.JFXProgressBar?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<AnchorPane prefHeight="400.0" prefWidth="600.0" stylesheets="@../stylesheet.css" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.stirante.RuneChanger.gui.controllers.LogsController">
+   <children>
+      <JFXButton layoutX="397.0" layoutY="214.0" onAction="#sendLogs" prefHeight="44.0" prefWidth="158.0" styleClass="runechanger-button" text="Send Logs" />
+      <JFXProgressBar fx:id="progressBar" layoutX="130.0" layoutY="308.0" prefHeight="23.0" prefWidth="425.0" progress="0.0" styleClass="runechanger-progress-bar" />
+      <JFXButton layoutX="130.0" layoutY="214.0" onAction="#clearLogs" prefHeight="44.0" prefWidth="158.0" styleClass="runechanger-button" text="Clear Logs" />
+   </children>
+</AnchorPane>
