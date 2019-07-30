@@ -46,6 +46,10 @@ public class LogsController implements Initializable {
     void clearLogs(ActionEvent event) {
         File file = PathUtils.getLogsDir();
         log.warn("Log clear event registered, preparing to remove all files in: " + file.toString());
+        if (file.listFiles().length < 2) {
+            ControllerUtil.getInstance().showInfo("Nothing to remove", "Your log directory is already empty!");
+            return;
+        }
         if (!ControllerUtil.getInstance().showConfirmationScreen("Log Deletion Confirmation", "Are you sure you want to delete " + (file.listFiles().length - 1) + " files?")) {
             return;
         }

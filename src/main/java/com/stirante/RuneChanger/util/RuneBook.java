@@ -4,7 +4,9 @@ import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXListView;
 import com.stirante.RuneChanger.RuneChanger;
 import com.stirante.RuneChanger.gui.ControllerUtil;
+import com.stirante.RuneChanger.model.Champion;
 import com.stirante.RuneChanger.model.RunePage;
+import com.stirante.RuneChanger.runestore.RuneforgeSource;
 import javafx.application.Platform;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.control.Label;
@@ -32,10 +34,12 @@ public class RuneBook {
     private static Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
     public static JFXListView<LocalPages.LocalPageCell> localPageListView;
     public static JFXListView<ClientPages.ClientPageCell> clientPageListView;
+    public static JFXListView<RuneBook.RuneSourcePages.RuneSourceCell> runeSourceListView;
 
-    public static void init(JFXListView<ClientPages.ClientPageCell> clientList, JFXListView<LocalPages.LocalPageCell> localList) {
+    public static void init(JFXListView<ClientPages.ClientPageCell> clientList, JFXListView<LocalPages.LocalPageCell> localList, JFXListView<RuneBook.RuneSourcePages.RuneSourceCell> sourceList) {
         localPageListView = localList;
         clientPageListView = clientList;
+        runeSourceListView = sourceList;
         log.info("Runebook initialized!");
     }
 
@@ -118,7 +122,8 @@ public class RuneBook {
             availablePages.clear();
             availablePages = RuneChanger.getInstance().getRunesModule().getRunePages();
             clientList.getItems().clear();
-            availablePages.values().forEach(availablePage -> clientList.getItems().add(createClientElement(availablePage)));
+            availablePages.values()
+                    .forEach(availablePage -> clientList.getItems().add(createClientElement(availablePage)));
         }
 
         private static void handleImportButton(JFXButton button, Label label) {
@@ -131,7 +136,8 @@ public class RuneBook {
             });
 
             if (duplicate.get()) {
-                ControllerUtil.getInstance().showInfo(LangHelper.getLang().getString("duplicate_name"), String.format(LangHelper.getLang()
+                ControllerUtil.getInstance()
+                        .showInfo(LangHelper.getLang().getString("duplicate_name"), String.format(LangHelper.getLang()
                                 .getString("duplicate_name_msg"), label.getText()));
                 return;
             }
@@ -273,6 +279,88 @@ public class RuneBook {
                 loadBtn.setRipplerFill(Color.TRANSPARENT);
                 loadBtn.setOnAction(action -> RuneBook.LocalPages.handleLoadButton(loadBtn, label));
                 this.getChildren().addAll(label, loadBtn, deleteBtn);
+            }
+        }
+    }
+
+    public static class RuneSourcePages {
+
+        private static RuneforgeSource runeforgeSource = new RuneforgeSource();
+        private static List<RunePage> downloadedPages;
+
+        public static void refreshRuneSourcePages(Champion selectedChampion) {
+            if (selectedChampion.getName() == null || selectedChampion.getName() == "") {
+                return;
+            }
+            RuneBook.runeSourceListView.getItems().clear();
+            downloadedPages = runeforgeSource.getForChampion(selectedChampion);
+            downloadedPages.forEach(page -> RuneBook.runeSourceListView.getItems().add(createLocalElement(page)));
+        }
+
+        public static void importRuneSourcePage(JFXButton button, Label label) {
+            AtomicBoolean duplicate = new AtomicBoolean(false);
+            localPageListView.getItems().filtered(var -> {
+                if (var.text.getText().equalsIgnoreCase(label.getText())) {
+                    duplicate.set(true);
+                }
+                return true;
+            });
+            if (duplicate.get()) {
+                ControllerUtil.getInstance()
+                        .showInfo(LangHelper.getLang().getString("duplicate_name"), String.format(LangHelper.getLang()
+                                .getString("duplicate_name_msg"), label.getText()));
+                return;
+            }
+
+            final RunePage[] runePage = new RunePage[1];
+            downloadedPages.forEach(var -> {
+                if (var.getName().equalsIgnoreCase(label.getText())) {
+                    runePage[0] = var;
+                }
+            });
+
+            if (runePage[0] == null) {
+                ControllerUtil.getInstance()
+                        .showInfo(LangHelper.getLang().getString("missing_page"), LangHelper.getLang()
+                                .getString("missing_page_message"));
+                return;
+            }
+
+            SimplePreferences.addRuneBookPage(runePage[0]);
+            localPageListView.getItems().add(RuneBook.LocalPages.createLocalElement(runePage[0]));
+            log.info("Imported runepage: " + runePage[0].getName());
+        }
+
+        private static RuneSourceCell createLocalElement(RunePage page) {
+            BufferedImage image = page.getRunes().get(0).getImage();
+            if (image == null) {
+                return null;
+            }
+            Label label = new Label(page.getName());
+            label.setTextFill(Color.WHITE);
+            ImageView imageView = new ImageView(SwingFXUtils.toFXImage(image, null));
+            imageView.setFitHeight(25);
+            imageView.setFitWidth(25);
+            label.autosize();
+            label.setGraphic(imageView);
+            RuneSourceCell cell = new RuneSourceCell(label);
+            return cell;
+        }
+
+        public static class RuneSourceCell extends HBox {
+            JFXButton importBtn = new JFXButton();
+            Label text;
+
+            RuneSourceCell(Label label) {
+                super();
+                text = label;
+                label.setMaxWidth(Double.MAX_VALUE);
+                HBox.setHgrow(label, Priority.ALWAYS);
+                importBtn.setText("Import");
+                importBtn.getStyleClass().add("runechanger-button");
+                importBtn.setRipplerFill(Color.TRANSPARENT);
+                importBtn.setOnAction(action -> RuneBook.RuneSourcePages.importRuneSourcePage(importBtn, label));
+                this.getChildren().addAll(label, importBtn);
             }
         }
     }

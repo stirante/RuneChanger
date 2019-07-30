@@ -42,6 +42,9 @@ public class RunebookController implements Initializable {
     private JFXListView<RuneBook.ClientPages.ClientPageCell> clientPageView;
 
     @FXML
+    private JFXListView<RuneBook.RuneSourcePages.RuneSourceCell> runeSourcePageView;
+
+    @FXML
     private JFXButton localPagesButton;
 
     @FXML
@@ -57,13 +60,25 @@ public class RunebookController implements Initializable {
     private AnchorPane runebookPane;
 
     private static List<String> allChampionNames = new ArrayList<>();
-    public static String currentChosenChampion = "";
+    public static Champion currentChosenChampion = null;
 
     @FXML
     void handleTextFieldTyped(KeyEvent event) {
         if (event.getCode().equals(KeyCode.ENTER) || event.getCode().equals(KeyCode.ESCAPE)) {
-            runebookPane.requestFocus(); //javafx textfield still has no UNFOCUS METHOD :(
+            runebookPane.requestFocus(); //since the textfield does not have a unfocus method this will have to do
         }
+    }
+
+    @FXML
+    void onRuneSourceButton(ActionEvent event) {
+        if (currentChosenChampion == null) {
+            ControllerUtil.getInstance()
+                    .showInfo("No champion selected!", "Please select a champion in the top right first before doing this!");
+            return;
+        }
+        localPageView.setVisible(false);
+        runeSourcePageView.setVisible(true);
+        RuneBook.RuneSourcePages.refreshRuneSourcePages(currentChosenChampion);
     }
 
     @FXML
@@ -88,6 +103,8 @@ public class RunebookController implements Initializable {
 
     @FXML
     void onLocalPagesButton(ActionEvent event) {
+        localPageView.setVisible(true);
+        runeSourcePageView.setVisible(false);
         RuneBook.LocalPages.refreshLocalRunes(localPageView);
     }
 
@@ -102,7 +119,7 @@ public class RunebookController implements Initializable {
         });
         TextFields.bindAutoCompletion(championTextField, allChampionNames);
         Platform.runLater(() -> {
-            RuneBook.init(clientPageView, localPageView);
+            RuneBook.init(clientPageView, localPageView, runeSourcePageView);
             RuneBook.LocalPages.refreshLocalRunes(localPageView);
             new Thread(this::handleTextField).start();
         });
@@ -117,10 +134,10 @@ public class RunebookController implements Initializable {
                 BufferedImage bufferedImage = ImageUtils.imageToBufferedImage(champion.getPortrait());
                 Image m = SwingFXUtils.toFXImage(bufferedImage, null);
                 championPortret.setFill(new ImagePattern(m));
-                currentChosenChampion = champion.getName();
+                currentChosenChampion = champion;
             }
-            else if (currentChosenChampion != "") {
-                currentChosenChampion = "";
+            else if (currentChosenChampion != null) {
+                currentChosenChampion = null;
                 Image m = new Image("/images/unknownchamp.png");
                 championPortret.setFill(new ImagePattern(m));
             }
