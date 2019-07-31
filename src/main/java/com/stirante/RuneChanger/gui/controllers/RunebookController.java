@@ -2,8 +2,11 @@ package com.stirante.RuneChanger.gui.controllers;
 
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXListView;
+import com.jfoenix.controls.JFXSpinner;
 import com.stirante.RuneChanger.gui.ControllerUtil;
 import com.stirante.RuneChanger.model.Champion;
+import com.stirante.RuneChanger.model.RunePage;
+import com.stirante.RuneChanger.runestore.RuneforgeSource;
 import com.stirante.RuneChanger.util.ImageUtils;
 import com.stirante.RuneChanger.util.LangHelper;
 import com.stirante.RuneChanger.util.RuneBook;
@@ -59,6 +62,10 @@ public class RunebookController implements Initializable {
     @FXML
     private AnchorPane runebookPane;
 
+    @FXML
+    private JFXSpinner progressSpinner;
+
+
     private static List<String> allChampionNames = new ArrayList<>();
     public static Champion currentChosenChampion = null;
 
@@ -78,7 +85,16 @@ public class RunebookController implements Initializable {
         }
         localPageView.setVisible(false);
         runeSourcePageView.setVisible(true);
-        RuneBook.RuneSourcePages.refreshRuneSourcePages(currentChosenChampion);
+        progressSpinner.setVisible(true);
+        runeSourcePageView.getItems().clear();
+        new Thread(() -> {
+            RuneforgeSource runeforgeSource = new RuneforgeSource();
+            List<RunePage> list = runeforgeSource.getForChampion(currentChosenChampion);
+            Platform.runLater(() -> {
+                RuneBook.RuneSourcePages.refreshRuneSourcePages(currentChosenChampion, list);
+                progressSpinner.setVisible(false);
+            });
+        }).start();
     }
 
     @FXML

@@ -2,6 +2,7 @@
 
 <?import com.jfoenix.controls.JFXButton?>
 <?import com.jfoenix.controls.JFXListView?>
+<?import com.jfoenix.controls.JFXSpinner?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.effect.DropShadow?>
 <?import javafx.scene.image.Image?>
@@ -58,5 +59,6 @@
             <Font size="14.0" />
          </font>
       </JFXButton>
+      <JFXSpinner fx:id="progressSpinner" layoutX="171.0" layoutY="228.0" prefHeight="57.0" prefWidth="58.0" visible="false" />
    </children>
 </AnchorPane>

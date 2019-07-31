@@ -285,15 +285,14 @@ public class RuneBook {
 
     public static class RuneSourcePages {
 
-        private static RuneforgeSource runeforgeSource = new RuneforgeSource();
         private static List<RunePage> downloadedPages;
 
-        public static void refreshRuneSourcePages(Champion selectedChampion) {
+        public static void refreshRuneSourcePages(Champion selectedChampion, List<RunePage> list) {
             if (selectedChampion.getName() == null || selectedChampion.getName() == "") {
                 return;
             }
             RuneBook.runeSourceListView.getItems().clear();
-            downloadedPages = runeforgeSource.getForChampion(selectedChampion);
+            downloadedPages = list;
             downloadedPages.forEach(page -> RuneBook.runeSourceListView.getItems().add(createLocalElement(page)));
         }
 
