@@ -213,6 +213,11 @@
 	-fx-background-color: #10151F;
 	-fx-text-fill: white;
 }
+.runepage-button:disabled {
+	-fx-background-color: #17173d;
+	-fx-border-color: #9a9557;
+	-fx-text-fill: white;
+}
 /*******************************************************************************
 *                                                                              *
 * Runechanger button                                                           *
@@ -251,4 +256,35 @@
 
 .jfx-progress-bar > .track {
     -fx-background-color: #1E2328;
+}
+
+/*******************************************************************************
+*                                                                              *
+* JFX Spinner                                                                  *
+*                                                                              *
+*******************************************************************************/
+
+.jfx-spinner {
+
+}
+
+.jfx-spinner .arc {
+	-fx-stroke-width: 6.0;
+	-fx-stroke: #00ADB1;
+}
+
+.jfx-spinner .track {
+	-fx-stroke: #d0d0d0;
+}
+
+.jfx-spinner:indeterminate .arc {
+	-fx-stroke: #00ADB1;
+}
+
+.jfx-spinner .percentage {
+	-fx-fill: #ab47bc;
+}
+
+.jfx-spinner .text {
+	visibility: false;
 }

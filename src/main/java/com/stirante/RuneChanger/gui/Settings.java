@@ -52,20 +52,6 @@ public class Settings extends Application {
         RuneChanger.main(args);
     }
 
-    public void craftKeys() {
-        new Thread(() -> {
-            if (lootModule.craftKeys() == 0) {
-                Platform.runLater(() -> ControllerUtil.getInstance().showInfo(LangHelper.getLang()
-                        .getString("not_enough_key_fragments"), LangHelper.getLang()
-                        .getString("not_enough_key_fragments_message")));
-            }
-        }).start();
-    }
-
-    public void disenchantChampions() {
-        new Thread(() -> lootModule.disenchantChampions()).start();
-    }
-
     @Override
     public void start(Stage stage) throws IOException {
         runeChanger = RuneChanger.getInstance();

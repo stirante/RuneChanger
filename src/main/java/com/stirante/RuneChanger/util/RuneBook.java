@@ -180,7 +180,7 @@ public class RuneBook {
                 text = label;
                 label.setMaxWidth(Double.MAX_VALUE);
                 HBox.setHgrow(label, Priority.ALWAYS);
-                button.setText("Import");
+                button.setText("Export");
                 button.getStyleClass().add("runechanger-button");
                 button.setRipplerFill(Color.TRANSPARENT);
                 button.setOnAction(action -> RuneBook.ClientPages.handleImportButton(button, label));
@@ -274,7 +274,7 @@ public class RuneBook {
                 deleteBtn.getStyleClass().add("runechanger-button");
                 deleteBtn.setRipplerFill(Color.TRANSPARENT);
                 deleteBtn.setOnAction(action -> RuneBook.LocalPages.handleDeleteButton(deleteBtn, label));
-                loadBtn.setText("Load");
+                loadBtn.setText("Import");
                 loadBtn.getStyleClass().add("runechanger-button");
                 loadBtn.setRipplerFill(Color.TRANSPARENT);
                 loadBtn.setOnAction(action -> RuneBook.LocalPages.handleLoadButton(loadBtn, label));
