@@ -6,7 +6,6 @@ import com.stirante.RuneChanger.RuneChanger;
 import com.stirante.RuneChanger.gui.ControllerUtil;
 import com.stirante.RuneChanger.model.Champion;
 import com.stirante.RuneChanger.model.RunePage;
-import com.stirante.RuneChanger.runestore.RuneforgeSource;
 import javafx.application.Platform;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.control.Label;

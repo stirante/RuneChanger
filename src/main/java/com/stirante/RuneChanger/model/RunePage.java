@@ -233,13 +233,9 @@ public class RunePage {
         runepageList.add(mainStyle);
         runepageList.add(subStyle);
 
-        runes.forEach(rune -> {
-            runepageList.add(rune.getId());
-        });
+        runes.forEach(rune -> runepageList.add(rune.getId()));
 
-        modifiers.forEach(modifier -> {
-            runepageList.add(modifier.getId());
-        });
+        modifiers.forEach(modifier -> runepageList.add(modifier.getId()));
 
         return runepageList;
     }
@@ -248,7 +244,7 @@ public class RunePage {
      * Imports runepage into a list with numbers.
      *
      * @param runepageList containing int's corresponding to runes
-     * @return boolean true if succesfull false if not
+     * @return boolean true if successful false if not
      */
     public boolean importRunePage(List runepageList) {
 

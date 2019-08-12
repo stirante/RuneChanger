@@ -14,4 +14,6 @@ public interface RuneSource {
      * @return list of rune pages
      */
     List<RunePage> getForChampion(Champion champion);
+
+    String getSourceName();
 }

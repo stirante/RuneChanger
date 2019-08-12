@@ -6,6 +6,7 @@ import com.jfoenix.controls.JFXSpinner;
 import com.stirante.RuneChanger.gui.ControllerUtil;
 import com.stirante.RuneChanger.model.Champion;
 import com.stirante.RuneChanger.model.RunePage;
+import com.stirante.RuneChanger.runestore.ChampionGGSource;
 import com.stirante.RuneChanger.runestore.RuneforgeSource;
 import com.stirante.RuneChanger.util.ImageUtils;
 import com.stirante.RuneChanger.util.LangHelper;
@@ -27,6 +28,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.controlsfx.control.textfield.TextFields;
 
 import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -55,6 +57,9 @@ public class RunebookController implements Initializable {
 
     @FXML
     private JFXButton runeforgeButton;
+
+    @FXML
+    private JFXButton championGGButton;
 
     @FXML
     private TextField championTextField;
@@ -88,10 +93,27 @@ public class RunebookController implements Initializable {
         progressSpinner.setVisible(true);
         runeSourcePageView.getItems().clear();
         new Thread(() -> {
-            RuneforgeSource runeforgeSource = new RuneforgeSource();
-            List<RunePage> list = runeforgeSource.getForChampion(currentChosenChampion);
+            List<RunePage> list = null;
+            if (event.getSource().equals(runeforgeButton)) {
+                RuneforgeSource runeforgeSource = new RuneforgeSource();
+                list = runeforgeSource.getForChampion(currentChosenChampion);
+            }
+            else if (event.getSource().equals(championGGButton)) {
+                ChampionGGSource runeforgeSource = null;
+                try {
+                    runeforgeSource = new ChampionGGSource();
+                } catch (IOException e) {
+                    log.error("Error connecting to champion.gg " + e.getMessage());
+                }
+                list = runeforgeSource.getForChampion(currentChosenChampion);
+            }
+
+            if (list == null) {
+                return;
+            }
+            List<RunePage> finalList = list;
             Platform.runLater(() -> {
-                RuneBook.RuneSourcePages.refreshRuneSourcePages(currentChosenChampion, list);
+                RuneBook.RuneSourcePages.refreshRuneSourcePages(currentChosenChampion, finalList);
                 progressSpinner.setVisible(false);
             });
         }).start();
