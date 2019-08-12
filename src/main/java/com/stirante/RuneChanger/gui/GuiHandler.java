@@ -298,6 +298,9 @@ public class GuiHandler {
                             //sometimes 'win' becomes null async, so this code throws NullPointerException
                             t.printStackTrace();
                         }
+                    } else {
+                        windowOpen.set(false);
+                        openCommand.set(true);
                     }
                 }
                 try {
