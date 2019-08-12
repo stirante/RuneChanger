@@ -104,6 +104,7 @@ public class RunebookController implements Initializable {
                     runeforgeSource = new ChampionGGSource();
                 } catch (IOException e) {
                     log.error("Error connecting to champion.gg " + e.getMessage());
+                    return;
                 }
                 list = runeforgeSource.getForChampion(currentChosenChampion);
             }
