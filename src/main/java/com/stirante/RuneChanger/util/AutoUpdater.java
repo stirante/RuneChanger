@@ -47,7 +47,9 @@ public class AutoUpdater {
         File currentFile = new File(AutoUpdater.class.getProtectionDomain().getCodeSource().getLocation().toURI());
         File updateScript = new File(currentFile.getParentFile(), UPDATE_SCRIPT_FILENAME);
         if (updateScript.exists()) {
-            updateScript.delete();
+            if (!updateScript.delete()) {
+                log.error("Failed to delete the update script!");
+            }
         }
     }
 
@@ -58,8 +60,8 @@ public class AutoUpdater {
      */
     public static boolean check() throws IOException {
         if (DebugConsts.DISABLE_AUTOUPDATE ||
-                (SimplePreferences.getValue("autoUpdate") != null &&
-                        SimplePreferences.getValue("autoUpdate").equals("false"))) {
+                (SimplePreferences.getSettingsValue("autoUpdate") != null &&
+                        SimplePreferences.getSettingsValue("autoUpdate").equals("false"))) {
             return true;
         }
         if (cachedRelease == null) {

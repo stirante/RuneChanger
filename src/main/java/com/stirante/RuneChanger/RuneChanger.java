@@ -211,7 +211,7 @@ public class RuneChanger {
                         }
                         return;
                     }
-                }).run();
+                }).start();
             }
 
             @Override
@@ -276,8 +276,8 @@ public class RuneChanger {
                     log.info("Event: " + event);
                 }
                 if (event.getUri().equalsIgnoreCase("/lol-chat/v1/me") &&
-                        SimplePreferences.containsKey("antiAway") &&
-                        SimplePreferences.getValue("antiAway").equalsIgnoreCase("true")) {
+                        SimplePreferences.settingsContainsKey("antiAway") &&
+                        SimplePreferences.getSettingsValue("antiAway").equalsIgnoreCase("true")) {
                     if (((LolChatUserResource) event.getData()).availability.equalsIgnoreCase("away")) {
                         LolChatUserResource data = (LolChatUserResource) event.getData();
                         data.availability = "chat";
@@ -287,7 +287,7 @@ public class RuneChanger {
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }
-                        }).run();
+                        }).start();
                     }
                 }
                 if (event.getUri().equalsIgnoreCase("/lol-champ-select/v1/session")) {
@@ -299,7 +299,7 @@ public class RuneChanger {
                         handleSession((LolChampSelectChampSelectSession) event.getData());
                     }
                 }
-                else if (Boolean.parseBoolean(SimplePreferences.getValue("autoAccept")) &&
+                else if (Boolean.parseBoolean(SimplePreferences.getSettingsValue("autoAccept")) &&
                         event.getUri().equalsIgnoreCase("/lol-lobby/v2/lobby/matchmaking/search-state")) {
                     if (((LolLobbyLobbyMatchmakingSearchResource) event.getData()).searchState ==
                             LolLobbyLobbyMatchmakingSearchState.FOUND) {
@@ -365,7 +365,9 @@ public class RuneChanger {
                     if (logFile.getParentFile().exists()) {
                         for (File file : Objects.requireNonNull(logFile.getParentFile().listFiles())) {
                             if (new Date(file.lastModified()).before(c.getTime())) {
-                                file.delete();
+                                if (!file.delete()) {
+                                    log.error("Failed to remove logs older then 30 days!");
+                                }
                             }
                         }
                     }

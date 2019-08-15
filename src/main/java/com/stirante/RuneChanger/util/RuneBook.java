@@ -9,6 +9,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
 import javafx.scene.paint.Color;
+import lombok.extern.slf4j.Slf4j;
 
 import java.awt.*;
 import java.awt.datatransfer.*;
@@ -23,11 +24,13 @@ import static com.stirante.RuneChanger.gui.SettingsController.showInfoAlert;
 import static com.stirante.RuneChanger.gui.SettingsController.showWarning;
 import static com.stirante.RuneChanger.util.StringUtils.stringToList;
 
+@Slf4j
 public class RuneBook {
     private static HashMap<String, RunePage> availablePages = new HashMap<>();
     private static Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
 
     public static void refreshClientRunes(JFXListView<Label> runebookList) {
+        log.info("Refreshing client runes..");
         availablePages.clear();
         availablePages = RuneChanger.getInstance().getRunesModule().getRunePages();
         runebookList.getItems().clear();
@@ -36,7 +39,7 @@ public class RuneBook {
 
     public static void refreshLocalRunes(JFXListView<Label> runebookList) {
         runebookList.getItems().clear();
-        SimplePreferences.runeBookValues.forEach(page -> runebookList.getItems().add(createListElement(page)));
+        SimplePreferences.getRuneBookValues().forEach(page -> runebookList.getItems().add(createListElement(page)));
     }
 
     public static void handleCtrlV(JFXListView<Label> localList) {
@@ -145,6 +148,10 @@ public class RuneBook {
 
     public static void deleteRunePage(JFXListView<Label> localList) {
         Label selectedLabel = localList.getFocusModel().getFocusedItem();
+        if (selectedLabel == null) {
+            log.warn("User tried to delete a runepage but did not select a valid label");
+            return;
+        }
         localList.getItems().remove(selectedLabel);
         SimplePreferences.removeRuneBookPage(selectedLabel.getText());
     }

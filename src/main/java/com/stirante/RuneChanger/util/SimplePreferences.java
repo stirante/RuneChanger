@@ -10,8 +10,12 @@ public class SimplePreferences {
 
     private static final String SETTINGS_FILENAME = new File(PathUtils.getWorkingDirectory(), "RuneChangerSettings.dat").getAbsolutePath();
     private static final String RUNEBOOK_FILENAME = new File(PathUtils.getWorkingDirectory(), "RuneChangerRuneBook.dat").getAbsolutePath();
-    public static ArrayList<RunePage> runeBookValues;
+    private static ArrayList<RunePage> runeBookValues;
     private static HashMap<String, String> settingsValues;
+
+    public static ArrayList<RunePage> getRuneBookValues() {
+        return runeBookValues;
+    }
 
     public static void load() {
         File settingsValuesFile = new File(SETTINGS_FILENAME);
@@ -49,36 +53,6 @@ public class SimplePreferences {
         if (runeBookValues == null) {
             runeBookValues = new ArrayList<>();
         }
-    }
-
-    public static String getValue(String key) {
-        return settingsValues.get(key);
-    }
-
-    public static RunePage getRuneBookPage(String key) {
-        return runeBookValues.stream()
-                .filter(runePage -> runePage.getName().equalsIgnoreCase(key))
-                .findFirst()
-                .orElse(null);
-    }
-
-    public static boolean containsKey(String key) {
-        return settingsValues.containsKey(key);
-    }
-
-    public static void putValue(String key, String value) {
-        settingsValues.put(key, value);
-        save();
-    }
-
-    public static void addRuneBookPage(RunePage page) {
-        runeBookValues.add(page);
-        save();
-    }
-
-    public static void removeRuneBookPage(String key) {
-        runeBookValues.removeIf(runePage -> runePage.getName().equalsIgnoreCase(key));
-        save();
     }
 
     public static void save() {
@@ -121,6 +95,38 @@ public class SimplePreferences {
         }
 
     }
+
+    public static String getSettingsValue(String key) {
+        return settingsValues.get(key);
+    }
+
+    public static boolean settingsContainsKey(String key) {
+        return settingsValues.containsKey(key);
+    }
+
+    public static void addSettingsElement(String key, String value) {
+        settingsValues.put(key, value);
+        save();
+    }
+
+    public static RunePage getRuneBookPage(String key) {
+        return runeBookValues.stream()
+                .filter(runePage -> runePage.getName().equalsIgnoreCase(key))
+                .findFirst()
+                .orElse(null);
+    }
+
+    public static void addRuneBookPage(RunePage page) {
+        runeBookValues.add(page);
+        save();
+    }
+
+    public static void removeRuneBookPage(String key) {
+        runeBookValues.removeIf(runePage -> runePage.getName().equalsIgnoreCase(key));
+        save();
+    }
+
+
 
 
 }

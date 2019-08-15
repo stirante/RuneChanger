@@ -116,7 +116,7 @@ public class ChampionSelection extends ClientModule {
                             //noinspection unchecked
                             Map<String, Object> selectAction = (Map<String, Object>) obj;
                             if (selectAction.get("type").equals("pick") &&
-                                    selectAction.get("actorCellId") == selection.cellId) {
+                                    selectAction.get("actorCellId").equals(selection.cellId)) {
                                 champion = Champion.getById((Integer) selectAction.get("championId"));
                             }
                         }

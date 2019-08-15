@@ -28,8 +28,8 @@ public class LangHelper {
                 resourceBundle =
                         ResourceBundle.getBundle("lang.messages", Locale.forLanguageTag(DebugConsts.OVERRIDE_LANGUAGE), new UTF8Control());
             }
-            else if (SimplePreferences.getValue("force_english") != null &&
-                    SimplePreferences.getValue("force_english").equalsIgnoreCase("true")) {
+            else if (SimplePreferences.getSettingsValue("force_english") != null &&
+                    SimplePreferences.getSettingsValue("force_english").equalsIgnoreCase("true")) {
                 resourceBundle =
                         ResourceBundle.getBundle("lang.messages", Locale.ROOT, new UTF8Control());
             }
