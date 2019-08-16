@@ -5,6 +5,7 @@ import com.stirante.RuneChanger.model.Champion;
 import com.stirante.RuneChanger.model.GameMode;
 import com.stirante.lolclient.ClientApi;
 import generated.*;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -12,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+@Slf4j
 public class ChampionSelection extends ClientModule {
 
     private Map<String, Object> action;
@@ -144,8 +146,8 @@ public class ChampionSelection extends ClientModule {
                 LolLobbyLobbyDto lolLobbyLobbyDto = getApi().executeGet("/lol-lobby/v2/lobby", LolLobbyLobbyDto.class);
                 gameMode = GameMode.valueOf(lolLobbyLobbyDto.gameConfig.gameMode);
                 positionSelector = lolLobbyLobbyDto.gameConfig.showPositionSelector;
-            } catch (IOException e) {
-                e.printStackTrace();
+            } catch (IOException | IllegalArgumentException e) {
+                log.error("Exception thrown when updating the gamemode! GameMode.java might not be updated. " + e.getMessage());
             }
         }
         else {
