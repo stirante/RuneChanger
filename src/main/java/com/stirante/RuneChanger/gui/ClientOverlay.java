@@ -113,7 +113,7 @@ public class ClientOverlay extends JPanel {
         if (type == SceneType.CHAMPION_SELECT) {
             drawRuneButton(g2d);
             drawRuneMenu(g2d);
-            if (Boolean.parseBoolean(SimplePreferences.getValue("quickReplies"))) {
+            if (Boolean.parseBoolean(SimplePreferences.getSettingsValue("quickReplies"))) {
                 drawQuickReplies(g2d);
             }
             if (Champion.areImagesReady()) {

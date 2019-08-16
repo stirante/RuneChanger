@@ -19,7 +19,9 @@ public class Champion {
     private static final AtomicBoolean IMAGES_READY = new AtomicBoolean(false);
 
     static {
-        portraitsDir.mkdirs();
+        if (!portraitsDir.mkdirs()) {
+            log.info("Champion portrets folder seems to already exist.");
+        }
     }
 
     private final int id;
@@ -214,7 +216,7 @@ public class Champion {
         }
     }
 
-    public class ChampionDTO {
+    public static class ChampionDTO {
         public String version;
         public String id;
         public String key;
@@ -235,7 +237,7 @@ public class Champion {
         public HashMap<String, ChampionDTO> data;
     }
 
-    public class Image {
+    public static class Image {
         public String full;
         public String sprite;
         public String group;
@@ -245,14 +247,14 @@ public class Champion {
         public Integer h;
     }
 
-    public class Info {
+    public static class Info {
         public Double attack;
         public Double defense;
         public Double magic;
         public Double difficulty;
     }
 
-    public class Stats {
+    public static class Stats {
         public Double hp;
         public Double hpperlevel;
         public Double mp;

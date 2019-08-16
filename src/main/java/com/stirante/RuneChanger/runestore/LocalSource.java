@@ -9,6 +9,6 @@ import java.util.List;
 public class LocalSource implements RuneSource {
     @Override
     public List<RunePage> getForChampion(Champion champion) {
-        return SimplePreferences.runeBookValues;
+        return SimplePreferences.getRuneBookValues();
     }
 }

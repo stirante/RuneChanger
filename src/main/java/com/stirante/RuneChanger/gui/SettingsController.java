@@ -39,7 +39,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Optional;
 
-import static com.stirante.RuneChanger.gui.Settings.mainStage;
+import static com.stirante.RuneChanger.gui.Settings.getMainStage;
 
 @Slf4j
 public class SettingsController {
@@ -106,7 +106,7 @@ public class SettingsController {
             autostart_btn.setSelected(true);
         }
 
-        if (!SimplePreferences.runeBookValues.isEmpty()) {
+        if (!SimplePreferences.getRuneBookValues().isEmpty()) {
             RuneBook.refreshLocalRunes(localRunes);
         }
     }
@@ -174,7 +174,7 @@ public class SettingsController {
             Platform.runLater(() -> RuneBook.refreshClientRunes(clientRunes));
         }
         else if (event.getTarget() == btn_exit) {
-            mainStage.hide();
+            getMainStage().hide();
         }
     }
 
@@ -194,23 +194,23 @@ public class SettingsController {
             AutoStartUtils.setAutoStart(autostart_btn.isSelected());
         }
         if (e.getTarget() == autoQueueBtn) {
-            SimplePreferences.putValue("autoAccept", String.valueOf(autoQueueBtn.isSelected()));
+            SimplePreferences.addSettingsElement("autoAccept", String.valueOf(autoQueueBtn.isSelected()));
         }
         else if (e.getTarget() == noAwayBtn) {
-            SimplePreferences.putValue("antiAway", String.valueOf(noAwayBtn.isSelected()));
+            SimplePreferences.addSettingsElement("antiAway", String.valueOf(noAwayBtn.isSelected()));
         }
         else if (e.getTarget() == quickReplyBtn) {
-            SimplePreferences.putValue("quickReplies", String.valueOf(quickReplyBtn.isSelected()));
+            SimplePreferences.addSettingsElement("quickReplies", String.valueOf(quickReplyBtn.isSelected()));
         }
         else if (e.getTarget() == autoUpdateBtn) {
-            SimplePreferences.putValue("autoUpdate", String.valueOf(autoUpdateBtn.isSelected()));
+            SimplePreferences.addSettingsElement("autoUpdate", String.valueOf(autoUpdateBtn.isSelected()));
         }
         else if (e.getTarget() == alwaysOnTopBtn) {
-            SimplePreferences.putValue("alwaysOnTop", String.valueOf(alwaysOnTopBtn.isSelected()));
-            mainStage.setAlwaysOnTop(alwaysOnTopBtn.isSelected());
+            SimplePreferences.addSettingsElement("alwaysOnTop", String.valueOf(alwaysOnTopBtn.isSelected()));
+            getMainStage().setAlwaysOnTop(alwaysOnTopBtn.isSelected());
         }
         else if (e.getTarget() == force_english_btn) {
-            SimplePreferences.putValue("force_english", String.valueOf(force_english_btn.isSelected()));
+            SimplePreferences.addSettingsElement("force_english", String.valueOf(force_english_btn.isSelected()));
             boolean restart =
                     showConfirmationScreen(LangHelper.getLang().getString("restart_necessary"), LangHelper.getLang()
                             .getString("restart_necessary_description"));
@@ -283,8 +283,8 @@ public class SettingsController {
         SimplePreferences.load();
         loadPreferences();
         settingsPane.setVisible(true);
-        if (SimplePreferences.getValue("alwaysOnTop").equalsIgnoreCase("true")) {
-            mainStage.setAlwaysOnTop(true);
+        if (SimplePreferences.getSettingsValue("alwaysOnTop").equalsIgnoreCase("true")) {
+            getMainStage().setAlwaysOnTop(true);
         }
         currentPane = settingsPane;
         FadeTransition fadeTransition = fade(mainPane, 400, 0, 1);
@@ -292,10 +292,10 @@ public class SettingsController {
     }
 
     private void setupPreference(String key, String defaultValue, JFXToggleButton button) {
-        if (SimplePreferences.getValue(key) == null) {
-            SimplePreferences.putValue(key, defaultValue);
+        if (SimplePreferences.getSettingsValue(key) == null) {
+            SimplePreferences.addSettingsElement(key, defaultValue);
         }
-        if (SimplePreferences.getValue(key).equals("true")) {
+        if (SimplePreferences.getSettingsValue(key).equals("true")) {
             Platform.runLater(() -> button.setSelected(true));
         }
     }

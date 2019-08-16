@@ -21,11 +21,15 @@ import static com.stirante.RuneChanger.gui.SettingsController.showWarning;
 
 public class Settings extends Application {
 
-    public static Stage mainStage;
+    private static Stage mainStage;
     private double xOffset = 0;
     private double yOffset = 0;
     private RuneChanger runeChanger;
     private Loot lootModule;
+
+    public static Stage getMainStage() {
+        return mainStage;
+    }
 
     public static void initialize() {
         new Thread(Application::launch).start();
