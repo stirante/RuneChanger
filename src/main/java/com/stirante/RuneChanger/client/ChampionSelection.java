@@ -148,6 +148,8 @@ public class ChampionSelection extends ClientModule {
                 positionSelector = lolLobbyLobbyDto.gameConfig.showPositionSelector;
             } catch (IOException | IllegalArgumentException e) {
                 log.error("Exception thrown when updating the gamemode! GameMode.java might not be updated. " + e.getMessage());
+                positionSelector = false;
+                gameMode = GameMode.CLASSIC;
             }
         }
         else {
