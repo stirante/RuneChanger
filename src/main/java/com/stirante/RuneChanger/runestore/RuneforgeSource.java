@@ -24,6 +24,7 @@ public class RuneforgeSource implements RuneSource {
     private static final int TIMEOUT = 10000;
     private static final HashMap<Champion, List<RunePage>> pagesCache = new HashMap<>();
     private static Loadout[] cache = null;
+    private static boolean initialized = false;
 
     public RuneforgeSource() {
         try {
@@ -31,6 +32,7 @@ public class RuneforgeSource implements RuneSource {
             conn.connect();
             cache = new Gson().fromJson(new InputStreamReader(conn.getInputStream()), Loadout[].class);
             conn.getInputStream().close();
+            initialized = true;
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -139,6 +141,10 @@ public class RuneforgeSource implements RuneSource {
         }
         pagesCache.put(champion, result);
         return result;
+    }
+
+    public boolean isInitialized() {
+        return initialized;
     }
 
     private static class Loadout {

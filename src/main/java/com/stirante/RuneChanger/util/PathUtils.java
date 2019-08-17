@@ -26,6 +26,15 @@ public class PathUtils {
         return new File(getWorkingDirectory(), "assets");
     }
 
+    public static File getConfigDir() {
+        File dir = new File(getWorkingDirectory(), "config");
+        if (!dir.exists()) {
+            dir.mkdirs();
+        }
+
+        return dir;
+    }
+
     public static String getJavawPath() {
         String javaHome = System.getProperty("java.home");
         File f = new File(javaHome);
