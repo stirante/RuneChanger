@@ -11,10 +11,10 @@ public class HUD {
     public Boolean autoDisplayTarget;
     @SerializedName("CameraLockMode")
     @Expose
-    public Integer cameraLockMode;
+    public Long cameraLockMode;
     @SerializedName("ChatScale")
     @Expose
-    public Integer chatScale;
+    public Long chatScale;
     @SerializedName("DisableHudSpellClick")
     @Expose
     public Boolean disableHudSpellClick;
@@ -50,13 +50,13 @@ public class HUD {
     public Boolean minimapMoveSelf;
     @SerializedName("MinimapScale")
     @Expose
-    public Integer minimapScale;
+    public Long minimapScale;
     @SerializedName("MirroredScoreboard")
     @Expose
     public Boolean mirroredScoreboard;
     @SerializedName("NumericCooldownFormat")
     @Expose
-    public Integer numericCooldownFormat;
+    public Long numericCooldownFormat;
     @SerializedName("ObjectTooltips")
     @Expose
     public Boolean objectTooltips;

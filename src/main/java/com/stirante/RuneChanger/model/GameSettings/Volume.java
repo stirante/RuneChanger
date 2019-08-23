@@ -11,13 +11,13 @@ public class Volume {
     public Boolean ambienceMute;
     @SerializedName("AmbienceVolume")
     @Expose
-    public Integer ambienceVolume;
+    public Long ambienceVolume;
     @SerializedName("AnnouncerMute")
     @Expose
     public Boolean announcerMute;
     @SerializedName("AnnouncerVolume")
     @Expose
-    public Integer announcerVolume;
+    public Long announcerVolume;
     @SerializedName("MasterMute")
     @Expose
     public Boolean masterMute;
@@ -29,7 +29,7 @@ public class Volume {
     public Boolean musicMute;
     @SerializedName("MusicVolume")
     @Expose
-    public Integer musicVolume;
+    public Double musicVolume;
     @SerializedName("PingsMute")
     @Expose
     public Boolean pingsMute;

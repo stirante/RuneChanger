@@ -1,7 +1,6 @@
 package com.stirante.RuneChanger.model;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import com.google.gson.*;
 import com.stirante.RuneChanger.SetupApiConnection;
 import com.stirante.RuneChanger.model.GameSettings.GameSettings;
 import com.stirante.lolclient.ClientApi;
@@ -11,10 +10,16 @@ import org.junit.Test;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.Type;
 import java.util.Map;
 
 import static com.stirante.RuneChanger.JsonUtil.countJson;
+import static com.stirante.RuneChanger.JsonUtil.getStrictGsonObject;
 
+/**
+ * If the gson classes get outdated you can use these settings https://gyazo.com/f2157720d112c33bcf2268b04e070778?token=4f34116248804a826504445f24889559
+ * with this website http://www.jsonschema2pojo.org
+ */
 public class GameSettingsTest extends SetupApiConnection {
 
     private final String API_PATH = "/lol-game-settings/v1/game-settings";
@@ -29,10 +34,12 @@ public class GameSettingsTest extends SetupApiConnection {
             e.printStackTrace();
         }
 
-        Gson gson = new GsonBuilder().create();
+        Gson gson = getStrictGsonObject();
         String json = gson.toJson(map);
-        int fieldCount = 0;
         GameSettings gameSettings = gson.fromJson(json, GameSettings.class);
+        String exportedJson = gson.toJson(gameSettings);
+        Assert.assertTrue(exportedJson.equals(json));
+
         for (Field declaredField : gameSettings.getClass().getDeclaredFields()) {
             declaredField.setAccessible(true);
             Object object = declaredField.get(gameSettings);
@@ -47,14 +54,8 @@ public class GameSettingsTest extends SetupApiConnection {
                     System.out.println("Processing went wrong at: " + declaredSubfield + "\n Json: " + json);
                     Assert.fail();
                 }
-                fieldCount++;
             }
-            fieldCount++;
         }
-
-        int jsonCount = countJson(gson.toJsonTree(map).getAsJsonObject());
-        System.out.println(jsonCount + " == jsoncount | " + fieldCount + " == fieldcount");
-        Assert.assertTrue(jsonCount == fieldCount);
     }
 
 

@@ -1,6 +1,6 @@
 package com.stirante.RuneChanger;
 
-import com.google.gson.JsonObject;
+import com.google.gson.*;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -15,5 +15,14 @@ public class JsonUtil {
             jsonCount.getAndIncrement();
         });
         return jsonCount.get();
+    }
+
+    public static Gson getStrictGsonObject() {
+        return new GsonBuilder().
+                registerTypeAdapter(Double.class, (JsonSerializer<Double>) (src, typeOfSrc, context) -> {
+                    if(src == src.longValue())
+                        return new JsonPrimitive(src.longValue());
+                    return new JsonPrimitive(src);
+                }).create();
     }
 }

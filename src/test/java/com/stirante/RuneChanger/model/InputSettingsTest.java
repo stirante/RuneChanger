@@ -14,7 +14,12 @@ import java.lang.reflect.Modifier;
 import java.util.Map;
 
 import static com.stirante.RuneChanger.JsonUtil.countJson;
+import static com.stirante.RuneChanger.JsonUtil.getStrictGsonObject;
 
+/**
+ * If the gson classes get outdated you can use these settings https://gyazo.com/f2157720d112c33bcf2268b04e070778?token=4f34116248804a826504445f24889559
+ * with this website http://www.jsonschema2pojo.org
+ */
 public class InputSettingsTest extends SetupApiConnection {
 
     private final String API_PATH = "/lol-game-settings/v1/input-settings";
@@ -29,13 +34,15 @@ public class InputSettingsTest extends SetupApiConnection {
             e.printStackTrace();
         }
 
-        Gson gson = new GsonBuilder().create();
+        Gson gson = getStrictGsonObject();
         String json = gson.toJson(map);
-        int fieldCount = 0;
-        InputSettings gameSettings = gson.fromJson(json, InputSettings.class);
-        for (Field declaredField : gameSettings.getClass().getDeclaredFields()) {
+        InputSettings inputSettings = gson.fromJson(json, InputSettings.class);
+        String exportedJson = gson.toJson(inputSettings);
+        Assert.assertTrue(exportedJson.equals(json));
+
+        for (Field declaredField : inputSettings.getClass().getDeclaredFields()) {
             declaredField.setAccessible(true);
-            Object object = declaredField.get(gameSettings);
+            Object object = declaredField.get(inputSettings);
             if (object == null && !Modifier.isStatic(declaredField.getModifiers())) {
                 Assert.fail();
             }
@@ -47,13 +54,7 @@ public class InputSettingsTest extends SetupApiConnection {
                     System.out.println("Processing went wrong at: " + declaredSubfield + "\n Json: " + json);
                     Assert.fail();
                 }
-                fieldCount++;
             }
-            fieldCount++;
         }
-
-        int jsonCount = countJson(gson.toJsonTree(map).getAsJsonObject());
-        System.out.println(jsonCount + " == jsoncount | " + fieldCount + " == fieldcount");
-        Assert.assertTrue(jsonCount == fieldCount);
     }
 }

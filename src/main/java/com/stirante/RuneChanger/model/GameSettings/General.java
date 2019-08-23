@@ -26,7 +26,7 @@ public class General {
     public Boolean enableTargetedAttackMove;
     @SerializedName("GameMouseSpeed")
     @Expose
-    public Integer gameMouseSpeed;
+    public Long gameMouseSpeed;
     @SerializedName("HideEyeCandy")
     @Expose
     public Boolean hideEyeCandy;
@@ -53,12 +53,12 @@ public class General {
     public Boolean snapCameraOnRespawn;
     @SerializedName("ThemeMusic")
     @Expose
-    public Integer themeMusic;
+    public Long themeMusic;
     @SerializedName("WaitForVerticalSync")
     @Expose
     public Boolean waitForVerticalSync;
     @SerializedName("WindowMode")
     @Expose
-    public Integer windowMode;
+    public Long windowMode;
 
 }
