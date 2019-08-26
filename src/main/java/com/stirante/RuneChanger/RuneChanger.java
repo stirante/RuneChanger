@@ -49,6 +49,18 @@ public class RuneChanger {
     private ClientWebSocket socket;
 
     public static void main(String[] args) {
+        ch.qos.logback.classic.Logger logger =
+                (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
+        if (Arrays.asList(args).contains("-nologs")) {
+            logger.detachAppender("FILE");
+            logger.warn("Logs will not be written to disk for this session.");
+        }
+
+        if (Arrays.asList(args).contains("-debug-mode")) {
+            logger.setLevel(Level.DEBUG);
+            logger.debug("Runechanger started with debug mode enabled");
+        }
+
         checkAndCreateLockfile();
         changeWorkingDir();
         cleanupLogs();
@@ -56,16 +68,6 @@ public class RuneChanger {
         Elevate.elevate(args);
         checkOperatingSystem();
         SimplePreferences.load();
-        ch.qos.logback.classic.Logger logger =
-                (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
-        if (Arrays.asList(args).contains("-debug-mode")) {
-            logger.setLevel(Level.DEBUG);
-            logger.debug("Runechanger started with debug mode enabled");
-        }
-        if (Arrays.asList(args).contains("-nologs")) {
-            logger.detachAppender("FILE");
-            logger.warn("warning");
-        }
         try {
             AutoUpdater.cleanup();
             AutoStartUtils.checkAutoStartPath();
