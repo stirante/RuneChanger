@@ -3,13 +3,14 @@ package com.stirante.RuneChanger.util;
 import com.sun.jna.platform.win32.Kernel32;
 import com.sun.jna.platform.win32.Kernel32Util;
 import com.sun.jna.platform.win32.Shell32;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Source: https://stackoverflow.com/questions/30082838/elevate-java-application-while-running
  */
-@Slf4j
 public class Elevate {
+    private static final Logger log = LoggerFactory.getLogger(Elevate.class);
 
     /**
      * The program argument indicating the need of being elevated

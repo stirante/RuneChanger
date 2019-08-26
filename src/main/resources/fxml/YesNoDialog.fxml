@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.String?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.Pane?>
+
+<Pane fx:id="container" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="160.0" prefWidth="400.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <ImageView fitWidth="400.0" layoutY="-1.0" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="@../images/dialogBg.png" />
+         </image>
+      </ImageView>
+      <Button fx:id="yesButton" defaultButton="true" layoutX="101.0" layoutY="136.0" minHeight="14.0" minWidth="69.0" mnemonicParsing="false" onAction="#handleButtonPress" prefHeight="25.0" prefWidth="80.0" styleClass="dialog-button" text="YES" />
+      <Button fx:id="noButton" cancelButton="true" layoutX="224.0" layoutY="136.0" minHeight="14.0" minWidth="69.0" mnemonicParsing="false" onAction="#handleButtonPress" prefHeight="25.0" prefWidth="80.0" styleClass="dialog-button" text="NO" />
+      <Label fx:id="title" layoutX="4.0" layoutY="9.0" prefHeight="24.0" prefWidth="392.0" styleClass="header" text="EXIT NOW?" />
+      <Label fx:id="message" layoutX="4.0" layoutY="50.0" prefHeight="70.0" prefWidth="392.0" text="RuneChanger requires a restart to apply changed settings. Do you want to close RuneChanger now?" wrapText="true">
+         <styleClass>
+            <String fx:value="header" />
+            <String fx:value="dialog-message" />
+         </styleClass>
+      </Label>
+      <ImageView fitHeight="40.0" fitWidth="400.0" onMouseDragged="#onHandleDrag" onMousePressed="#onHandlePress" pickOnBounds="true" preserveRatio="true" />
+   </children>
+</Pane>

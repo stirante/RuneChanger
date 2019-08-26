@@ -1,6 +1,7 @@
 package com.stirante.RuneChanger.util;
 
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.text.Normalizer;
 import java.util.ArrayList;
@@ -8,8 +9,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
-@Slf4j
 public class StringUtils {
+    private static final Logger log = LoggerFactory.getLogger(StringUtils.class);
 
     /**
      * Replacements for non standard characters
@@ -21,6 +22,7 @@ public class StringUtils {
         REPLACEMENT.put("‘", "'");
         REPLACEMENT.put("…", "...");
         REPLACEMENT.put("”", "\"");
+        REPLACEMENT.put("‎", "");
     }
 
     /**
@@ -37,7 +39,7 @@ public class StringUtils {
         }
         for (int i = 0; i < str.length(); i++) {
             if (str.charAt(i) > 127) {
-                log.warn("Non standard character: \"" + str.charAt(i) + "\"");
+                log.warn(String.format("Non standard character: \"%s\" (%04x)", str.charAt(i), (int) str.charAt(i)));
             }
         }
         if (!Normalizer.isNormalized(str, Normalizer.Form.NFC)) {
@@ -53,10 +55,28 @@ public class StringUtils {
      * @return List<String>
      */
     public static List<String> stringToList(String str) {
+        log.debug("String before list conversion: " + str);
         String replace = str.replace("[", "");
         String replace1 = replace.replace("]", "");
-        replace1 = replace1.replace(" ", "");
+        String[] parts = replace1.split(",", 2);
+        String part1 = parts[0];
+        replace1 = parts[1].replace(" ", "");
+        replace1 = part1 + "," + replace1;
         List<String> myList = new ArrayList<>(Arrays.asList(replace1.split(",")));
+        log.debug("List after string to list conversion: " + myList);
         return myList;
     }
+
+    /**
+     * Converts InputStream to String.
+     * From https://stackoverflow.com/a/5445161/6459649
+     *
+     * @param is input stream to be converted
+     * @return string
+     */
+    public static String streamToString(java.io.InputStream is) {
+        java.util.Scanner s = new java.util.Scanner(is).useDelimiter("\\A");
+        return s.hasNext() ? s.next() : "";
+    }
+
 }

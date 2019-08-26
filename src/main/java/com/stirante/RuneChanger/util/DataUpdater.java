@@ -2,8 +2,9 @@ package com.stirante.RuneChanger.util;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.stirante.RuneChanger.model.Rune;
-import lombok.extern.slf4j.Slf4j;
+import com.stirante.RuneChanger.model.client.Rune;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -16,8 +17,8 @@ import java.util.*;
 /**
  * Internal class for generating enums and resources
  */
-@Slf4j
 public class DataUpdater {
+    private static final Logger log = LoggerFactory.getLogger(DataUpdater.class);
 
     private static final String RUNE_ENUM_PREFIX = "package com.stirante.RuneChanger.model;\n" +
             "\n" +
@@ -28,6 +29,7 @@ public class DataUpdater {
             "public enum Rune {\n";
     private static final String RUNE_ENUM_POSTFIX = "\n" +
             "\n" +
+            "    private static final Logger log = LoggerFactory.getLogger(Rune.class);\n" +
             "    private final int id;\n" +
             "    private final Style style;\n" +
             "    private final int slot;\n" +
@@ -53,7 +55,7 @@ public class DataUpdater {
             "                return rune;\n" +
             "            }\n" +
             "        }\n" +
-            "        System.out.println(name + \" not found\");\n" +
+            "        log.error(\"Rune name: \" + name + \" not found\");\n" +
             "        return null;\n" +
             "    }\n" +
             "\n" +
@@ -69,7 +71,7 @@ public class DataUpdater {
             "                return rune;\n" +
             "            }\n" +
             "        }\n" +
-            "        System.out.println(id + \" not found\");\n" +
+            "        log.error(\"Rune id: \" + id + \" not found\");\n" +
             "        return null;\n" +
             "    }\n" +
             "\n" +

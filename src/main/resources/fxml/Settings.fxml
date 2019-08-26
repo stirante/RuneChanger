@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.jfoenix.controls.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+<ScrollPane hbarPolicy="NEVER" prefHeight="516.0" prefWidth="750.0" stylesheets="@../stylesheet.css" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.stirante.RuneChanger.gui.controllers.SettingsController">
+   <content>
+      <GridPane maxHeight="-Infinity" prefHeight="569.0" prefWidth="395.0">
+         <columnConstraints>
+            <ColumnConstraints halignment="LEFT" hgrow="SOMETIMES" maxWidth="-Infinity" minWidth="10.0" prefWidth="0.0" />
+            <ColumnConstraints halignment="LEFT" hgrow="SOMETIMES" maxWidth="-Infinity" minWidth="250.0" prefWidth="0.0" />
+            <ColumnConstraints halignment="LEFT" hgrow="SOMETIMES" maxWidth="-Infinity" minWidth="490.0" prefWidth="0.0" />
+         </columnConstraints>
+         <rowConstraints>
+            <RowConstraints maxHeight="-Infinity" minHeight="35.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            <RowConstraints maxHeight="-Infinity" minHeight="35.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            <RowConstraints maxHeight="-Infinity" minHeight="35.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            <RowConstraints maxHeight="-Infinity" minHeight="35.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            <RowConstraints maxHeight="-Infinity" minHeight="35.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            <RowConstraints maxHeight="-Infinity" minHeight="35.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            <RowConstraints maxHeight="-Infinity" minHeight="35.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            <RowConstraints maxHeight="-Infinity" minHeight="35.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            <RowConstraints maxHeight="-Infinity" minHeight="35.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            <RowConstraints maxHeight="-Infinity" minHeight="35.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            <RowConstraints maxHeight="-Infinity" minHeight="35.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            <RowConstraints maxHeight="-Infinity" minHeight="35.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            <RowConstraints maxHeight="-Infinity" minHeight="35.0" prefHeight="30.0" vgrow="SOMETIMES" />
+         </rowConstraints>
+         <padding>
+            <Insets bottom="20.0" left="30.0" right="30.0" top="20.0" />
+         </padding>
+         <children>
+            <JFXCheckBox fx:id="noAwayCB" checkedColor="#8d897d00" focusTraversable="false" graphicTextGap="0.0" onAction="#handleCheckboxPressed" prefHeight="35.0" prefWidth="690.0" styleClass="runechanger-check-box" stylesheets="@../stylesheet.css" text="%no_away" textFill="#8d897d" unCheckedColor="#8d897d00" GridPane.columnIndex="1">
+               <font>
+                  <Font name="System Bold" size="15.0" />
+               </font>
+            </JFXCheckBox>
+            <Label alignment="BOTTOM_LEFT" prefHeight="51.0" prefWidth="734.0" text="%no_away_message" textFill="#a18942" GridPane.columnIndex="2">
+               <font>
+                  <Font name="System Bold" size="17.0" />
+               </font>
+               <GridPane.margin>
+                  <Insets bottom="4.0" />
+               </GridPane.margin>
+            </Label>
+            <JFXCheckBox fx:id="autoQueueCB" alignment="BOTTOM_LEFT" checkedColor="#8d897d00" contentDisplay="CENTER" focusTraversable="false" graphicTextGap="0.0" onAction="#handleCheckboxPressed" prefHeight="35.0" prefWidth="690.0" styleClass="runechanger-check-box" stylesheets="@../stylesheet.css" text="%auto_queue" textFill="#8d897d" unCheckedColor="#8d897d00" GridPane.columnIndex="1" GridPane.rowIndex="2">
+               <font>
+                  <Font name="System Bold" size="15.0" />
+               </font>
+            </JFXCheckBox>
+            <Label alignment="BOTTOM_LEFT" prefHeight="51.0" prefWidth="734.0" text="%auto_queue_message" textFill="#8d897d" GridPane.columnIndex="2" GridPane.rowIndex="2">
+               <font>
+                  <Font name="System Bold" size="17.0" />
+               </font>
+            </Label>
+            <JFXCheckBox fx:id="quickRepliesCB" alignment="BOTTOM_LEFT" checkedColor="#8d897d00" contentDisplay="CENTER" focusTraversable="false" graphicTextGap="0.0" onAction="#handleCheckboxPressed" prefHeight="35.0" prefWidth="690.0" styleClass="runechanger-check-box" stylesheets="@../stylesheet.css" text="%quick_replies" textFill="#8d897d" unCheckedColor="#8d897d00" GridPane.columnIndex="1" GridPane.rowIndex="4">
+               <font>
+                  <Font name="System Bold" size="15.0" />
+               </font>
+            </JFXCheckBox>
+            <Label alignment="BOTTOM_LEFT" prefHeight="51.0" prefWidth="734.0" text="%quick_replies_message" textFill="#8d897d" GridPane.columnIndex="2" GridPane.rowIndex="4">
+               <font>
+                  <Font name="System Bold" size="17.0" />
+               </font>
+            </Label>
+            <JFXCheckBox fx:id="autoUpdateCB" alignment="BOTTOM_LEFT" checkedColor="#8d897d00" contentDisplay="CENTER" focusTraversable="false" graphicTextGap="0.0" onAction="#handleCheckboxPressed" prefHeight="35.0" prefWidth="690.0" styleClass="runechanger-check-box" stylesheets="@../stylesheet.css" text="%autoupdate_state" textFill="#8d897d" unCheckedColor="#8d897d00" GridPane.columnIndex="1" GridPane.rowIndex="6">
+               <font>
+                  <Font name="System Bold" size="15.0" />
+               </font>
+            </JFXCheckBox>
+            <JFXCheckBox fx:id="alwaysOnTopCB" alignment="BOTTOM_LEFT" checkedColor="#8d897d00" contentDisplay="CENTER" focusTraversable="false" graphicTextGap="0.0" onAction="#handleCheckboxPressed" prefHeight="35.0" prefWidth="690.0" styleClass="runechanger-check-box" stylesheets="@../stylesheet.css" text="%always_on_top" textFill="#8d897d" unCheckedColor="#8d897d00" GridPane.columnIndex="1" GridPane.rowIndex="8">
+               <font>
+                  <Font name="System Bold" size="15.0" />
+               </font>
+            </JFXCheckBox>
+            <JFXCheckBox fx:id="autoStartCB" alignment="BOTTOM_LEFT" checkedColor="#8d897d00" contentDisplay="CENTER" focusTraversable="false" graphicTextGap="0.0" onAction="#handleCheckboxPressed" prefHeight="35.0" prefWidth="690.0" styleClass="runechanger-check-box" stylesheets="@../stylesheet.css" text="%autostart" textFill="#8d897d" unCheckedColor="#8d897d00" GridPane.columnIndex="1" GridPane.rowIndex="10">
+               <font>
+                  <Font name="System Bold" size="15.0" />
+               </font>
+            </JFXCheckBox>
+            <Label alignment="BOTTOM_LEFT" prefHeight="51.0" prefWidth="734.0" text="%autoupdate_message" textFill="#8d897d" GridPane.columnIndex="2" GridPane.rowIndex="6">
+               <font>
+                  <Font name="System Bold" size="17.0" />
+               </font>
+            </Label>
+            <Label alignment="BOTTOM_LEFT" prefHeight="51.0" prefWidth="734.0" text="%always_on_top_message" textFill="#8d897d" GridPane.columnIndex="2" GridPane.rowIndex="8">
+               <font>
+                  <Font name="System Bold" size="17.0" />
+               </font>
+            </Label>
+            <Label alignment="BOTTOM_LEFT" prefHeight="51.0" prefWidth="734.0" text="%autostart_message" textFill="#8d897d" GridPane.columnIndex="2" GridPane.rowIndex="10">
+               <font>
+                  <Font name="System Bold" size="17.0" />
+               </font>
+            </Label>
+            <JFXCheckBox fx:id="forceEnglishCB" alignment="BOTTOM_LEFT" checkedColor="#8d897d00" contentDisplay="CENTER" focusTraversable="false" graphicTextGap="0.0" onAction="#handleCheckboxPressed" prefHeight="35.0" prefWidth="690.0" styleClass="runechanger-check-box" stylesheets="@../stylesheet.css" text="%force_english" textFill="#8d897d" unCheckedColor="#8d897d00" GridPane.columnIndex="1" GridPane.rowIndex="12">
+               <font>
+                  <Font name="System Bold" size="15.0" />
+               </font>
+            </JFXCheckBox>
+            <Label alignment="BOTTOM_LEFT" prefHeight="51.0" prefWidth="734.0" text="%force_english_message" textFill="#8d897d" GridPane.columnIndex="2" GridPane.rowIndex="12">
+               <font>
+                  <Font name="System Bold" size="17.0" />
+               </font>
+            </Label>
+         </children>
+      </GridPane>
+   </content>
+</ScrollPane>

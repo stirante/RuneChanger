@@ -26,6 +26,10 @@ public class PathUtils {
         return new File(getWorkingDirectory(), "assets");
     }
 
+    public static File getLogsDir() {
+        return new File(getWorkingDirectory(), "logs");
+    }
+
     public static String getJavawPath() {
         String javaHome = System.getProperty("java.home");
         File f = new File(javaHome);

@@ -6,7 +6,8 @@ import com.stirante.RuneChanger.gui.Constants;
 import com.stirante.RuneChanger.model.github.Asset;
 import com.stirante.RuneChanger.model.github.Release;
 import com.stirante.RuneChanger.model.github.Version;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import java.awt.*;
@@ -18,8 +19,8 @@ import java.nio.file.Paths;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
-@Slf4j
 public class AutoUpdater {
+    private static final Logger log = LoggerFactory.getLogger(AutoUpdater.class);
 
     public static final String UPDATE_JAR_FILENAME = "RuneChangerUpdate.jar";
     public static final String MAIN_JAR_FILENAME = "RuneChanger.jar";

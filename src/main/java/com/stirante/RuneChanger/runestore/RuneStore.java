@@ -1,7 +1,7 @@
 package com.stirante.RuneChanger.runestore;
 
-import com.stirante.RuneChanger.model.Champion;
-import com.stirante.RuneChanger.model.RunePage;
+import com.stirante.RuneChanger.model.client.Champion;
+import com.stirante.RuneChanger.model.client.RunePage;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,6 +27,15 @@ public class RuneStore {
             result.addAll(source.getForChampion(champion));
         }
         return result;
+    }
+
+    public static <T extends RuneSource> T getSource(Class<T> clz) {
+        for (RuneSource source : sources) {
+            if (clz.isAssignableFrom(source.getClass())) {
+                return (T) source;
+            }
+        }
+        return null;
     }
 
 }

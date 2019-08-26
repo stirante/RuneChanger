@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Rectangle2D?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.shape.Line?>
+
+<Pane fx:id="container" prefHeight="500.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1">
+   <ImageView fx:id="background" fitWidth="600.0" pickOnBounds="true" preserveRatio="true">
+      <image>
+         <Image url="@../images/splash-art.jpg" />
+      </image>
+      <viewport>
+         <Rectangle2D height="350.0" minX="50.0" minY="50.0" width="800.0" />
+      </viewport>
+   </ImageView>
+   <ImageView fitHeight="260.0" fitWidth="600.0" pickOnBounds="true" preserveRatio="true" rotate="180.0" scaleY="-1.0">
+      <image>
+         <Image url="@../images/championBar.png" />
+      </image>
+   </ImageView>
+   <ImageView fx:id="position" fitHeight="48.0" fitWidth="48.0" layoutX="63.0" layoutY="141.0" pickOnBounds="true" preserveRatio="true">
+      <image>
+         <Image url="@../images/icon-position-bottom.png" />
+      </image>
+   </ImageView>
+    <Line endX="599.0" endY="45.0" startY="44.0" stroke="#c8aa6e" strokeWidth="3.0" visible="false" />
+   <Label fx:id="championName" alignment="TOP_LEFT" layoutX="158.0" layoutY="146.0" prefHeight="32.0" prefWidth="148.0" styleClass="header" text="ASHE" />
+   <Button layoutX="429.0" layoutY="454.0" mnemonicParsing="false" onAction="#onBuildsClick" text="BUILDS" />
+   <Label fx:id="localRunesTitle" layoutX="84.0" layoutY="265.0" styleClass="header" text="LOCAL RUNES (2/2)" />
+   <Label layoutX="401.0" layoutY="265.0" styleClass="header" text="NEW RUNES" />
+   <ListView fx:id="localRunesList" layoutX="20.0" layoutY="295.0" prefHeight="149.0" prefWidth="272.0" />
+   <ListView fx:id="newRunesList" layoutX="310.0" layoutY="295.0" prefHeight="149.0" prefWidth="272.0" />
+</Pane>

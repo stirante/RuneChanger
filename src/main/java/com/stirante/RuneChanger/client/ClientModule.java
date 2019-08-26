@@ -29,4 +29,8 @@ public abstract class ClientModule {
         return currentSummoner;
     }
 
+    public void reset() {
+        currentSummoner = null;
+    }
+
 }

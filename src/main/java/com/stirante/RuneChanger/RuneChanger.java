@@ -6,13 +6,15 @@ import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.Appender;
 import ch.qos.logback.core.FileAppender;
 import com.stirante.RuneChanger.client.ChampionSelection;
+import com.stirante.RuneChanger.client.Login;
+import com.stirante.RuneChanger.client.Loot;
 import com.stirante.RuneChanger.client.Runes;
 import com.stirante.RuneChanger.gui.Constants;
 import com.stirante.RuneChanger.gui.GuiHandler;
 import com.stirante.RuneChanger.gui.SceneType;
 import com.stirante.RuneChanger.gui.Settings;
-import com.stirante.RuneChanger.model.Champion;
-import com.stirante.RuneChanger.model.RunePage;
+import com.stirante.RuneChanger.model.client.Champion;
+import com.stirante.RuneChanger.model.client.RunePage;
 import com.stirante.RuneChanger.model.github.Version;
 import com.stirante.RuneChanger.runestore.RuneStore;
 import com.stirante.RuneChanger.util.*;
@@ -20,7 +22,6 @@ import com.stirante.lolclient.ClientApi;
 import com.stirante.lolclient.ClientConnectionListener;
 import com.stirante.lolclient.ClientWebSocket;
 import generated.*;
-import lombok.extern.slf4j.Slf4j;
 import org.java_websocket.exceptions.WebsocketNotConnectedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,8 +37,8 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-@Slf4j
 public class RuneChanger {
+    private static final Logger log = LoggerFactory.getLogger(RuneChanger.class);
 
     public String[] programArguments;
     private static RuneChanger instance;
@@ -46,6 +47,8 @@ public class RuneChanger {
     private List<RunePage> runes;
     private ChampionSelection champSelectModule;
     private Runes runesModule;
+    private Login loginModule;
+    private Loot lootModule;
     private ClientWebSocket socket;
 
     public static void main(String[] args) {
@@ -109,7 +112,8 @@ public class RuneChanger {
             //find path to the current jar
             File currentJar = new File(PathUtils.getJarLocation());
             //If this is true then the jar was most likely started by autostart
-            if (!new File(System.getProperty("user.dir")).getAbsolutePath().equals(currentJar.getParentFile().getAbsolutePath())) {
+            if (!new File(System.getProperty("user.dir")).getAbsolutePath()
+                    .equals(currentJar.getParentFile().getAbsolutePath())) {
                 //if it's not a jar (probably running from IDE)
                 if (!currentJar.getName().endsWith(".jar")) {
                     return;
@@ -145,6 +149,20 @@ public class RuneChanger {
         }
     }
 
+    private void initModules() {
+        champSelectModule = new ChampionSelection(api);
+        runesModule = new Runes(api);
+        loginModule = new Login(api);
+        lootModule = new Loot(api);
+    }
+
+    private void resetModules() {
+        champSelectModule.reset();
+        runesModule.reset();
+        loginModule.reset();
+        lootModule.reset();
+    }
+
     private void init() {
         log.info("Starting RuneChanger version " + Constants.VERSION_STRING + " (" + Version.INSTANCE.branch + "@" +
                 Version.INSTANCE.commitIdAbbrev + " built at " +
@@ -159,8 +177,7 @@ public class RuneChanger {
                     .getString("client_error"), Constants.APP_NAME, JOptionPane.ERROR_MESSAGE);
             System.exit(0);
         }
-        champSelectModule = new ChampionSelection(api);
-        runesModule = new Runes(api);
+        initModules();
         Settings.initialize();
         gui = new GuiHandler(this);
         api.addClientConnectionListener(new ClientConnectionListener() {
@@ -170,19 +187,14 @@ public class RuneChanger {
                 gui.openWindow();
                 if (DebugConsts.MOCK_SESSION) {
                     gui.showWarningMessage("Mocking session");
-                    try {
-                        LolSummonerSummoner currentSummoner =
-                                api.executeGet("/lol-summoner/v1/current-summoner", LolSummonerSummoner.class);
-                        LolChampSelectChampSelectSession session = new LolChampSelectChampSelectSession();
-                        session.myTeam = new ArrayList<>();
-                        LolChampSelectChampSelectPlayerSelection e = new LolChampSelectChampSelectPlayerSelection();
-                        e.championId = Objects.requireNonNull(Champion.getByName("tahm kench")).getId();
-                        e.summonerId = currentSummoner.summonerId;
-                        session.myTeam.add(e);
-                        handleSession(session);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+                    LolSummonerSummoner currentSummoner = champSelectModule.getCurrentSummoner();
+                    LolChampSelectChampSelectSession session = new LolChampSelectChampSelectSession();
+                    session.myTeam = new ArrayList<>();
+                    LolChampSelectChampSelectPlayerSelection e = new LolChampSelectChampSelectPlayerSelection();
+                    e.championId = Objects.requireNonNull(Champion.getByName("tahm kench")).getId();
+                    e.summonerId = currentSummoner.summonerId;
+                    session.myTeam.add(e);
+                    handleSession(session);
                 }
                 //sometimes, the api is connected too quickly and there is WebsocketNotConnectedException
                 //That's why I added this little piece of code, which will retry opening socket every second
@@ -216,11 +228,13 @@ public class RuneChanger {
 
             @Override
             public void onClientDisconnected() {
+                resetModules();
                 gui.setSceneType(SceneType.NONE);
                 if (gui.isWindowOpen()) {
                     gui.tryClose();
                 }
                 gui.showInfoMessage(LangHelper.getLang().getString("client_disconnected"));
+                Settings.setClientConnected(false);
             }
         });
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
@@ -233,7 +247,7 @@ public class RuneChanger {
     private void onChampionChanged(Champion champion) {
         log.info("Downloading runes for champion: " + champion.getName());
         runes = RuneStore.getRunes(champion);
-        if (runes == null || runes.isEmpty()) {
+        if (runes.isEmpty()) {
             log.warn("Runes for champion not available");
         }
         log.info("Found runes: " + runes);
@@ -268,6 +282,7 @@ public class RuneChanger {
     private void openSocket() throws Exception {
         socket = api.openWebSocket();
         gui.showInfoMessage(LangHelper.getLang().getString("client_connected"));
+        Settings.setClientConnected(true);
         socket.setSocketListener(new ClientWebSocket.SocketListener() {
             @Override
             public void onEvent(ClientWebSocket.Event event) {
@@ -290,7 +305,7 @@ public class RuneChanger {
                         }).start();
                     }
                 }
-                if (event.getUri().equalsIgnoreCase("/lol-champ-select/v1/session")) {
+                else if (event.getUri().equalsIgnoreCase("/lol-champ-select/v1/session")) {
                     if (event.getEventType().equalsIgnoreCase("Delete")) {
                         gui.setSceneType(SceneType.NONE);
                         champSelectModule.clearSession();
@@ -314,6 +329,9 @@ public class RuneChanger {
                     //Client window size changed, so we restart the overlay
                     gui.tryClose();
                     gui.openWindow();
+                }
+                else if (event.getUri().equalsIgnoreCase("/lol-summoner/v1/current-summoner")) {
+                    Settings.setClientConnected(true);
                 }
             }
 
@@ -386,5 +404,13 @@ public class RuneChanger {
 
     public Runes getRunesModule() {
         return runesModule;
+    }
+
+    public Login getLoginModule() {
+        return loginModule;
+    }
+
+    public Loot getLootModule() {
+        return lootModule;
     }
 }

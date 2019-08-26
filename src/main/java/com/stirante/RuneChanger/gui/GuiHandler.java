@@ -2,10 +2,9 @@ package com.stirante.RuneChanger.gui;
 
 import com.stirante.RuneChanger.DebugConsts;
 import com.stirante.RuneChanger.RuneChanger;
-import com.stirante.RuneChanger.model.Champion;
-import com.stirante.RuneChanger.model.RunePage;
+import com.stirante.RuneChanger.model.client.Champion;
+import com.stirante.RuneChanger.model.client.RunePage;
 import com.stirante.RuneChanger.util.LangHelper;
-import com.stirante.RuneChanger.util.RunnableWithArgument;
 import com.sun.jna.Native;
 import com.sun.jna.platform.win32.User32;
 import com.sun.jna.platform.win32.WinDef;
@@ -24,6 +23,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Consumer;
 
 public class GuiHandler {
     private final AtomicBoolean running = new AtomicBoolean(true);
@@ -36,11 +36,11 @@ public class GuiHandler {
     private JWindow win;
     private ClientOverlay clientOverlay;
     private WinDef.HWND hwnd;
-    private RunnableWithArgument<RunePage> runeSelectedListener;
+    private Consumer<RunePage> runeSelectedListener;
     private TrayIcon trayIcon;
     private SceneType type = SceneType.NONE;
     private ArrayList<Champion> suggestedChampions;
-    private RunnableWithArgument<Champion> suggestedChampionSelectedListener;
+    private Consumer<Champion> suggestedChampionSelectedListener;
     private ArrayList<Champion> bannedChampions;
 
     public GuiHandler(RuneChanger runeChanger) {
@@ -90,7 +90,7 @@ public class GuiHandler {
         }
     }
 
-    public void setRunes(List<RunePage> runeList, RunnableWithArgument<RunePage> onClickListener) {
+    public void setRunes(List<RunePage> runeList, Consumer<RunePage> onClickListener) {
         runes.clear();
         runes.addAll(runeList);
         runeSelectedListener = onClickListener;
@@ -350,7 +350,7 @@ public class GuiHandler {
     }
 
     public void setSuggestedChampions(ArrayList<Champion> lastChampions,
-                                      ArrayList<Champion> bannedChampions, RunnableWithArgument<Champion> suggestedChampionSelectedListener) {
+                                      ArrayList<Champion> bannedChampions, Consumer<Champion> suggestedChampionSelectedListener) {
         this.suggestedChampions = lastChampions;
         this.suggestedChampionSelectedListener = suggestedChampionSelectedListener;
         this.bannedChampions = bannedChampions;

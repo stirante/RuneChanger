@@ -2,12 +2,12 @@ package com.stirante.RuneChanger.gui;
 
 import com.stirante.RuneChanger.DebugConsts;
 import com.stirante.RuneChanger.RuneChanger;
-import com.stirante.RuneChanger.model.Champion;
-import com.stirante.RuneChanger.model.GameMode;
-import com.stirante.RuneChanger.model.RunePage;
-import com.stirante.RuneChanger.util.RunnableWithArgument;
+import com.stirante.RuneChanger.model.client.Champion;
+import com.stirante.RuneChanger.model.client.GameMode;
+import com.stirante.RuneChanger.model.client.RunePage;
 import com.stirante.RuneChanger.util.SimplePreferences;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -21,9 +21,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
-@Slf4j
 public class ClientOverlay extends JPanel {
+    private static final Logger log = LoggerFactory.getLogger(ClientOverlay.class);
 
     public static final String BOT = "BOT";
     public static final String MID = "MID";
@@ -40,7 +41,7 @@ public class ClientOverlay extends JPanel {
     private final Rectangle topButton = new Rectangle(0, 0, 0, 0);
     private final RuneChanger runeChanger;
     private Font font;
-    private RunnableWithArgument<RunePage> runeSelectedListener;
+    private Consumer<RunePage> runeSelectedListener;
     private Font mFont;
     private boolean opened = false;
     private int selectedRunePageIndex = -1;
@@ -52,7 +53,7 @@ public class ClientOverlay extends JPanel {
     private SceneType type;
     private ArrayList<Champion> lastChampions;
     private ArrayList<Champion> bannedChampions;
-    private RunnableWithArgument<Champion> suggestedChampionSelectedListener;
+    private Consumer<Champion> suggestedChampionSelectedListener;
     private float currentRuneMenuPosition = 0f;
     private float currentChampionsPosition = 0f;
     private float scroll = 0f;
@@ -81,7 +82,7 @@ public class ClientOverlay extends JPanel {
         });
     }
 
-    public void setRuneData(List<RunePage> pages, RunnableWithArgument<RunePage> runeSelectedListener) {
+    public void setRuneData(List<RunePage> pages, Consumer<RunePage> runeSelectedListener) {
         this.runeSelectedListener = runeSelectedListener;
         this.pages.clear();
         this.pages.addAll(pages);
@@ -314,7 +315,8 @@ public class ClientOverlay extends JPanel {
             }
         }
         //clear everything under menu
-        clearRect(g2d, menuX, (int) (Constants.RUNE_MENU_Y * getHeight()), itemWidth + 1, getHeight() - (int) (Constants.RUNE_MENU_Y * getHeight()));
+        clearRect(g2d, menuX, (int) (Constants.RUNE_MENU_Y * getHeight()),
+                itemWidth + 1, getHeight() - (int) (Constants.RUNE_MENU_Y * getHeight()));
         //clear everything above menu
         int upperY = (int) (Math.min(
                 Constants.RUNE_ITEM_HEIGHT * 10 - (1 - Constants.RUNE_MENU_Y),
@@ -368,7 +370,7 @@ public class ClientOverlay extends JPanel {
             opened = !opened;
         }
         else if (selectedRunePageIndex != -1 && runeSelectedListener != null) {
-            runeSelectedListener.run(pages.get(selectedRunePageIndex));
+            runeSelectedListener.accept(pages.get(selectedRunePageIndex));
             opened = !opened;
         }
         else if (selectedChampionIndex != -1 && suggestedChampionSelectedListener != null) {
@@ -380,7 +382,7 @@ public class ClientOverlay extends JPanel {
                 }
             }
             if (index < lastChampions.size()) {
-                suggestedChampionSelectedListener.run(lastChampions.get(index));
+                suggestedChampionSelectedListener.accept(lastChampions.get(index));
             }
         }
         else {
@@ -468,7 +470,7 @@ public class ClientOverlay extends JPanel {
     }
 
     public void setSuggestedChampions(ArrayList<Champion> lastChampions,
-                                      ArrayList<Champion> bannedChampions, RunnableWithArgument<Champion> suggestedChampionSelectedListener) {
+                                      ArrayList<Champion> bannedChampions, Consumer<Champion> suggestedChampionSelectedListener) {
         this.lastChampions = lastChampions;
         this.bannedChampions = bannedChampions;
         this.suggestedChampionSelectedListener = suggestedChampionSelectedListener;
@@ -476,6 +478,6 @@ public class ClientOverlay extends JPanel {
 
     public void mouseWheelMoved(MouseWheelEvent e) {
         scroll += e.getUnitsToScroll() * e.getScrollAmount();
-        scroll = (int)Math.max(0, Math.min(scroll, (pages.size() - 10) * Constants.RUNE_ITEM_HEIGHT * getHeight()));
+        scroll = (int) Math.max(0, Math.min(scroll, (pages.size() - 10) * Constants.RUNE_ITEM_HEIGHT * getHeight()));
     }
 }

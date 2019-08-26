@@ -1,15 +1,20 @@
 package com.stirante.RuneChanger.util;
 
+import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXListView;
 import com.stirante.RuneChanger.RuneChanger;
-import com.stirante.RuneChanger.model.RunePage;
+import com.stirante.RuneChanger.gui.ControllerUtil;
+import com.stirante.RuneChanger.model.client.Champion;
+import com.stirante.RuneChanger.model.client.RunePage;
 import javafx.application.Platform;
 import javafx.embed.swing.SwingFXUtils;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.paint.Color;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.awt.*;
 import java.awt.datatransfer.*;
@@ -18,31 +23,27 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
-import static com.stirante.RuneChanger.gui.SettingsController.showInfoAlert;
-import static com.stirante.RuneChanger.gui.SettingsController.showWarning;
 import static com.stirante.RuneChanger.util.StringUtils.stringToList;
 
-@Slf4j
 public class RuneBook {
+    private static final Logger log = LoggerFactory.getLogger(RuneBook.class);
     private static HashMap<String, RunePage> availablePages = new HashMap<>();
     private static Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+    public static JFXListView<LocalPages.LocalPageCell> localPageListView;
+    public static JFXListView<ClientPages.ClientPageCell> clientPageListView;
+    public static JFXListView<RuneBook.RuneSourcePages.RuneSourceCell> runeSourceListView;
 
-    public static void refreshClientRunes(JFXListView<Label> runebookList) {
-        log.info("Refreshing client runes..");
-        availablePages.clear();
-        availablePages = RuneChanger.getInstance().getRunesModule().getRunePages();
-        runebookList.getItems().clear();
-        availablePages.values().forEach(availablePage -> runebookList.getItems().add(createListElement(availablePage)));
+    public static void init(JFXListView<ClientPages.ClientPageCell> clientList, JFXListView<LocalPages.LocalPageCell> localList, JFXListView<RuneBook.RuneSourcePages.RuneSourceCell> sourceList) {
+        localPageListView = localList;
+        clientPageListView = clientList;
+        runeSourceListView = sourceList;
+        log.info("Runebook initialized!");
     }
 
-    public static void refreshLocalRunes(JFXListView<Label> runebookList) {
-        runebookList.getItems().clear();
-        SimplePreferences.getRuneBookValues().forEach(page -> runebookList.getItems().add(createListElement(page)));
-    }
-
-    public static void handleCtrlV(JFXListView<Label> localList) {
+    public static void handleCtrlV(JFXListView<RuneBook.LocalPages.LocalPageCell> localList) {
         availablePages = RuneChanger.getInstance().getRunesModule().getRunePages();
         Transferable transferable = clipboard.getContents(null);
         String data = null;
@@ -51,147 +52,316 @@ public class RuneBook {
         } catch (UnsupportedFlavorException | IOException e) {
             e.printStackTrace();
         }
+
+        log.info("Trying CTRL V action, clipboard contents: " + data);
         if (data == null) {
-            showWarning(LangHelper.getLang().getString("invalid_runepage"), LangHelper.getLang()
-                    .getString("invalid_ctrl_c_buffer"), LangHelper.getLang().getString("only_runechanger_imports"));
+            ControllerUtil.getInstance()
+                    .showInfo(LangHelper.getLang().getString("invalid_runepage"), LangHelper.getLang()
+                            .getString("invalid_ctrl_c_buffer"));
             return;
         }
+
         List<String> list = stringToList(data);
         RunePage page = new RunePage();
         if (!page.importRunePage(list)) {
-            showWarning(LangHelper.getLang().getString("invalid_runepage"), LangHelper.getLang()
-                    .getString("invalid_runepage"), "");
+            ControllerUtil.getInstance()
+                    .showInfo(LangHelper.getLang().getString("invalid_runepage"), LangHelper.getLang()
+                            .getString("invalid_runepage"));
             return;
         }
-        if ((!localList.getItems().filtered(label -> label.getText().equalsIgnoreCase(page.getName())).isEmpty())) {
-            showWarning(LangHelper.getLang().getString("invalid_runepage"), LangHelper.getLang()
-                    .getString("duplicate_name"), "");
+
+        AtomicBoolean duplicate = new AtomicBoolean(false);
+        localPageListView.getItems().filtered(var -> {
+            if (var.text.getText().equalsIgnoreCase(page.getName())) {
+                duplicate.set(true);
+            }
+            return true;
+        });
+
+        if (duplicate.get()) {
+            ControllerUtil.getInstance()
+                    .showInfo(LangHelper.getLang().getString("duplicate_name"), String.format(LangHelper.getLang()
+                            .getString("duplicate_name_msg"), page.getName()));
             return;
         }
+
         SimplePreferences.addRuneBookPage(page);
-        localList.getItems().add(createListElement(page));
+        localList.getItems().add(RuneBook.LocalPages.createLocalElement(page));
     }
 
-    public static void handleCtrlC(JFXListView<Label> selectedListView) {
+    public static void handleCtrlC(JFXListView<RuneBook.LocalPages.LocalPageCell> listView) {
         availablePages = RuneChanger.getInstance().getRunesModule().getRunePages();
-        String selectedPage;
-        try {
-            selectedPage = selectedListView.getFocusModel().getFocusedItem().getText();
-        } catch (RuntimeException e) {
-            return;
-        }
-
+        String selectedPage = listView.getFocusModel().getFocusedItem().text.getText();
         RunePage runePage = SimplePreferences.getRuneBookPage(selectedPage);
         if (runePage == null) {
-            showWarning(LangHelper.getLang().getString("no_page_with_name"), String.format(LangHelper.getLang()
-                    .getString("no_page_with_name_message"), selectedListView
-                    .getFocusModel()
-                    .getFocusedItem()
-                    .getText()), null);
+            ControllerUtil.getInstance()
+                    .showInfo(LangHelper.getLang().getString("no_page_with_name"), String.format(LangHelper.getLang()
+                            .getString("no_page_with_name_message"), listView
+                            .getFocusModel()
+                            .getFocusedItem()
+                            .text.getText()));
             return;
         }
 
         if (!runePage.verify()) {
-            showWarning(LangHelper.getLang().getString("invalid_runepage"), LangHelper.getLang()
-                    .getString("invalid_runepage"), "");
+            ControllerUtil.getInstance()
+                    .showInfo(LangHelper.getLang().getString("invalid_runepage"), LangHelper.getLang()
+                            .getString("invalid_runepage"));
         }
 
         StringSelection selection = new StringSelection(runePage.exportRunePage().toString());
         clipboard.setContents(selection, selection);
-        showInfoAlert(LangHelper.getLang().getString("successful_rune_copy"), LangHelper.getLang()
-                .getString("successful_rune_copy"), "");
+        ControllerUtil.getInstance()
+                .showInfo(LangHelper.getLang().getString("successful_rune_copy"), LangHelper.getLang()
+                        .getString("successful_rune_copy"));
     }
 
-    public static void importLocalRunes(JFXListView<Label> localList, JFXListView<Label> clientList) {
-        Label focusedItem = clientList.getFocusModel().getFocusedItem();
-        if (focusedItem == null) {
-            return;
-        }
-        if (!localList.getItems()
-                .filtered(label -> label.getText().equalsIgnoreCase(focusedItem.getText()))
-                .isEmpty()) {
-            Alert alert = new Alert(Alert.AlertType.WARNING);
-            alert.setTitle(LangHelper.getLang().getString("duplicate_name"));
-            alert.setHeaderText(null);
-            alert.setContentText(String.format(LangHelper.getLang()
-                    .getString("duplicate_name_msg"), focusedItem.getText()));
-            alert.showAndWait();
-            return;
-        }
-        RunePage runePage = availablePages.get(focusedItem.getText());
-        if (runePage == null) {
-            Alert alert = new Alert(Alert.AlertType.WARNING);
-            alert.setTitle(LangHelper.getLang().getString("missing_page"));
-            alert.setHeaderText(null);
-            alert.setContentText(LangHelper.getLang().getString("missing_page_message"));
-            alert.showAndWait();
-            return;
-        }
-        SimplePreferences.addRuneBookPage(runePage);
-        localList.getItems().add(createListElement(runePage));
-    }
+    public static class ClientPages {
 
-    private static Label createListElement(RunePage page) {
-        BufferedImage image = page.getRunes().get(0).getImage();
-        if (image == null) {
-            return null;
+        public static void refreshClientRunes(JFXListView<ClientPageCell> clientList) throws IllegalStateException {
+            availablePages.clear();
+            availablePages = RuneChanger.getInstance().getRunesModule().getRunePages();
+            clientList.getItems().clear();
+            availablePages.values()
+                    .forEach(availablePage -> clientList.getItems().add(createClientElement(availablePage)));
         }
-        Label label = new Label(page.getName());
-        label.setTextFill(Color.WHITE);
-        ImageView imageView = new ImageView(SwingFXUtils.toFXImage(image, null));
-        imageView.setFitHeight(25);
-        imageView.setFitWidth(25);
-        label.autosize();
-        label.setGraphic(imageView);
-        return label;
-    }
 
-    public static void deleteRunePage(JFXListView<Label> localList) {
-        Label selectedLabel = localList.getFocusModel().getFocusedItem();
-        if (selectedLabel == null) {
-            log.warn("User tried to delete a runepage but did not select a valid label");
-            return;
-        }
-        localList.getItems().remove(selectedLabel);
-        SimplePreferences.removeRuneBookPage(selectedLabel.getText());
-    }
+        private static void handleImportButton(JFXButton button, Label label) {
+            AtomicBoolean duplicate = new AtomicBoolean(false);
+            localPageListView.getItems().filtered(var -> {
+                if (var.text.getText().equalsIgnoreCase(label.getText())) {
+                    duplicate.set(true);
+                }
+                return true;
+            });
 
-    public static void loadAction(JFXListView<Label> localRuneList, JFXListView<Label> clientRunesList) {
-        availablePages = RuneChanger.getInstance().getRunesModule().getRunePages();
-        if (localRuneList.getFocusModel().getFocusedItem() == null ||
-                clientRunesList.getFocusModel().getFocusedItem() == null) {
-            showWarning(LangHelper.getLang().getString("no_runepage_to_load"), LangHelper.getLang()
-                    .getString("no_runepage_to_load_message"), null);
-            return;
-        }
-        Map<String, Integer> sortedPageIds = availablePages.entrySet().stream()
-                .collect(Collectors.toMap(Map.Entry::getKey, e -> Integer.parseInt(e.getValue().getSource())));
-        Integer id = sortedPageIds.get(clientRunesList.getFocusModel().getFocusedItem().getText());
-        if (id == null) {
-            showWarning(LangHelper.getLang().getString("no_runepage_to_overwrite"), LangHelper.getLang()
-                    .getString("no_runepage_to_overwrite_message"), null);
-            return;
-        }
-        new Thread(() -> {
-            RunePage runePage =
-                    SimplePreferences.getRuneBookPage(localRuneList.getFocusModel().getFocusedItem().getText());
-            if (runePage == null) {
-                showWarning(LangHelper.getLang().getString("no_page_with_name"), String.format(LangHelper.getLang()
-                        .getString("no_page_with_name_message"), localRuneList
-                        .getFocusModel()
-                        .getFocusedItem()
-                        .getText()), null);
+            if (duplicate.get()) {
+                ControllerUtil.getInstance()
+                        .showInfo(LangHelper.getLang().getString("duplicate_name"), String.format(LangHelper.getLang()
+                                .getString("duplicate_name_msg"), label.getText()));
                 return;
             }
-            RuneChanger.getInstance().getRunesModule().setCurrentRunePage(runePage);
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+
+            RunePage runePage = availablePages.get(label.getText());
+            if (runePage == null) {
+                ControllerUtil.getInstance()
+                        .showInfo(LangHelper.getLang().getString("missing_page"), LangHelper.getLang()
+                                .getString("missing_page_message"));
+                return;
             }
+
+            SimplePreferences.addRuneBookPage(runePage);
+            localPageListView.getItems().add(RuneBook.LocalPages.createLocalElement(runePage));
+            log.info("Imported runepage: " + runePage.getName());
+        }
+
+        public static ClientPageCell createClientElement(RunePage page) {
+            BufferedImage image = page.getRunes().get(0).getImage();
+            if (image == null) {
+                return null;
+            }
+            Label label = new Label(page.getName());
+            label.setTextFill(Color.WHITE);
+            ImageView imageView = new ImageView(SwingFXUtils.toFXImage(image, null));
+            imageView.setFitHeight(25);
+            imageView.setFitWidth(25);
+            label.autosize();
+            label.setGraphic(imageView);
+            ClientPageCell cell = new ClientPageCell(label);
+            return cell;
+        }
+
+        public static class ClientPageCell extends HBox {
+            JFXButton button = new JFXButton();
+            Label text;
+
+            ClientPageCell(Label label) {
+                super();
+                text = label;
+                label.setMaxWidth(Double.MAX_VALUE);
+                HBox.setHgrow(label, Priority.ALWAYS);
+                button.setText("Export");
+                button.getStyleClass().add("runechanger-button");
+                button.setRipplerFill(Color.TRANSPARENT);
+                button.setOnAction(action -> RuneBook.ClientPages.handleImportButton(button, label));
+                this.getChildren().addAll(label, button);
+            }
+        }
+    }
+
+    public static class LocalPages {
+
+        public static void refreshLocalRunes(JFXListView<LocalPageCell> localList) {
+            localList.getItems().clear();
+            SimplePreferences.getRuneBookValues().forEach(page -> localList.getItems().add(createLocalElement(page)));
+        }
+
+        private static void handleDeleteButton(JFXButton button, Label label) {
+            localPageListView.getItems().remove(label.getParent());
+            SimplePreferences.removeRuneBookPage(label.getText());
+        }
+
+        private static void handleLoadButton(JFXButton button, Label label) {
             availablePages = RuneChanger.getInstance().getRunesModule().getRunePages();
-            Platform.runLater(() -> refreshClientRunes(clientRunesList));
-        }).start();
+            if (clientPageListView.getFocusModel().getFocusedItem() == null) {
+                ControllerUtil.getInstance().showInfo(LangHelper.getLang().getString("no_runepage_to_load"),
+                        LangHelper.getLang().getString("no_runepage_to_load_message"));
+                return;
+            }
+
+            Label l = clientPageListView.getFocusModel().getFocusedItem().text;
+            Map<String, Integer> sortedPageIds = availablePages.entrySet()
+                    .stream()
+                    .collect(Collectors.toMap(Map.Entry::getKey, e -> Integer.parseInt(e.getValue().getSource())));
+            Integer id = sortedPageIds.get(l.getText());
+            if (id == null) {
+                ControllerUtil.getInstance()
+                        .showInfo(LangHelper.getLang().getString("no_runepage_to_overwrite"), LangHelper.getLang()
+                                .getString("no_runepage_to_overwrite_message"));
+                return;
+            }
+
+            new Thread(() -> {
+                RunePage runePage =
+                        SimplePreferences.getRuneBookPage(label.getText());
+                if (runePage == null) {
+                    ControllerUtil.getInstance()
+                            .showInfo(LangHelper.getLang()
+                                    .getString("no_page_with_name"), String.format(LangHelper.getLang()
+                                    .getString("no_page_with_name_message"), label.getText()));
+                    return;
+                }
+                RuneChanger.getInstance().getRunesModule().replaceRunePage(runePage, id);
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                availablePages = RuneChanger.getInstance().getRunesModule().getRunePages();
+                Platform.runLater(() -> ClientPages.refreshClientRunes(clientPageListView));
+                log.info("Replaced runepage id: " + id + " with " + runePage.getName());
+            }).start();
+
+        }
+
+        public static LocalPageCell createLocalElement(RunePage page) {
+            BufferedImage image = page.getRunes().get(0).getImage();
+            if (image == null) {
+                return null;
+            }
+            Label label = new Label(page.getName());
+            label.setTextFill(Color.WHITE);
+            ImageView imageView = new ImageView(SwingFXUtils.toFXImage(image, null));
+            imageView.setFitHeight(25);
+            imageView.setFitWidth(25);
+            label.autosize();
+            label.setGraphic(imageView);
+            LocalPageCell cell = new LocalPageCell(label);
+            return cell;
+        }
+
+        public static class LocalPageCell extends HBox {
+            JFXButton deleteBtn = new JFXButton();
+            JFXButton loadBtn = new JFXButton();
+            Label text;
+
+            LocalPageCell(Label label) {
+                super();
+                text = label;
+                label.setMaxWidth(Double.MAX_VALUE);
+                HBox.setHgrow(label, Priority.ALWAYS);
+                deleteBtn.setText("Delete");
+                deleteBtn.getStyleClass().add("runechanger-button");
+                deleteBtn.setRipplerFill(Color.TRANSPARENT);
+                deleteBtn.setOnAction(action -> RuneBook.LocalPages.handleDeleteButton(deleteBtn, label));
+                loadBtn.setText("Import");
+                loadBtn.getStyleClass().add("runechanger-button");
+                loadBtn.setRipplerFill(Color.TRANSPARENT);
+                loadBtn.setOnAction(action -> RuneBook.LocalPages.handleLoadButton(loadBtn, label));
+                this.getChildren().addAll(label, loadBtn, deleteBtn);
+            }
+        }
+    }
+
+    public static class RuneSourcePages {
+
+        private static List<RunePage> downloadedPages;
+
+        public static void refreshRuneSourcePages(Champion selectedChampion, List<RunePage> list) {
+            if (selectedChampion.getName() == null || selectedChampion.getName() == "") {
+                return;
+            }
+            RuneBook.runeSourceListView.getItems().clear();
+            downloadedPages = list;
+            downloadedPages.forEach(page -> RuneBook.runeSourceListView.getItems().add(createLocalElement(page)));
+        }
+
+        public static void importRuneSourcePage(JFXButton button, Label label) {
+            AtomicBoolean duplicate = new AtomicBoolean(false);
+            localPageListView.getItems().filtered(var -> {
+                if (var.text.getText().equalsIgnoreCase(label.getText())) {
+                    duplicate.set(true);
+                }
+                return true;
+            });
+            if (duplicate.get()) {
+                ControllerUtil.getInstance()
+                        .showInfo(LangHelper.getLang().getString("duplicate_name"), String.format(LangHelper.getLang()
+                                .getString("duplicate_name_msg"), label.getText()));
+                return;
+            }
+
+            final RunePage[] runePage = new RunePage[1];
+            downloadedPages.forEach(var -> {
+                if (var.getName().equalsIgnoreCase(label.getText())) {
+                    runePage[0] = var;
+                }
+            });
+
+            if (runePage[0] == null) {
+                ControllerUtil.getInstance()
+                        .showInfo(LangHelper.getLang().getString("missing_page"), LangHelper.getLang()
+                                .getString("missing_page_message"));
+                return;
+            }
+
+            SimplePreferences.addRuneBookPage(runePage[0]);
+            localPageListView.getItems().add(RuneBook.LocalPages.createLocalElement(runePage[0]));
+            log.info("Imported runepage: " + runePage[0].getName());
+        }
+
+        private static RuneSourceCell createLocalElement(RunePage page) {
+            BufferedImage image = page.getRunes().get(0).getImage();
+            if (image == null) {
+                return null;
+            }
+            Label label = new Label(page.getName());
+            label.setTextFill(Color.WHITE);
+            ImageView imageView = new ImageView(SwingFXUtils.toFXImage(image, null));
+            imageView.setFitHeight(25);
+            imageView.setFitWidth(25);
+            label.autosize();
+            label.setGraphic(imageView);
+            RuneSourceCell cell = new RuneSourceCell(label);
+            return cell;
+        }
+
+        public static class RuneSourceCell extends HBox {
+            JFXButton importBtn = new JFXButton();
+            Label text;
+
+            RuneSourceCell(Label label) {
+                super();
+                text = label;
+                label.setMaxWidth(Double.MAX_VALUE);
+                HBox.setHgrow(label, Priority.ALWAYS);
+                importBtn.setText("Import");
+                importBtn.getStyleClass().add("runechanger-button");
+                importBtn.setRipplerFill(Color.TRANSPARENT);
+                importBtn.setOnAction(action -> RuneBook.RuneSourcePages.importRuneSourcePage(importBtn, label));
+                this.getChildren().addAll(label, importBtn);
+            }
+        }
     }
 
 }

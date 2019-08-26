@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.Cursor?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.shape.Line?>
+
+<Pane fx:id="container" prefHeight="500.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1">
+    <ImageView layoutX="-457.0" layoutY="-220.0">
+      <image>
+         <Image url="@../images/blueBackground.png" />
+      </image></ImageView>
+   <Pane fx:id="sidebar" layoutX="-170.0" layoutY="67.0">
+      <children>
+         <Button fx:id="report" layoutX="170.0" layoutY="393.0" mnemonicParsing="false" onAction="#onBugReport" styleClass="bug-button" />
+         <Button fx:id="settings" contentDisplay="RIGHT" layoutY="1.0" mnemonicParsing="false" onAction="#onTabSelect" styleClass="button-menu">
+            <graphic>
+               <ImageView fitHeight="40.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true" translateX="80.0">
+                  <image>
+                     <Image url="@../runes/8214.png" />
+                  </image>
+               </ImageView>
+            </graphic>
+         </Button>
+         <Button fx:id="loot" contentDisplay="RIGHT" layoutY="48.0" mnemonicParsing="false" onAction="#onTabSelect" styleClass="button-menu">
+            <graphic>
+               <ImageView fitHeight="40.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true" translateX="80.0">
+                  <image>
+                     <Image url="@../runes/8229.png" />
+                  </image>
+               </ImageView>
+            </graphic>
+         </Button>
+         <Button fx:id="gameSettings" contentDisplay="RIGHT" layoutY="94.0" mnemonicParsing="false" onAction="#onTabSelect" styleClass="button-menu">
+            <graphic>
+               <ImageView fitHeight="40.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true" translateX="80.0">
+                  <image>
+                     <Image url="@../runes/8230.png" />
+                  </image>
+               </ImageView>
+            </graphic>
+         </Button>
+         <Button fx:id="otherSettings" contentDisplay="RIGHT" layoutY="140.0" mnemonicParsing="false" onAction="#onTabSelect" styleClass="button-menu">
+            <graphic>
+               <ImageView fitHeight="40.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true" translateX="80.0">
+                  <image>
+                     <Image url="@../runes/8351.png" />
+                  </image>
+               </ImageView>
+            </graphic>
+         </Button>
+      </children>
+   </Pane>
+   <Line endX="599.0" endY="45.0" startY="44.0" stroke="#c8aa6e" strokeWidth="3.0" />
+   <Pane fx:id="fullContentPane" prefHeight="500.0" prefWidth="600.0" style="-: ;" visible="false" />
+   <Pane fx:id="contentPane" layoutX="80.0" layoutY="70.0" prefHeight="430.0" prefWidth="520.0" visible="false" />
+   <ImageView fitHeight="44.0" fitWidth="600.0" onMouseDragged="#onHandleDrag" onMousePressed="#onHandlePress" pickOnBounds="true" preserveRatio="true" />
+   <TextField fx:id="search" focusTraversable="false" layoutX="30.0" layoutY="10.0" maxHeight="24.0" maxWidth="235.0" minHeight="24.0" minWidth="235.0" prefHeight="24.0" prefWidth="235.0" styleClass="text-field" stylesheets="@../style.css" />
+   <ImageView fx:id="back" accessibleRole="BUTTON" fitHeight="20.0" fitWidth="12.0" layoutX="11.0" layoutY="12.0" onMouseClicked="#onBack" pickOnBounds="true" preserveRatio="true">
+      <image>
+         <Image url="@../images/back.png" />
+      </image>
+      <cursor>
+         <Cursor fx:constant="HAND" />
+      </cursor>
+   </ImageView>
+   <ImageView accessibleRole="BUTTON" fitHeight="20.0" fitWidth="20.0" layoutX="570.0" layoutY="12.0" onMouseClicked="#onClose" pickOnBounds="true" preserveRatio="true">
+      <image>
+         <Image url="@../images/close.png" />
+      </image>
+      <cursor>
+         <Cursor fx:constant="HAND" />
+      </cursor>
+   </ImageView>
+   <ImageView accessibleRole="BUTTON" fitHeight="20.0" fitWidth="20.0" layoutX="550.0" layoutY="12.0" onMouseClicked="#onMinimize" pickOnBounds="true" preserveRatio="true">
+      <image>
+         <Image url="@../images/minimize.png" />
+      </image>
+      <cursor>
+         <Cursor fx:constant="HAND" />
+      </cursor>
+   </ImageView>
+</Pane>

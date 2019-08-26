@@ -1,0 +1,290 @@
+.list-cell:filled:selected:focused,
+.list-cell:filled:selected {
+	-fx-background-color: rgba(255, 255, 255, 0.2);
+	-fx-text-fill: white;
+}
+.list-cell {
+	-fx-text-fill: white;
+	-fx-background-color: transparent;
+}
+.list-cell:filled:hover {
+	-fx-background-color: rgba(255, 255, 255, 0.1);
+	-fx-text-fill: white;
+}
+.backdrop-magic {
+	-fx-background-image: url("images/backdrop-magic.png");
+}
+.sidebar-user-btn {
+	-fx-background-color: transparent;
+	-fx-background-radius: 0px;
+	-fx-text-fill: #b8b1b1;
+}
+.sidebar-btn {
+	-fx-background-color: transparent;
+	-fx-background-radius: 0px;
+	-fx-text-fill: #b8b1b1;
+}
+.sidebar-btn:hover {
+	-fx-background-color: transparent;
+	-fx-background-radius: 0px;
+	-fx-text-fill: #b8b1b1;
+	-fx-border-color: #5C461E;
+	-fx-border-width: 0px 0px 0px 3px;
+}
+.label {
+	-fx-text-fill: #8D897D;
+}
+.sidebar-btn:pressed .label {
+	-fx-background-color: transparent;
+	-fx-background-radius: 0px;
+	-fx-text-fill: #0099ff;
+}
+.sidebar-btn:pressed .sidebar-btn-icon {
+	-fx-fill: #0099ff;
+}
+.sidebar-btn-icon {
+	-fx-fill: #b8b1b1;
+}
+.menu-bar-btns {
+	-fx-background-color: #ffffff00;
+}
+.menu-bar-btns-icon {
+	-fx-fill: #999;
+}
+.menu-bar-btns:hover .menu-bar-btns-icon {
+	-fx-fill: #fff;
+}
+/*******************************************************************************
+*                                                                              *
+* Scroll bar                                                                   *
+*                                                                              *
+*******************************************************************************/
+
+.scroll-pane>.viewport {
+	-fx-background-color: transparent;
+}
+.scroll-pane {
+	-fx-background-color: transparent;
+}
+.scroll-bar:horizontal,
+.scroll-bar:vertical {
+	-fx-background-color: transparent;
+}
+.scroll-bar:horizontal .track,
+.scroll-bar:vertical .track {
+	-fx-background-color: transparent;
+	-fx-border-color: transparent;
+	-fx-background-radius: 0em;
+}
+.scroll-bar:horizontal .thumb,
+.scroll-bar:vertical .thumb {
+	-fx-background-color: #785A28;
+	-fx-background-radius: 5em;
+}
+.scroll-bar .increment-arrow,
+.scroll-bar .decrement-arrow {
+	-fx-shape: " ";
+	-fx-padding: 3;
+}
+/*******************************************************************************
+*                                                                              *
+* JFX Check Box                                                                *
+*                                                                              *
+*******************************************************************************/
+
+.runechanger-check-box {
+	-fx-text-fill: #8D897D;
+}
+.runechanger-check-box .box {
+	-jfx-checked-color: #997B42;
+	-jfx-unchecked-color: #997B42;
+	-fx-pref-height: 20;
+	-fx-pref-width: 20;
+}
+.runechanger-check-box .mark {
+	-fx-max-width: 16;
+	-fx-max-height: 12.8;
+	/* width * 0.8 */
+	-fx-border-color: #8E7131;
+}
+/* Hovered */
+
+.runechanger-check-box:hover {
+	-fx-text-fill: #D7CEBE;
+}
+.runechanger-check-box:hover .mark {
+	-fx-max-width: 16;
+	-fx-max-height: 12.8;
+	/* width * 0.8 */
+	-fx-border-color: #B4B0A2;
+}
+.runechanger-check-box:hover .box {
+	-jfx-checked-color: #997B42;
+	-jfx-unchecked-color: #997B42;
+	-fx-pref-height: 20;
+	-fx-pref-width: 20;
+}
+/*******************************************************************************
+ *                                                                             *
+ * JFX Dialog Layout                                                           *
+ *                                                                             *
+ ******************************************************************************/
+
+.jfx-dialog-overlay-pane {
+	-fx-background-color: #010A13;
+}
+.dialog-trigger {
+	-fx-background-color: #010A13;
+	-jfx-button-type: RAISED;
+	-fx-font-size: 14.0px;
+}
+.jfx-layout-heading .label {
+	-fx-font-size: 20.0px;
+}
+.dialog-accept {
+	-fx-text-fill: #010A13;
+	-fx-font-weight: BOLD;
+	-fx-padding: 0.7em 0.8em;
+}
+/*******************************************************************************
+ *                                                                             *
+ * Circular buttons                                                            *
+ *                                                                             *
+ ******************************************************************************/
+
+.content-area-circle-btns {
+	-fx-background-color: #fff;
+	-fx-background-radius: 100px;
+	-fx-border-color: #cccccc;
+	-fx-border-radius: 100%;
+}
+.content-area-circle-btns:hover {
+	-fx-background-color: #0099ff;
+	-fx-background-radius: 100px;
+	-fx-text-fill: #fff;
+}
+.content-area-circle-btns-icon {
+	-fx-fill: #b8b1b1;
+}
+.content-area-circle-btns:hover .content-area-circle-btns-icon {
+	-fx-fill: #fff;
+}
+/*******************************************************************************
+ *                                                                              *
+ * Runechanger Textfield                                                        *
+ *                                                                              *
+ *******************************************************************************/
+
+.text-field {
+	-fx-background-color: #020206;
+	-fx-font-weight: BOLD;
+	-fx-text-fill: #D0C7B6;
+	-fx-alignment: top-left;
+	-jfx-focus-color: #B2945B;
+	-jfx-unfocus-color: #9a9557;
+	-fx-border-color: #9a9557;
+	-fx-border-width: 1px 1px 1px 1px;
+	-fx-alignment: center;
+}
+.text-field:focused,
+.text-field:hover {
+	-fx-background-color: #10151F;
+	-fx-font-weight: BOLD;
+	-fx-text-fill: #D0C7B6;
+	-fx-alignment: top-left;
+	-jfx-focus-color: #B2945B;
+	-jfx-unfocus-color: #9a9557;
+	-fx-border-color: #B2945B;
+	-fx-border-width: 1px 1px 1px 1px;
+	-fx-alignment: center;
+}
+/*******************************************************************************
+  *                                                                              *
+  * Runepage Button                                                              *
+  *                                                                              *
+  *******************************************************************************/
+
+.runepage-button {
+	-fx-background-color: #020206;
+	-fx-border-color: #9a9557;
+	-fx-text-fill: white;
+}
+.runepage-button:hover {
+	-fx-background-color: #10151F;
+	-fx-text-fill: white;
+}
+.runepage-button:disabled {
+	-fx-background-color: #17173d;
+	-fx-border-color: #9a9557;
+	-fx-text-fill: white;
+}
+/*******************************************************************************
+*                                                                              *
+* Runechanger button                                                           *
+*                                                                              *
+*******************************************************************************/
+
+.runechanger-button {
+	-fx-background-color: #1E2328;
+	-fx-border-color: #C8A459;
+	-fx-text-fill: #C5B78C;
+}
+.runechanger-button:hover {
+	-fx-background-color: #1E232A;
+	-fx-border-color: #E2CA9A;
+	-fx-text-fill: #EAE0CD;
+}
+
+/*******************************************************************************
+*                                                                              *
+* Runechanger progress bar                                                     *
+*                                                                              *
+*******************************************************************************/
+.jfx-progress-bar {
+    -fx-border-width: 1px 1px 1px 1px;
+    fx-border-color: #2B2219;
+}
+
+.jfx-progress-bar > .track, .jfx-progress-bar > .bar {
+    -fx-background-radius: 0;
+    -fx-background-insets: 0;
+}
+
+.jfx-progress-bar > .bar {
+    -fx-background-color: #0994A2;
+}
+
+.jfx-progress-bar > .track {
+    -fx-background-color: #1E2328;
+}
+
+/*******************************************************************************
+*                                                                              *
+* JFX Spinner                                                                  *
+*                                                                              *
+*******************************************************************************/
+
+.jfx-spinner {
+
+}
+
+.jfx-spinner .arc {
+	-fx-stroke-width: 6.0;
+	-fx-stroke: #00ADB1;
+}
+
+.jfx-spinner .track {
+	-fx-stroke: #d0d0d0;
+}
+
+.jfx-spinner:indeterminate .arc {
+	-fx-stroke: #00ADB1;
+}
+
+.jfx-spinner .percentage {
+	-fx-fill: #ab47bc;
+}
+
+.jfx-spinner .text {
+	visibility: false;
+}

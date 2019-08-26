@@ -1,7 +1,7 @@
 package com.stirante.RuneChanger.runestore;
 
-import com.stirante.RuneChanger.model.Champion;
-import com.stirante.RuneChanger.model.RunePage;
+import com.stirante.RuneChanger.model.client.Champion;
+import com.stirante.RuneChanger.model.client.RunePage;
 
 import java.util.List;
 

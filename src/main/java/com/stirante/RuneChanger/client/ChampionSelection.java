@@ -1,11 +1,12 @@
 package com.stirante.RuneChanger.client;
 
 import com.stirante.RuneChanger.DebugConsts;
-import com.stirante.RuneChanger.model.Champion;
-import com.stirante.RuneChanger.model.GameMode;
+import com.stirante.RuneChanger.model.client.Champion;
+import com.stirante.RuneChanger.model.client.GameMode;
 import com.stirante.lolclient.ClientApi;
 import generated.*;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -13,8 +14,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-@Slf4j
 public class ChampionSelection extends ClientModule {
+    private static final Logger log = LoggerFactory.getLogger(ChampionSelection.class);
 
     private Map<String, Object> action;
     private Champion champion;
@@ -30,12 +31,16 @@ public class ChampionSelection extends ClientModule {
         try {
             ArrayList<Champion> lastChampions = new ArrayList<>();
             LolMatchHistoryMatchHistoryList historyList =
-                    getApi().executeGet("/lol-match-history/v2/matchlist?begIndex=0&endIndex=20",
-                            LolMatchHistoryMatchHistoryList.class);
+                    getApi().executeGet("/lol-match-history/v2/matchlist",
+                            LolMatchHistoryMatchHistoryList.class,
+                            "begIndex", "0",
+                            "endIndex", "20");
             List<LolMatchHistoryMatchHistoryGame> games = historyList.games.games;
             historyList =
-                    getApi().executeGet("/lol-match-history/v2/matchlist?begIndex=20&endIndex=40",
-                            LolMatchHistoryMatchHistoryList.class);
+                    getApi().executeGet("/lol-match-history/v2/matchlist",
+                            LolMatchHistoryMatchHistoryList.class,
+                            "begIndex", "20",
+                            "endIndex", "40");
             games.addAll(historyList.games.games);
             games.sort((o1, o2) -> o2.gameCreation.compareTo(o1.gameCreation));
             for (LolMatchHistoryMatchHistoryGame game : games) {
@@ -211,5 +216,10 @@ public class ChampionSelection extends ClientModule {
         action = null;
         positionSelector = false;
         gameMode = null;
+    }
+
+    public void reset() {
+        super.reset();
+        clearSession();
     }
 }

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.Cursor?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.Pane?>
+
+<Pane fx:id="container" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="36.0" prefWidth="270.0" styleClass="rune-item" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1">
+    <children>
+        <ImageView fx:id="icon" fitHeight="34.0" fitWidth="34.0" pickOnBounds="true" preserveRatio="true" x="1.0" y="1.0">
+            <image>
+                <Image url="@../runes/8229.png" />
+            </image>
+        </ImageView>
+        <Label fx:id="name" layoutX="35.0" prefHeight="36.0" prefWidth="154.0" styleClass="rune-item-text" text="Label" />
+        <CheckBox fx:id="selected" layoutX="240.0" layoutY="5.0" maxHeight="36.0" maxWidth="46.0" minHeight="24.0" minWidth="24.0" mnemonicParsing="false" onAction="#onSelectChange" prefHeight="24.0" prefWidth="24.0" />
+        <ImageView fx:id="delete" accessibleRole="BUTTON" fitHeight="24.0" fitWidth="24.0" layoutX="216.0" layoutY="5.0" onMouseClicked="#onDelete" pickOnBounds="true" preserveRatio="true">
+            <image>
+                <Image url="@../images/delete.png" />
+            </image>
+         <cursor>
+            <Cursor fx:constant="HAND" />
+         </cursor>
+        </ImageView>
+      <ImageView fx:id="importPage" accessibleRole="BUTTON" fitHeight="24.0" fitWidth="24.0" layoutX="240.0" layoutY="6.0" onMouseClicked="#onPageImport" pickOnBounds="true" preserveRatio="true" visible="false">
+         <image>
+            <Image url="@../images/importPage.png" />
+         </image>
+         <cursor>
+            <Cursor fx:constant="HAND" />
+         </cursor>
+      </ImageView>
+      <Label fx:id="shortName" layoutX="35.0" prefHeight="36.0" prefWidth="129.0" styleClass="rune-item-text" text="Label" visible="false" />
+      <Label fx:id="source" layoutX="160.0" layoutY="12.0" prefHeight="18.0" prefWidth="78.0" styleClass="rune-item-source" text="(champion.gg)" visible="false" />
+      <ImageView fx:id="edit" accessibleRole="BUTTON" fitHeight="24.0" fitWidth="24.0" layoutX="194.0" layoutY="5.0" onMouseClicked="#onEdit" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="@../images/edit.png" />
+         </image>
+         <cursor>
+            <Cursor fx:constant="HAND" />
+         </cursor>
+      </ImageView>
+    </children>
+</Pane>
