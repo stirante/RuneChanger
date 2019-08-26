@@ -1,7 +1,6 @@
 package com.stirante.RuneChanger.model;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.stirante.RuneChanger.SetupApiConnection;
 import com.stirante.RuneChanger.model.InputSettings.InputSettings;
 import com.stirante.lolclient.ClientApi;
@@ -13,13 +12,8 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.Map;
 
-import static com.stirante.RuneChanger.JsonUtil.countJson;
 import static com.stirante.RuneChanger.JsonUtil.getStrictGsonObject;
 
-/**
- * If the gson classes get outdated you can use these settings https://gyazo.com/f2157720d112c33bcf2268b04e070778?token=4f34116248804a826504445f24889559
- * with this website http://www.jsonschema2pojo.org
- */
 public class InputSettingsTest extends SetupApiConnection {
 
     private final String API_PATH = "/lol-game-settings/v1/input-settings";
@@ -38,7 +32,7 @@ public class InputSettingsTest extends SetupApiConnection {
         String json = gson.toJson(map);
         InputSettings inputSettings = gson.fromJson(json, InputSettings.class);
         String exportedJson = gson.toJson(inputSettings);
-        Assert.assertTrue(exportedJson.equals(json));
+        Assert.assertTrue("The com.stirante.RuneChanger.model.InputSettings gson classes are outdated, remake them using http://www.jsonschema2pojo.org with these settings: https://gyazo.com/f2157720d112c33bcf2268b04e070778?token=4f34116248804a826504445f24889559", exportedJson.equals(json));
 
         for (Field declaredField : inputSettings.getClass().getDeclaredFields()) {
             declaredField.setAccessible(true);

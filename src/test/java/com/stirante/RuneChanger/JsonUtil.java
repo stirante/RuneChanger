@@ -1,22 +1,11 @@
 package com.stirante.RuneChanger;
 
-import com.google.gson.*;
-
-import java.util.concurrent.atomic.AtomicInteger;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonPrimitive;
+import com.google.gson.JsonSerializer;
 
 public class JsonUtil {
-    public static int countJson(JsonObject jsonObject) {
-        AtomicInteger jsonCount = new AtomicInteger();
-        jsonObject.keySet().forEach(key -> {
-            Object keyvalue = jsonObject.get(key);
-            if (keyvalue instanceof JsonObject) {
-                ((JsonObject) keyvalue).keySet().forEach(key2 -> jsonCount.getAndIncrement());
-            }
-            jsonCount.getAndIncrement();
-        });
-        return jsonCount.get();
-    }
-
     public static Gson getStrictGsonObject() {
         return new GsonBuilder().
                 registerTypeAdapter(Double.class, (JsonSerializer<Double>) (src, typeOfSrc, context) -> {
