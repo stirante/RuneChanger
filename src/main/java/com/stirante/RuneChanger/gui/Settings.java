@@ -70,7 +70,7 @@ public class Settings extends Application {
                     instance.home.localRunes.addAll(SimplePreferences.getRuneBookValues());
                     instance.home.setOnline(RuneChanger.getInstance()
                             .getChampionSelectionModule()
-                            .getCurrentSummoner());
+                            .getCurrentSummoner(), RuneChanger.getInstance().getLootModule());
                     if (instance.runeChanger.getRunesModule() != null) {
                         new AsyncTask<Void, Void, Collection<RunePage>>() {
                             @Override

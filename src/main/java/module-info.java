@@ -26,6 +26,7 @@ module RuneChanger {
     exports com.stirante.RuneChanger.gui.controllers;
     exports com.stirante.RuneChanger.model.client;
     exports com.stirante.RuneChanger.client;
+    exports com.stirante.RuneChanger.gui.components;
     opens com.stirante.RuneChanger.runestore;
     opens com.stirante.RuneChanger.model.client;
     opens com.stirante.RuneChanger.model.github;

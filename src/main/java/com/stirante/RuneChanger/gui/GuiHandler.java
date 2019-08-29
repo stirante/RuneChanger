@@ -275,18 +275,18 @@ public class GuiHandler {
                         try {
                             //apparently if left is -32000 then window is minimized
                             if (rect.left != -32000 && top != null && hwnd != null &&
-                                    top.getPointer().equals(hwnd.getPointer())) {
+                                    top.getPointer().equals(hwnd.getPointer()) && !win.isVisible()) {
                                 win.setVisible(true);
                             }
                             else {
                                 char[] windowText = new char[512];
                                 User32.INSTANCE.GetWindowText(top, windowText, 512);
                                 String wText = Native.toString(windowText);
-                                if (wText.equalsIgnoreCase("League of Legends")) {
+                                if (wText.equalsIgnoreCase("League of Legends") && !win.isVisible()) {
                                     win.setVisible(true);
                                     hwnd = top;
                                 }
-                                else {
+                                else if (!wText.equalsIgnoreCase("League of Legends")){
                                     win.setVisible(false);
                                 }
                             }

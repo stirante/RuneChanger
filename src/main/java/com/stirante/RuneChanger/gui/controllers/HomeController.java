@@ -1,6 +1,8 @@
 package com.stirante.RuneChanger.gui.controllers;
 
 import com.stirante.RuneChanger.RuneChanger;
+import com.stirante.RuneChanger.client.Loot;
+import com.stirante.RuneChanger.gui.components.Button;
 import com.stirante.RuneChanger.model.client.RunePage;
 import com.stirante.RuneChanger.util.LangHelper;
 import generated.LolSummonerSummoner;
@@ -27,9 +29,12 @@ public class HomeController {
     public ImageView emptyProfilePicture;
     public Label username;
     public Label localRunesTitle;
+//    public Button craftKeysButton;
+//    public Button disenchantChampionsButton;
     public ListView<RunePage> localRunesList;
 
     public ObservableList<RunePage> localRunes = FXCollections.observableArrayList();
+    private Loot lootModule;
 
     public HomeController() {
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/fxml/Home.fxml"), LangHelper.getLang());
@@ -43,7 +48,8 @@ public class HomeController {
         localRunesList.setCellFactory(listView -> new RuneItemController.RunePageCell(RuneItemController::setHomeRuneMode));
     }
 
-    public void setOnline(LolSummonerSummoner summoner) {
+    public void setOnline(LolSummonerSummoner summoner, Loot lootModule) {
+        this.lootModule = lootModule;
         username.setText(summoner.displayName);
         try {
             BufferedImage profileIcon = ImageIO.read(RuneChanger.getInstance()
@@ -54,20 +60,24 @@ public class HomeController {
             e.printStackTrace();
         }
         emptyProfilePicture.setVisible(false);
+//        disenchantChampionsButton.setDisable(false);
+//        craftKeysButton.setDisable(false);
     }
 
     public void setOffline() {
         emptyProfilePicture.setVisible(true);
         username.setText("");
         profilePicture.setFill(null);
+//        disenchantChampionsButton.setDisable(true);
+//        craftKeysButton.setDisable(true);
     }
 
     public void onChampionDisenchant(ActionEvent event) {
-        RuneChanger.getInstance().getLootModule().disenchantChampions();
+        lootModule.disenchantChampions();
     }
 
     public void onCraftKeys(ActionEvent event) {
-        RuneChanger.getInstance().getLootModule().craftKeys();
+        lootModule.craftKeys();
     }
 
 }

@@ -67,7 +67,6 @@ public class RuneChanger {
         }
         if (Arrays.asList(args).contains("-nologs")) {
             logger.detachAppender("FILE");
-            logger.warn("warning");
         }
         try {
             AutoUpdater.cleanup();

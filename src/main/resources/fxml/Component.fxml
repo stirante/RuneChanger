@@ -1,0 +1,7 @@
+<?import javafx.scene.layout.*?>
+
+<?import javafx.scene.canvas.Canvas?>
+<fx:root type="Pane" prefHeight="93.0" prefWidth="304.0" xmlns="http://javafx.com/javafx/8"
+         xmlns:fx="http://javafx.com/fxml/1">
+    <Canvas id="canvas"/>
+</fx:root>
