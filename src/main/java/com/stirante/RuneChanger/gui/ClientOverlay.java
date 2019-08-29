@@ -73,12 +73,13 @@ public class ClientOverlay extends JPanel {
             e.printStackTrace();
         }
         setBackground(new Color(0f, 0f, 0f, 0f));
-        timer = new Timer(1, new AbstractAction() {
+        timer = new Timer(16, new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 repaint();
             }
         });
+        timer.setRepeats(false);
     }
 
     public void setRuneData(List<RunePage> pages, RunnableWithArgument<RunePage> runeSelectedListener) {
