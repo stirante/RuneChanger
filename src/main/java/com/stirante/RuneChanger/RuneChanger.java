@@ -25,6 +25,8 @@ import generated.*;
 import org.java_websocket.exceptions.WebsocketNotConnectedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.update4j.LaunchContext;
+import org.update4j.service.Launcher;
 
 import javax.swing.*;
 import java.io.File;
@@ -37,7 +39,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-public class RuneChanger {
+public class RuneChanger implements Launcher {
     private static final Logger log = LoggerFactory.getLogger(RuneChanger.class);
 
     public String[] programArguments;
@@ -69,7 +71,6 @@ public class RuneChanger {
             logger.detachAppender("FILE");
         }
         try {
-            AutoUpdater.cleanup();
             AutoStartUtils.checkAutoStartPath();
             if (!AutoUpdater.check()) {
                 JFrame frame = new JFrame();
@@ -77,8 +78,8 @@ public class RuneChanger {
                 frame.setVisible(true);
                 frame.setLocationRelativeTo(null);
                 int dialogResult =
-                        JOptionPane.showConfirmDialog(frame, LangHelper.getLang()
-                                .getString("update_question"), LangHelper.getLang()
+                        JOptionPane.showConfirmDialog(frame, String.format(LangHelper.getLang()
+                                .getString("update_question"), AutoUpdater.getEstimatedUpdateSize()) , LangHelper.getLang()
                                 .getString("update_available"), JOptionPane.YES_NO_OPTION);
                 frame.dispose();
                 if (dialogResult == JOptionPane.YES_OPTION) {
@@ -244,6 +245,7 @@ public class RuneChanger {
     }
 
     private void onChampionChanged(Champion champion) {
+        gui.setRunes(new ArrayList<>(), (page) -> {});
         log.info("Downloading runes for champion: " + champion.getName());
         runes = RuneStore.getRunes(champion);
         if (runes.isEmpty()) {
@@ -411,5 +413,15 @@ public class RuneChanger {
 
     public Loot getLootModule() {
         return lootModule;
+    }
+
+    @Override
+    public void run(LaunchContext context) {
+        try {
+            Runtime.getRuntime().exec("wscript silent.vbs open.bat");
+            System.exit(0);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

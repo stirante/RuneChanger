@@ -18,10 +18,10 @@ RuneChanger is an app that improves and speeds up the use of LoL client.
 ## Requirements
 #### Running
 * Windows
-* JRE 8
 #### Building
-* JDK 8
+* AdoptOpenJDK 12
 * Maven
+* JavaFX
 
 ## Building
 

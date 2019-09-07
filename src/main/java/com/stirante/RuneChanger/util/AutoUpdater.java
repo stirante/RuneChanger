@@ -1,58 +1,17 @@
 package com.stirante.RuneChanger.util;
 
-import com.google.gson.GsonBuilder;
 import com.stirante.RuneChanger.DebugConsts;
-import com.stirante.RuneChanger.gui.Constants;
-import com.stirante.RuneChanger.model.github.Asset;
-import com.stirante.RuneChanger.model.github.Release;
-import com.stirante.RuneChanger.model.github.Version;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.stirante.RuneChanger.RuneChanger;
+import org.update4j.Configuration;
+import org.update4j.FileMetadata;
 
-import javax.swing.*;
-import java.awt.*;
 import java.io.*;
-import java.net.HttpURLConnection;
 import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 public class AutoUpdater {
-    private static final Logger log = LoggerFactory.getLogger(AutoUpdater.class);
-
-    public static final String UPDATE_JAR_FILENAME = "RuneChangerUpdate.jar";
-    public static final String MAIN_JAR_FILENAME = "RuneChanger.jar";
-    public static final String UPDATE_SCRIPT_FILENAME = "update.bat";
-    private static Release cachedRelease;
-
-    /**
-     * Fetches latest release info from GitHub
-     */
-    private static void fetchRelease() throws IOException {
-        URL url = new URL(Constants.LATEST_RELEASE_URL);
-        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-        InputStream in = conn.getInputStream();
-        Release latest = new GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'")
-                .create()
-                .fromJson(new InputStreamReader(in), Release.class);
-        in.close();
-        cachedRelease = latest;
-    }
-
-    /**
-     * Cleans up update script
-     */
-    public static void cleanup() throws Exception {
-        File currentFile = new File(AutoUpdater.class.getProtectionDomain().getCodeSource().getLocation().toURI());
-        File updateScript = new File(currentFile.getParentFile(), UPDATE_SCRIPT_FILENAME);
-        if (updateScript.exists()) {
-            if (!updateScript.delete()) {
-                log.error("Failed to delete the update script!");
-            }
-        }
-    }
+    private static final String UPDATE_CONFIG = "https://s3.amazonaws.com/runechanger.stirante.com/latest/update.xml";
 
     /**
      * Checks whether RuneChanger is up to date
@@ -65,102 +24,149 @@ public class AutoUpdater {
                         SimplePreferences.getSettingsValue("autoUpdate").equals("false"))) {
             return true;
         }
-        if (cachedRelease == null) {
-            fetchRelease();
-        }
-        //If jar update date on github is later than build time of current version, then we need to update
-        for (Asset asset : cachedRelease.assets) {
-            if (asset.name.endsWith(".jar") && asset.name.startsWith("RuneChanger-")) {
-                log.info("Github version is from " +
-                        SimpleDateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT)
-                                .format(asset.updatedAt));
-                //Build time will always be earlier than publish time, so we check, if those differ by more than 6h
-                return asset.updatedAt.getTime() - Version.INSTANCE.buildTime.getTime() < 21600000;
+
+        Configuration read = getConfiguration();
+        return !read.requiresUpdate();
+    }
+
+    public static String getEstimatedUpdateSize() throws IOException {
+        int size = 0;
+        Configuration read = getConfiguration();
+        for (FileMetadata file : read.getFiles()) {
+            if (file.requiresUpdate()) {
+                size += file.getSize();
             }
         }
-        //If we don't find the jar in latest release (which SHOULD NOT happen), we return, that it's up to date
-        return true;
+        return humanReadableByteCount(size, false);
     }
 
     /**
-     * Performs update:
-     * 1. Download new jar file with progress bar
-     * 2. Prepare script, which removes old version, renames new to old name and starts RuneChanger
-     * 3. Run script
-     * 4. Stop RuneChanger
+     * From https://stackoverflow.com/a/3758880/6459649
+     *
+     * @param bytes
+     * @param si
+     * @return
      */
-    public static void performUpdate() throws IOException {
-        if (cachedRelease == null) {
-            fetchRelease();
+    private static String humanReadableByteCount(long bytes, boolean si) {
+        int unit = si ? 1000 : 1024;
+        if (bytes < unit) {
+            return bytes + " B";
         }
-        for (Asset asset : cachedRelease.assets) {
-            if (asset.name.endsWith(".jar") && asset.name.startsWith("RuneChanger-")) {
-                downloadUpdate(asset.browserDownloadUrl);
-            }
+        int exp = (int) (Math.log(bytes) / Math.log(unit));
+        String pre = (si ? "kMGTPE" : "KMGTPE").charAt(exp - 1) + (si ? "" : "i");
+        return String.format("%.1f %sB", bytes / Math.pow(unit, exp), pre);
+    }
+
+    public static void performUpdate() {
+        try {
+            Runtime.getRuntime().exec("cmd /c start update.bat");
+            System.exit(0);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
-    /**
-     * Downloads update with progress and continues update process.
-     * From https://stackoverflow.com/a/22273319/6459649
-     */
-    private static void downloadUpdate(String fileUrl) {
-        final JProgressBar jProgressBar = new JProgressBar();
-        jProgressBar.setMaximum(100000);
-        jProgressBar.setStringPainted(true);
-        JFrame frame = new JFrame();
-        frame.setContentPane(jProgressBar);
-        frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        frame.setSize(300, 70);
-        frame.setResizable(false);
-        frame.setTitle(LangHelper.getLang().getString("updating"));
-        frame.setType(Window.Type.UTILITY);
-        Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
-        frame.setLocation(dim.width / 2 - frame.getSize().width / 2, dim.height / 2 - frame.getSize().height / 2);
-        frame.setVisible(true);
+    private static Configuration configuration = null;
 
-        Runnable updateThread = () -> {
-            try {
-                File currentFile = new File(PathUtils.getJarLocation());
-                URL url = new URL(fileUrl);
-                HttpURLConnection httpConnection = (HttpURLConnection) (url.openConnection());
-                long completeFileSize = httpConnection.getContentLength();
-                BufferedInputStream in = new BufferedInputStream(httpConnection.getInputStream());
-                FileOutputStream fos = new FileOutputStream(new File(currentFile.getParentFile(), UPDATE_JAR_FILENAME));
-                BufferedOutputStream bout = new BufferedOutputStream(fos, 1024);
-                byte[] data = new byte[1024];
-                long downloadedFileSize = 0;
-                int x;
-                while ((x = in.read(data, 0, 1024)) >= 0) {
-                    downloadedFileSize += x;
-                    final int currentProgress =
-                            (int) ((((double) downloadedFileSize) / ((double) completeFileSize)) * 100000d);
-                    SwingUtilities.invokeLater(() -> jProgressBar.setValue(currentProgress));
-                    bout.write(data, 0, x);
+    private static Configuration getConfiguration() throws IOException {
+        if (configuration != null) {
+            return configuration;
+        }
+        Reader reader = new InputStreamReader(new URL(UPDATE_CONFIG).openStream());
+        configuration = Configuration.read(reader);
+        reader.close();
+        return configuration;
+    }
+
+    /**
+     * From https://stackoverflow.com/a/10634536/6459649
+     */
+
+    private static final int BUFFER_SIZE = 4096;
+
+    private static void extractFile(ZipInputStream in, File outdir, String name) throws IOException {
+        byte[] buffer = new byte[BUFFER_SIZE];
+        BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(new File(outdir, name)));
+        int count = -1;
+        while ((count = in.read(buffer)) != -1) {
+            out.write(buffer, 0, count);
+        }
+        out.close();
+    }
+
+    private static void mkdirs(File outdir, String path) {
+        File d = new File(outdir, path);
+        if (!d.exists()) {
+            d.mkdirs();
+        }
+    }
+
+    private static String dirpart(String name) {
+        int s = name.lastIndexOf(File.separatorChar);
+        return s == -1 ? null : name.substring(0, s);
+    }
+
+    /***
+     * Extract zipfile to outdir with complete directory structure
+     * @param zipfile Input .zip file
+     * @param outdir Output directory
+     */
+    public static void extract(File zipfile, File outdir) {
+        try {
+            ZipInputStream zin = new ZipInputStream(new FileInputStream(zipfile));
+            ZipEntry entry;
+            String name, dir;
+            while ((entry = zin.getNextEntry()) != null) {
+                name = entry.getName();
+                if (entry.isDirectory()) {
+                    mkdirs(outdir, name);
+                    continue;
                 }
-                bout.close();
-                in.close();
-                Files.write(Paths.get(currentFile.getParentFile()
-                                .getAbsolutePath(), UPDATE_SCRIPT_FILENAME),
-                        String.format("@echo off\r\necho %s\r\ntimeout 3\r\ndel \"%s\"\r\nren \"%s\" \"%s\"\r\nstart %s\r\nexit\r\n",
-                                LangHelper.getLang().getString("restart_in_3_seconds"),
-                                currentFile.getAbsolutePath(),
-                                UPDATE_JAR_FILENAME,
-                                MAIN_JAR_FILENAME,
-                                MAIN_JAR_FILENAME
-                        ).getBytes());
-                Runtime.getRuntime().exec("cmd /c start " + UPDATE_SCRIPT_FILENAME, null, currentFile.getParentFile());
-                System.exit(0);
-            } catch (Exception ignored) {
+                /* this part is necessary because file entry can come before
+                 * directory entry where is file located
+                 * i.e.:
+                 *   /foo/foo.txt
+                 *   /foo/
+                 */
+                dir = dirpart(name);
+                if (dir != null) {
+                    mkdirs(outdir, dir);
+                }
+
+                extractFile(zin, outdir, name);
             }
-        };
-        new Thread(updateThread).start();
+            zin.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void generateConfig() throws IOException {
+        File target = new File("target");
+        File[] files = target.listFiles((file, s) -> s.endsWith(".zip"));
+        if (files == null || files.length == 0) {
+            System.err.println("Zip file not found inside target folder! Skipping config file generation.");
+            return;
+        }
+        File zip = files[0];
+        File imageDir = new File("image");
+        imageDir.mkdir();
+        extract(zip, imageDir);
+        Configuration build = Configuration.builder()
+                .baseUri("https://s3.amazonaws.com/runechanger.stirante.com/latest")
+                .basePath(new File("").getAbsolutePath())
+                .files(FileMetadata.streamDirectory(imageDir.getAbsolutePath())
+                        .peek(r -> r.classpath(r.getSource().toString().endsWith(".jar"))))
+                .launcher(RuneChanger.class)
+                .build();
+        FileWriter writer = new FileWriter("image/update.xml");
+        build.write(writer);
+        writer.flush();
+        writer.close();
     }
 
     public static void main(String[] args) throws Exception {
-        log.info("Runechanger is up to date: " + check());
-        log.info("Forcing update..");
-        performUpdate();
+        generateConfig();
     }
 
 }

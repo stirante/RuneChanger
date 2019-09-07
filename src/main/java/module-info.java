@@ -20,6 +20,7 @@ module RuneChanger {
     requires fuzzywuzzy;
     requires org.controlsfx.controls;
     requires jna;
+    requires org.update4j;
 
     exports com.stirante.RuneChanger;
     exports com.stirante.RuneChanger.gui;

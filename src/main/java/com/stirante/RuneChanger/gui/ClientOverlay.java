@@ -26,38 +26,58 @@ import java.util.function.Consumer;
 public class ClientOverlay extends JPanel {
     private static final Logger log = LoggerFactory.getLogger(ClientOverlay.class);
 
-    public static final String BOT = "BOT";
-    public static final String MID = "MID";
-    public static final String TOP = "TOP";
+    private static final String BOT = "BOT";
+    private static final String MID = "MID";
+    private static final String TOP = "TOP";
+    private static final Color TEXT_COLOR = new Color(0xc8aa6e);
+    private static final Color DARKER_TEXT_COLOR = new Color(0x785928);
+    private static final Color BACKGROUND_COLOR = new Color(0x010a13);
+    private static final Color LIGHTEN_COLOR = new Color(1f, 1f, 1f, 0.2f);
+    private static final Color DIVIDER_COLOR = new Color(0x1e2328);
+    private static final Color DARKEN_COLOR = new Color(0f, 0f, 0f, 0.01f);
+
+    /**
+     * Application instance
+     */
+    private final RuneChanger runeChanger;
+    /**
+     * Font used in client overlay
+     */
+    private Font font;
+    /**
+     * Current scene
+     */
+    private SceneType type;
+    /**
+     * Timer for rendering overlay
+     */
+    private Timer timer;
+
+    /**
+     * All rune pages
+     */
     private final List<RunePage> pages = new ArrayList<>();
-    private final Color textColor = new Color(0xc8aa6e);
-    private final Color darkerTextColor = new Color(0x785928);
-    private final Color backgroundColor = new Color(0x010a13);
-    private final Color lightenColor = new Color(1f, 1f, 1f, 0.2f);
-    private final Color dividerColor = new Color(0x1e2328);
-    private final Color darkenColor = new Color(0f, 0f, 0f, 0.01f);
+    private Consumer<RunePage> runeSelectedListener;
+    private boolean opened = false;
+    private int selectedRunePageIndex = -1;
+    private BufferedImage icon;
+    private BufferedImage grayscaleIcon;
+    private float currentRuneMenuPosition = 0f;
+    private float scroll = 0f;
+
     private final Rectangle botButton = new Rectangle(0, 0, 0, 0);
     private final Rectangle midButton = new Rectangle(0, 0, 0, 0);
     private final Rectangle topButton = new Rectangle(0, 0, 0, 0);
-    private final RuneChanger runeChanger;
-    private Font font;
-    private Consumer<RunePage> runeSelectedListener;
-    private Font mFont;
-    private boolean opened = false;
-    private int selectedRunePageIndex = -1;
+
     private int selectedChampionIndex = -1;
-    private BufferedImage icon;
-    private BufferedImage fake;
-    private float lastX = 0f;
-    private float lastY = 0f;
-    private SceneType type;
     private ArrayList<Champion> lastChampions;
     private ArrayList<Champion> bannedChampions;
     private Consumer<Champion> suggestedChampionSelectedListener;
-    private float currentRuneMenuPosition = 0f;
     private float currentChampionsPosition = 0f;
-    private float scroll = 0f;
-    private Timer timer;
+
+    private BufferedImage fake;
+    private float lastX = 0f;
+    private float lastY = 0f;
 
     public ClientOverlay(RuneChanger runeChanger) {
         super();
@@ -65,8 +85,9 @@ public class ClientOverlay extends JPanel {
         try {
             InputStream is = getClass().getResourceAsStream("/Beaufort-Bold.ttf");
             font = Font.createFont(Font.TRUETYPE_FONT, is);
-            mFont = font.deriveFont(15f);
+            font = font.deriveFont(15f);
             icon = ImageIO.read(getClass().getResourceAsStream("/images/runechanger-runeforge-icon-28x28.png"));
+            grayscaleIcon = ImageIO.read(getClass().getResourceAsStream("/images/runeforce-icon-grayscale.png"));
             if (DebugConsts.DISPLAY_FAKE) {
                 fake = ImageIO.read(new File("champ select.png"));
             }
@@ -74,12 +95,13 @@ public class ClientOverlay extends JPanel {
             e.printStackTrace();
         }
         setBackground(new Color(0f, 0f, 0f, 0f));
-        timer = new Timer(1, new AbstractAction() {
+        timer = new Timer(16, new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 repaint();
             }
         });
+        timer.setRepeats(false);
     }
 
     public void setRuneData(List<RunePage> pages, Consumer<RunePage> runeSelectedListener) {
@@ -96,8 +118,8 @@ public class ClientOverlay extends JPanel {
     @Override
     public void paintComponent(Graphics g) {
         int fontSize = (int) (Constants.FONT_SIZE * getHeight());
-        if (mFont.getSize() != fontSize) {
-            mFont = font.deriveFont((float) fontSize);
+        if (font.getSize() != fontSize) {
+            font = font.deriveFont((float) fontSize);
         }
         Graphics2D g2d = (Graphics2D) g;
         g2d.clearRect(0, 0, getWidth(), getHeight());
@@ -108,8 +130,8 @@ public class ClientOverlay extends JPanel {
         if (DebugConsts.DISPLAY_FAKE) {
             g2d.drawImage(fake, 0, 0, null);
         }
-        g2d.setFont(mFont);
-        g2d.setColor(textColor);
+        g2d.setFont(font);
+        g2d.setColor(TEXT_COLOR);
 
         if (type == SceneType.CHAMPION_SELECT) {
             drawRuneButton(g2d);
@@ -153,11 +175,11 @@ public class ClientOverlay extends JPanel {
                 currentChampionsPosition = 100f;
             }
         }
-        g2d.setColor(darkerTextColor);
+        g2d.setColor(DARKER_TEXT_COLOR);
         int barWidth = (int) (Constants.CHAMPION_SUGGESTION_WIDTH * getHeight());
         g2d.drawRect(getWidth() - barWidth + 1 + (int) (currentChampionsPosition / 100f * barWidth) - barWidth, 0,
                 barWidth - 2, getHeight() - 1);
-        g2d.setColor(backgroundColor);
+        g2d.setColor(BACKGROUND_COLOR);
         g2d.fillRect(getWidth() - barWidth + (int) (currentChampionsPosition / 100f * barWidth) - barWidth, 1,
                 barWidth - 1, getHeight() - 2);
         int tileIndex = 0;
@@ -169,7 +191,7 @@ public class ClientOverlay extends JPanel {
             int tileSize = (int) (Constants.CHAMPION_TILE_SIZE * getHeight());
             int rowSize = getHeight() / 6;
             if (selectedChampionIndex == tileIndex) {
-                g2d.setColor(lightenColor);
+                g2d.setColor(LIGHTEN_COLOR);
                 g2d.fillRect(getClientWidth(), rowSize * tileIndex, barWidth, rowSize);
             }
             g2d.drawImage(img,
@@ -199,7 +221,7 @@ public class ClientOverlay extends JPanel {
         int topWidth = g2d.getFontMetrics().stringWidth(TOP);
         int bgHeight = g2d.getFontMetrics().getHeight() - (g2d.getFontMetrics().getAscent() / 2);
 
-        g2d.setColor(darkenColor);
+        g2d.setColor(DARKEN_COLOR);
         g2d.fillRect(chatX, chatY - g2d.getFontMetrics().getHeight() +
                 (g2d.getFontMetrics().getAscent() / 2), botWidth, bgHeight);
         botButton.x =
@@ -208,29 +230,29 @@ public class ClientOverlay extends JPanel {
         botButton.y = chatY - botWidth;
         botButton.width = bgHeight;
         botButton.height = botWidth;
-        g2d.setColor(textColor);
+        g2d.setColor(TEXT_COLOR);
         g2d.drawString(BOT, chatX, chatY);
         chatX += botWidth + Constants.MARGIN;
 
-        g2d.setColor(darkenColor);
+        g2d.setColor(DARKEN_COLOR);
         g2d.fillRect(chatX, chatY - g2d.getFontMetrics().getHeight() +
                 (g2d.getFontMetrics().getAscent() / 2), midWidth, bgHeight);
         midButton.x = botButton.x;
         midButton.y = chatY - botWidth - Constants.MARGIN - midWidth;
         midButton.width = bgHeight;
         midButton.height = midWidth;
-        g2d.setColor(textColor);
+        g2d.setColor(TEXT_COLOR);
         g2d.drawString(MID, chatX, chatY);
         chatX += midWidth + Constants.MARGIN;
 
-        g2d.setColor(darkenColor);
+        g2d.setColor(DARKEN_COLOR);
         g2d.fillRect(chatX, chatY - g2d.getFontMetrics().getHeight() +
                 (g2d.getFontMetrics().getAscent() / 2), topWidth, bgHeight);
         topButton.x = botButton.x;
         topButton.y = chatY - botWidth - Constants.MARGIN - midWidth - Constants.MARGIN - topWidth;
         topButton.width = bgHeight;
         topButton.height = topWidth;
-        g2d.setColor(textColor);
+        g2d.setColor(TEXT_COLOR);
         g2d.drawString(TOP, chatX, chatY);
 
         chatY = (int) (Constants.QUICK_CHAT_Y * getHeight());
@@ -249,11 +271,14 @@ public class ClientOverlay extends JPanel {
                     Constants.RUNE_BUTTON_SIZE * getHeight()), null);
         }
         else {
+            g2d.drawImage(grayscaleIcon, (int) ((getClientWidth()) * Constants.RUNE_BUTTON_POSITION_X), (int) (
+                    getHeight() *
+                            Constants.RUNE_BUTTON_POSITION_Y), (int) (Constants.RUNE_BUTTON_SIZE * getHeight()), (int) (
+                    Constants.RUNE_BUTTON_SIZE * getHeight()), null);
             opened = false;
         }
     }
 
-    @SuppressWarnings("SuspiciousNameCombination")
     private void drawRuneMenu(Graphics2D g2d) {
         //open/close animations
         if (opened) {
@@ -285,11 +310,11 @@ public class ClientOverlay extends JPanel {
                 (Math.min(10 * itemHeight, itemHeight * pages.size()) * (currentRuneMenuPosition / 100f)) - scroll);
 
         //draw menu background
-        g2d.setColor(backgroundColor);
+        g2d.setColor(BACKGROUND_COLOR);
         g2d.fillRect(menuX,
                 menuY, itemWidth,
                 menuHeight);
-        g2d.setColor(textColor);
+        g2d.setColor(TEXT_COLOR);
         g2d.drawRect(menuX, menuY, itemWidth, menuHeight);
 
         //draw menu items
@@ -299,15 +324,15 @@ public class ClientOverlay extends JPanel {
             int itemBottom = itemTop + itemHeight;
             //highlight hovered item
             if (selectedRunePageIndex == i) {
-                g2d.setColor(lightenColor);
+                g2d.setColor(LIGHTEN_COLOR);
                 g2d.fillRect(1 + menuX, itemTop, itemWidth, itemHeight);
             }
-            g2d.setColor(textColor);
+            g2d.setColor(TEXT_COLOR);
             g2d.drawImage(page.getRunes().get(0).getImage(), menuX, itemTop, itemHeight, itemHeight, null);
             drawCenteredHorizontalString(g2d, menuX + itemHeight, itemBottom, page.getName());
             //draw dividers, except at the bottom
             if (i != pages.size() - 1) {
-                g2d.setColor(dividerColor);
+                g2d.setColor(DIVIDER_COLOR);
                 g2d.drawLine(
                         1 + menuX, itemBottom,
                         (int) ((Constants.RUNE_MENU_X + Constants.RUNE_ITEM_WIDTH) * (getClientWidth())) -
@@ -323,7 +348,7 @@ public class ClientOverlay extends JPanel {
                 Constants.RUNE_ITEM_HEIGHT * pages.size() - (1 - Constants.RUNE_MENU_Y)) * getHeight());
         clearRect(g2d, menuX, 0, itemWidth + 1, upperY);
         //draw top line, if menu is scrollable and menu is scrolled
-        g2d.setColor(textColor);
+        g2d.setColor(TEXT_COLOR);
         if (pages.size() > 10 && opened && scroll > 0f) {
             g2d.drawLine(menuX, upperY, menuX + itemWidth, upperY);
         }

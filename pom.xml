@@ -22,6 +22,11 @@
 
     <dependencies>
         <dependency>
+            <groupId>org.update4j</groupId>
+            <artifactId>update4j</artifactId>
+            <version>1.4.4</version>
+        </dependency>
+        <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-base</artifactId>
             <version>12.0.1</version>
@@ -98,11 +103,17 @@
                 </includes>
             </resource>
             <resource>
+                <directory>${project.basedir}${file.separator}scripts</directory>
+                <targetPath>${project.build.directory}</targetPath>
+                <filtering>true</filtering>
+                <includes>
+                    <include>*.bat</include>
+                    <include>*.vbs</include>
+                </includes>
+            </resource>
+            <resource>
                 <directory>src/main/resources</directory>
                 <filtering>false</filtering>
-                <excludes>
-                    <exclude>**/version.json</exclude>
-                </excludes>
             </resource>
         </resources>
         <plugins>
@@ -120,7 +131,7 @@
                 </executions>
                 <configuration>
                     <injectAllReactorProjects>true</injectAllReactorProjects>
-                    <dotGitDirectory>${project.basedir}/.git</dotGitDirectory>
+                    <dotGitDirectory>${project.basedir}${file.separator}.git</dotGitDirectory>
                     <verbose>false</verbose>
                     <generateGitPropertiesFile>false</generateGitPropertiesFile>
                     <gitDescribe>
@@ -152,15 +163,80 @@
                 </configuration>
             </plugin>
             <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>1.2.1</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>java</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <mainClass>com.stirante.RuneChanger.util.AutoUpdater</mainClass>
+                </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-clean-plugin</artifactId>
+                <version>2.4.1</version>
+                <configuration>
+                    <filesets>
+                        <fileset>
+                            <directory>image/</directory>
+                            <includes>
+                                <include>**/*</include>
+                            </includes>
+                            <followSymlinks>false</followSymlinks>
+                        </fileset>
+                    </filesets>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>com.igormaznitsa</groupId>
+                <artifactId>mvn-jlink-wrapper</artifactId>
+                <version>1.0.3</version>
+                <executions>
+                    <execution>
+                        <id>call-jlink</id>
+                        <goals>
+                            <goal>jlink</goal>
+                        </goals>
+                        <configuration>
+                            <output>${project.build.directory}${file.separator}image</output>
+                            <addModules>
+                                <module>java.base</module>
+                                <module>java.scripting</module>
+                                <module>javafx.graphics</module>
+                                <module>jdk.unsupported.desktop</module>
+                                <module>java.naming</module>
+                                <module>java.sql</module>
+                                <module>jdk.crypto.ec</module>
+                            </addModules>
+                            <options>
+                                <option>--compress=2</option>
+                                <option>--no-header-files</option>
+                                <option>--no-man-pages</option>
+                            </options>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-shade-plugin</artifactId>
-                <version>2.3</version>
+                <artifactId>maven-assembly-plugin</artifactId>
                 <executions>
                     <execution>
                         <phase>package</phase>
                         <goals>
-                            <goal>shade</goal>
+                            <goal>single</goal>
                         </goals>
+                        <configuration>
+                            <appendAssemblyId>false</appendAssemblyId>
+                            <descriptors>
+                                <descriptor>src/main/assembly/zip.xml</descriptor>
+                            </descriptors>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
