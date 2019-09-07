@@ -109,27 +109,7 @@ public class SettingsController implements Initializable {
     private void restartProgram() {
         SimplePreferences.save();
         try {
-            //From https://stackoverflow.com/a/4194224/6459649
-            //find path to the current jar
-            final File currentJar =
-                    new File(SettingsController.class.getProtectionDomain()
-                            .getCodeSource()
-                            .getLocation()
-                            .toURI());
-
-            //if it's not a jar, just close it (probably running from IDE)
-            if (!currentJar.getName().endsWith(".jar")) {
-                System.exit(0);
-            }
-
-            //construct command and run it
-            final ArrayList<String> command = new ArrayList<>();
-            command.add(PathUtils.getJavawPath());
-            command.add("-jar");
-            command.add(currentJar.getPath());
-
-            final ProcessBuilder builder = new ProcessBuilder(command);
-            builder.start();
+            Runtime.getRuntime().exec("wscript silent.vbs open.bat");
         } catch (Exception ex) {
             ex.printStackTrace();
         }

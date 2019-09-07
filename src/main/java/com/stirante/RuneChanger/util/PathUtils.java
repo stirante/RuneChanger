@@ -26,15 +26,11 @@ public class PathUtils {
         return new File(getWorkingDirectory(), "assets");
     }
 
-    public static File getLogsDir() {
-        return new File(getWorkingDirectory(), "logs");
-    }
-
-    public static String getJavawPath() {
-        String javaHome = System.getProperty("java.home");
-        File f = new File(javaHome);
-        f = new File(f, "bin");
-        f = new File(f, "javaw.exe");
+    public static String getWScriptPath() {
+        String systemRoot = System.getenv("SystemRoot");
+        File f = new File(systemRoot);
+        f = new File(f, "System32");
+        f = new File(f, "WScript.exe");
         return f.getAbsolutePath();
     }
 

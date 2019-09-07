@@ -3,6 +3,8 @@ package com.stirante.RuneChanger.util;
 import com.stirante.RuneChanger.gui.Constants;
 import com.sun.jna.platform.win32.Advapi32Util;
 
+import java.io.*;
+
 import static com.sun.jna.platform.win32.WinReg.HKEY_CURRENT_USER;
 
 public class AutoStartUtils {
@@ -16,9 +18,13 @@ public class AutoStartUtils {
     public static void checkAutoStartPath() {
         if (isAutoStartEnabled()) {
             String s = Advapi32Util.registryGetStringValue(HKEY_CURRENT_USER, REGISTRY_AUTOSTART_KEY, Constants.APP_NAME);
-            String value = "\"" + PathUtils.getJavawPath() + "\" -jar " + PathUtils.getJarLocation() + " -minimized";
-            if (!s.equals(value)) {
-                Advapi32Util.registrySetStringValue(HKEY_CURRENT_USER, REGISTRY_AUTOSTART_KEY, Constants.APP_NAME, value);
+            if (!s.equals(getStartCommand())) {
+                Advapi32Util.registrySetStringValue(HKEY_CURRENT_USER, REGISTRY_AUTOSTART_KEY, Constants.APP_NAME, getStartCommand());
+                try {
+                    prepareScript();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         }
     }
@@ -29,13 +35,40 @@ public class AutoStartUtils {
             return;
         }
         if (enabled) {
-            String value = "\"" + PathUtils.getJavawPath() + "\" -jar " + PathUtils.getJarLocation() + " -minimized";
+            try {
+                prepareScript();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
             Advapi32Util.registryCreateKey(HKEY_CURRENT_USER, REGISTRY_AUTOSTART_KEY);
-            Advapi32Util.registrySetStringValue(HKEY_CURRENT_USER, REGISTRY_AUTOSTART_KEY, Constants.APP_NAME, value);
+            Advapi32Util.registrySetStringValue(HKEY_CURRENT_USER, REGISTRY_AUTOSTART_KEY, Constants.APP_NAME, getStartCommand());
         }
         else {
             Advapi32Util.registryDeleteValue(HKEY_CURRENT_USER, REGISTRY_AUTOSTART_KEY, Constants.APP_NAME);
         }
+    }
+
+    public static void prepareScript() throws IOException {
+        File f = new File("open.bat").getAbsoluteFile();
+        FileInputStream fis = new FileInputStream(f);
+        String s = StringUtils.streamToString(fis);
+        fis.close();
+        String[] lines = s.split("\n");
+        StringBuilder sb = new StringBuilder(lines[0]);
+        sb.append("\ncd /d \"").append(f.getParentFile().getAbsolutePath()).append("\"");
+        for (int i = 1;i < lines.length;i++) {
+            sb.append("\n").append(lines[i]);
+        }
+        File file = new File(f.getParentFile(), "autostart.bat");
+        System.out.println(file.getAbsolutePath());
+        FileWriter fw = new FileWriter(file);
+        fw.write(sb.toString());
+        fw.flush();
+        fw.close();
+    }
+
+    public static String getStartCommand() {
+        return "\"" + PathUtils.getWScriptPath() + "\" \"" + PathUtils.getWorkingDirectory() + "\\silent.vbs\" \"" + PathUtils.getWorkingDirectory() + "\\autostart.bat\"";
     }
 
 }

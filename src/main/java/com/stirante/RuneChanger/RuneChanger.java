@@ -119,19 +119,9 @@ public class RuneChanger implements Launcher {
                     return;
                 }
 
-                //construct command and run it
-                final ArrayList<String> command = new ArrayList<>();
-                command.add(PathUtils.getJavawPath());
-                command.add("-jar");
-                command.add(currentJar.getPath());
-                command.add("-minimized");
-
-                final ProcessBuilder builder = new ProcessBuilder(command);
-                builder.directory(currentJar.getParentFile());
-                builder.start();
+                Runtime.getRuntime().exec(AutoStartUtils.getStartCommand(), null, currentJar.getParentFile());
                 log.warn("Runechanger was started from a unusual jvm location most likely due to autostart. " +
                         "Restarting client now to fix pathing errors..");
-                log.info("Restart command: " + command.toString());
                 System.exit(0);
             }
         } catch (Exception e) {
