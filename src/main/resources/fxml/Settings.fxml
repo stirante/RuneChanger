@@ -5,7 +5,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
-<ScrollPane hbarPolicy="NEVER" prefHeight="516.0" prefWidth="750.0" stylesheets="@../stylesheet.css" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.stirante.RuneChanger.gui.controllers.SettingsController">
+<ScrollPane hbarPolicy="NEVER" prefHeight="516.0" prefWidth="750.0" stylesheets="@../stylesheet.css" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.stirante.runechanger.gui.controllers.SettingsController">
    <content>
       <GridPane maxHeight="-Infinity" prefHeight="569.0" prefWidth="395.0">
          <columnConstraints>
