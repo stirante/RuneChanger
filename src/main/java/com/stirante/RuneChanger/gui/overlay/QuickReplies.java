@@ -20,7 +20,6 @@ public class QuickReplies extends OverlayLayer {
     }
 
     @Override
-    @SuppressWarnings("SuspiciousNameCombination")
     protected void draw(Graphics g) {
         if (Boolean.parseBoolean(SimplePreferences.getSettingsValue("quickReplies"))) {
             if (getRuneChanger().getChampionSelectionModule().isPositionSelector()) {
@@ -43,37 +42,33 @@ public class QuickReplies extends OverlayLayer {
                     (int) (Constants.QUICK_CHAT_X * (getClientWidth())) - g2d.getFontMetrics().getHeight() +
                             (g2d.getFontMetrics().getAscent() / 2);
             botButton.y = chatY - botWidth;
-            botButton.width = bgHeight;
-            botButton.height = botWidth;
-            g2d.setColor(TEXT_COLOR);
-            g2d.drawString(BOT, chatX, chatY);
-            chatX += botWidth + Constants.MARGIN;
-
-            g2d.setColor(DARKEN_COLOR);
-            g2d.fillRect(chatX, chatY - g2d.getFontMetrics().getHeight() +
-                    (g2d.getFontMetrics().getAscent() / 2), midWidth, bgHeight);
-            midButton.x = botButton.x;
+            chatX = drawButton(g2d, chatX, chatY, bgHeight, BOT, botWidth, midWidth, botButton, midButton);
             midButton.y = chatY - botWidth - Constants.MARGIN - midWidth;
-            midButton.width = bgHeight;
-            midButton.height = midWidth;
-            g2d.setColor(TEXT_COLOR);
-            g2d.drawString(MID, chatX, chatY);
-            chatX += midWidth + Constants.MARGIN;
-
-            g2d.setColor(DARKEN_COLOR);
-            g2d.fillRect(chatX, chatY - g2d.getFontMetrics().getHeight() +
-                    (g2d.getFontMetrics().getAscent() / 2), topWidth, bgHeight);
-            topButton.x = botButton.x;
+            chatX = drawButton(g2d, chatX, chatY, bgHeight, MID, midWidth, topWidth, midButton, topButton);
             topButton.y = chatY - botWidth - Constants.MARGIN - midWidth - Constants.MARGIN - topWidth;
-            topButton.width = bgHeight;
-            topButton.height = topWidth;
-            g2d.setColor(TEXT_COLOR);
-            g2d.drawString(TOP, chatX, chatY);
+            drawButton(g2d, chatX, chatY, bgHeight, TOP, topWidth, 0, topButton, null);
 
             chatY = (int) (Constants.QUICK_CHAT_Y * getHeight());
             chatX = (int) (Constants.QUICK_CHAT_X * getClientWidth());
             g2d.rotate(Math.toRadians(90), chatX, chatY);
         }
+    }
+
+    @SuppressWarnings("SuspiciousNameCombination")
+    private int drawButton(Graphics2D g2d, int chatX, int chatY, int bgHeight, String text, int width, int nextWidth, Rectangle button, Rectangle nextButton) {
+        button.width = bgHeight;
+        button.height = width;
+        g2d.setColor(TEXT_COLOR);
+        g2d.drawString(text, chatX, chatY);
+        chatX += width + Constants.MARGIN;
+
+        g2d.setColor(DARKEN_COLOR);
+        g2d.fillRect(chatX, chatY - g2d.getFontMetrics().getHeight() +
+                (g2d.getFontMetrics().getAscent() / 2), nextWidth, bgHeight);
+        if (nextButton != null) {
+            nextButton.x = button.x;
+        }
+        return chatX;
     }
 
     public void mouseReleased(MouseEvent e) {

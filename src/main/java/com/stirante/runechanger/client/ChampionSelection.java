@@ -189,6 +189,9 @@ public class ChampionSelection extends ClientModule {
         try {
             LolChampSelectChampSelectSession session = getApi()
                     .executeGet("/lol-champ-select/v1/session", LolChampSelectChampSelectSession.class);
+            if (session == null) {
+                return;
+            }
             String name = session.chatDetails.chatRoomName;
             if (name == null) {
                 return;

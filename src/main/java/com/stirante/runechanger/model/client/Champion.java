@@ -30,6 +30,7 @@ public class Champion {
     private static File portraitsDir = new File(PathUtils.getAssetsDir(), "champions");
     private static final List<Champion> values = new ArrayList<>(256);
     private static final AtomicBoolean IMAGES_READY = new AtomicBoolean(false);
+    private static final List<Runnable> imagesReadyEvenListeners = new ArrayList<>();
 
     static {
         portraitsDir.mkdirs();
@@ -235,6 +236,10 @@ public class Champion {
         return IMAGES_READY.get();
     }
 
+    public static void addImagesReadyListener(Runnable r) {
+        imagesReadyEvenListeners.add(r);
+    }
+
     public BufferedImage getSplashArt() {
         try {
             return ImageIO.read(new File(portraitsDir, id + "_full.jpg"));
@@ -308,6 +313,14 @@ public class Champion {
 
             log.info("Champions initialized");
             IMAGES_READY.set(true);
+            for (Runnable r : imagesReadyEvenListeners) {
+                try {
+                    r.run();
+                } catch (Throwable t) {
+                    t.printStackTrace();
+                }
+            }
+            imagesReadyEvenListeners.clear();
         }
 
         private void getQuoteForChampion(Champion champion) {
