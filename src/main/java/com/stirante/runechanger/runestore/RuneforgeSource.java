@@ -170,6 +170,11 @@ public class RuneforgeSource implements RuneSource {
         return result;
     }
 
+    @Override
+    public String getSourceName() {
+        return "RuneForge.gg";
+    }
+
     private static class Loadout {
         private int loadout_id;
         private String loadout_url;

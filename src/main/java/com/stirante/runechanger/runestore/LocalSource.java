@@ -11,4 +11,9 @@ public class LocalSource implements RuneSource {
     public List<RunePage> getForChampion(Champion champion) {
         return SimplePreferences.getRuneBookValues();
     }
+
+    @Override
+    public String getSourceName() {
+        return "Local";
+    }
 }

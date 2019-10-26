@@ -1,6 +1,7 @@
 package com.stirante.RuneChanger.gui.overlay;
 
 import com.stirante.RuneChanger.gui.Constants;
+import com.stirante.RuneChanger.gui.SceneType;
 import com.stirante.RuneChanger.util.SimplePreferences;
 
 import java.awt.*;
@@ -21,7 +22,7 @@ public class QuickReplies extends OverlayLayer {
 
     @Override
     protected void draw(Graphics g) {
-        if (Boolean.parseBoolean(SimplePreferences.getSettingsValue("quickReplies"))) {
+        if (getSceneType() == SceneType.CHAMPION_SELECT && Boolean.parseBoolean(SimplePreferences.getSettingsValue("quickReplies"))) {
             if (getRuneChanger().getChampionSelectionModule().isPositionSelector()) {
                 return;
             }
