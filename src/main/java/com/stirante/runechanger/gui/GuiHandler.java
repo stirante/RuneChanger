@@ -2,6 +2,9 @@ package com.stirante.RuneChanger.gui;
 
 import com.stirante.RuneChanger.DebugConsts;
 import com.stirante.RuneChanger.RuneChanger;
+import com.stirante.RuneChanger.gui.overlay.ChampionSuggestions;
+import com.stirante.RuneChanger.gui.overlay.ClientOverlay;
+import com.stirante.RuneChanger.gui.overlay.RuneMenu;
 import com.stirante.RuneChanger.model.client.Champion;
 import com.stirante.RuneChanger.model.client.RunePage;
 import com.stirante.RuneChanger.util.LangHelper;
@@ -9,6 +12,8 @@ import com.stirante.RuneChanger.util.NativeUtils;
 import com.sun.jna.Native;
 import com.sun.jna.platform.win32.User32;
 import com.sun.jna.platform.win32.WinDef;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -22,6 +27,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
 
 public class GuiHandler {
+    private static final Logger log = LoggerFactory.getLogger(GuiHandler.class);
     public static final int MINIMIZED_POSITION = -32000;
     private final AtomicBoolean threadRunning = new AtomicBoolean(false);
     private final AtomicBoolean windowOpen = new AtomicBoolean(false);
@@ -58,7 +64,7 @@ public class GuiHandler {
      */
     public void closeWindow() {
         lock.lock();
-        System.out.println("Close window");
+        log.info("Closing window");
         if (win != null) {
             win.dispose();
             win = null;
@@ -72,7 +78,7 @@ public class GuiHandler {
      */
     public void openWindow() {
         lock.lock();
-        System.out.println("Open window");
+        log.info("Opening window");
         if (!windowOpen.get()) {
             startWindow();
             windowOpen.set(true);
@@ -99,7 +105,7 @@ public class GuiHandler {
         if (type == SceneType.NONE) {
             runes.clear();
             if (clientOverlay != null) {
-                clientOverlay.setRuneData(runes, null);
+                clientOverlay.getLayer(RuneMenu.class).setRuneData(runes, null);
             }
         }
     }
@@ -109,7 +115,7 @@ public class GuiHandler {
         runes.addAll(runeList);
         runeSelectedListener = onClickListener;
         if (clientOverlay != null) {
-            clientOverlay.setRuneData(runes, onClickListener);
+            clientOverlay.getLayer(RuneMenu.class).setRuneData(runes, onClickListener);
         }
     }
 
@@ -142,8 +148,8 @@ public class GuiHandler {
         }
         win = new JWindow();
         clientOverlay = new ClientOverlay(runeChanger);
-        clientOverlay.setRuneData(runes, runeSelectedListener);
-        clientOverlay.setSuggestedChampions(suggestedChampions, bannedChampions, suggestedChampionSelectedListener);
+        clientOverlay.getLayer(RuneMenu.class).setRuneData(runes, runeSelectedListener);
+        clientOverlay.getLayer(ChampionSuggestions.class).setSuggestedChampions(suggestedChampions, bannedChampions, suggestedChampionSelectedListener);
         clientOverlay.setSceneType(type);
         win.setContentPane(clientOverlay);
         win.setAlwaysOnTop(true);
@@ -297,7 +303,7 @@ public class GuiHandler {
         this.suggestedChampionSelectedListener = suggestedChampionSelectedListener;
         this.bannedChampions = bannedChampions;
         if (clientOverlay != null) {
-            clientOverlay.setSuggestedChampions(lastChampions, bannedChampions, suggestedChampionSelectedListener);
+            clientOverlay.getLayer(ChampionSuggestions.class).setSuggestedChampions(lastChampions, bannedChampions, suggestedChampionSelectedListener);
         }
     }
 
