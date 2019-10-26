@@ -59,7 +59,7 @@ public class Champion {
      * @return unmodifiable list of all champions
      */
     public static List<Champion> values() {
-        return Collections.unmodifiableList(values);
+        return List.copyOf(values);
     }
 
     /**
