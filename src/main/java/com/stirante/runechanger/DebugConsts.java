@@ -1,4 +1,8 @@
-package com.stirante.runechanger;
+package com.stirante.RuneChanger;
+
+import com.stirante.RuneChanger.util.PathUtils;
+
+import java.io.File;
 
 public class DebugConsts {
     //Used for testing the UI
@@ -14,4 +18,12 @@ public class DebugConsts {
 
     //set to lang code for overriding language
     public static final String OVERRIDE_LANGUAGE = null;
+
+    /**
+     * If instead of a JAR we have a folder, it is very likely, that RuneChanger is running from an IDE
+     */
+    public static boolean isRunningFromIDE() {
+        return new File(PathUtils.getJarLocation()).isDirectory();
+    }
+
 }

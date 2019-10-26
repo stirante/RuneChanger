@@ -22,15 +22,15 @@ module RuneChanger {
     requires jna;
     requires org.update4j;
 
-    exports com.stirante.runechanger;
-    exports com.stirante.runechanger.gui;
-    exports com.stirante.runechanger.gui.controllers;
-    exports com.stirante.runechanger.model.client;
-    exports com.stirante.runechanger.client;
-    exports com.stirante.runechanger.gui.components;
-    opens com.stirante.runechanger.runestore;
-    opens com.stirante.runechanger.model.client;
-    opens com.stirante.runechanger.model.github;
-    opens com.stirante.runechanger.model.log;
-    opens com.stirante.runechanger.gui.components;
+    exports com.stirante.RuneChanger;
+    exports com.stirante.RuneChanger.gui;
+    exports com.stirante.RuneChanger.gui.controllers;
+    exports com.stirante.RuneChanger.model.client;
+    exports com.stirante.RuneChanger.client;
+    exports com.stirante.RuneChanger.gui.components;
+    opens com.stirante.RuneChanger.runestore;
+    opens com.stirante.RuneChanger.model.client;
+    opens com.stirante.RuneChanger.model.github;
+    opens com.stirante.RuneChanger.model.log;
+    opens com.stirante.RuneChanger.gui.components;
 }

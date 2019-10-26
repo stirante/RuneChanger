@@ -1,23 +1,23 @@
-package com.stirante.runechanger;
+package com.stirante.RuneChanger;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.Appender;
 import ch.qos.logback.core.FileAppender;
-import com.stirante.runechanger.client.ChampionSelection;
-import com.stirante.runechanger.client.Login;
-import com.stirante.runechanger.client.Loot;
-import com.stirante.runechanger.client.Runes;
-import com.stirante.runechanger.gui.Constants;
-import com.stirante.runechanger.gui.GuiHandler;
-import com.stirante.runechanger.gui.SceneType;
-import com.stirante.runechanger.gui.Settings;
-import com.stirante.runechanger.model.client.Champion;
-import com.stirante.runechanger.model.client.RunePage;
-import com.stirante.runechanger.model.github.Version;
-import com.stirante.runechanger.runestore.RuneStore;
-import com.stirante.runechanger.util.*;
+import com.stirante.RuneChanger.client.ChampionSelection;
+import com.stirante.RuneChanger.client.Login;
+import com.stirante.RuneChanger.client.Loot;
+import com.stirante.RuneChanger.client.Runes;
+import com.stirante.RuneChanger.gui.Constants;
+import com.stirante.RuneChanger.gui.GuiHandler;
+import com.stirante.RuneChanger.gui.SceneType;
+import com.stirante.RuneChanger.gui.Settings;
+import com.stirante.RuneChanger.model.client.Champion;
+import com.stirante.RuneChanger.model.client.RunePage;
+import com.stirante.RuneChanger.model.github.Version;
+import com.stirante.RuneChanger.runestore.RuneStore;
+import com.stirante.RuneChanger.util.*;
 import com.stirante.lolclient.ClientApi;
 import com.stirante.lolclient.ClientConnectionListener;
 import com.stirante.lolclient.ClientWebSocket;
@@ -285,10 +285,10 @@ public class RuneChanger implements Launcher {
                         SimplePreferences.settingsContainsKey("antiAway") &&
                         SimplePreferences.getSettingsValue("antiAway").equalsIgnoreCase("true")) {
                     if (((LolChatUserResource) event.getData()).availability.equalsIgnoreCase("away")) {
-                        LolChatUserResource data = (LolChatUserResource) event.getData();
-                        data.availability = "chat";
                         new Thread(() -> {
                             try {
+                                LolChatUserResource data = new LolChatUserResource();
+                                data.availability = "chat";
                                 api.executePut("/lol-chat/v1/me", data);
                             } catch (IOException e) {
                                 e.printStackTrace();

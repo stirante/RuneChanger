@@ -1,7 +1,7 @@
-package com.stirante.runechanger.util;
+package com.stirante.RuneChanger.util;
 
-import com.stirante.runechanger.DebugConsts;
-import com.stirante.runechanger.RuneChanger;
+import com.stirante.RuneChanger.DebugConsts;
+import com.stirante.RuneChanger.RuneChanger;
 import org.update4j.Configuration;
 import org.update4j.FileMetadata;
 
@@ -19,6 +19,9 @@ public class AutoUpdater {
      * @return true, if RuneChanger is up to date
      */
     public static boolean check() throws IOException {
+        if (DebugConsts.isRunningFromIDE()) {
+            return true;
+        }
         if (DebugConsts.DISABLE_AUTOUPDATE ||
                 (SimplePreferences.getSettingsValue("autoUpdate") != null &&
                         SimplePreferences.getSettingsValue("autoUpdate").equals("false"))) {
@@ -167,6 +170,7 @@ public class AutoUpdater {
 
     public static void main(String[] args) throws Exception {
         generateConfig();
+        Runtime.getRuntime().exec("explorer.exe \"" + new File("image").getAbsolutePath() + "\"");
     }
 
 }

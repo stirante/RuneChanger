@@ -7,7 +7,7 @@
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.shape.Circle?>
 
-<?import com.stirante.runechanger.gui.components.Button?>
+<?import com.stirante.RuneChanger.gui.components.Button?>
 <Pane fx:id="container" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="430.0" prefWidth="520.0" style="/*-fx-background-color: #171E27;*/" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1">
    <children>
       <Circle fx:id="profilePicture" fill="#3c3c41" layoutX="390.0" layoutY="94.0" radius="70.0" stroke="#c8aa6e" strokeType="INSIDE" strokeWidth="4.0" />
