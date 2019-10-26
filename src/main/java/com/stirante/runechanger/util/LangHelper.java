@@ -1,6 +1,6 @@
-package com.stirante.runechanger.util;
+package com.stirante.RuneChanger.util;
 
-import com.stirante.runechanger.DebugConsts;
+import com.stirante.RuneChanger.DebugConsts;
 
 import java.util.Locale;
 import java.util.ResourceBundle;

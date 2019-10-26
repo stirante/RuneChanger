@@ -1,7 +1,7 @@
-package com.stirante.runechanger.gui.controllers;
+package com.stirante.RuneChanger.gui.controllers;
 
-import com.stirante.runechanger.model.client.RunePage;
-import com.stirante.runechanger.util.LangHelper;
+import com.stirante.RuneChanger.model.client.RunePage;
+import com.stirante.RuneChanger.util.LangHelper;
 import generated.Position;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;

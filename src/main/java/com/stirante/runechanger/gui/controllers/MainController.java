@@ -1,7 +1,7 @@
-package com.stirante.runechanger.gui.controllers;
+package com.stirante.RuneChanger.gui.controllers;
 
-import com.stirante.runechanger.model.client.Champion;
-import com.stirante.runechanger.util.LangHelper;
+import com.stirante.RuneChanger.model.client.Champion;
+import com.stirante.RuneChanger.util.LangHelper;
 import javafx.animation.Interpolator;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;

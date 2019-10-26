@@ -1,6 +1,6 @@
-package com.stirante.runechanger.client;
+package com.stirante.RuneChanger.client;
 
-import com.stirante.runechanger.model.client.RunePage;
+import com.stirante.RuneChanger.model.client.RunePage;
 import com.stirante.lolclient.ClientApi;
 import generated.LolPerksPerkPageResource;
 

@@ -1,4 +1,4 @@
-package com.stirante.runechanger.model.client;
+package com.stirante.RuneChanger.model.client;
 
 public enum GameMode {
     ARAM("ARAM"),

@@ -1,8 +1,8 @@
-package com.stirante.runechanger.util;
+package com.stirante.RuneChanger.util;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.stirante.runechanger.model.client.Rune;
+import com.stirante.RuneChanger.model.client.Rune;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

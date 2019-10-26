@@ -1,6 +1,6 @@
-package com.stirante.runechanger.gui;
+package com.stirante.RuneChanger.gui;
 
-import com.stirante.runechanger.model.github.Version;
+import com.stirante.RuneChanger.model.github.Version;
 
 public class Constants {
     public static final int MARGIN = 10;

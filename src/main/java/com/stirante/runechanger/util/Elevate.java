@@ -1,4 +1,4 @@
-package com.stirante.runechanger.util;
+package com.stirante.RuneChanger.util;
 
 import com.sun.jna.platform.win32.Kernel32;
 import com.sun.jna.platform.win32.Kernel32Util;

@@ -1,6 +1,6 @@
-package com.stirante.runechanger.util;
+package com.stirante.RuneChanger.util;
 
-import com.stirante.runechanger.model.client.RunePage;
+import com.stirante.RuneChanger.model.client.RunePage;
 
 import java.io.*;
 import java.util.ArrayList;

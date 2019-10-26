@@ -1,11 +1,11 @@
-package com.stirante.runechanger.util;
+package com.stirante.RuneChanger.util;
 
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXListView;
-import com.stirante.runechanger.RuneChanger;
-import com.stirante.runechanger.gui.ControllerUtil;
-import com.stirante.runechanger.model.client.Champion;
-import com.stirante.runechanger.model.client.RunePage;
+import com.stirante.RuneChanger.RuneChanger;
+import com.stirante.RuneChanger.gui.ControllerUtil;
+import com.stirante.RuneChanger.model.client.Champion;
+import com.stirante.RuneChanger.model.client.RunePage;
 import javafx.application.Platform;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.control.Label;
@@ -26,7 +26,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
-import static com.stirante.runechanger.util.StringUtils.stringToList;
+import static com.stirante.RuneChanger.util.StringUtils.stringToList;
 
 public class RuneBook {
     private static final Logger log = LoggerFactory.getLogger(RuneBook.class);

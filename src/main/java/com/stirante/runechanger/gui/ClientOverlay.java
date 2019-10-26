@@ -1,20 +1,18 @@
-package com.stirante.runechanger.gui;
+package com.stirante.RuneChanger.gui;
 
-import com.stirante.runechanger.DebugConsts;
-import com.stirante.runechanger.RuneChanger;
-import com.stirante.runechanger.model.client.Champion;
-import com.stirante.runechanger.model.client.GameMode;
-import com.stirante.runechanger.model.client.RunePage;
-import com.stirante.runechanger.util.SimplePreferences;
+import com.stirante.RuneChanger.DebugConsts;
+import com.stirante.RuneChanger.RuneChanger;
+import com.stirante.RuneChanger.model.client.Champion;
+import com.stirante.RuneChanger.model.client.GameMode;
+import com.stirante.RuneChanger.model.client.RunePage;
+import com.stirante.RuneChanger.util.SimplePreferences;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseWheelEvent;
+import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -23,7 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-public class ClientOverlay extends JPanel {
+public class ClientOverlay extends JPanel implements MouseMotionListener, MouseListener, MouseWheelListener {
     private static final Logger log = LoggerFactory.getLogger(ClientOverlay.class);
 
     private static final String BOT = "BOT";
@@ -375,7 +373,19 @@ public class ClientOverlay extends JPanel {
         g.drawString(text, x - 1, bottom - metrics.getHeight() + (metrics.getAscent() / 2));
     }
 
-    public void mouseClicked(MouseEvent e) {
+    public void setSceneType(SceneType type) {
+        this.type = type;
+        timer.restart();
+    }
+
+    public void setSuggestedChampions(ArrayList<Champion> lastChampions,
+                                      ArrayList<Champion> bannedChampions, Consumer<Champion> suggestedChampionSelectedListener) {
+        this.lastChampions = lastChampions;
+        this.bannedChampions = bannedChampions;
+        this.suggestedChampionSelectedListener = suggestedChampionSelectedListener;
+    }
+
+    public void mouseReleased(MouseEvent e) {
         if (DebugConsts.DISPLAY_FAKE) {
             float x = ((float) e.getX()) / ((float) (getClientWidth()));
             float y = ((float) e.getY()) / ((float) getHeight());
@@ -424,6 +434,26 @@ public class ClientOverlay extends JPanel {
             }).start();
         }
         repaint();
+    }
+
+    @Override
+    public void mouseClicked(MouseEvent mouseEvent) {
+
+    }
+
+    @Override
+    public void mousePressed(MouseEvent mouseEvent) {
+
+    }
+
+    @Override
+    public void mouseEntered(MouseEvent mouseEvent) {
+
+    }
+
+    @Override
+    public void mouseDragged(MouseEvent mouseEvent) {
+
     }
 
     public void mouseMoved(MouseEvent e) {
@@ -487,18 +517,6 @@ public class ClientOverlay extends JPanel {
             selectedChampionIndex = -1;
             repaint();
         }
-    }
-
-    public void setSceneType(SceneType type) {
-        this.type = type;
-        timer.restart();
-    }
-
-    public void setSuggestedChampions(ArrayList<Champion> lastChampions,
-                                      ArrayList<Champion> bannedChampions, Consumer<Champion> suggestedChampionSelectedListener) {
-        this.lastChampions = lastChampions;
-        this.bannedChampions = bannedChampions;
-        this.suggestedChampionSelectedListener = suggestedChampionSelectedListener;
     }
 
     public void mouseWheelMoved(MouseWheelEvent e) {

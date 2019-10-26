@@ -1,10 +1,10 @@
-package com.stirante.runechanger.gui.controllers;
+package com.stirante.RuneChanger.gui.controllers;
 
 import com.jfoenix.controls.JFXCheckBox;
-import com.stirante.runechanger.gui.ControllerUtil;
-import com.stirante.runechanger.util.AutoStartUtils;
-import com.stirante.runechanger.util.LangHelper;
-import com.stirante.runechanger.util.SimplePreferences;
+import com.stirante.RuneChanger.gui.ControllerUtil;
+import com.stirante.RuneChanger.util.AutoStartUtils;
+import com.stirante.RuneChanger.util.LangHelper;
+import com.stirante.RuneChanger.util.SimplePreferences;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;

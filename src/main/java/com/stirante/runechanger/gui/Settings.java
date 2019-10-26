@@ -1,15 +1,15 @@
-package com.stirante.runechanger.gui;
+package com.stirante.RuneChanger.gui;
 
-import com.stirante.runechanger.RuneChanger;
-import com.stirante.runechanger.gui.controllers.DialogController;
-import com.stirante.runechanger.gui.controllers.HomeController;
-import com.stirante.runechanger.gui.controllers.MainController;
-import com.stirante.runechanger.gui.controllers.RuneBookController;
-import com.stirante.runechanger.model.client.Champion;
-import com.stirante.runechanger.model.client.RunePage;
-import com.stirante.runechanger.runestore.RuneforgeSource;
-import com.stirante.runechanger.util.AsyncTask;
-import com.stirante.runechanger.util.SimplePreferences;
+import com.stirante.RuneChanger.RuneChanger;
+import com.stirante.RuneChanger.gui.controllers.DialogController;
+import com.stirante.RuneChanger.gui.controllers.HomeController;
+import com.stirante.RuneChanger.gui.controllers.MainController;
+import com.stirante.RuneChanger.gui.controllers.RuneBookController;
+import com.stirante.RuneChanger.model.client.Champion;
+import com.stirante.RuneChanger.model.client.RunePage;
+import com.stirante.RuneChanger.runestore.RuneforgeSource;
+import com.stirante.RuneChanger.util.AsyncTask;
+import com.stirante.RuneChanger.util.SimplePreferences;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.embed.swing.SwingFXUtils;

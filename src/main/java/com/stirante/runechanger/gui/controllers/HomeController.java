@@ -1,16 +1,17 @@
-package com.stirante.runechanger.gui.controllers;
+package com.stirante.RuneChanger.gui.controllers;
 
-import com.stirante.runechanger.RuneChanger;
-import com.stirante.runechanger.client.Loot;
-import com.stirante.runechanger.gui.components.Button;
-import com.stirante.runechanger.model.client.RunePage;
-import com.stirante.runechanger.util.LangHelper;
+import com.stirante.RuneChanger.RuneChanger;
+import com.stirante.RuneChanger.client.Loot;
+//import com.stirante.RuneChanger.gui.components.Button;
+import com.stirante.RuneChanger.model.client.RunePage;
+import com.stirante.RuneChanger.util.LangHelper;
 import generated.LolSummonerSummoner;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.image.ImageView;

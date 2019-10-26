@@ -1,4 +1,4 @@
-package com.stirante.runechanger.gui.components;
+package com.stirante.RuneChanger.gui.components;
 
 import javafx.application.Platform;
 import javafx.beans.Observable;

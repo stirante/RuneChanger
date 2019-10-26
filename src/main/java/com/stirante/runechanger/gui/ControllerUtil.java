@@ -1,9 +1,9 @@
-package com.stirante.runechanger.gui;
+package com.stirante.RuneChanger.gui;
 
 import com.jfoenix.controls.JFXAlert;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXDialogLayout;
-import com.stirante.runechanger.util.LangHelper;
+import com.stirante.RuneChanger.util.LangHelper;
 import javafx.animation.FadeTransition;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;

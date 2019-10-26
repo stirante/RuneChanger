@@ -1,4 +1,4 @@
-package com.stirante.runechanger.client;
+package com.stirante.RuneChanger.client;
 
 import com.stirante.lolclient.ClientApi;
 import generated.LolLootPlayerLoot;

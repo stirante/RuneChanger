@@ -1,10 +1,11 @@
-package com.stirante.runechanger.gui;
+package com.stirante.RuneChanger.gui;
 
-import com.stirante.runechanger.DebugConsts;
-import com.stirante.runechanger.RuneChanger;
-import com.stirante.runechanger.model.client.Champion;
-import com.stirante.runechanger.model.client.RunePage;
-import com.stirante.runechanger.util.LangHelper;
+import com.stirante.RuneChanger.DebugConsts;
+import com.stirante.RuneChanger.RuneChanger;
+import com.stirante.RuneChanger.model.client.Champion;
+import com.stirante.RuneChanger.model.client.RunePage;
+import com.stirante.RuneChanger.util.LangHelper;
+import com.stirante.RuneChanger.util.NativeUtils;
 import com.sun.jna.Native;
 import com.sun.jna.platform.win32.User32;
 import com.sun.jna.platform.win32.WinDef;
@@ -12,24 +13,18 @@ import com.sun.jna.platform.win32.WinDef;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
 
 public class GuiHandler {
-    private final AtomicBoolean running = new AtomicBoolean(true);
+    public static final int MINIMIZED_POSITION = -32000;
+    private final AtomicBoolean threadRunning = new AtomicBoolean(false);
     private final AtomicBoolean windowOpen = new AtomicBoolean(false);
-    private final AtomicBoolean openCommand = new AtomicBoolean(false);
-    private final AtomicBoolean closeCommand = new AtomicBoolean(false);
     private final List<RunePage> runes = Collections.synchronizedList(new ArrayList<>());
     private final ResourceBundle resourceBundle = LangHelper.getLang();
     private final RuneChanger runeChanger;
@@ -42,19 +37,11 @@ public class GuiHandler {
     private ArrayList<Champion> suggestedChampions;
     private Consumer<Champion> suggestedChampionSelectedListener;
     private ArrayList<Champion> bannedChampions;
+    private final ReentrantLock lock = new ReentrantLock();
 
     public GuiHandler(RuneChanger runeChanger) {
         this.runeChanger = runeChanger;
-        handleWindowThread();
-    }
-
-    /**
-     * Is window running
-     *
-     * @return is running
-     */
-    public boolean isRunning() {
-        return running.get();
+        init();
     }
 
     /**
@@ -67,16 +54,43 @@ public class GuiHandler {
     }
 
     /**
-     * Tries to close window
+     * Closes window
      */
-    public void tryClose() {
-        closeCommand.set(true);
+    public void closeWindow() {
+        lock.lock();
+        System.out.println("Close window");
+        if (win != null) {
+            win.dispose();
+            win = null;
+        }
+        windowOpen.set(false);
+        lock.unlock();
     }
 
+    /**
+     * Opens window
+     */
+    public void openWindow() {
+        lock.lock();
+        System.out.println("Open window");
+        if (!windowOpen.get()) {
+            startWindow();
+            windowOpen.set(true);
+        }
+        lock.unlock();
+        startThread();
+    }
+
+    /**
+     * Gets scene type. Currently, there can be only 2 types, but there will be more in the future
+     */
     public SceneType getSceneType() {
         return type;
     }
 
+    /**
+     * Sets scene type. Currently, there can be only 2 types, but there will be more in the future
+     */
     public void setSceneType(SceneType type) {
         this.type = type;
         if (clientOverlay != null) {
@@ -118,7 +132,7 @@ public class GuiHandler {
     }
 
     /**
-     * Actually create and show our button
+     * Actually create and show client overlay
      *
      * @param rect client window bounds
      */
@@ -142,42 +156,9 @@ public class GuiHandler {
         trackPosition(rect);
         win.setVisible(true);
         win.setOpacity(1f);
-        clientOverlay.addMouseMotionListener(new MouseMotionListener() {
-            @Override
-            public void mouseDragged(MouseEvent e) {
-
-            }
-
-            @Override
-            public void mouseMoved(MouseEvent e) {
-                clientOverlay.mouseMoved(e);
-            }
-        });
-        clientOverlay.addMouseListener(new MouseListener() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-            }
-
-            @Override
-            public void mousePressed(MouseEvent e) {
-
-            }
-
-            @Override
-            public void mouseReleased(MouseEvent e) {
-                clientOverlay.mouseClicked(e);
-            }
-
-            @Override
-            public void mouseEntered(MouseEvent e) {
-            }
-
-            @Override
-            public void mouseExited(MouseEvent e) {
-                clientOverlay.mouseExited(e);
-            }
-        });
-        clientOverlay.addMouseWheelListener(e -> clientOverlay.mouseWheelMoved(e));
+        clientOverlay.addMouseMotionListener(clientOverlay);
+        clientOverlay.addMouseListener(clientOverlay);
+        clientOverlay.addMouseWheelListener(clientOverlay);
     }
 
     private void trackPosition(Rectangle rect) {
@@ -187,7 +168,7 @@ public class GuiHandler {
     /**
      * Starts GUI thread for button
      */
-    private void handleWindowThread() {
+    private void init() {
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (Exception ignored) {
@@ -195,22 +176,13 @@ public class GuiHandler {
         try {
             //Create icon in system tray and right click menu
             SystemTray systemTray = SystemTray.getSystemTray();
-            //this actually doesn't work
+            //Create icon in tray
             Image image =
                     ImageIO.read(GuiHandler.class.getResourceAsStream("/images/runechanger-runeforge-icon-32x32.png"));
+            //Create tray menu
             PopupMenu trayPopupMenu = new PopupMenu();
             MenuItem action = new MenuItem("RuneChanger v" + Constants.VERSION_STRING);
             action.setEnabled(false);
-            trayPopupMenu.add(action);
-            action = new MenuItem("By stirante");
-            action.setEnabled(true);
-            action.addActionListener(e -> {
-                try {
-                    Desktop.getDesktop().browse(new URI("http://stirante.com"));
-                } catch (IOException | URISyntaxException e1) {
-                    e1.printStackTrace();
-                }
-            });
             trayPopupMenu.add(action);
 
             MenuItem settings = new MenuItem(resourceBundle.getString("settings"));
@@ -219,8 +191,7 @@ public class GuiHandler {
 
             MenuItem close = new MenuItem(resourceBundle.getString("exit"));
             close.addActionListener(e -> {
-                running.set(false);
-                tryClose();
+                closeWindow();
                 System.exit(0);
             });
             trayPopupMenu.add(close);
@@ -233,76 +204,55 @@ public class GuiHandler {
             e.printStackTrace();
             System.exit(0);
         }
+    }
+
+    /**
+     * Internal method, that starts the thread, which adjusts overlay to client window
+     */
+    private void startThread() {
+        if (threadRunning.get()) {
+            return;
+        }
         new Thread(() -> {
-            while (running.get()) {
-                //command to open and close window at the same time
-                if (openCommand.get() && closeCommand.get()) {
-                    if (win != null) {
-                        win.dispose();
-                        win = null;
-                    }
-                    windowOpen.set(false);
-                    closeCommand.set(false);
-                    startWindow();
-                    openCommand.set(false);
-                    windowOpen.set(true);
-                }
-                //command to open window
-                if (openCommand.get()) {
-                    //don't open window, when it's already open
-                    if (!windowOpen.get()) {
-                        startWindow();
-                        openCommand.set(false);
-                        windowOpen.set(true);
-                    }
-                }
-                //command to close window
-                if (closeCommand.get()) {
-                    if (win != null) {
-                        win.dispose();
-                        win = null;
-                    }
-                    windowOpen.set(false);
-                    openCommand.set(false);
-                    closeCommand.set(false);
-                }
+            threadRunning.set(true);
+            while (windowOpen.get()) {
                 //if window is open set it's position or hide if client is not active window
-                if (windowOpen.get()) {
-                    WinDef.HWND top = User32Extended.INSTANCE.GetForegroundWindow();
-                    WinDef.RECT rect = new WinDef.RECT();
-                    User32Extended.INSTANCE.GetWindowRect(top, rect);
-                    if (win != null) {
-                        try {
-                            //apparently if left is -32000 then window is minimized
-                            if (rect.left != -32000 && top != null && hwnd != null &&
-                                    top.getPointer().equals(hwnd.getPointer()) && !win.isVisible()) {
-                                win.setVisible(true);
-                            }
-                            else {
-                                char[] windowText = new char[512];
-                                User32.INSTANCE.GetWindowText(top, windowText, 512);
-                                String wText = Native.toString(windowText);
-                                if (wText.equalsIgnoreCase("League of Legends") && !win.isVisible()) {
-                                    win.setVisible(true);
-                                    hwnd = top;
-                                }
-                                else if (!wText.equalsIgnoreCase("League of Legends")){
-                                    win.setVisible(false);
-                                }
-                            }
-                            Rectangle rect1 = rect.toRectangle();
-                            if (rect1 != null) {
-                                trackPosition(rect1);
-                            }
-                        } catch (Throwable t) {
-                            //sometimes 'win' becomes null async, so this code throws NullPointerException
-                            t.printStackTrace();
+                lock.lock();
+                WinDef.HWND top = User32Extended.INSTANCE.GetForegroundWindow();
+                WinDef.RECT rect = new WinDef.RECT();
+                User32Extended.INSTANCE.GetWindowRect(top, rect);
+                boolean isClientWindow = NativeUtils.isLeagueOfLegendsClientWindow(top);
+                if (win != null) {
+                    try {
+                        //apparently if left is -32000 then window is minimized
+                        if (rect.left != MINIMIZED_POSITION && top != null && hwnd != null &&
+                                top.getPointer().equals(hwnd.getPointer()) && !win.isVisible()) {
+                            win.setVisible(true);
                         }
-                    } else {
-                        windowOpen.set(false);
-                        openCommand.set(true);
+                        else {
+                            //If top window is not named League of Legends, then hide overlay. Makes funny results when opening folder named League of Legends
+                            if (isClientWindow && !win.isVisible()) {
+                                win.setVisible(true);
+                                hwnd = top;
+                            }
+                            else if (!isClientWindow) {
+                                win.setVisible(false);
+                            }
+                        }
+                        Rectangle rect1 = rect.toRectangle();
+                        if (rect1 != null) {
+                            trackPosition(rect1);
+                        }
+                    } catch (Throwable t) {
+                        t.printStackTrace();
                     }
                 }
+                else {
+                    if (rect.left != MINIMIZED_POSITION && isClientWindow) {
+                        showWindow(rect.toRectangle());
+                    }
+                }
+                lock.unlock();
                 try {
                     //60FPS master race
                     Thread.sleep(16);
@@ -310,21 +260,20 @@ public class GuiHandler {
                     e.printStackTrace();
                 }
             }
+            threadRunning.set(false);
         }).start();
     }
 
     /**
-     * Opens window
+     * Searches for League of Legends window and if found, creates a window for it
      */
     private void startWindow() {
         //firstly get client window
         final User32 user32 = User32.INSTANCE;
         user32.EnumWindows((hWnd, arg1) -> {
-            char[] windowText = new char[512];
-            user32.GetWindowText(hWnd, windowText, 512);
-            String wText = Native.toString(windowText);
+            boolean isClientWindow = NativeUtils.isLeagueOfLegendsClientWindow(hWnd);
 
-            if (wText.isEmpty() || !wText.equalsIgnoreCase("League of Legends")) {
+            if (!isClientWindow) {
                 return true;
             }
             WinDef.RECT rect = new WinDef.RECT();
@@ -333,20 +282,13 @@ public class GuiHandler {
                 return true;
             }
             //ignore minimized windows
-            if (rect.left == -32000) {
+            if (rect.left == MINIMIZED_POSITION) {
                 return true;
             }
             hwnd = hWnd;
             showWindow(rect.toRectangle());
             return true;
         }, null);
-    }
-
-    /**
-     * Opens window
-     */
-    public void openWindow() {
-        openCommand.set(true);
     }
 
     public void setSuggestedChampions(ArrayList<Champion> lastChampions,

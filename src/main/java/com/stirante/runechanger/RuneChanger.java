@@ -221,7 +221,7 @@ public class RuneChanger implements Launcher {
                 resetModules();
                 gui.setSceneType(SceneType.NONE);
                 if (gui.isWindowOpen()) {
-                    gui.tryClose();
+                    gui.closeWindow();
                 }
                 gui.showInfoMessage(LangHelper.getLang().getString("client_disconnected"));
                 Settings.setClientConnected(false);
@@ -318,7 +318,7 @@ public class RuneChanger implements Launcher {
                 }
                 else if (event.getUri().equalsIgnoreCase("/riotclient/zoom-scale")) {
                     //Client window size changed, so we restart the overlay
-                    gui.tryClose();
+                    gui.closeWindow();
                     gui.openWindow();
                 }
                 else if (event.getUri().equalsIgnoreCase("/lol-summoner/v1/current-summoner")) {

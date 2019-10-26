@@ -1,4 +1,4 @@
-package com.stirante.runechanger.model.client;
+package com.stirante.RuneChanger.model.client;
 
 import generated.LolPerksPerkPageResource;
 import org.slf4j.Logger;

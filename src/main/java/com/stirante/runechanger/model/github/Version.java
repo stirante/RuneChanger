@@ -1,4 +1,4 @@
-package com.stirante.runechanger.model.github;
+package com.stirante.RuneChanger.model.github;
 
 import com.google.gson.*;
 

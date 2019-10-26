@@ -1,4 +1,4 @@
-package com.stirante.runechanger.model.log;
+package com.stirante.RuneChanger.model.log;
 
 public class LogResponse {
 

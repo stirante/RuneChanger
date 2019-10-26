@@ -1,8 +1,8 @@
-package com.stirante.runechanger.client;
+package com.stirante.RuneChanger.client;
 
-import com.stirante.runechanger.DebugConsts;
-import com.stirante.runechanger.model.client.Champion;
-import com.stirante.runechanger.model.client.GameMode;
+import com.stirante.RuneChanger.DebugConsts;
+import com.stirante.RuneChanger.model.client.Champion;
+import com.stirante.RuneChanger.model.client.GameMode;
 import com.stirante.lolclient.ClientApi;
 import generated.*;
 import org.slf4j.Logger;

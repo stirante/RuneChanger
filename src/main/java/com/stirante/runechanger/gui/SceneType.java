@@ -1,4 +1,4 @@
-package com.stirante.runechanger.gui;
+package com.stirante.RuneChanger.gui;
 
 public enum SceneType {
     NONE, CHAMPION_SELECT

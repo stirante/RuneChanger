@@ -1,8 +1,8 @@
-package com.stirante.runechanger.runestore;
+package com.stirante.RuneChanger.runestore;
 
 import com.google.gson.Gson;
-import com.stirante.runechanger.model.client.*;
-import com.stirante.runechanger.util.StringUtils;
+import com.stirante.RuneChanger.model.client.*;
+import com.stirante.RuneChanger.util.StringUtils;
 import generated.Position;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;

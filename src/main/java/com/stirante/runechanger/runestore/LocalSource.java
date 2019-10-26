@@ -1,8 +1,8 @@
-package com.stirante.runechanger.runestore;
+package com.stirante.RuneChanger.runestore;
 
-import com.stirante.runechanger.model.client.Champion;
-import com.stirante.runechanger.model.client.RunePage;
-import com.stirante.runechanger.util.SimplePreferences;
+import com.stirante.RuneChanger.model.client.Champion;
+import com.stirante.RuneChanger.model.client.RunePage;
+import com.stirante.RuneChanger.util.SimplePreferences;
 
 import java.util.List;
 

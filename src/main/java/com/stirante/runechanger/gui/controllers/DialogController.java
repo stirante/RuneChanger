@@ -1,6 +1,6 @@
-package com.stirante.runechanger.gui.controllers;
+package com.stirante.RuneChanger.gui.controllers;
 
-import com.stirante.runechanger.util.LangHelper;
+import com.stirante.RuneChanger.util.LangHelper;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Button;

@@ -1,4 +1,4 @@
-package com.stirante.runechanger.util;
+package com.stirante.RuneChanger.util;
 
 import java.io.File;
 import java.net.URISyntaxException;

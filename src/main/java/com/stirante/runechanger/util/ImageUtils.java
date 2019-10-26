@@ -1,7 +1,7 @@
 /*
 https://www.rgagnon.com/javadetails/java-0601.html
  */
-package com.stirante.runechanger.util;
+package com.stirante.RuneChanger.util;
 
 import javax.imageio.ImageIO;
 import java.awt.*;

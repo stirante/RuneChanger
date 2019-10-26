@@ -1,11 +1,11 @@
-package com.stirante.runechanger.model.client;
+package com.stirante.RuneChanger.model.client;
 
 import com.google.gson.Gson;
-import com.stirante.runechanger.RuneChanger;
-import com.stirante.runechanger.runestore.RuneStore;
-import com.stirante.runechanger.runestore.RuneforgeSource;
-import com.stirante.runechanger.util.PathUtils;
-import com.stirante.runechanger.util.StringUtils;
+import com.stirante.RuneChanger.RuneChanger;
+import com.stirante.RuneChanger.runestore.RuneStore;
+import com.stirante.RuneChanger.runestore.RuneforgeSource;
+import com.stirante.RuneChanger.util.PathUtils;
+import com.stirante.RuneChanger.util.StringUtils;
 import generated.Position;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;

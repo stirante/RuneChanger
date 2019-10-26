@@ -1,4 +1,4 @@
-package com.stirante.runechanger.gui.components;
+package com.stirante.RuneChanger.gui.components;
 
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ObjectPropertyBase;
