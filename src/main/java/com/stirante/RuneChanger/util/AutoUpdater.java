@@ -7,11 +7,14 @@ import org.update4j.FileMetadata;
 
 import java.io.*;
 import java.net.URL;
+import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 public class AutoUpdater {
-    private static final String UPDATE_CONFIG = "https://s3.amazonaws.com/runechanger.stirante.com/latest/update.xml";
+    private static final String DEV_UPDATE_CONFIG = "https://s3.amazonaws.com/runechanger.stirante.com/dev/dev.xml";
+    private static final String STABLE_UPDATE_CONFIG = "https://s3.amazonaws.com/runechanger.stirante.com/stable/stable.xml";
 
     /**
      * Checks whether RuneChanger is up to date
@@ -62,11 +65,35 @@ public class AutoUpdater {
 
     public static void performUpdate() {
         try {
+            copyDir(new File("image").toPath(), new File("updateImage").toPath());
+            FileWriter writer = new FileWriter("update.xml");
+            getConfiguration().write(writer);
+            writer.flush();
+            writer.close();
             Runtime.getRuntime().exec("cmd /c start update.bat");
             System.exit(0);
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    /**
+     * https://stackoverflow.com/a/10068306/6459649
+     */
+    private static void copyDir(Path src, Path dest) throws IOException {
+        Files.walkFileTree(src, new SimpleFileVisitor<>() {
+            @Override
+            public FileVisitResult preVisitDirectory(final Path dir, final BasicFileAttributes attrs) throws IOException {
+                Files.createDirectories(dest.resolve(src.relativize(dir)));
+                return FileVisitResult.CONTINUE;
+            }
+
+            @Override
+            public FileVisitResult visitFile(final Path file, final BasicFileAttributes attrs) throws IOException {
+                Files.copy(file, dest.resolve(src.relativize(file)), StandardCopyOption.REPLACE_EXISTING);
+                return FileVisitResult.CONTINUE;
+            }
+        });
     }
 
     private static Configuration configuration = null;
@@ -75,7 +102,11 @@ public class AutoUpdater {
         if (configuration != null) {
             return configuration;
         }
-        Reader reader = new InputStreamReader(new URL(UPDATE_CONFIG).openStream());
+        String configUrl = STABLE_UPDATE_CONFIG;
+        if (SimplePreferences.getSettingsValue("devChannel", "0").equalsIgnoreCase("1")) {
+            configUrl = DEV_UPDATE_CONFIG;
+        }
+        Reader reader = new InputStreamReader(new URL(configUrl).openStream());
         configuration = Configuration.read(reader);
         reader.close();
         return configuration;
@@ -156,13 +187,25 @@ public class AutoUpdater {
         imageDir.mkdir();
         extract(zip, imageDir);
         Configuration build = Configuration.builder()
-                .baseUri("https://s3.amazonaws.com/runechanger.stirante.com/latest")
+                .baseUri("https://s3.amazonaws.com/runechanger.stirante.com/dev")
                 .basePath(new File("").getAbsolutePath())
                 .files(FileMetadata.streamDirectory(imageDir.getAbsolutePath())
                         .peek(r -> r.classpath(r.getSource().toString().endsWith(".jar"))))
                 .launcher(RuneChanger.class)
                 .build();
-        FileWriter writer = new FileWriter("image/update.xml");
+        FileWriter writer = new FileWriter("image/dev.xml");
+        build.write(writer);
+        writer.flush();
+        writer.close();
+        build = Configuration.builder()
+                .baseUri("https://s3.amazonaws.com/runechanger.stirante.com/stable")
+                .basePath(new File("").getAbsolutePath())
+                .files(FileMetadata.streamDirectory(imageDir.getAbsolutePath())
+                        .filter(r -> !r.getSource().toString().endsWith("dev.xml"))
+                        .peek(r -> r.classpath(r.getSource().toString().endsWith(".jar"))))
+                .launcher(RuneChanger.class)
+                .build();
+        writer = new FileWriter("image/stable.xml");
         build.write(writer);
         writer.flush();
         writer.close();

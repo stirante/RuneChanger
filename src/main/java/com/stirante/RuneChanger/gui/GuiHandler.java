@@ -2,6 +2,7 @@ package com.stirante.RuneChanger.gui;
 
 import com.stirante.RuneChanger.DebugConsts;
 import com.stirante.RuneChanger.RuneChanger;
+import com.stirante.RuneChanger.client.ScreenPointChecker;
 import com.stirante.RuneChanger.gui.overlay.ChampionSuggestions;
 import com.stirante.RuneChanger.gui.overlay.ClientOverlay;
 import com.stirante.RuneChanger.gui.overlay.RuneMenu;
@@ -44,6 +45,7 @@ public class GuiHandler {
     private Consumer<Champion> suggestedChampionSelectedListener;
     private ArrayList<Champion> bannedChampions;
     private final ReentrantLock lock = new ReentrantLock();
+    private int screenCheckCounter = 0;
 
     public GuiHandler(RuneChanger runeChanger) {
         this.runeChanger = runeChanger;
@@ -149,7 +151,8 @@ public class GuiHandler {
         win = new JWindow();
         clientOverlay = new ClientOverlay(runeChanger);
         clientOverlay.getLayer(RuneMenu.class).setRuneData(runes, runeSelectedListener);
-        clientOverlay.getLayer(ChampionSuggestions.class).setSuggestedChampions(suggestedChampions, bannedChampions, suggestedChampionSelectedListener);
+        clientOverlay.getLayer(ChampionSuggestions.class)
+                .setSuggestedChampions(suggestedChampions, bannedChampions, suggestedChampionSelectedListener);
         clientOverlay.setSceneType(type);
         win.setContentPane(clientOverlay);
         win.setAlwaysOnTop(true);
@@ -228,6 +231,21 @@ public class GuiHandler {
                 WinDef.RECT rect = new WinDef.RECT();
                 User32Extended.INSTANCE.GetWindowRect(top, rect);
                 boolean isClientWindow = NativeUtils.isLeagueOfLegendsClientWindow(top);
+                if (isClientWindow) {
+                    screenCheckCounter++;
+                    if (screenCheckCounter >= 10) {
+                        screenCheckCounter = 0;
+                        if (getSceneType() == SceneType.CHAMPION_SELECT ||
+                                getSceneType() == SceneType.CHAMPION_SELECT_RUNE_PAGE_EDIT) {
+                            if (ScreenPointChecker.testScreenPoint(top, ScreenPointChecker.CHAMPION_SELECTION_RUNE_PAGE_EDIT)) {
+                                setSceneType(SceneType.CHAMPION_SELECT_RUNE_PAGE_EDIT);
+                            }
+                            else {
+                                setSceneType(SceneType.CHAMPION_SELECT);
+                            }
+                        }
+                    }
+                }
                 if (win != null) {
                     try {
                         //apparently if left is -32000 then window is minimized
@@ -303,7 +321,8 @@ public class GuiHandler {
         this.suggestedChampionSelectedListener = suggestedChampionSelectedListener;
         this.bannedChampions = bannedChampions;
         if (clientOverlay != null) {
-            clientOverlay.getLayer(ChampionSuggestions.class).setSuggestedChampions(lastChampions, bannedChampions, suggestedChampionSelectedListener);
+            clientOverlay.getLayer(ChampionSuggestions.class)
+                    .setSuggestedChampions(lastChampions, bannedChampions, suggestedChampionSelectedListener);
         }
     }
 

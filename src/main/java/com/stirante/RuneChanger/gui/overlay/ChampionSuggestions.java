@@ -31,14 +31,14 @@ public class ChampionSuggestions extends OverlayLayer {
 
     @Override
     protected void draw(Graphics g) {
-        if (getSceneType() == SceneType.CHAMPION_SELECT && Champion.areImagesReady()) {
+        if (Champion.areImagesReady()) {
             if (lastChampions == null) {
                 return;
             }
             if (getRuneChanger().getChampionSelectionModule().getGameMode() == GameMode.ARAM) {
                 return;
             }
-            if (getSceneType() != SceneType.CHAMPION_SELECT ||
+            if ((getSceneType() != SceneType.CHAMPION_SELECT && getSceneType() != SceneType.CHAMPION_SELECT_RUNE_PAGE_EDIT) ||
                     getRuneChanger().getChampionSelectionModule().isChampionLocked()) {
                 currentChampionsPosition = ease(currentChampionsPosition, 0f);
                 if (currentChampionsPosition > 1f) {

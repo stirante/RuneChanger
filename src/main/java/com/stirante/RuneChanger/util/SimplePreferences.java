@@ -100,6 +100,10 @@ public class SimplePreferences {
         return settingsValues.get(key);
     }
 
+    public static String getSettingsValue(String key, String def) {
+        return settingsValues.getOrDefault(key, def);
+    }
+
     public static boolean settingsContainsKey(String key) {
         return settingsValues.containsKey(key);
     }
