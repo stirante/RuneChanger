@@ -26,7 +26,7 @@ public class AutoUpdater {
     public static final String UPDATE_JAR_FILENAME = "RuneChangerUpdate.jar";
     public static final String UPDATE_ZIP_FILENAME = "update.zip";
     public static final String MAIN_JAR_FILENAME = "RuneChanger.jar";
-    public static final String UPDATE_SCRIPT_FILENAME = "update.bat";
+    public static final String UPDATE_SCRIPT_FILENAME = "upgrade.bat";
     private static Release cachedRelease;
 
     /**
@@ -158,9 +158,10 @@ public class AutoUpdater {
                     System.exit(0);
                 }
                 else {
+                    extract(new File(UPDATE_ZIP_FILENAME), currentFile.getParentFile());
                     Files.write(Paths.get(currentFile.getParentFile()
                                     .getAbsolutePath(), UPDATE_SCRIPT_FILENAME),
-                            String.format("@echo off\r\necho %s\r\ntimeout 3\r\ndel \"%s\"\r\nren \"%s\" \"%s\"\r\ncall start.bat\r\nexit\r\n",
+                            String.format("@echo off\r\necho %s\r\ntimeout 3\r\ndel \"%s\"\r\nren \"%s\" \"%s\"\r\ncall open.bat\r\nexit\r\n",
                                     LangHelper.getLang().getString("restart_in_3_seconds"),
                                     currentFile.getAbsolutePath(),
                                     UPDATE_JAR_FILENAME,
