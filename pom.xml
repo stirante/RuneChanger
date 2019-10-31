@@ -160,6 +160,7 @@
                             <mainClass>com.stirante.RuneChanger.RuneChanger</mainClass>
                         </manifest>
                     </archive>
+                    <finalName>${project.artifactId}</finalName>
                 </configuration>
             </plugin>
             <plugin>
