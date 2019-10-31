@@ -17,11 +17,14 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 @Slf4j
 public class AutoUpdater {
 
     public static final String UPDATE_JAR_FILENAME = "RuneChangerUpdate.jar";
+    public static final String UPDATE_ZIP_FILENAME = "update.zip";
     public static final String MAIN_JAR_FILENAME = "RuneChanger.jar";
     public static final String UPDATE_SCRIPT_FILENAME = "update.bat";
     private static Release cachedRelease;
@@ -69,7 +72,7 @@ public class AutoUpdater {
         }
         //If jar update date on github is later than build time of current version, then we need to update
         for (Asset asset : cachedRelease.assets) {
-            if (asset.name.endsWith(".jar") && asset.name.startsWith("RuneChanger-")) {
+            if ((asset.name.endsWith(".jar") || asset.name.endsWith(".zip")) && asset.name.startsWith("RuneChanger-")) {
                 log.info("Github version is from " +
                         SimpleDateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT)
                                 .format(asset.updatedAt));
@@ -93,7 +96,7 @@ public class AutoUpdater {
             fetchRelease();
         }
         for (Asset asset : cachedRelease.assets) {
-            if (asset.name.endsWith(".jar") && asset.name.startsWith("RuneChanger-")) {
+            if ((asset.name.endsWith(".jar") || asset.name.endsWith(".zip")) && asset.name.startsWith("RuneChanger-")) {
                 downloadUpdate(asset.browserDownloadUrl);
             }
         }
@@ -120,12 +123,13 @@ public class AutoUpdater {
 
         Runnable updateThread = () -> {
             try {
+                boolean isZip = fileUrl.endsWith(".zip");
                 File currentFile = new File(PathUtils.getJarLocation());
                 URL url = new URL(fileUrl);
                 HttpURLConnection httpConnection = (HttpURLConnection) (url.openConnection());
                 long completeFileSize = httpConnection.getContentLength();
                 BufferedInputStream in = new BufferedInputStream(httpConnection.getInputStream());
-                FileOutputStream fos = new FileOutputStream(new File(currentFile.getParentFile(), UPDATE_JAR_FILENAME));
+                FileOutputStream fos = new FileOutputStream(new File(currentFile.getParentFile(), isZip ? UPDATE_ZIP_FILENAME : UPDATE_JAR_FILENAME));
                 BufferedOutputStream bout = new BufferedOutputStream(fos, 1024);
                 byte[] data = new byte[1024];
                 long downloadedFileSize = 0;
@@ -139,23 +143,105 @@ public class AutoUpdater {
                 }
                 bout.close();
                 in.close();
-                Files.write(Paths.get(currentFile.getParentFile()
-                                .getAbsolutePath(), UPDATE_SCRIPT_FILENAME),
-                        String.format("@echo off\r\necho %s\r\ntimeout 3\r\ndel \"%s\"\r\nren \"%s\" \"%s\"\r\nstart %s\r\nexit\r\n",
-                                LangHelper.getLang().getString("restart_in_3_seconds"),
-                                currentFile.getAbsolutePath(),
-                                UPDATE_JAR_FILENAME,
-                                MAIN_JAR_FILENAME,
-                                MAIN_JAR_FILENAME
-                        ).getBytes());
-                Runtime.getRuntime().exec("cmd /c start " + UPDATE_SCRIPT_FILENAME, null, currentFile.getParentFile());
-                System.exit(0);
+                if (!isZip) {
+                    Files.write(Paths.get(currentFile.getParentFile()
+                                    .getAbsolutePath(), UPDATE_SCRIPT_FILENAME),
+                            String.format("@echo off\r\necho %s\r\ntimeout 3\r\ndel \"%s\"\r\nren \"%s\" \"%s\"\r\nstart %s\r\nexit\r\n",
+                                    LangHelper.getLang().getString("restart_in_3_seconds"),
+                                    currentFile.getAbsolutePath(),
+                                    UPDATE_JAR_FILENAME,
+                                    MAIN_JAR_FILENAME,
+                                    MAIN_JAR_FILENAME
+                            ).getBytes());
+                    Runtime.getRuntime()
+                            .exec("cmd /c start " + UPDATE_SCRIPT_FILENAME, null, currentFile.getParentFile());
+                    System.exit(0);
+                }
+                else {
+                    Files.write(Paths.get(currentFile.getParentFile()
+                                    .getAbsolutePath(), UPDATE_SCRIPT_FILENAME),
+                            String.format("@echo off\r\necho %s\r\ntimeout 3\r\ndel \"%s\"\r\nren \"%s\" \"%s\"\r\ncall start.bat\r\nexit\r\n",
+                                    LangHelper.getLang().getString("restart_in_3_seconds"),
+                                    currentFile.getAbsolutePath(),
+                                    UPDATE_JAR_FILENAME,
+                                    MAIN_JAR_FILENAME
+                            ).getBytes());
+                    Runtime.getRuntime()
+                            .exec("cmd /c start " + UPDATE_SCRIPT_FILENAME, null, currentFile.getParentFile());
+                    System.exit(0);
+                }
             } catch (Exception ignored) {
             }
         };
         new Thread(updateThread).start();
     }
 
+    /**
+     * From https://stackoverflow.com/a/10634536/6459649
+     */
+
+    private static final int BUFFER_SIZE = 4096;
+
+    private static void extractFile(ZipInputStream in, File outdir, String name) throws IOException {
+        //Very special case, for updating to new updater
+        if (name.equalsIgnoreCase(MAIN_JAR_FILENAME)) {
+            name = UPDATE_JAR_FILENAME;
+        }
+        byte[] buffer = new byte[BUFFER_SIZE];
+        BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(new File(outdir, name)));
+        int count = -1;
+        while ((count = in.read(buffer)) != -1) {
+            out.write(buffer, 0, count);
+        }
+        out.close();
+    }
+
+    private static void mkdirs(File outdir, String path) {
+        File d = new File(outdir, path);
+        if (!d.exists()) {
+            d.mkdirs();
+        }
+    }
+
+    private static String dirpart(String name) {
+        int s = name.lastIndexOf(File.separatorChar);
+        return s == -1 ? null : name.substring(0, s);
+    }
+
+    /***
+     * Extract zipfile to outdir with complete directory structure
+     * @param zipfile Input .zip file
+     * @param outdir Output directory
+     */
+    public static void extract(File zipfile, File outdir) {
+        try {
+            ZipInputStream zin = new ZipInputStream(new FileInputStream(zipfile));
+            ZipEntry entry;
+            String name, dir;
+            while ((entry = zin.getNextEntry()) != null) {
+                name = entry.getName();
+                if (entry.isDirectory()) {
+                    mkdirs(outdir, name);
+                    continue;
+                }
+                /* this part is necessary because file entry can come before
+                 * directory entry where is file located
+                 * i.e.:
+                 *   /foo/foo.txt
+                 *   /foo/
+                 */
+                dir = dirpart(name);
+                if (dir != null) {
+                    mkdirs(outdir, dir);
+                }
+
+                extractFile(zin, outdir, name);
+            }
+            zin.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
     public static void main(String[] args) throws Exception {
         log.info("Runechanger is up to date: " + check());
         log.info("Forcing update..");
