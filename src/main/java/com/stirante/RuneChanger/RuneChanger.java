@@ -12,6 +12,7 @@ import com.stirante.RuneChanger.gui.GuiHandler;
 import com.stirante.RuneChanger.gui.SceneType;
 import com.stirante.RuneChanger.gui.Settings;
 import com.stirante.RuneChanger.model.Champion;
+import com.stirante.RuneChanger.model.LeagueSettings;
 import com.stirante.RuneChanger.model.RunePage;
 import com.stirante.RuneChanger.model.github.Version;
 import com.stirante.RuneChanger.runestore.RuneStore;
@@ -24,6 +25,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.java_websocket.exceptions.WebsocketNotConnectedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import sun.java2d.pipe.SpanShapeRenderer;
 
 import javax.swing.*;
 import java.io.File;
@@ -98,6 +100,19 @@ public class RuneChanger {
         instance = new RuneChanger();
         instance.programArguments = args;
         instance.init();
+
+        LeagueSettings settings = new LeagueSettings();
+        if (false) { //save settings
+            settings.fetchSettings("robin1");
+            SimplePreferences.addLeagueSettingsElement(settings);
+        } else { //load settings
+            settings = SimplePreferences.getLeagueSettingsValue("robin1");
+            settings.importSettings();
+            SimplePreferences.addLeagueSettingsElement(settings);
+        }
+
+        System.out.println("finished");
+        System.exit(0);
     }
 
     public static RuneChanger getInstance() {
@@ -204,8 +219,7 @@ public class RuneChanger {
                                     ex.printStackTrace();
                                 }
                                 continue;
-                            }
-                            else {
+                            } else {
                                 e.printStackTrace();
                             }
                         }
@@ -294,12 +308,10 @@ public class RuneChanger {
                     if (event.getEventType().equalsIgnoreCase("Delete")) {
                         gui.setSceneType(SceneType.NONE);
                         champSelectModule.clearSession();
-                    }
-                    else {
+                    } else {
                         handleSession((LolChampSelectChampSelectSession) event.getData());
                     }
-                }
-                else if (Boolean.parseBoolean(SimplePreferences.getSettingsValue("autoAccept")) &&
+                } else if (Boolean.parseBoolean(SimplePreferences.getSettingsValue("autoAccept")) &&
                         event.getUri().equalsIgnoreCase("/lol-lobby/v2/lobby/matchmaking/search-state")) {
                     if (((LolLobbyLobbyMatchmakingSearchResource) event.getData()).searchState ==
                             LolLobbyLobbyMatchmakingSearchState.FOUND) {
@@ -309,8 +321,7 @@ public class RuneChanger {
                             e.printStackTrace();
                         }
                     }
-                }
-                else if (event.getUri().equalsIgnoreCase("/riotclient/zoom-scale")) {
+                } else if (event.getUri().equalsIgnoreCase("/riotclient/zoom-scale")) {
                     //Client window size changed, so we restart the overlay
                     gui.tryClose();
                     gui.openWindow();

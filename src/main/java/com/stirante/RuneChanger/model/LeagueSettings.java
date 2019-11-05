@@ -5,6 +5,7 @@ import com.google.gson.GsonBuilder;
 import com.stirante.RuneChanger.RuneChanger;
 import com.stirante.RuneChanger.model.GameSettings.GameSettings;
 import com.stirante.RuneChanger.model.InputSettings.InputSettings;
+import com.stirante.lolclient.ClientApi;
 
 import java.io.IOException;
 import java.util.Map;
@@ -13,13 +14,13 @@ public class LeagueSettings {
 
     private static final String INPUT_SETTINGS_API_PATH = "/lol-game-settings/v1/input-settings";
     private static final String GAME_SETTINGS_API_PATH = "/lol-game-settings/v1/game-settings";
-
+    private final Gson gson = new GsonBuilder().create();
+    private final ClientApi api = RuneChanger.getInstance().getApi();
     private InputSettings inputSettings;
     private GameSettings gameSettings;
     private String presetName;
-    Gson gson = new GsonBuilder().create();
 
-    private GameSettings getGameSettings() throws IOException{
+    private GameSettings getGameSettings() throws IOException {
         Map map = RuneChanger.getInstance().getApi().executeGet(GAME_SETTINGS_API_PATH, Map.class);
         GameSettings settings = gson.fromJson(gson.toJson(map), GameSettings.class);
         return settings;
@@ -30,9 +31,13 @@ public class LeagueSettings {
         InputSettings settings = gson.fromJson(gson.toJson(map), InputSettings.class);
         return settings;
     }
+
+    public String getIdentifier() {
+        return this.presetName;
+    }
+
     /**
-     *
-     * @param name identifier of the settings backup
+     * @param name string identifier of the settings backup
      * @return boolean indicating if operation was successful
      */
     public boolean fetchSettings(String name) {
@@ -48,8 +53,22 @@ public class LeagueSettings {
         if (gameSettings == null || inputSettings == null || presetName == null) {
             return false;
         }
-        else {
-            return true;
-        }
+
+        return true;
     }
+
+    /**
+     * @return boolean indicating if operation was successful
+     */
+    public boolean importSettings() {
+        try {
+            api.executePatch(INPUT_SETTINGS_API_PATH, inputSettings);
+            api.executePatch(GAME_SETTINGS_API_PATH, gameSettings);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
+    }
+
 }

@@ -1,5 +1,6 @@
 package com.stirante.RuneChanger.util;
 
+import com.google.gson.Gson;
 import com.stirante.RuneChanger.model.LeagueSettings;
 import com.stirante.RuneChanger.model.RunePage;
 
@@ -14,7 +15,7 @@ public class SimplePreferences {
     private static final String LEAGUESETTINGS_FILENAME = new File(PathUtils.getConfigDir(), "RuneChangerLeagueSettings.dat").getAbsolutePath();
     private static ArrayList<RunePage> runeBookValues;
     private static HashMap<String, String> settingsValues;
-    private static HashMap<String, LeagueSettings> leagueSettings;
+    private static HashMap<String, String> leagueSettings;
 
     public static ArrayList<RunePage> getRuneBookValues() {
         return runeBookValues;
@@ -88,16 +89,26 @@ public class SimplePreferences {
         save();
     }
 
+    public static void removeLeagueSettingsElement(String key) {
+        leagueSettings.remove(key);
+    }
+
     public static LeagueSettings getLeagueSettingsValue(String key) {
-        return leagueSettings.get(key);
+        LeagueSettings settings = new Gson().fromJson(leagueSettings.get(key), LeagueSettings.class);
+        return settings;
     }
 
     public static boolean leagueSettingsContainsKey(String key) {
         return leagueSettings.containsKey(key);
     }
 
-    public static void addLeagueSettingsElement(String key, LeagueSettings value) {
-        leagueSettings.put(key, value);
+    public static void addLeagueSettingsElement(LeagueSettings value) {
+        String jsonValue = new Gson().toJson(value);
+        if (leagueSettingsContainsKey(value.getIdentifier())) {
+            removeLeagueSettingsElement(value.getIdentifier());
+        }
+
+        leagueSettings.put(value.getIdentifier(), jsonValue);
         save();
     }
 
