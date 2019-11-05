@@ -1,6 +1,9 @@
 package com.stirante.runechanger.runestore;
 
 import com.stirante.runechanger.model.client.*;
+import com.stirante.runechanger.util.FxUtils;
+import javafx.beans.property.SimpleListProperty;
+import javafx.collections.ObservableList;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -19,8 +22,7 @@ public class ChampionGGSource implements RuneSource {
     private final static String CHAMPION_URL = "https://champion.gg/champion/";
     private final String[] ROLES = {"Jungle", "Middle", "ADC", "Top", "Support"};
 
-    private List<RunePage> extractRunes(Champion champion) {
-        List<RunePage> pages = new ArrayList<>();
+    private void extractRunes(Champion champion, ObservableList<RunePage> pages) {
         for (String role : ROLES) {
             final String URL = CHAMPION_URL + champion.getInternalName() + "/" + role;
             log.info("Visiting page to check for runes: " + URL);
@@ -72,16 +74,15 @@ public class ChampionGGSource implements RuneSource {
 
                 RunePage page = new RunePage();
                 page.importRunePage(runepageList);
-                page.setSource("Champion.GG");
+                page.setSource(URL);
                 if (page.verify() && !pages.contains(page)) {
-                    pages.add(page);
+                    FxUtils.doOnFxThread(() -> pages.add(page));
                 }
 
             } catch (IOException e) {
                 log.warn("ERROR RETRIEVING CHAMPION FROM Champion.gg! " + e);
             }
         }
-        return pages;
     }
 
     private Integer modifierConverter(String modifierName) {
@@ -109,16 +110,16 @@ public class ChampionGGSource implements RuneSource {
     }
 
     @Override
-    public List<RunePage> getForChampion(Champion champion) {
-        return extractRunes(champion);
+    public void getForChampion(Champion champion, ObservableList<RunePage> pages) {
+        extractRunes(champion, pages);
     }
 
-    public static void main(String[] args) throws IOException {
-        Champion.init();
-
-        ChampionGGSource source = new ChampionGGSource();
-        Champion.values()
-                .forEach(champion -> System.out.println(
-                        source.getForChampion(champion).size() + " pages were found for " + champion.getName()));
-    }
+//    public static void main(String[] args) throws IOException {
+//        Champion.init();
+//
+//        ChampionGGSource source = new ChampionGGSource();
+//        Champion.values()
+//                .forEach(champion -> System.out.println(
+//                        source.getForChampion(champion).size() + " pages were found for " + champion.getName()));
+//    }
 }

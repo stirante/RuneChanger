@@ -2,8 +2,10 @@ package com.stirante.runechanger.runestore;
 
 import com.google.gson.Gson;
 import com.stirante.runechanger.model.client.*;
+import com.stirante.runechanger.util.FxUtils;
 import com.stirante.runechanger.util.StringUtils;
 import generated.Position;
+import javafx.collections.ObservableList;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -38,31 +40,31 @@ public class RuneforgeSource implements RuneSource {
         }
     }
 
-    /**
-     * Verifies all runes from runeforge.gg
-     *
-     * @param args program arguments
-     */
-    public static void main(String[] args) {
-        try {
-            Champion.init();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        RuneforgeSource src = new RuneforgeSource();
-        for (Champion champion : Champion.values()) {
-            log.info("Champion source name: " + champion.getName());
-            List<RunePage> runes = src.getForChampion(champion);
-            for (RunePage rune : runes) {
-                if (!rune.verify()) {
-                    log.error("Bad rune source: " + rune.getSource());
-                }
-            }
-            if (runes.size() == 0) {
-                log.error("Bad rune source, reason: EMPTY");
-            }
-        }
-    }
+//    /**
+//     * Verifies all runes from runeforge.gg
+//     *
+//     * @param args program arguments
+//     */
+//    public static void main(String[] args) {
+//        try {
+//            Champion.init();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//        RuneforgeSource src = new RuneforgeSource();
+//        for (Champion champion : Champion.values()) {
+//            log.info("Champion source name: " + champion.getName());
+//            List<RunePage> runes = src.getForChampion(champion);
+//            for (RunePage rune : runes) {
+//                if (!rune.verify()) {
+//                    log.error("Bad rune source: " + rune.getSource());
+//                }
+//            }
+//            if (runes.size() == 0) {
+//                log.error("Bad rune source, reason: EMPTY");
+//            }
+//        }
+//    }
 
     public Position getPositionForChampion(Champion champion) {
         for (Loadout loadout : cache) {
@@ -144,9 +146,10 @@ public class RuneforgeSource implements RuneSource {
      * @param champion champion
      * @return list of rune pages
      */
-    public List<RunePage> getForChampion(Champion champion) {
+    public void getForChampion(Champion champion, ObservableList<RunePage> pages) {
         if (pagesCache.containsKey(champion)) {
-            return pagesCache.get(champion);
+            FxUtils.doOnFxThread(() -> pagesCache.get(champion));
+            return;
         }
         ArrayList<RunePage> result = new ArrayList<>();
         try {
@@ -167,7 +170,7 @@ public class RuneforgeSource implements RuneSource {
             e.printStackTrace();
         }
         pagesCache.put(champion, result);
-        return result;
+        FxUtils.doOnFxThread(() -> pages.addAll(result));
     }
 
     @Override

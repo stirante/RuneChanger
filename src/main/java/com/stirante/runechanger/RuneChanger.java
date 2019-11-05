@@ -5,6 +5,9 @@ import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.Appender;
 import ch.qos.logback.core.FileAppender;
+import com.stirante.lolclient.ClientApi;
+import com.stirante.lolclient.ClientConnectionListener;
+import com.stirante.lolclient.ClientWebSocket;
 import com.stirante.runechanger.client.ChampionSelection;
 import com.stirante.runechanger.client.Login;
 import com.stirante.runechanger.client.Loot;
@@ -18,10 +21,11 @@ import com.stirante.runechanger.model.client.RunePage;
 import com.stirante.runechanger.model.github.Version;
 import com.stirante.runechanger.runestore.RuneStore;
 import com.stirante.runechanger.util.*;
-import com.stirante.lolclient.ClientApi;
-import com.stirante.lolclient.ClientConnectionListener;
-import com.stirante.lolclient.ClientWebSocket;
 import generated.*;
+import javafx.application.Platform;
+import javafx.beans.InvalidationListener;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import org.java_websocket.exceptions.WebsocketNotConnectedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -79,7 +83,7 @@ public class RuneChanger implements Launcher {
                 frame.setLocationRelativeTo(null);
                 int dialogResult =
                         JOptionPane.showConfirmDialog(frame, String.format(LangHelper.getLang()
-                                .getString("update_question"), AutoUpdater.getEstimatedUpdateSize()) , LangHelper.getLang()
+                                .getString("update_question"), AutoUpdater.getEstimatedUpdateSize()), LangHelper.getLang()
                                 .getString("update_available"), JOptionPane.YES_NO_OPTION);
                 frame.dispose();
                 if (dialogResult == JOptionPane.YES_OPTION) {
@@ -235,25 +239,18 @@ public class RuneChanger implements Launcher {
     }
 
     private void onChampionChanged(Champion champion) {
-        gui.setRunes(new ArrayList<>(), (page) -> {});
-        log.info("Downloading runes for champion: " + champion.getName());
-        runes = RuneStore.getRunes(champion);
-        if (runes.isEmpty()) {
-            log.warn("Runes for champion not available");
-        }
-        log.info("Found runes: " + runes);
-        //remove all invalid rune pages
-        runes.removeIf(rune -> !rune.verify());
-        if (runes.isEmpty()) {
-            log.error("Found error in rune source");
-        }
-        log.info("Runes available. Showing button");
-        gui.setRunes(runes, (page) -> {
+        ObservableList<RunePage> pages = FXCollections.observableArrayList();
+        gui.setRunes(pages, (page) -> {
             if (runes == null || runes.isEmpty()) {
                 return;
             }
             new Thread(() -> runesModule.setCurrentRunePage(page)).start();
         });
+        log.info("Downloading runes for champion: " + champion.getName());
+        pages.addListener((InvalidationListener) observable -> {
+            gui.setRunes(pages);
+        });
+        RuneStore.getRunes(champion, pages);
     }
 
     private void handleSession(LolChampSelectChampSelectSession session) {

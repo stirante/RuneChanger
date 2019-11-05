@@ -2,6 +2,7 @@ package com.stirante.runechanger.runestore;
 
 import com.stirante.runechanger.model.client.Champion;
 import com.stirante.runechanger.model.client.RunePage;
+import javafx.collections.ObservableList;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,31 +21,27 @@ public class RuneStore {
      * Get list of rune pages for champion
      *
      * @param champion champion
-     * @return list of rune pages
+     * @param pages    list of pages, which will be filled with pages
      */
-    public static List<RunePage> getRunes(Champion champion) {
-        ArrayList<RunePage> result = new ArrayList<>();
+    public static void getRunes(Champion champion, ObservableList<RunePage> pages) {
         for (RuneSource source : sources) {
-            result.addAll(source.getForChampion(champion));
+            new Thread(() -> source.getForChampion(champion, pages)).start();
         }
-        return result;
     }
 
     /**
      * Get list of rune pages for champion except local runes
      *
      * @param champion champion
-     * @return list of rune pages
+     * @param pages    list of pages, which will be filled with pages
      */
-    public static List<RunePage> getRemoteRunes(Champion champion) {
-        ArrayList<RunePage> result = new ArrayList<>();
+    public static void getRemoteRunes(Champion champion, ObservableList<RunePage> pages) {
         for (RuneSource source : sources) {
             if (source instanceof LocalSource) {
                 continue;
             }
-            result.addAll(source.getForChampion(champion));
+            new Thread(() -> source.getForChampion(champion, pages)).start();
         }
-        return result;
     }
 
     public static <T extends RuneSource> T getSource(Class<T> clz) {

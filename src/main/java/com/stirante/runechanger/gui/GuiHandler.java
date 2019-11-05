@@ -121,6 +121,14 @@ public class GuiHandler {
         }
     }
 
+    public void setRunes(List<RunePage> runeList) {
+        runes.clear();
+        runes.addAll(runeList);
+        if (clientOverlay != null) {
+            clientOverlay.getLayer(RuneMenu.class).setRuneData(runes, runeSelectedListener);
+        }
+    }
+
     public void showInfoMessage(String message) {
         if (!DebugConsts.DISABLE_NOTIFICATIONS) {
             trayIcon.displayMessage(Constants.APP_NAME, message, TrayIcon.MessageType.INFO);

@@ -110,17 +110,7 @@ public class Settings extends Application {
         controller.setOnChampionSearch(champion -> {
             runebook.localRunes.clear();
             runebook.newRunes.clear();
-            new AsyncTask<Champion, Void, List<RunePage>>() {
-                @Override
-                public List<RunePage> doInBackground(Champion[] params) {
-                    return RuneStore.getRemoteRunes(params[0]);
-                }
-
-                @Override
-                public void onPostExecute(List<RunePage> result) {
-                    runebook.newRunes.addAll(result);
-                }
-            }.execute(champion);
+            RuneStore.getRemoteRunes(champion, runebook.newRunes);
             if (runeChanger.getRunesModule() != null) {
                 new AsyncTask<Void, Void, Collection<RunePage>>() {
                     @Override
