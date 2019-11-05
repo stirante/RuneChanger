@@ -1,7 +1,7 @@
 <?import javafx.scene.layout.*?>
 
-<?import javafx.scene.canvas.Canvas?>
-<fx:root type="Pane" prefHeight="93.0" prefWidth="304.0" xmlns="http://javafx.com/javafx/8"
+<?import com.stirante.runechanger.gui.components.Component?>
+<fx:root type="javafx.scene.layout.BorderPane" prefHeight="93.0" prefWidth="304.0" xmlns="http://javafx.com/javafx/8"
          xmlns:fx="http://javafx.com/fxml/1">
-    <Canvas fx:id="canvas"/>
+    <Component/>
 </fx:root>

@@ -7,20 +7,20 @@
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.shape.Circle?>
 
-<!--<?import com.stirante.RuneChanger.gui.components.Button?>-->
-<?import javafx.scene.control.Button?>
-<Pane fx:id="container" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="430.0" prefWidth="520.0" style="/*-fx-background-color: #171E27;*/" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1">
-   <children>
-      <Circle fx:id="profilePicture" fill="#3c3c41" layoutX="390.0" layoutY="94.0" radius="70.0" stroke="#c8aa6e" strokeType="INSIDE" strokeWidth="4.0" />
-      <ImageView fx:id="emptyProfilePicture" fitHeight="96.0" fitWidth="102.0" layoutX="339.0" layoutY="46.0" pickOnBounds="true" preserveRatio="true">
-         <image>
-            <Image url="@../images/notConnected.png" />
-         </image>
-      </ImageView>
-      <Label fx:id="username" layoutX="320.0" layoutY="186.0" prefHeight="24.0" prefWidth="140.0" styleClass="header" text="Lampsion" />
-      <Label fx:id="localRunesTitle" layoutX="65.0" layoutY="18.0" prefHeight="24.0" prefWidth="199.0" style="-fx-alignment: center-left;" styleClass="header" text="LOCAL RUNES (2/2)" />
-      <ListView fx:id="localRunesList" layoutY="42.0" prefHeight="250.0" prefWidth="275.0" />
-      <Button fx:id="craftKeysButton" layoutX="312.0" layoutY="215.0" onAction="#onCraftKeys" text="CRAFT ALL KEYS" />
-      <Button fx:id="disenchantChampionsButton" layoutX="312.0" layoutY="254.0" onAction="#onChampionDisenchant" text="DISENCHANT CHAMPIONS" />
-   </children>
+<?import com.stirante.runechanger.gui.components.Button?>
+<Pane fx:id="container" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
+      prefHeight="430.0" prefWidth="520.0" style="/*-fx-background-color: #171E27;*/"
+      xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1">
+   <Circle fx:id="profilePicture" fill="#3c3c41" layoutX="390.0" layoutY="94.0" radius="70.0" stroke="#c8aa6e"
+           strokeType="INSIDE" strokeWidth="4.0"/>
+   <ImageView fx:id="emptyProfilePicture" fitHeight="96.0" fitWidth="102.0" layoutX="339.0" layoutY="46.0"
+              pickOnBounds="true" preserveRatio="true">
+      <Image url="@../images/notConnected.png"/>
+   </ImageView>
+   <Label fx:id="username" layoutX="320.0" layoutY="186.0" prefHeight="24.0" prefWidth="140.0" styleClass="header"/>
+   <Label fx:id="localRunesTitle" layoutX="65.0" layoutY="18.0" prefHeight="24.0" prefWidth="199.0"
+          style="-fx-alignment: center-left;" styleClass="header" text="LOCAL RUNES (2/2)"/>
+   <ListView fx:id="localRunesList" layoutY="42.0" prefHeight="250.0" prefWidth="275.0"/>
+   <Button fx:id="disenchantChampionsButton" layoutX="312.0" layoutY="215.0" height="32.0" width="157.0"
+           onAction="#onChampionDisenchant" text="%disenchant_champions"/>
 </Pane>

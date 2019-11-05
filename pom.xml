@@ -157,7 +157,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>com.stirante.RuneChanger.RuneChanger</mainClass>
+                            <mainClass>com.stirante.runechanger.RuneChanger</mainClass>
                         </manifest>
                     </archive>
                     <finalName>${project.artifactId}</finalName>
@@ -175,7 +175,7 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <mainClass>com.stirante.RuneChanger.util.AutoUpdater</mainClass>
+                    <mainClass>com.stirante.runechanger.util.AutoUpdater</mainClass>
                 </configuration>
             </plugin>
             <plugin>

@@ -1,2 +1,2 @@
 @echo off
-start image/bin/javaw -cp "${project.artifactId}.jar;lib/*" --add-exports=javafx.base/com.sun.javafx.reflect=ALL-UNNAMED --add-exports=javafx.graphics/com.sun.javafx.scene.layout=ALL-UNNAMED com.stirante.RuneChanger.RuneChanger
+start image/bin/javaw -cp "${project.artifactId}.jar;lib/*" --add-exports=javafx.base/com.sun.javafx.reflect=ALL-UNNAMED --add-exports=javafx.graphics/com.sun.javafx.scene.layout=ALL-UNNAMED com.stirante.runechanger.RuneChanger
