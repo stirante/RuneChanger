@@ -20,43 +20,43 @@
               </Pane>
               <Pane>
                   <Label layoutX="10.5" layoutY="5.0" styleClass="checkbox-label" text="%auto_queue" />
-                  <CheckBox fx:id="autoAccept" layoutX="495.5" mnemonicParsing="false" />
+                  <CheckBox fx:id="autoAccept" layoutX="495.5" mnemonicParsing="false" onAction="#handleCheckboxPressed" />
                   <Line endX="530.0" layoutY="48.5" stroke="#c7a96d42" strokeWidth="3.0" />
                   <Label layoutX="10.5" layoutY="24.0" maxHeight="20.0" maxWidth="430.0" prefHeight="20.0" prefWidth="430.0" styleClass="checkbox-desc" text="%auto_queue_message" />
               </Pane>
               <Pane>
                   <Label layoutX="10.5" layoutY="5.0" styleClass="checkbox-label" text="%quick_replies" />
-                  <CheckBox fx:id="quickReplies" layoutX="495.5" mnemonicParsing="false" />
+                  <CheckBox fx:id="quickReplies" layoutX="495.5" mnemonicParsing="false" onAction="#handleCheckboxPressed" />
                   <Line endX="530.0" layoutY="48.5" stroke="#c7a96d42" strokeWidth="3.0" />
                   <Label layoutX="10.5" layoutY="24.0" maxHeight="20.0" maxWidth="430.0" prefHeight="20.0" prefWidth="430.0" styleClass="checkbox-desc" text="%quick_replies_message" />
               </Pane>
               <Pane>
                   <Label layoutX="10.5" layoutY="5.0" styleClass="checkbox-label" text="%autoupdate_state" />
-                  <CheckBox fx:id="autoUpdate" layoutX="495.5" mnemonicParsing="false" />
+                  <CheckBox fx:id="autoUpdate" layoutX="495.5" mnemonicParsing="false" onAction="#handleCheckboxPressed" />
                   <Line endX="530.0" layoutY="48.5" stroke="#c7a96d42" strokeWidth="3.0" />
                   <Label layoutX="10.5" layoutY="24.0" maxHeight="20.0" maxWidth="430.0" prefHeight="20.0" prefWidth="430.0" styleClass="checkbox-desc" text="%autoupdate_message" />
               </Pane>
               <Pane>
                   <Label layoutX="10.5" layoutY="5.0" styleClass="checkbox-label" text="%autoupdate_experimental" />
-                  <CheckBox fx:id="experimental" layoutX="495.5" mnemonicParsing="false" />
+                  <CheckBox fx:id="experimental" layoutX="495.5" mnemonicParsing="false" onAction="#handleCheckboxPressed" />
                   <Line endX="530.0" layoutY="48.5" stroke="#c7a96d42" strokeWidth="3.0" />
                   <Label layoutX="10.5" layoutY="24.0" maxHeight="20.0" maxWidth="430.0" prefHeight="20.0" prefWidth="430.0" styleClass="checkbox-desc" text="%autoupdate_experimental_message" />
               </Pane>
               <Pane>
                   <Label layoutX="10.5" layoutY="5.0" styleClass="checkbox-label" text="%autostart" />
-                  <CheckBox fx:id="autoStart" layoutX="495.5" mnemonicParsing="false" />
+                  <CheckBox fx:id="autoStart" layoutX="495.5" mnemonicParsing="false" onAction="#handleCheckboxPressed" />
                   <Line endX="530.0" layoutY="48.5" stroke="#c7a96d42" strokeWidth="3.0" />
                   <Label layoutX="10.5" layoutY="24.0" maxHeight="20.0" maxWidth="430.0" prefHeight="20.0" prefWidth="430.0" styleClass="checkbox-desc" text="%autostart_message" />
               </Pane>
               <Pane>
                   <Label layoutX="10.5" layoutY="5.0" styleClass="checkbox-label" text="%always_on_top" />
-                  <CheckBox fx:id="alwaysOnTop" layoutX="495.5" mnemonicParsing="false" />
+                  <CheckBox fx:id="alwaysOnTop" layoutX="495.5" mnemonicParsing="false" onAction="#handleCheckboxPressed" />
                   <Line endX="530.0" layoutY="48.5" stroke="#c7a96d42" strokeWidth="3.0" />
                   <Label layoutX="10.5" layoutY="24.0" maxHeight="20.0" maxWidth="430.0" prefHeight="20.0" prefWidth="430.0" styleClass="checkbox-desc" text="%always_on_top_message" />
               </Pane>
               <Pane>
                   <Label layoutX="10.5" layoutY="5.0" styleClass="checkbox-label" text="%force_english" />
-                  <CheckBox fx:id="forceEnglish" layoutX="495.5" mnemonicParsing="false" />
+                  <CheckBox fx:id="forceEnglish" layoutX="495.5" mnemonicParsing="false" onAction="#handleCheckboxPressed" />
                   <Line endX="530.0" layoutY="48.5" stroke="#c7a96d42" strokeWidth="3.0" />
                   <Label layoutX="10.5" layoutY="24.0" maxHeight="20.0" maxWidth="430.0" prefHeight="20.0" prefWidth="430.0" styleClass="checkbox-desc" text="%force_english_message" />
               </Pane>

@@ -1,6 +1,7 @@
 package com.stirante.runechanger.gui.controllers;
 
 import com.stirante.runechanger.gui.ControllerUtil;
+import com.stirante.runechanger.gui.Settings;
 import com.stirante.runechanger.util.AutoStartUtils;
 import com.stirante.runechanger.util.LangHelper;
 import com.stirante.runechanger.util.SimplePreferences;
@@ -40,6 +41,7 @@ public class SettingsController {
 
     @FXML
     void handleCheckboxPressed(ActionEvent e) {
+        System.out.println(e);
         CheckBox target = (CheckBox) e.getTarget();
         if (target == autoStart) {
             AutoStartUtils.setAutoStart(target.isSelected());
@@ -65,11 +67,13 @@ public class SettingsController {
         }
         else if (target == forceEnglish) {
             SimplePreferences.addSettingsElement("forceEnglish", String.valueOf(target.isSelected()));
-            boolean restart =
-                    ControllerUtil
-                            .showConfirmationScreen(LangHelper.getLang()
-                                    .getString("restart_necessary"), LangHelper.getLang()
-                                    .getString("restart_necessary_description"));
+            boolean restart = Settings.openYesNoDialog(LangHelper.getLang()
+                    .getString("restart_necessary"), LangHelper.getLang()
+                    .getString("restart_necessary_description"));
+//                    ControllerUtil
+//                            .showConfirmationScreen(LangHelper.getLang()
+//                                    .getString("restart_necessary"), LangHelper.getLang()
+//                                    .getString("restart_necessary_description"));
             if (restart) {
                 restartProgram();
             }

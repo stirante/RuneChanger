@@ -240,6 +240,7 @@
 .dialog-message {
     -fx-font-size: 15px;
     -fx-alignment: top-center;
+    -fx-font-family: "Roboto";
 }
 
 .checkbox-label {

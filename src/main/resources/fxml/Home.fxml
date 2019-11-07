@@ -21,6 +21,6 @@
    <Label fx:id="localRunesTitle" layoutX="65.0" layoutY="18.0" prefHeight="24.0" prefWidth="199.0"
           style="-fx-alignment: center-left;" styleClass="header" text="LOCAL RUNES (2/2)"/>
    <ListView fx:id="localRunesList" layoutY="42.0" prefHeight="250.0" prefWidth="275.0"/>
-   <Button fx:id="disenchantChampionsButton" layoutX="312.0" layoutY="215.0" height="32.0" width="157.0"
+   <Button fx:id="disenchantChampionsButton" layoutX="317.0" layoutY="215.0" height="35.0" width="167.0"
            onAction="#onChampionDisenchant" text="%disenchant_champions"/>
 </Pane>
