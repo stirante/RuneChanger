@@ -2,6 +2,7 @@ package com.stirante.runechanger.runestore;
 
 import com.stirante.runechanger.model.client.*;
 import com.stirante.runechanger.util.FxUtils;
+import generated.Position;
 import javafx.collections.ObservableList;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -12,6 +13,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -20,7 +22,9 @@ public class ChampionGGSource implements RuneSource {
     private static final Logger log = LoggerFactory.getLogger(ChampionGGSource.class);
 
     private final static String CHAMPION_URL = "https://champion.gg/champion/";
-    private final String[] ROLES = {"Jungle", "Middle", "ADC", "Top", "Support"};
+    private final static String BASE_URL = "https://champion.gg/";
+//    private final String[] ROLES = {"Jungle", "Middle", "ADC", "Top", "Support"};
+    private final HashMap<Champion, Position> positionCache = new HashMap<>();
 
     private void extractRunePage(Document webPage, Champion champion, String role, ObservableList<RunePage> pages) {
         Elements elements = webPage.select("div.o-wrap");
@@ -113,6 +117,47 @@ public class ChampionGGSource implements RuneSource {
             default:
                 return null;
         }
+    }
+
+    public Position getPositionForChampion(Champion champion) {
+        if (positionCache.isEmpty()) {
+            try {
+                Document webPage = Jsoup.connect(BASE_URL).get();
+                Elements select = webPage.select(".champ-index-img a:nth-child(2)");
+                for (Element element : select) {
+                    String championName = element.attr("href").split("/")[2];
+                    Position pos = Position.UNSELECTED;
+                    switch (element.text()) {
+                        case "Support":
+                            pos = Position.UTILITY;
+                            break;
+                        case "Middle":
+                            pos = Position.MIDDLE;
+                            break;
+                        case "ADC":
+                            pos = Position.BOTTOM;
+                            break;
+                        case "Top":
+                            pos = Position.TOP;
+                            break;
+                        case "Jungle":
+                            pos = Position.JUNGLE;
+                            break;
+                        default:
+                            log.warn("Unknown position name: " + element.text());
+                            break;
+                    }
+                    positionCache.put(Champion.getByName(championName), pos);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        if (!positionCache.containsKey(champion)) {
+            log.warn("Champion not found: " + champion.getName());
+            return Position.UNSELECTED;
+        }
+        return positionCache.get(champion);
     }
 
     @Override

@@ -2,6 +2,7 @@ package com.stirante.runechanger.model.client;
 
 import com.google.gson.Gson;
 import com.stirante.runechanger.RuneChanger;
+import com.stirante.runechanger.runestore.ChampionGGSource;
 import com.stirante.runechanger.runestore.RuneStore;
 import com.stirante.runechanger.runestore.RuneforgeSource;
 import com.stirante.runechanger.util.PathUtils;
@@ -293,7 +294,7 @@ public class Champion {
                 if (champion.pickQuote.isEmpty()) {
                     getQuoteForChampion(champion);
                 }
-                RuneforgeSource source = RuneStore.getSource(RuneforgeSource.class);
+                ChampionGGSource source = RuneStore.getSource(ChampionGGSource.class);
                 if (source != null) {
                     champion.position = source.getPositionForChampion(champion);
                 }
