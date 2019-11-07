@@ -190,6 +190,14 @@ public class RuneChanger implements Launcher {
                     session.myTeam.add(e);
                     handleSession(session);
                 }
+                try {
+                    LolChampSelectChampSelectSession session =
+                            api.executeGet("/lol-champ-select/v1/session", LolChampSelectChampSelectSession.class);
+                    if (session != null) {
+                        handleSession(session);
+                    }
+                } catch (Exception ignored) {
+                }
                 //sometimes, the api is connected too quickly and there is WebsocketNotConnectedException
                 //That's why I added this little piece of code, which will retry opening socket every second
                 new Thread(() -> {
@@ -241,9 +249,6 @@ public class RuneChanger implements Launcher {
     private void onChampionChanged(Champion champion) {
         ObservableList<RunePage> pages = FXCollections.observableArrayList();
         gui.setRunes(pages, (page) -> {
-            if (runes == null || runes.isEmpty()) {
-                return;
-            }
             new Thread(() -> runesModule.setCurrentRunePage(page)).start();
         });
         log.info("Downloading runes for champion: " + champion.getName());

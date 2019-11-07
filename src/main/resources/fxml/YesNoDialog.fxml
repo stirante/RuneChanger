@@ -11,13 +11,13 @@
    <children>
       <ImageView fitWidth="400.0" layoutY="-1.0" pickOnBounds="true" preserveRatio="true">
          <image>
-            <Image url="@../images/dialogBg1.png" />
+            <Image url="@../images/dialogBg.png" />
          </image>
       </ImageView>
-      <Button fx:id="yesButton" layoutX="99.0" layoutY="137.0" onAction="#handleButtonPress" height="30.0" width="80.0" text="YES" />
-      <Button fx:id="noButton" layoutX="224.0" layoutY="137.0" onAction="#handleButtonPress" height="30.0" width="80.0" text="NO" />
-      <Label fx:id="title" layoutX="4.0" layoutY="9.0" prefHeight="24.0" prefWidth="392.0" styleClass="header" text="EXIT NOW?" />
-      <Label fx:id="message" layoutX="4.0" layoutY="50.0" prefHeight="70.0" prefWidth="392.0" text="RuneChanger requires a restart to apply changed settings. Do you want to close RuneChanger now?" wrapText="true">
+      <Button fx:id="yesButton" layoutX="99.0" layoutY="137.0" onAction="#handleButtonPress" height="30.0" width="80.0" text="%yes" />
+      <Button fx:id="noButton" layoutX="224.0" layoutY="137.0" onAction="#handleButtonPress" height="30.0" width="80.0" text="%no" />
+      <Label fx:id="title" layoutX="4.0" layoutY="9.0" prefHeight="24.0" prefWidth="392.0" styleClass="header" />
+      <Label fx:id="message" layoutX="4.0" layoutY="50.0" prefHeight="70.0" prefWidth="392.0" wrapText="true">
          <styleClass>
             <String fx:value="header" />
             <String fx:value="dialog-message" />

@@ -2,7 +2,6 @@ package com.stirante.runechanger.gui.controllers;
 
 import com.stirante.runechanger.RuneChanger;
 import com.stirante.runechanger.client.Loot;
-import com.stirante.runechanger.gui.Settings;
 import com.stirante.runechanger.gui.components.Button;
 import com.stirante.runechanger.model.client.RunePage;
 import com.stirante.runechanger.util.LangHelper;
@@ -47,10 +46,6 @@ public class HomeController {
         }
         localRunesList.setItems(localRunes);
         localRunesList.setCellFactory(listView -> new RuneItemController.RunePageCell(RuneItemController::setHomeRuneMode));
-        boolean restart = Settings.openYesNoDialog("Test dialogu", "Czy to wygląda dobrze?");
-        if (!restart) {
-            System.exit(0);
-        }
     }
 
     public void setOnline(LolSummonerSummoner summoner, Loot lootModule) {

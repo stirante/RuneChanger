@@ -8,7 +8,7 @@
 <?import javafx.scene.shape.Line?>
 
 <Pane fx:id="container" prefHeight="500.0" prefWidth="600.0" style="/*-fx-background-color: #172635;*/" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1">
-    <Label layoutX="35.0" layoutY="70.0" styleClass="header" text="Settings" />
+    <Label layoutX="35.0" layoutY="70.0" styleClass="header" text="%settings" />
    <ScrollPane layoutX="31.0" layoutY="110.0" prefHeight="376.0" prefWidth="561.0">
       <content>
           <VBox>
