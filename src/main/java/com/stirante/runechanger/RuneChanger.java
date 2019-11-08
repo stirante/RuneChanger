@@ -5,11 +5,11 @@ import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.Appender;
 import ch.qos.logback.core.FileAppender;
+import com.google.gson.Gson;
 import com.stirante.lolclient.ClientApi;
 import com.stirante.lolclient.ClientConnectionListener;
 import com.stirante.lolclient.ClientWebSocket;
 import com.stirante.runechanger.client.ChampionSelection;
-import com.stirante.runechanger.client.Login;
 import com.stirante.runechanger.client.Loot;
 import com.stirante.runechanger.client.Runes;
 import com.stirante.runechanger.gui.Constants;
@@ -22,7 +22,6 @@ import com.stirante.runechanger.model.github.Version;
 import com.stirante.runechanger.runestore.RuneStore;
 import com.stirante.runechanger.util.*;
 import generated.*;
-import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -53,7 +52,6 @@ public class RuneChanger implements Launcher {
     private List<RunePage> runes;
     private ChampionSelection champSelectModule;
     private Runes runesModule;
-    private Login loginModule;
     private Loot lootModule;
     private ClientWebSocket socket;
 
@@ -62,8 +60,15 @@ public class RuneChanger implements Launcher {
         changeWorkingDir();
         cleanupLogs();
         setDefaultUncaughtExceptionHandler();
-        Elevate.elevate(args);
         checkOperatingSystem();
+        try {
+            Champion.init();
+        } catch (IOException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(null, LangHelper.getLang().getString("init_data_error"), Constants.APP_NAME,
+                    JOptionPane.ERROR_MESSAGE);
+            System.exit(0);
+        }
         SimplePreferences.load();
         ch.qos.logback.classic.Logger logger =
                 (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
@@ -93,14 +98,6 @@ public class RuneChanger implements Launcher {
             }
         } catch (Exception e) {
             e.printStackTrace();
-        }
-        try {
-            Champion.init();
-        } catch (IOException e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(null, LangHelper.getLang().getString("init_data_error"), Constants.APP_NAME,
-                    JOptionPane.ERROR_MESSAGE);
-            System.exit(0);
         }
         instance = new RuneChanger();
         instance.programArguments = args;
@@ -146,14 +143,12 @@ public class RuneChanger implements Launcher {
     private void initModules() {
         champSelectModule = new ChampionSelection(api);
         runesModule = new Runes(api);
-        loginModule = new Login(api);
         lootModule = new Loot(api);
     }
 
     private void resetModules() {
         champSelectModule.reset();
         runesModule.reset();
-        loginModule.reset();
         lootModule.reset();
     }
 
@@ -282,10 +277,11 @@ public class RuneChanger implements Launcher {
                 //printing every event except voice for experimenting
                 if (DebugConsts.PRINT_EVENTS && !event.getUri().toLowerCase().contains("voice")) {
                     log.info("Event: " + event);
+                    System.out.println(new Gson().toJson(event.getData()));
                 }
                 if (event.getUri().equalsIgnoreCase("/lol-chat/v1/me") &&
-                        SimplePreferences.settingsContainsKey("antiAway") &&
-                        SimplePreferences.getSettingsValue("antiAway").equalsIgnoreCase("true")) {
+                        SimplePreferences.containsKey(SimplePreferences.SettingsKeys.ANTI_AWAY) &&
+                        SimplePreferences.getValue(SimplePreferences.SettingsKeys.ANTI_AWAY).equalsIgnoreCase("true")) {
                     if (((LolChatUserResource) event.getData()).availability.equalsIgnoreCase("away")) {
                         new Thread(() -> {
                             try {
@@ -307,7 +303,7 @@ public class RuneChanger implements Launcher {
                         handleSession((LolChampSelectChampSelectSession) event.getData());
                     }
                 }
-                else if (Boolean.parseBoolean(SimplePreferences.getSettingsValue("autoAccept")) &&
+                else if (Boolean.parseBoolean(SimplePreferences.getValue(SimplePreferences.SettingsKeys.AUTO_ACCEPT)) &&
                         event.getUri().equalsIgnoreCase("/lol-lobby/v2/lobby/matchmaking/search-state")) {
                     if (((LolLobbyLobbyMatchmakingSearchResource) event.getData()).searchState ==
                             LolLobbyLobbyMatchmakingSearchState.FOUND) {
@@ -325,6 +321,9 @@ public class RuneChanger implements Launcher {
                 }
                 else if (event.getUri().equalsIgnoreCase("/lol-summoner/v1/current-summoner")) {
                     Settings.setClientConnected(true);
+                }
+                else if (event.getUri().equalsIgnoreCase("/lol-perks/v1/pages")) {
+                    runesModule.handlePageChange((LolPerksPerkPageResource[]) event.getData());
                 }
             }
 
@@ -397,10 +396,6 @@ public class RuneChanger implements Launcher {
 
     public Runes getRunesModule() {
         return runesModule;
-    }
-
-    public Login getLoginModule() {
-        return loginModule;
     }
 
     public Loot getLootModule() {

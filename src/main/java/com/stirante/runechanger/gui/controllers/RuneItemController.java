@@ -1,9 +1,12 @@
 package com.stirante.runechanger.gui.controllers;
 
+import com.stirante.runechanger.RuneChanger;
 import com.stirante.runechanger.model.client.RunePage;
 import com.stirante.runechanger.util.LangHelper;
+import com.stirante.runechanger.util.SimplePreferences;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.control.CheckBox;
@@ -34,6 +37,7 @@ public class RuneItemController {
     public ImageView importPage;
     private List<Node> newRuneNodes;
     private List<Node> localRuneNodes;
+    private RunePage page;
 
     public RuneItemController() {
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/fxml/RuneItem.fxml"), LangHelper.getLang());
@@ -44,10 +48,12 @@ public class RuneItemController {
             throw new RuntimeException(e);
         }
         newRuneNodes = Arrays.asList(shortName, source, importPage);
-        localRuneNodes = Arrays.asList(name, selected, delete, edit);
+        localRuneNodes = Arrays.asList(name, selected, delete);
+        edit.setVisible(false);
     }
 
     public void setNewRuneMode(RunePage page) {
+        this.page = page;
         newRuneNodes.forEach(node -> node.setVisible(true));
         localRuneNodes.forEach(node -> node.setVisible(false));
         shortName.setText(page.getName());
@@ -63,10 +69,11 @@ public class RuneItemController {
 
     public void setLocalRuneMode(RunePage page) {
         setHomeRuneMode(page);
-        edit.setVisible(false);
+//        edit.setVisible(false);
     }
 
     public void setHomeRuneMode(RunePage page) {
+        this.page = page;
         newRuneNodes.forEach(node -> node.setVisible(false));
         localRuneNodes.forEach(node -> node.setVisible(true));
         name.setText(page.getName());
@@ -76,24 +83,49 @@ public class RuneItemController {
         selected.setSelected(page.isFromClient());
     }
 
+    @FXML
     public void onBuildsClick(ActionEvent actionEvent) {
-
+        //TODO
     }
 
+    @FXML
     public void onDelete(MouseEvent mouseEvent) {
-
+        if (page.isFromClient()) {
+            RuneChanger.getInstance().getRunesModule().deletePage(page);
+        }
+        if (SimplePreferences.getRuneBookPage(page.getName()) == null) {
+            return;
+        }
+        SimplePreferences.removeRuneBookPage(page.getName());
     }
 
+    @FXML
     public void onEdit(MouseEvent mouseEvent) {
-
+        //TODO
     }
 
+    @FXML
     public void onSelectChange(ActionEvent actionEvent) {
-
+        // Page is from client and we're deselecting it, so we need to remove it
+        if (page.isFromClient() && !selected.isSelected()) {
+            RuneChanger.getInstance().getRunesModule().deletePage(page);
+        }
+        // Page is not selected, we're selecting it and we have at least one free rune page. We need to add it to client
+        else if (selected.isSelected() && RuneChanger.getInstance().getRunesModule().getOwnedPageCount() >
+                RuneChanger.getInstance().getRunesModule().getRunePages().size()) {
+            RuneChanger.getInstance().getRunesModule().addPage(page);
+        }
+        else if (selected.isSelected()) {
+            selected.setSelected(false);
+        }
     }
 
+    @FXML
     public void onPageImport(MouseEvent mouseEvent) {
-
+        if (SimplePreferences.getRuneBookPage(page.getName()) != null) {
+            return;
+        }
+        SimplePreferences.addRuneBookPage(page);
     }
 
     public static class RunePageCell extends ListCell<RunePage> {

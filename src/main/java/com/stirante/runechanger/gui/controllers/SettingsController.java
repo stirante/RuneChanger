@@ -1,6 +1,5 @@
 package com.stirante.runechanger.gui.controllers;
 
-import com.stirante.runechanger.gui.ControllerUtil;
 import com.stirante.runechanger.gui.Settings;
 import com.stirante.runechanger.util.AutoStartUtils;
 import com.stirante.runechanger.util.LangHelper;
@@ -47,33 +46,30 @@ public class SettingsController {
             AutoStartUtils.setAutoStart(target.isSelected());
         }
         if (target == autoAccept) {
-            SimplePreferences.addSettingsElement("autoAccept", String.valueOf(target.isSelected()));
+            SimplePreferences.putValue(SimplePreferences.SettingsKeys.AUTO_ACCEPT, String.valueOf(target.isSelected()));
         }
         else if (target == antiAway) {
-            SimplePreferences.addSettingsElement("antiAway", String.valueOf(target.isSelected()));
+            SimplePreferences.putValue(SimplePreferences.SettingsKeys.ANTI_AWAY, String.valueOf(target.isSelected()));
         }
         else if (target == quickReplies) {
-            SimplePreferences.addSettingsElement("quickReplies", String.valueOf(target.isSelected()));
+            SimplePreferences.putValue(SimplePreferences.SettingsKeys.QUICK_REPLIES, String.valueOf(target.isSelected()));
         }
         else if (target == autoUpdate) {
-            SimplePreferences.addSettingsElement("autoUpdate", String.valueOf(target.isSelected()));
+            SimplePreferences.putValue(SimplePreferences.SettingsKeys.AUTO_UPDATE, String.valueOf(target.isSelected()));
         }
         else if (target == experimental) {
-            SimplePreferences.addSettingsElement("devChannel", String.valueOf(target.isSelected()));
+            SimplePreferences.putValue(SimplePreferences.SettingsKeys.EXPERIMENTAL_CHANNEL, String.valueOf(target
+                    .isSelected()));
         }
         else if (target == alwaysOnTop) {
-            SimplePreferences.addSettingsElement("alwaysOnTop", String.valueOf(target.isSelected()));
+            SimplePreferences.putValue(SimplePreferences.SettingsKeys.ALWAYS_ON_TOP, String.valueOf(target.isSelected()));
             stage.setAlwaysOnTop(target.isSelected());
         }
         else if (target == forceEnglish) {
-            SimplePreferences.addSettingsElement("forceEnglish", String.valueOf(target.isSelected()));
+            SimplePreferences.putValue(SimplePreferences.SettingsKeys.FORCE_ENGLISH, String.valueOf(target.isSelected()));
             boolean restart = Settings.openYesNoDialog(LangHelper.getLang()
                     .getString("restart_necessary"), LangHelper.getLang()
                     .getString("restart_necessary_description"));
-//                    ControllerUtil
-//                            .showConfirmationScreen(LangHelper.getLang()
-//                                    .getString("restart_necessary"), LangHelper.getLang()
-//                                    .getString("restart_necessary_description"));
             if (restart) {
                 restartProgram();
             }
@@ -82,13 +78,13 @@ public class SettingsController {
     }
 
     private void loadPreferences() {
-        setupPreference("quickReplies", "false", quickReplies);
-        setupPreference("autoAccept", "false", autoAccept);
-        setupPreference("antiAway", "false", antiAway);
-        setupPreference("autoUpdate", "true", autoUpdate);
-        setupPreference("devChannel", "false", experimental);
-        setupPreference("forceEnglish", "false", forceEnglish);
-        setupPreference("alwaysOnTop", "false", alwaysOnTop);
+        setupPreference(SimplePreferences.SettingsKeys.QUICK_REPLIES, "false", quickReplies);
+        setupPreference(SimplePreferences.SettingsKeys.AUTO_ACCEPT, "false", autoAccept);
+        setupPreference(SimplePreferences.SettingsKeys.ANTI_AWAY, "false", antiAway);
+        setupPreference(SimplePreferences.SettingsKeys.AUTO_UPDATE, "true", autoUpdate);
+        setupPreference(SimplePreferences.SettingsKeys.EXPERIMENTAL_CHANNEL, "false", experimental);
+        setupPreference(SimplePreferences.SettingsKeys.FORCE_ENGLISH, "false", forceEnglish);
+        setupPreference(SimplePreferences.SettingsKeys.ALWAYS_ON_TOP, "false", alwaysOnTop);
 
         if (AutoStartUtils.isAutoStartEnabled()) {
             autoStart.setSelected(true);
@@ -96,10 +92,10 @@ public class SettingsController {
     }
 
     private void setupPreference(String key, String defaultValue, CheckBox checkbox) {
-        if (SimplePreferences.getSettingsValue(key) == null) {
-            SimplePreferences.addSettingsElement(key, defaultValue);
+        if (SimplePreferences.getValue(key) == null) {
+            SimplePreferences.putValue(key, defaultValue);
         }
-        if (SimplePreferences.getSettingsValue(key).equals("true")) {
+        if (SimplePreferences.getValue(key).equals("true")) {
             Platform.runLater(() -> checkbox.setSelected(true));
         }
     }

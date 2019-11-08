@@ -9,6 +9,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class RunePage {
     private static final Logger log = LoggerFactory.getLogger(RunePage.class);
@@ -117,12 +118,23 @@ public class RunePage {
         this.source = source;
     }
 
+    private String toClientName(String name) {
+        if (isFromClient()) {
+            return name;
+        }
+        if (champion != null) {
+            name = this.champion.getName() + ":" + this.name;
+        }
+        // limit name to 25 characters (client limit)
+        return name.substring(0, Math.min(25, name.length()));
+    }
+
     public String getName() {
         return name;
     }
 
     public void setName(String name) {
-        this.name = name;
+        this.name = toClientName(name);
     }
 
     public Style getMainStyle() {
@@ -155,8 +167,8 @@ public class RunePage {
      * @param out output stream
      */
     public void serialize(DataOutputStream out) throws IOException {
-        // version mark just in case
-        out.writeByte(0x1);
+        // version mark
+        out.writeByte(0x2);
 
         // basic data
         out.writeUTF(name);
@@ -174,6 +186,13 @@ public class RunePage {
         for (Modifier mod : modifiers) {
             out.writeInt(mod.getId());
         }
+
+        if (champion != null) {
+            out.writeInt(champion.getId());
+        }
+        else {
+            out.writeInt(-1);
+        }
     }
 
     /**
@@ -183,7 +202,7 @@ public class RunePage {
      */
     public void deserialize(DataInputStream in) throws IOException {
         byte version = in.readByte();
-        if (version == 0x1) {
+        if (version >= 0x1) {
             name = in.readUTF();
             mainStyle = Style.getById(in.readInt());
             subStyle = Style.getById(in.readInt());
@@ -198,6 +217,9 @@ public class RunePage {
                 modifiers.add(Modifier.getById(in.readInt()));
             }
         }
+        if (version >= 0x2) {
+            champion = Champion.getById(in.readInt());
+        }
         else {
             log.warn("Unknown rune page version " + version);
         }
@@ -209,9 +231,7 @@ public class RunePage {
      * @param page client rune page
      */
     public void toClient(LolPerksPerkPageResource page) {
-        // limit name to 25 characters (client limit)
-        String name = this.champion.getName() + ":" + this.name;
-        page.name = name.substring(0, Math.min(25, name.length()));
+        page.name = name;
         page.primaryStyleId = mainStyle.getId();
         page.subStyleId = subStyle.getId();
         if (page.selectedPerkIds == null) {
@@ -286,9 +306,46 @@ public class RunePage {
 
     public void setChampion(Champion champion) {
         this.champion = champion;
+        this.name = toClientName(name);
     }
 
     public Champion getChampion() {
         return champion;
+    }
+
+    //Maybe it will be useful someday
+//    public RunePage copy() {
+//        RunePage page = new RunePage();
+//        page.name = name;
+//        page.runes.addAll(runes);
+//        page.modifiers.addAll(modifiers);
+//        page.source = source;
+//        page.champion = champion;
+//        page.fromClient = fromClient;
+//        page.mainStyle = mainStyle;
+//        page.subStyle = subStyle;
+//        return page;
+//    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        RunePage runePage = (RunePage) o;
+        return runes.equals(runePage.runes) &&
+                modifiers.equals(runePage.modifiers) &&
+                (champion == runePage.champion || isFromClient() != runePage.isFromClient()) &&
+                name.equals(runePage.name) &&
+                mainStyle == runePage.mainStyle &&
+                subStyle == runePage.subStyle;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(runes, modifiers, champion, name, mainStyle, subStyle);
     }
 }

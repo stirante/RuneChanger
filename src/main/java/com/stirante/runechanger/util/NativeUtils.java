@@ -10,6 +10,7 @@ import com.sun.jna.ptr.IntByReference;
 public class NativeUtils {
     private static final String LEAGUE_CLIENT_UX_EXECUTABLE = "LeagueClientUx.exe";
     private static final String LEAGUE_CLIENT_UX_TITLE = "League of Legends";
+
     /**
      * Returns process image name. From https://stackoverflow.com/a/50890393/6459649
      */

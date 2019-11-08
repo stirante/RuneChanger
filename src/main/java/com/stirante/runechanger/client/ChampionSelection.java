@@ -1,9 +1,9 @@
 package com.stirante.runechanger.client;
 
+import com.stirante.lolclient.ClientApi;
 import com.stirante.runechanger.DebugConsts;
 import com.stirante.runechanger.model.client.Champion;
 import com.stirante.runechanger.model.client.GameMode;
-import com.stirante.lolclient.ClientApi;
 import generated.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -117,17 +117,8 @@ public class ChampionSelection extends ClientModule {
                     champion = Champion.getById(selection.championPickIntent);
                 }
                 //if all fails check list of actions
-                if (champion == null) {
-                    for (Object actionList : session.actions) {
-                        for (Object obj : ((List) actionList)) {
-                            //noinspection unchecked
-                            Map<String, Object> selectAction = (Map<String, Object>) obj;
-                            if (selectAction.get("type").equals("pick") &&
-                                    selectAction.get("actorCellId") == selection.cellId) {
-                                champion = Champion.getById((Integer) selectAction.get("championId"));
-                            }
-                        }
-                    }
+                if (champion == null && action != null) {
+                    champion = Champion.getById(((Double) action.get("championId")).intValue());
                 }
                 break;
             }
@@ -152,7 +143,8 @@ public class ChampionSelection extends ClientModule {
                 gameMode = GameMode.valueOf(lolLobbyLobbyDto.gameConfig.gameMode);
                 positionSelector = lolLobbyLobbyDto.gameConfig.showPositionSelector;
             } catch (IOException | IllegalArgumentException e) {
-                log.error("Exception thrown when updating the gamemode! GameMode.java might not be updated. " + e.getMessage());
+                log.error("Exception thrown when updating the gamemode! GameMode.java might not be updated. " +
+                        e.getMessage());
                 positionSelector = false;
                 gameMode = GameMode.CLASSIC;
             }
@@ -167,6 +159,8 @@ public class ChampionSelection extends ClientModule {
     public void onSession(LolChampSelectChampSelectSession session) {
         findCurrentAction(session);
         findSelectedChampion(session);
+//        String currentPhase = session.timer.phase;
+//        System.out.println(currentPhase);
         updateGameMode();
     }
 

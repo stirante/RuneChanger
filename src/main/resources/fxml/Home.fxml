@@ -20,7 +20,7 @@
    <Label fx:id="username" layoutX="320.0" layoutY="186.0" prefHeight="24.0" prefWidth="140.0" styleClass="header"/>
    <Label fx:id="localRunesTitle" layoutX="65.0" layoutY="18.0" prefHeight="24.0" prefWidth="199.0"
           style="-fx-alignment: center-left;" styleClass="header" text="LOCAL RUNES (2/2)"/>
-   <ListView fx:id="localRunesList" layoutY="42.0" prefHeight="250.0" prefWidth="275.0"/>
+   <ListView fx:id="localRunesList" layoutY="42.0" prefHeight="250.0" prefWidth="272.0"/>
    <Button fx:id="disenchantChampionsButton" layoutX="307.0" layoutY="215.0" height="35.0" width="167.0"
            onAction="#onChampionDisenchant" text="%disenchant_champions"/>
 </Pane>

@@ -38,7 +38,7 @@ public class ChampionGGSource implements RuneSource {
             return;
         }
         List<String> runepageList = new ArrayList<>();
-        runepageList.add(champion.getName() + " - " + role);
+        runepageList.add(role);
         runepageList.add(Style.getByName(mainSide.child(0).text().substring(2)) + "");
         runepageList.add(Style.getByName(secondarySide.child(0).text().substring(2)) + "");
         for (Element e : mainSide.children()) {

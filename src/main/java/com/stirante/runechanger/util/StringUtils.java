@@ -49,7 +49,7 @@ public class StringUtils {
     }
 
     /**
-     * Connvert a string structured like a array to a list
+     * Convert a string structured like a array to a list
      *
      * @param str string
      * @return List<String>

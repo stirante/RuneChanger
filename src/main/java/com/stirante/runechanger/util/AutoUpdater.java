@@ -26,8 +26,8 @@ public class AutoUpdater {
             return true;
         }
         if (DebugConsts.DISABLE_AUTOUPDATE ||
-                (SimplePreferences.getSettingsValue("autoUpdate") != null &&
-                        SimplePreferences.getSettingsValue("autoUpdate").equals("false"))) {
+                (SimplePreferences.containsKey(SimplePreferences.SettingsKeys.AUTO_UPDATE) &&
+                        SimplePreferences.getValue(SimplePreferences.SettingsKeys.AUTO_UPDATE).equals("false"))) {
             return true;
         }
 
@@ -103,7 +103,7 @@ public class AutoUpdater {
             return configuration;
         }
         String configUrl = STABLE_UPDATE_CONFIG;
-        if (SimplePreferences.getSettingsValue("devChannel", "0").equalsIgnoreCase("1")) {
+        if (SimplePreferences.getValue(SimplePreferences.SettingsKeys.EXPERIMENTAL_CHANNEL, "0").equalsIgnoreCase("1")) {
             configUrl = DEV_UPDATE_CONFIG;
         }
         Reader reader = new InputStreamReader(new URL(configUrl).openStream());

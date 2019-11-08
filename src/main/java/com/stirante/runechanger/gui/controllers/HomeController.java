@@ -7,6 +7,7 @@ import com.stirante.runechanger.model.client.RunePage;
 import com.stirante.runechanger.util.LangHelper;
 import generated.LolSummonerSummoner;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
@@ -22,6 +23,7 @@ import javafx.scene.shape.Circle;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.Comparator;
 
 public class HomeController {
 
@@ -44,6 +46,14 @@ public class HomeController {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+        localRunes.addListener((ListChangeListener<RunePage>) observable -> {
+            while (observable.next()) {
+                if (observable.getAddedSize() > 0 || observable.getRemovedSize() > 0) {
+                    FXCollections.sort(localRunes, Comparator.comparing(RunePage::getName));
+                    return;
+                }
+            }
+        });
         localRunesList.setItems(localRunes);
         localRunesList.setCellFactory(listView -> new RuneItemController.RunePageCell(RuneItemController::setHomeRuneMode));
     }
@@ -60,14 +70,15 @@ public class HomeController {
             e.printStackTrace();
         }
         emptyProfilePicture.setVisible(false);
-//        disenchantChampionsButton.setDisable(false);
+        disenchantChampionsButton.setDisable(false);
     }
 
     public void setOffline() {
         emptyProfilePicture.setVisible(true);
         username.setText("");
         profilePicture.setFill(null);
-//        disenchantChampionsButton.setDisable(true);
+        disenchantChampionsButton.setDisable(true);
+        localRunesTitle.setText(LangHelper.getLang().getString("local_runes_no_connection"));
     }
 
     @FXML

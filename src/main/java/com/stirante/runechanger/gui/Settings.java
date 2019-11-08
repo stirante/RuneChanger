@@ -5,11 +5,10 @@ import com.stirante.runechanger.gui.controllers.DialogController;
 import com.stirante.runechanger.gui.controllers.HomeController;
 import com.stirante.runechanger.gui.controllers.MainController;
 import com.stirante.runechanger.gui.controllers.RuneBookController;
-import com.stirante.runechanger.model.client.Champion;
 import com.stirante.runechanger.model.client.RunePage;
 import com.stirante.runechanger.runestore.RuneStore;
-import com.stirante.runechanger.runestore.RuneforgeSource;
 import com.stirante.runechanger.util.AsyncTask;
+import com.stirante.runechanger.util.LangHelper;
 import com.stirante.runechanger.util.SimplePreferences;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -19,9 +18,10 @@ import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.List;
+import java.util.stream.Collectors;
 
 public class Settings extends Application {
 
@@ -66,21 +66,11 @@ public class Settings extends Application {
                 try {
                     instance.home.localRunes.clear();
                     instance.home.localRunes.addAll(SimplePreferences.getRuneBookValues());
-                    instance.home.setOnline(RuneChanger.getInstance()
-                            .getChampionSelectionModule()
-                            .getCurrentSummoner(), RuneChanger.getInstance().getLootModule());
+                    instance.home.setOnline(
+                            RuneChanger.getInstance().getChampionSelectionModule().getCurrentSummoner(),
+                            RuneChanger.getInstance().getLootModule());
                     if (instance.runeChanger.getRunesModule() != null) {
-                        new AsyncTask<Void, Void, Collection<RunePage>>() {
-                            @Override
-                            public Collection<RunePage> doInBackground(Void[] params) {
-                                return instance.runeChanger.getRunesModule().getRunePages().values();
-                            }
-
-                            @Override
-                            public void onPostExecute(Collection<RunePage> result) {
-                                instance.home.localRunes.addAll(result);
-                            }
-                        }.execute();
+                        instance.updateRunes();
                     }
                 } catch (Exception ignored) {
                 }
@@ -100,7 +90,6 @@ public class Settings extends Application {
     @Override
     public void start(Stage stage) {
         instance = this;
-        RuneforgeSource source = new RuneforgeSource();
         runeChanger = RuneChanger.getInstance();
         mainStage = stage;
 
@@ -108,36 +97,14 @@ public class Settings extends Application {
         runebook = new RuneBookController();
 
         controller.setOnChampionSearch(champion -> {
-            runebook.localRunes.clear();
-            runebook.newRunes.clear();
+            runebook.setChampion(champion);
             RuneStore.getRemoteRunes(champion, runebook.newRunes);
-            if (runeChanger.getRunesModule() != null) {
-                new AsyncTask<Void, Void, Collection<RunePage>>() {
-                    @Override
-                    public Collection<RunePage> doInBackground(Void[] params) {
-                        return runeChanger.getRunesModule().getRunePages().values();
-                    }
-
-                    @Override
-                    public void onPostExecute(Collection<RunePage> result) {
-                        runebook.localRunes.addAll(result);
-                    }
-                }.execute();
-            }
-            runebook.localRunes.addAll(SimplePreferences.getRuneBookValues());
-            if (champion.getSplashArt() != null) {
-                runebook.background.setImage(SwingFXUtils.toFXImage(champion.getSplashArt(), null));
-            }
-            else {
-                runebook.background.setImage(null);
-            }
-            runebook.championName.setText(champion.getName());
-            runebook.setPosition(champion.getPosition());
             controller.setFullContent(runebook.container);
         });
 
         home = new HomeController();
         home.setOffline();
+        runeChanger.getRunesModule().addOnPageChangeListener(this::updateRunes);
         controller.setContent(home.container);
 
         Scene scene = new Scene(controller.container, 600, 500);
@@ -157,5 +124,33 @@ public class Settings extends Application {
             stage.setAlwaysOnTop(true);
             stage.setAlwaysOnTop(false);
         }
+    }
+
+    private void updateRunes() {
+        new AsyncTask<Void, Void, Collection<RunePage>>() {
+            @Override
+            public Collection<RunePage> doInBackground(Void[] params) {
+                return runeChanger.getRunesModule().getRunePages().values();
+            }
+
+            @Override
+            public void onPostExecute(Collection<RunePage> result) {
+                home.localRunes.clear();
+                runebook.localRunes.clear();
+                String title = String.format(
+                        LangHelper.getLang().getString("local_runes"),
+                        result.size(),
+                        runeChanger.getRunesModule().getOwnedPageCount());
+//                home.localRunes.addAll(result);
+//                runebook.localRunes.addAll(result);
+                home.localRunesTitle.setText(title);
+                runebook.localRunesTitle.setText(title);
+                ArrayList<RunePage> runeBookValues = SimplePreferences.getRuneBookValues().stream().filter(runePage -> result
+                        .stream().noneMatch(runePage1 -> runePage1.equals(runePage))).collect(Collectors.toCollection(ArrayList::new));
+                runeBookValues.addAll(result);
+                home.localRunes.addAll(runeBookValues);
+                runebook.localRunes.addAll(runeBookValues);
+            }
+        }.execute();
     }
 }

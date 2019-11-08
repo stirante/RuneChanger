@@ -1,5 +1,6 @@
 package com.stirante.runechanger.util;
 
+import com.stirante.runechanger.RuneChanger;
 import com.stirante.runechanger.model.client.RunePage;
 
 import java.io.*;
@@ -96,19 +97,19 @@ public class SimplePreferences {
 
     }
 
-    public static String getSettingsValue(String key) {
+    public static String getValue(String key) {
         return settingsValues.get(key);
     }
 
-    public static String getSettingsValue(String key, String def) {
+    public static String getValue(String key, String def) {
         return settingsValues.getOrDefault(key, def);
     }
 
-    public static boolean settingsContainsKey(String key) {
+    public static boolean containsKey(String key) {
         return settingsValues.containsKey(key);
     }
 
-    public static void addSettingsElement(String key, String value) {
+    public static void putValue(String key, String value) {
         settingsValues.put(key, value);
         save();
     }
@@ -123,14 +124,24 @@ public class SimplePreferences {
     public static void addRuneBookPage(RunePage page) {
         runeBookValues.add(page);
         save();
+        RuneChanger.getInstance().getRunesModule().handlePageChange(null);
     }
 
     public static void removeRuneBookPage(String key) {
         runeBookValues.removeIf(runePage -> runePage.getName().equalsIgnoreCase(key));
         save();
+        RuneChanger.getInstance().getRunesModule().handlePageChange(null);
     }
 
-
+    public static class SettingsKeys {
+        public static final String ANTI_AWAY = "antiAway";
+        public static final String AUTO_ACCEPT = "autoAccept";
+        public static final String QUICK_REPLIES = "quickReplies";
+        public static final String FORCE_ENGLISH = "forceEnglish";
+        public static final String AUTO_UPDATE = "autoUpdate";
+        public static final String EXPERIMENTAL_CHANNEL = "devChannel";
+        public static final String ALWAYS_ON_TOP = "alwaysOnTop";
+    }
 
 
 }
