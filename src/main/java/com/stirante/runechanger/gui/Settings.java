@@ -141,8 +141,6 @@ public class Settings extends Application {
                         LangHelper.getLang().getString("local_runes"),
                         result.size(),
                         runeChanger.getRunesModule().getOwnedPageCount());
-//                home.localRunes.addAll(result);
-//                runebook.localRunes.addAll(result);
                 home.localRunesTitle.setText(title);
                 runebook.localRunesTitle.setText(title);
                 ArrayList<RunePage> runeBookValues = SimplePreferences.getRuneBookValues().stream().filter(runePage -> result

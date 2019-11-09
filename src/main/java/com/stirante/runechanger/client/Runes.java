@@ -63,11 +63,18 @@ public class Runes extends ClientModule {
             LolPerksPerkPageResource page1 =
                     getApi().executeGet("/lol-perks/v1/currentpage", LolPerksPerkPageResource.class);
             if (!page1.isEditable || !page1.isActive) {
-                page1 = availablePages.get(0);
+                if (availablePages.size() > 0) {
+                    page1 = availablePages.get(0);
+                }
+                else {
+                    page1 = new LolPerksPerkPageResource();
+                }
             }
             page.toClient(page1);
             //updating rune page sometimes bugs out client, so we remove and add new one
-            getApi().executeDelete("/lol-perks/v1/pages/" + page1.id);
+            if (page1.id != null) {
+                getApi().executeDelete("/lol-perks/v1/pages/" + page1.id);
+            }
             getApi().executePost("/lol-perks/v1/pages/", page1);
         } catch (IOException ex) {
             ex.printStackTrace();
