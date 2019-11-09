@@ -11,7 +11,8 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 
 public class QuickReplies extends OverlayLayer {
-//    private static final String BOT = "BOT";
+    public static final Color BG_COLOR = new Color(0f, 0f, 0f, 0.01f);
+    //    private static final String BOT = "BOT";
 //    private static final String MID = "MID";
 //    private static final String TOP = "TOP";
 //    private static final String JUNGLE = "JUNGLE";
@@ -91,6 +92,9 @@ public class QuickReplies extends OverlayLayer {
             rectangles[i].y = chatY;
             rectangles[i].width = 15;
             rectangles[i].height = 15;
+            //we give it a background, since otherwise it wouldn't be clickable everywhere
+            g2d.setPaint(BG_COLOR);
+            g2d.fillRect(chatX, chatY, 20, 20);
             g2d.drawImage(icons[i], chatX, chatY, 20, 20, null);
             chatX += 25;
         }
