@@ -24,6 +24,7 @@ public class SettingsController {
     public CheckBox autoStart;
     public CheckBox forceEnglish;
     public CheckBox experimental;
+    public CheckBox autoSync;
     public Pane container;
 
     public SettingsController(Stage stage) {
@@ -61,6 +62,10 @@ public class SettingsController {
             SimplePreferences.putValue(SimplePreferences.SettingsKeys.EXPERIMENTAL_CHANNEL, String.valueOf(target
                     .isSelected()));
         }
+        else if (target == autoSync) {
+            SimplePreferences.putValue(SimplePreferences.SettingsKeys.AUTO_SYNC, String.valueOf(target
+                    .isSelected()));
+        }
         else if (target == alwaysOnTop) {
             SimplePreferences.putValue(SimplePreferences.SettingsKeys.ALWAYS_ON_TOP, String.valueOf(target.isSelected()));
             stage.setAlwaysOnTop(target.isSelected());
@@ -85,6 +90,7 @@ public class SettingsController {
         setupPreference(SimplePreferences.SettingsKeys.EXPERIMENTAL_CHANNEL, "false", experimental);
         setupPreference(SimplePreferences.SettingsKeys.FORCE_ENGLISH, "false", forceEnglish);
         setupPreference(SimplePreferences.SettingsKeys.ALWAYS_ON_TOP, "false", alwaysOnTop);
+        setupPreference(SimplePreferences.SettingsKeys.AUTO_SYNC, "false", autoSync);
 
         if (AutoStartUtils.isAutoStartEnabled()) {
             autoStart.setSelected(true);

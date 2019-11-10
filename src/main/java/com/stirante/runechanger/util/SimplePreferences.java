@@ -141,6 +141,7 @@ public class SimplePreferences {
         public static final String AUTO_UPDATE = "autoUpdate";
         public static final String EXPERIMENTAL_CHANNEL = "devChannel";
         public static final String ALWAYS_ON_TOP = "alwaysOnTop";
+        public static final String AUTO_SYNC = "autoSync";
     }
 
 

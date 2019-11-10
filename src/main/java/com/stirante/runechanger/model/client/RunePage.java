@@ -8,6 +8,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -252,7 +253,7 @@ public class RunePage {
      *
      * @return list containing rune and modifier id's
      */
-    public List exportRunePage() {
+    public String toSerializedString() {
         List<Object> runepageList = new ArrayList<>();
 
         runepageList.add(name);
@@ -267,32 +268,39 @@ public class RunePage {
             runepageList.add(modifier.getId());
         });
 
-        return runepageList;
+        return runepageList.toString();
     }
 
     /**
      * Imports runepage into a list with numbers.
      *
-     * @param runepageList containing int's corresponding to runes
-     * @return boolean true if succesfull false if not
+     * @param str rune page serialized to string
+     * @return boolean true if successful false if not
      */
-    public boolean importRunePage(List runepageList) {
+    public boolean fromSerializedString(String str) {
+        String replace = str.replace("[", "");
+        String replace1 = replace.replace("]", "");
+        String[] parts = replace1.split(",", 2);
+        String part1 = parts[0];
+        replace1 = parts[1].replace(" ", "");
+        replace1 = part1 + "," + replace1;
+        List<String> runepageList = new ArrayList<>(Arrays.asList(replace1.split(",")));
 
         if (runepageList.size() != 12) {
             return false;
         }
 
         for (int i = 9; i < 12; i++) {
-            this.modifiers.add(Modifier.getById(Integer.parseInt((String) runepageList.get(i))));
+            this.modifiers.add(Modifier.getById(Integer.parseInt(runepageList.get(i))));
         }
 
         for (int i = 3; i < 9; i++) {
-            this.runes.add(Rune.getById(Integer.parseInt((String) runepageList.get(i))));
+            this.runes.add(Rune.getById(Integer.parseInt(runepageList.get(i))));
         }
 
-        this.name = (String) runepageList.get(0);
-        this.mainStyle = Style.valueOf((String) runepageList.get(1));
-        this.subStyle = Style.valueOf((String) runepageList.get(2));
+        this.name = runepageList.get(0);
+        this.mainStyle = Style.valueOf(runepageList.get(1));
+        this.subStyle = Style.valueOf(runepageList.get(2));
         return this.verify();
     }
 
@@ -347,5 +355,16 @@ public class RunePage {
     @Override
     public int hashCode() {
         return Objects.hash(runes, modifiers, champion, name, mainStyle, subStyle);
+    }
+
+    public void copyFrom(RunePage page) {
+        name = page.getName();
+        mainStyle = page.mainStyle;
+        subStyle = page.subStyle;
+        runes.clear();
+        runes.addAll(page.runes);
+        modifiers.clear();
+        modifiers.addAll(page.modifiers);
+        champion = page.champion;
     }
 }

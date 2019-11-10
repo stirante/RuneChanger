@@ -21,6 +21,7 @@ import javafx.stage.StageStyle;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 import java.util.stream.Collectors;
 
 public class Settings extends Application {
@@ -127,14 +128,14 @@ public class Settings extends Application {
     }
 
     private void updateRunes() {
-        new AsyncTask<Void, Void, Collection<RunePage>>() {
+        new AsyncTask<Void, Void, List<RunePage>>() {
             @Override
-            public Collection<RunePage> doInBackground(Void[] params) {
-                return runeChanger.getRunesModule().getRunePages().values();
+            public List<RunePage> doInBackground(Void[] params) {
+                return runeChanger.getRunesModule().getRunePages();
             }
 
             @Override
-            public void onPostExecute(Collection<RunePage> result) {
+            public void onPostExecute(List<RunePage> result) {
                 home.localRunes.clear();
                 runebook.localRunes.clear();
                 String title = String.format(

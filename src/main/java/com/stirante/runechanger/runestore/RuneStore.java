@@ -12,7 +12,7 @@ public class RuneStore {
     private static final List<RuneSource> sources = new ArrayList<>();
 
     static {
-//        sources.add(new RuneforgeSource());
+        sources.add(new RuneforgeSource());
         sources.add(new ChampionGGSource());
         sources.add(new LocalSource());
     }

@@ -185,6 +185,7 @@ public class RuneChanger implements Launcher {
                     session.myTeam.add(e);
                     handleSession(session);
                 }
+                // Check if session is active after starting RuneChanger, since we might not get event right away
                 try {
                     LolChampSelectChampSelectSession session =
                             api.executeGet("/lol-champ-select/v1/session", LolChampSelectChampSelectSession.class);
@@ -192,6 +193,11 @@ public class RuneChanger implements Launcher {
                         handleSession(session);
                     }
                 } catch (Exception ignored) {
+                }
+                // Auto sync rune pages to RuneChanger
+                if (SimplePreferences.getValue(SimplePreferences.SettingsKeys.AUTO_SYNC, "false")
+                        .equalsIgnoreCase("true")) {
+                    runesModule.syncRunePages();
                 }
                 //sometimes, the api is connected too quickly and there is WebsocketNotConnectedException
                 //That's why I added this little piece of code, which will retry opening socket every second

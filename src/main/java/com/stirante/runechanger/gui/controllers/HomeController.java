@@ -83,8 +83,8 @@ public class HomeController {
 
     @FXML
     public void onChampionDisenchant(ActionEvent event) {
-        //lootModule.disenchantChampions();
-        System.out.println("click");
+//        lootModule.smartDisenchantChampions();
+        System.out.println("smartDisenchantChampions");
     }
 
 }

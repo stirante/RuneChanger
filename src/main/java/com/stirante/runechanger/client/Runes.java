@@ -3,13 +3,15 @@ package com.stirante.runechanger.client;
 import com.stirante.lolclient.ClientApi;
 import com.stirante.runechanger.model.client.RunePage;
 import com.stirante.runechanger.util.FxUtils;
+import com.stirante.runechanger.util.SimplePreferences;
 import generated.LolPerksPerkPageResource;
 import generated.LolPerksPlayerInventory;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
 
 public class Runes extends ClientModule {
 
@@ -81,8 +83,8 @@ public class Runes extends ClientModule {
         }
     }
 
-    public HashMap<String, RunePage> getRunePages() {
-        HashMap<String, RunePage> availablePages = new HashMap<>();
+    public List<RunePage> getRunePages() {
+        List<RunePage> availablePages = new ArrayList<>();
         try {
             //get all rune pages
             LolPerksPerkPageResource[] pages =
@@ -92,7 +94,7 @@ public class Runes extends ClientModule {
                 if (p.isEditable) {
                     RunePage value = RunePage.fromClient(p);
                     if (value != null) {
-                        availablePages.put(p.name, value);
+                        availablePages.add(value);
                     }
                 }
             }
@@ -112,6 +114,11 @@ public class Runes extends ClientModule {
     }
 
     public void handlePageChange(LolPerksPerkPageResource[] pages) {
+        // Auto sync rune pages to RuneChanger
+        if (SimplePreferences.getValue(SimplePreferences.SettingsKeys.AUTO_SYNC, "false").equalsIgnoreCase("true")) {
+            syncRunePages();
+        }
+
         for (Runnable runnable : onPageChange) {
             if (runnable != null) {
                 try {
@@ -148,4 +155,21 @@ public class Runes extends ClientModule {
             e.printStackTrace();
         }
     }
+
+    public void syncRunePages() {
+        ArrayList<RunePage> savedPages = SimplePreferences.getRuneBookValues();
+        List<RunePage> clientPages = getRunePages();
+        for (RunePage p : clientPages) {
+            Optional<RunePage> savedPage = savedPages.stream()
+                    .filter(runePage -> runePage.getName().equalsIgnoreCase(p.getName()))
+                    .findFirst();
+            if (savedPage.isPresent()) {
+                savedPage.get().copyFrom(p);
+            }
+            else {
+                SimplePreferences.addRuneBookPage(p);
+            }
+        }
+    }
+
 }

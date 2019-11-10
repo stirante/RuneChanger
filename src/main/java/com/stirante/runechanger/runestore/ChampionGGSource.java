@@ -12,10 +12,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class ChampionGGSource implements RuneSource {
@@ -23,10 +21,11 @@ public class ChampionGGSource implements RuneSource {
 
     private final static String CHAMPION_URL = "https://champion.gg/champion/";
     private final static String BASE_URL = "https://champion.gg/";
-//    private final String[] ROLES = {"Jungle", "Middle", "ADC", "Top", "Support"};
+    //    private final String[] ROLES = {"Jungle", "Middle", "ADC", "Top", "Support"};
     private final HashMap<Champion, Position> positionCache = new HashMap<>();
 
     private void extractRunePage(Document webPage, Champion champion, String role, ObservableList<RunePage> pages) {
+        RunePage page = new RunePage();
         Elements elements = webPage.select("div.o-wrap");
         elements = elements.select("div.RuneBuilder__PathBody-dchrMz.bKqgWU");
         Element mainSide;
@@ -37,10 +36,9 @@ public class ChampionGGSource implements RuneSource {
         } catch (NullPointerException e) {
             return;
         }
-        List<String> runepageList = new ArrayList<>();
-        runepageList.add(role);
-        runepageList.add(Style.getByName(mainSide.child(0).text().substring(2)) + "");
-        runepageList.add(Style.getByName(secondarySide.child(0).text().substring(2)) + "");
+        page.setName(role);
+        page.setMainStyle(Style.getByName(mainSide.child(0).text().substring(2)));
+        page.setSubStyle(Style.getByName(secondarySide.child(0).text().substring(2)));
         for (Element e : mainSide.children()) {
             String rune =
                     e.select(".iSYqxs.Slot__RightSide-bGHpkV > div:nth-of-type(1) > .hGZpqL.Description__Block-bJdjrS > .bJtdXG.Description__Title-jfHpQH")
@@ -48,7 +46,7 @@ public class ChampionGGSource implements RuneSource {
             if (rune.equals("")) {
                 continue;
             }
-            runepageList.add(Objects.requireNonNull(Rune.getByName(rune)).getId() + "");
+            page.getRunes().add(Rune.getByName(rune));
         }
 
         Element subRunesParent = secondarySide.child(1);
@@ -58,18 +56,16 @@ public class ChampionGGSource implements RuneSource {
             if (e.text().equals("")) {
                 continue;
             }
-            runepageList.add(Objects.requireNonNull(Rune.getByName(e.text())).getId() + "");
+            page.getRunes().add(Rune.getByName(e.text()));
         }
 
         Element modifierParent = secondarySide.child(2);
         Elements modifiers =
                 modifierParent.select(".iLoveCSS.iSYqxs.Slot__RightSide-bGHpkV > .statShardsOS.hGZpqL.Description__Block-bJdjrS > .bJtdXG.Description__Title-jfHpQH");
         for (Element e : modifiers) {
-            runepageList.add(modifierConverter(e.text()) + "");
+            page.getModifiers().add(modifierConverter(e.text()));
         }
 
-        RunePage page = new RunePage();
-        page.importRunePage(runepageList);
         page.setSource(webPage.baseUri());
         page.setChampion(champion);
         if (page.verify() && !pages.contains(page)) {
@@ -100,20 +96,20 @@ public class ChampionGGSource implements RuneSource {
         }
     }
 
-    private Integer modifierConverter(String modifierName) {
+    private Modifier modifierConverter(String modifierName) {
         switch (modifierName.toLowerCase()) {
             case "attack speed":
-                return Modifier.RUNE_5005.getId();
+                return Modifier.RUNE_5005;
             case "adaptive force":
-                return Modifier.RUNE_5008.getId();
+                return Modifier.RUNE_5008;
             case "armor":
-                return Modifier.RUNE_5002.getId();
+                return Modifier.RUNE_5002;
             case "magic resist":
-                return Modifier.RUNE_5003.getId();
+                return Modifier.RUNE_5003;
             case "scaling cooldown reduction":
-                return Modifier.RUNE_5007.getId();
+                return Modifier.RUNE_5007;
             case "scaling health":
-                return Modifier.RUNE_5001.getId();
+                return Modifier.RUNE_5001;
             default:
                 return null;
         }
