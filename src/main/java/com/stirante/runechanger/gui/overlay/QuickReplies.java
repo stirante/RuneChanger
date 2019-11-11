@@ -50,8 +50,8 @@ public class QuickReplies extends OverlayLayer {
                 rectangles[i].height = 15;
                 //we give it a background, since otherwise it wouldn't be clickable everywhere
                 g2d.setPaint(BG_COLOR);
-                g2d.fillRect(chatX, chatY, 20, 20);
-                g2d.drawImage(icons[i], chatX, chatY, 20, 20, null);
+                g2d.fillRect(chatX, chatY, 15, 15);
+                g2d.drawImage(icons[i], chatX, chatY, 15, 15, null);
                 chatX += 25;
             }
         }

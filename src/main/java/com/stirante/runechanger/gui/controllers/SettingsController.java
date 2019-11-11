@@ -65,6 +65,7 @@ public class SettingsController {
         else if (target == autoSync) {
             SimplePreferences.putValue(SimplePreferences.SettingsKeys.AUTO_SYNC, String.valueOf(target
                     .isSelected()));
+            tryRestart();
         }
         else if (target == alwaysOnTop) {
             SimplePreferences.putValue(SimplePreferences.SettingsKeys.ALWAYS_ON_TOP, String.valueOf(target.isSelected()));
@@ -72,14 +73,18 @@ public class SettingsController {
         }
         else if (target == forceEnglish) {
             SimplePreferences.putValue(SimplePreferences.SettingsKeys.FORCE_ENGLISH, String.valueOf(target.isSelected()));
-            boolean restart = Settings.openYesNoDialog(LangHelper.getLang()
-                    .getString("restart_necessary"), LangHelper.getLang()
-                    .getString("restart_necessary_description"));
-            if (restart) {
-                restartProgram();
-            }
+            tryRestart();
         }
         SimplePreferences.save();
+    }
+
+    private void tryRestart() {
+        boolean restart = Settings.openYesNoDialog(LangHelper.getLang()
+                .getString("restart_necessary"), LangHelper.getLang()
+                .getString("restart_necessary_description"));
+        if (restart) {
+            restartProgram();
+        }
     }
 
     private void loadPreferences() {

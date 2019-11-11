@@ -22,7 +22,7 @@ public class Constants {
     public static final float RUNE_ITEM_HEIGHT = 0.050000012f;
     public static final float RUNE_ITEM_WIDTH = 0.15000004f;
     public static final float QUICK_CHAT_X = 0.0171875f;
-    public static final float QUICK_CHAT_Y = 0.97083336f;
+    public static final float QUICK_CHAT_Y = 0.9736111f;
     public static final float RUNE_BUTTON_SIZE = 0.039f;
     public static final float FONT_SIZE = 0.0208333f;
     public static final float CHAMPION_TILE_SIZE = 0.097222224f;

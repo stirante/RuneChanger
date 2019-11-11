@@ -12,17 +12,22 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class ChampionGGSource implements RuneSource {
     private static final Logger log = LoggerFactory.getLogger(ChampionGGSource.class);
+    private static final ReentrantLock LOCK = new ReentrantLock();
 
     private final static String CHAMPION_URL = "https://champion.gg/champion/";
-    private final static String BASE_URL = "https://champion.gg/";
-    //    private final String[] ROLES = {"Jungle", "Middle", "ADC", "Top", "Support"};
-    private final HashMap<Champion, Position> positionCache = new HashMap<>();
+    private final static String BASE_URL = "https://champion.gg";
+    private static final int TIMEOUT = 10000;
+    private final static HashMap<Champion, Position> positionCache = new HashMap<>();
+    private final static HashMap<Champion, List<String>> pageCache = new HashMap<>();
+    private static boolean initialized = false;
 
     private void extractRunePage(Document webPage, Champion champion, String role, ObservableList<RunePage> pages) {
         RunePage page = new RunePage();
@@ -74,25 +79,15 @@ public class ChampionGGSource implements RuneSource {
     }
 
     private void extractRunes(Champion champion, ObservableList<RunePage> pages) {
-        final String URL = CHAMPION_URL + champion.getInternalName() + "/";
-        log.info("Visiting page to check for runes: " + URL);
-        try {
-            Document webPage = Jsoup.connect(URL).get();
-            List<String> collect = webPage.select(".champion-profile ul li a h3")
-                    .stream()
-                    .map(Element::text)
-                    .collect(Collectors.toList());
-            String role = webPage.baseUri().replace(URL, "").replace("?", "");
-            extractRunePage(webPage, champion, role, pages);
-            for (String s : collect) {
-                if (s.equalsIgnoreCase(role)) {
-                    continue;
-                }
-                extractRunePage(webPage, champion, s, pages);
-            }
+        for (String role : pageCache.get(champion)) {
+            final String URL = CHAMPION_URL + champion.getInternalName() + "/" + role;
+            try {
+                Document webPage = Jsoup.parse(new URL(URL), TIMEOUT);
+                extractRunePage(webPage, champion, role, pages);
 
-        } catch (IOException e) {
-            log.warn("ERROR RETRIEVING CHAMPION FROM Champion.gg! " + e);
+            } catch (IOException e) {
+                log.warn("ERROR RETRIEVING CHAMPION FROM Champion.gg! " + e);
+            }
         }
     }
 
@@ -115,40 +110,59 @@ public class ChampionGGSource implements RuneSource {
         }
     }
 
-    public Position getPositionForChampion(Champion champion) {
-        if (positionCache.isEmpty()) {
-            try {
-                Document webPage = Jsoup.connect(BASE_URL).get();
-                Elements select = webPage.select(".champ-index-img a:nth-child(2)");
-                for (Element element : select) {
-                    String championName = element.attr("href").split("/")[2];
-                    Position pos = Position.UNSELECTED;
-                    switch (element.text()) {
-                        case "Support":
-                            pos = Position.UTILITY;
-                            break;
-                        case "Middle":
-                            pos = Position.MIDDLE;
-                            break;
-                        case "ADC":
-                            pos = Position.BOTTOM;
-                            break;
-                        case "Top":
-                            pos = Position.TOP;
-                            break;
-                        case "Jungle":
-                            pos = Position.JUNGLE;
-                            break;
-                        default:
-                            log.warn("Unknown position name: " + element.text());
-                            break;
-                    }
-                    positionCache.put(Champion.getByName(championName), pos);
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+    private void initCache() {
+        LOCK.lock();
+        if (initialized) {
+            LOCK.unlock();
+            return;
         }
+        try {
+            Document webPage = Jsoup.parse(new URL(BASE_URL + "/"), TIMEOUT);
+            Elements select = webPage.select(".champ-index-img a");
+            for (Element element : select) {
+                if (element.children().size() > 0) {
+                    continue;
+                }
+                String championName = element.attr("href").split("/")[2];
+                Position pos = Position.UNSELECTED;
+                switch (element.text()) {
+                    case "Support":
+                        pos = Position.UTILITY;
+                        break;
+                    case "Middle":
+                        pos = Position.MIDDLE;
+                        break;
+                    case "ADC":
+                        pos = Position.BOTTOM;
+                        break;
+                    case "Top":
+                        pos = Position.TOP;
+                        break;
+                    case "Jungle":
+                        pos = Position.JUNGLE;
+                        break;
+                    default:
+                        log.warn("Unknown position name: " + element.text());
+                        break;
+                }
+                Champion champion = Champion.getByName(championName);
+                if (!positionCache.containsKey(champion)) {
+                    positionCache.put(champion, pos);
+                }
+                if (!pageCache.containsKey(champion)) {
+                    pageCache.put(champion, new ArrayList<>());
+                }
+                pageCache.get(champion).add(element.text());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        initialized = true;
+        LOCK.unlock();
+    }
+
+    public Position getPositionForChampion(Champion champion) {
+        initCache();
         if (!positionCache.containsKey(champion)) {
             log.warn("Champion not found: " + champion.getName());
             return Position.UNSELECTED;
@@ -166,12 +180,7 @@ public class ChampionGGSource implements RuneSource {
         extractRunes(champion, pages);
     }
 
-//    public static void main(String[] args) throws IOException {
-//        Champion.init();
-//
-//        ChampionGGSource source = new ChampionGGSource();
-//        Champion.values()
-//                .forEach(champion -> System.out.println(
-//                        source.getForChampion(champion).size() + " pages were found for " + champion.getName()));
-//    }
+    public static void main(String[] args) throws IOException {
+        Champion.init();
+    }
 }

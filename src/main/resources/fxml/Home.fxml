@@ -23,4 +23,6 @@
    <ListView fx:id="localRunesList" layoutY="42.0" prefHeight="250.0" prefWidth="272.0"/>
    <Button fx:id="disenchantChampionsButton" layoutX="307.0" layoutY="215.0" height="35.0" width="167.0"
            onAction="#onChampionDisenchant" text="%disenchant_champions"/>
+   <Button fx:id="syncButton" layoutX="307.0" layoutY="265.0" height="35.0" width="167.0"
+           onAction="#onSync" text="%sync_pages"/>
 </Pane>

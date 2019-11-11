@@ -5,6 +5,7 @@ import com.stirante.runechanger.gui.controllers.DialogController;
 import com.stirante.runechanger.gui.controllers.HomeController;
 import com.stirante.runechanger.gui.controllers.MainController;
 import com.stirante.runechanger.gui.controllers.RuneBookController;
+import com.stirante.runechanger.model.client.Champion;
 import com.stirante.runechanger.model.client.RunePage;
 import com.stirante.runechanger.runestore.RuneStore;
 import com.stirante.runechanger.util.AsyncTask;
@@ -12,16 +13,22 @@ import com.stirante.runechanger.util.LangHelper;
 import com.stirante.runechanger.util.SimplePreferences;
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
+import java.awt.*;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.StringSelection;
+import java.awt.datatransfer.UnsupportedFlavorException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 public class Settings extends Application {
@@ -70,16 +77,13 @@ public class Settings extends Application {
                     instance.home.setOnline(
                             RuneChanger.getInstance().getChampionSelectionModule().getCurrentSummoner(),
                             RuneChanger.getInstance().getLootModule());
-                    if (instance.runeChanger.getRunesModule() != null) {
-                        instance.updateRunes();
-                    }
+                    instance.updateRunes();
                 } catch (Exception ignored) {
                 }
             }
             else {
                 instance.home.setOffline();
-                instance.home.localRunes.clear();
-                instance.home.localRunes.addAll(SimplePreferences.getRuneBookValues());
+                instance.updateRunes();
             }
         });
     }
@@ -104,7 +108,7 @@ public class Settings extends Application {
         });
 
         home = new HomeController();
-        home.setOffline();
+        setClientConnected(false);
         runeChanger.getRunesModule().addOnPageChangeListener(this::updateRunes);
         controller.setContent(home.container);
 
@@ -125,30 +129,115 @@ public class Settings extends Application {
             stage.setAlwaysOnTop(true);
             stage.setAlwaysOnTop(false);
         }
+
+        stage.addEventHandler(KeyEvent.KEY_PRESSED, event -> {
+            boolean isRunebook = controller.fullContentPane.getChildren().contains(runebook.container) &&
+                    controller.contentPane.getChildren().isEmpty();
+            boolean isHome = controller.fullContentPane.getChildren().isEmpty() &&
+                    controller.contentPane.getChildren().contains(home.container);
+            if (event.getCode() == KeyCode.C && event.isControlDown()) {
+                if (isRunebook) {
+                    copyRunePage(runebook.localRunesList.getSelectionModel().getSelectedItem());
+                }
+                else if (isHome) {
+                    copyRunePage(home.localRunesList.getSelectionModel().getSelectedItem());
+                }
+            }
+            else if (event.getCode() == KeyCode.V && event.isControlDown()) {
+                if (isRunebook) {
+                    pasteRunePage(Champion.getByName(runebook.championName.getText()));
+                }
+                else if (isHome) {
+                    pasteRunePage(null);
+                }
+            }
+        });
     }
 
+    private void copyRunePage(RunePage runePage) {
+        if (runePage != null) {
+            StringSelection selection = new StringSelection(runePage.toSerializedString());
+            Toolkit.getDefaultToolkit().getSystemClipboard().setContents(selection, selection);
+        }
+        runeChanger.getGuiHandler().showInfoMessage(LangHelper.getLang().getString("successful_rune_copy"));
+    }
+
+    private void pasteRunePage(Champion champion) {
+        try {
+            String data = (String) Toolkit.getDefaultToolkit().getSystemClipboard().getData(DataFlavor.stringFlavor);
+            if (data == null || data.isEmpty()) {
+                return;
+            }
+            RunePage page = RunePage.fromSerializedString(data);
+            if (page != null) {
+                if (champion != null) {
+                    page.setChampion(champion);
+                }
+                if (SimplePreferences.getRuneBookPage(page.getName()) != null) {
+                    runeChanger.getGuiHandler().showWarningMessage(String.format(LangHelper.getLang()
+                            .getString("duplicate_name_msg"), page.getName()));
+                    return;
+                }
+                SimplePreferences.addRuneBookPage(page);
+                runeChanger.getGuiHandler().showInfoMessage(LangHelper.getLang().getString("successful_rune_copy"));
+            }
+            else {
+                runeChanger.getGuiHandler().showWarningMessage(LangHelper.getLang()
+                        .getString("invalid_runepage"));
+            }
+        } catch (UnsupportedFlavorException | IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    AtomicBoolean test = new AtomicBoolean(false);
+
     private void updateRunes() {
+        if (test.get()) {
+            return;
+        }
+        test.set(true);
         new AsyncTask<Void, Void, List<RunePage>>() {
             @Override
             public List<RunePage> doInBackground(Void[] params) {
-                return runeChanger.getRunesModule().getRunePages();
+                if (!runeChanger.getApi().isConnected()) {
+                    return null;
+                }
+                try {
+                    return runeChanger.getRunesModule().getRunePages();
+                } catch (Exception e) {
+                    return null;
+                }
             }
 
             @Override
             public void onPostExecute(List<RunePage> result) {
                 home.localRunes.clear();
                 runebook.localRunes.clear();
-                String title = String.format(
-                        LangHelper.getLang().getString("local_runes"),
-                        result.size(),
-                        runeChanger.getRunesModule().getOwnedPageCount());
+                String title;
+                ArrayList<RunePage> runeBookValues;
+                if (result == null) {
+                    title = LangHelper.getLang().getString("local_runes_no_connection");
+                    runeBookValues = SimplePreferences.getRuneBookValues();
+                }
+                else {
+                    title = String.format(
+                            LangHelper.getLang().getString("local_runes"),
+                            result.size(),
+                            runeChanger.getRunesModule().getOwnedPageCount());
+                    runeBookValues =
+                            SimplePreferences.getRuneBookValues()
+                                    .stream()
+                                    .filter(runePage -> result
+                                            .stream().noneMatch(runePage1 -> runePage1.equals(runePage)))
+                                    .collect(Collectors.toCollection(ArrayList::new));
+                    runeBookValues.addAll(result);
+                }
                 home.localRunesTitle.setText(title);
                 runebook.localRunesTitle.setText(title);
-                ArrayList<RunePage> runeBookValues = SimplePreferences.getRuneBookValues().stream().filter(runePage -> result
-                        .stream().noneMatch(runePage1 -> runePage1.equals(runePage))).collect(Collectors.toCollection(ArrayList::new));
-                runeBookValues.addAll(result);
                 home.localRunes.addAll(runeBookValues);
                 runebook.localRunes.addAll(runeBookValues);
+                test.set(false);
             }
         }.execute();
     }

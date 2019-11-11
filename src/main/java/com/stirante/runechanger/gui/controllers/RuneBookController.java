@@ -24,6 +24,7 @@ public class RuneBookController {
     public ImageView background;
     public ImageView position;
     public Label championName;
+    public Label joke;
     public Label localRunesTitle;
     public ListView<RunePage> localRunesList;
     public ListView<RunePage> newRunesList;
@@ -104,6 +105,7 @@ public class RuneBookController {
             background.setImage(null);
         }
         championName.setText(champion.getName());
+        joke.setText(champion.getPickQuote());
         setPosition(champion.getPosition());
         localRunesList.setItems(new FilteredList<>(localRunes, runePage ->
                 runePage.isFromClient() ||

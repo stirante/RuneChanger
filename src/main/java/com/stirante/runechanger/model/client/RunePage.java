@@ -66,7 +66,7 @@ public class RunePage {
     /**
      * Verifies rune page
      *
-     * @return is rune page valid
+     * @return true if rune page is valid
      */
     public boolean verify() {
         if (getRunes().size() != 6) {
@@ -123,7 +123,7 @@ public class RunePage {
         if (isFromClient()) {
             return name;
         }
-        if (champion != null) {
+        if (champion != null && !name.startsWith(this.champion.getName() + ":")) {
             name = this.champion.getName() + ":" + this.name;
         }
         // limit name to 25 characters (client limit)
@@ -275,33 +275,38 @@ public class RunePage {
      * Imports runepage into a list with numbers.
      *
      * @param str rune page serialized to string
-     * @return boolean true if successful false if not
+     * @return RunePage if successful null if not
      */
-    public boolean fromSerializedString(String str) {
-        String replace = str.replace("[", "");
-        String replace1 = replace.replace("]", "");
-        String[] parts = replace1.split(",", 2);
-        String part1 = parts[0];
-        replace1 = parts[1].replace(" ", "");
-        replace1 = part1 + "," + replace1;
-        List<String> runepageList = new ArrayList<>(Arrays.asList(replace1.split(",")));
+    public static RunePage fromSerializedString(String str) {
+        try {
+            RunePage page = new RunePage();
+            String replace = str.replace("[", "");
+            String replace1 = replace.replace("]", "");
+            String[] parts = replace1.split(",", 2);
+            String part1 = parts[0];
+            replace1 = parts[1].replace(" ", "");
+            replace1 = part1 + "," + replace1;
+            List<String> runepageList = new ArrayList<>(Arrays.asList(replace1.split(",")));
 
-        if (runepageList.size() != 12) {
-            return false;
+            if (runepageList.size() != 12) {
+                return null;
+            }
+
+            for (int i = 9; i < 12; i++) {
+                page.modifiers.add(Modifier.getById(Integer.parseInt(runepageList.get(i))));
+            }
+
+            for (int i = 3; i < 9; i++) {
+                page.runes.add(Rune.getById(Integer.parseInt(runepageList.get(i))));
+            }
+
+            page.name = runepageList.get(0);
+            page.mainStyle = Style.valueOf(runepageList.get(1));
+            page.subStyle = Style.valueOf(runepageList.get(2));
+            return page.verify() ? page : null;
+        } catch (Exception e) {
+            return null;
         }
-
-        for (int i = 9; i < 12; i++) {
-            this.modifiers.add(Modifier.getById(Integer.parseInt(runepageList.get(i))));
-        }
-
-        for (int i = 3; i < 9; i++) {
-            this.runes.add(Rune.getById(Integer.parseInt(runepageList.get(i))));
-        }
-
-        this.name = runepageList.get(0);
-        this.mainStyle = Style.valueOf(runepageList.get(1));
-        this.subStyle = Style.valueOf(runepageList.get(2));
-        return this.verify();
     }
 
     public boolean isFromClient() {

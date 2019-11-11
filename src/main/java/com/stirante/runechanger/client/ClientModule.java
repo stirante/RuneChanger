@@ -30,6 +30,10 @@ public abstract class ClientModule {
     }
 
     public void reset() {
+        resetSummoner();
+    }
+
+    public void resetSummoner() {
         currentSummoner = null;
     }
 

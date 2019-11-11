@@ -5,7 +5,6 @@ import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.Appender;
 import ch.qos.logback.core.FileAppender;
-import com.google.gson.Gson;
 import com.stirante.lolclient.ClientApi;
 import com.stirante.lolclient.ClientConnectionListener;
 import com.stirante.lolclient.ClientWebSocket;
@@ -81,21 +80,21 @@ public class RuneChanger implements Launcher {
         }
         try {
             AutoStartUtils.checkAutoStartPath();
-            if (!AutoUpdater.check()) {
-                JFrame frame = new JFrame();
-                frame.setUndecorated(true);
-                frame.setVisible(true);
-                frame.setLocationRelativeTo(null);
-                int dialogResult =
-                        JOptionPane.showConfirmDialog(frame, String.format(LangHelper.getLang()
-                                .getString("update_question"), AutoUpdater.getEstimatedUpdateSize()), LangHelper.getLang()
-                                .getString("update_available"), JOptionPane.YES_NO_OPTION);
-                frame.dispose();
-                if (dialogResult == JOptionPane.YES_OPTION) {
-                    AutoUpdater.performUpdate();
-                    return;
-                }
-            }
+//            if (!AutoUpdater.check()) {
+//                JFrame frame = new JFrame();
+//                frame.setUndecorated(true);
+//                frame.setVisible(true);
+//                frame.setLocationRelativeTo(null);
+//                int dialogResult =
+//                        JOptionPane.showConfirmDialog(frame, String.format(LangHelper.getLang()
+//                                .getString("update_question"), AutoUpdater.getEstimatedUpdateSize()), LangHelper.getLang()
+//                                .getString("update_available"), JOptionPane.YES_NO_OPTION);
+//                frame.dispose();
+//                if (dialogResult == JOptionPane.YES_OPTION) {
+//                    AutoUpdater.performUpdate();
+//                    return;
+//                }
+//            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -245,6 +244,20 @@ public class RuneChanger implements Launcher {
                 socket.close();
             }
         }));
+        FxUtils.doOnFxThread(() -> {
+            try {
+                if (!AutoUpdater.check()) {
+                    boolean update = Settings.openYesNoDialog(LangHelper.getLang()
+                            .getString("update_available"), String.format(LangHelper.getLang()
+                            .getString("update_question"), AutoUpdater.getEstimatedUpdateSize()));
+                    if (update) {
+                        AutoUpdater.performUpdate();
+                    }
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
     }
 
     private void onChampionChanged(Champion champion) {
@@ -283,7 +296,7 @@ public class RuneChanger implements Launcher {
                 //printing every event except voice for experimenting
                 if (DebugConsts.PRINT_EVENTS && !event.getUri().toLowerCase().contains("voice")) {
                     log.info("Event: " + event);
-                    System.out.println(new Gson().toJson(event.getData()));
+//                    System.out.println(new Gson().toJson(event.getData()));
                 }
                 if (event.getUri().equalsIgnoreCase("/lol-chat/v1/me") &&
                         SimplePreferences.containsKey(SimplePreferences.SettingsKeys.ANTI_AWAY) &&
@@ -326,6 +339,9 @@ public class RuneChanger implements Launcher {
                     gui.openWindow();
                 }
                 else if (event.getUri().equalsIgnoreCase("/lol-summoner/v1/current-summoner")) {
+                    champSelectModule.resetSummoner();
+                    runesModule.resetSummoner();
+                    lootModule.resetSummoner();
                     Settings.setClientConnected(true);
                 }
                 else if (event.getUri().equalsIgnoreCase("/lol-perks/v1/pages")) {
@@ -416,5 +432,9 @@ public class RuneChanger implements Launcher {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public GuiHandler getGuiHandler() {
+        return gui;
     }
 }

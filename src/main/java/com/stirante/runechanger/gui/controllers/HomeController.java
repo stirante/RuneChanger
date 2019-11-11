@@ -5,6 +5,7 @@ import com.stirante.runechanger.client.Loot;
 import com.stirante.runechanger.gui.components.Button;
 import com.stirante.runechanger.model.client.RunePage;
 import com.stirante.runechanger.util.LangHelper;
+import com.stirante.runechanger.util.SimplePreferences;
 import generated.LolSummonerSummoner;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
@@ -33,6 +34,7 @@ public class HomeController {
     public Label username;
     public Label localRunesTitle;
     public Button disenchantChampionsButton;
+    public Button syncButton;
     public ListView<RunePage> localRunesList;
 
     public ObservableList<RunePage> localRunes = FXCollections.observableArrayList();
@@ -56,6 +58,8 @@ public class HomeController {
         });
         localRunesList.setItems(localRunes);
         localRunesList.setCellFactory(listView -> new RuneItemController.RunePageCell(RuneItemController::setHomeRuneMode));
+        syncButton.setVisible(!SimplePreferences.getValue(SimplePreferences.SettingsKeys.AUTO_SYNC)
+                .equalsIgnoreCase("true"));
     }
 
     public void setOnline(LolSummonerSummoner summoner, Loot lootModule) {
@@ -71,6 +75,7 @@ public class HomeController {
         }
         emptyProfilePicture.setVisible(false);
         disenchantChampionsButton.setDisable(false);
+        syncButton.setDisable(false);
     }
 
     public void setOffline() {
@@ -78,6 +83,7 @@ public class HomeController {
         username.setText("");
         profilePicture.setFill(null);
         disenchantChampionsButton.setDisable(true);
+        syncButton.setDisable(true);
         localRunesTitle.setText(LangHelper.getLang().getString("local_runes_no_connection"));
     }
 
@@ -85,6 +91,11 @@ public class HomeController {
     public void onChampionDisenchant(ActionEvent event) {
 //        lootModule.smartDisenchantChampions();
         System.out.println("smartDisenchantChampions");
+    }
+
+    @FXML
+    public void onSync(ActionEvent event) {
+        RuneChanger.getInstance().getRunesModule().syncRunePages();
     }
 
 }

@@ -8,7 +8,8 @@
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.shape.Line?>
 
-<?import com.stirante.runechanger.gui.components.Button?>
+<!--<?import com.stirante.runechanger.gui.components.Button?>-->
+
 <Pane fx:id="container" prefHeight="500.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1">
    <ImageView fx:id="background" fitWidth="600.0" pickOnBounds="true" preserveRatio="true">
       <image>
@@ -18,11 +19,17 @@
          <Rectangle2D height="350.0" minX="50.0" minY="50.0" width="800.0" />
       </viewport>
    </ImageView>
+   <ImageView fitHeight="500.0" fitWidth="700.0" layoutX="-50.0" layoutY="160.0" pickOnBounds="true" preserveRatio="true">
+      <image>
+         <Image url="@../images/jokeBg.png" />
+      </image>
+   </ImageView>
    <ImageView fitHeight="260.0" fitWidth="600.0" pickOnBounds="true" preserveRatio="true" rotate="180.0" scaleY="-1.0">
       <image>
          <Image url="@../images/championBar.png" />
       </image>
    </ImageView>
+   <Label fx:id="joke" layoutY="230.0" prefHeight="19.0" prefWidth="600.0" styleClass="joke" text="Ashe laughs" />
    <ImageView fx:id="position" fitHeight="48.0" fitWidth="48.0" layoutX="63.0" layoutY="141.0" pickOnBounds="true" preserveRatio="true">
       <image>
          <Image url="@../images/icon-position-bottom.png" />
@@ -30,7 +37,7 @@
    </ImageView>
     <Line endX="599.0" endY="45.0" startY="44.0" stroke="#c8aa6e" strokeWidth="3.0" visible="false" />
    <Label fx:id="championName" alignment="TOP_LEFT" layoutX="158.0" layoutY="146.0" prefHeight="32.0" prefWidth="148.0" styleClass="header" text="ASHE" />
-   <Button layoutX="429.0" layoutY="454.0" onAction="#onBuildsClick" text="%builds" visible="false"/>
+<!--   <Button layoutX="429.0" layoutY="454.0" onAction="#onBuildsClick" text="%builds" visible="false"/>-->
    <Label fx:id="localRunesTitle" layoutX="84.0" layoutY="265.0" styleClass="header" text="LOCAL RUNES (2/2)" />
    <Label layoutX="401.0" layoutY="265.0" styleClass="header" text="%new_runes" />
    <ListView fx:id="localRunesList" layoutX="20.0" layoutY="295.0" prefHeight="149.0" prefWidth="272.0" />
