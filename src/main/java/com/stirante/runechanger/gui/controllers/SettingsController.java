@@ -103,10 +103,10 @@ public class SettingsController {
     }
 
     private void setupPreference(String key, String defaultValue, CheckBox checkbox) {
-        if (SimplePreferences.getValue(key) == null) {
+        if (!SimplePreferences.containsKey(key)) {
             SimplePreferences.putValue(key, defaultValue);
         }
-        if (SimplePreferences.getValue(key).equals("true")) {
+        if (SimplePreferences.getValue(key, defaultValue).equals("true")) {
             Platform.runLater(() -> checkbox.setSelected(true));
         }
     }

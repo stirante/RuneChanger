@@ -97,9 +97,9 @@ public class SimplePreferences {
 
     }
 
-    public static String getValue(String key) {
-        return settingsValues.get(key);
-    }
+//    public static String getValue(String key) {
+//        return settingsValues.get(key);
+//    }
 
     public static String getValue(String key, String def) {
         return settingsValues.getOrDefault(key, def);

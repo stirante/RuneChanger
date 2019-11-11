@@ -299,8 +299,7 @@ public class RuneChanger implements Launcher {
 //                    System.out.println(new Gson().toJson(event.getData()));
                 }
                 if (event.getUri().equalsIgnoreCase("/lol-chat/v1/me") &&
-                        SimplePreferences.containsKey(SimplePreferences.SettingsKeys.ANTI_AWAY) &&
-                        SimplePreferences.getValue(SimplePreferences.SettingsKeys.ANTI_AWAY).equalsIgnoreCase("true")) {
+                        SimplePreferences.getValue(SimplePreferences.SettingsKeys.ANTI_AWAY, "false").equalsIgnoreCase("true")) {
                     if (((LolChatUserResource) event.getData()).availability.equalsIgnoreCase("away")) {
                         new Thread(() -> {
                             try {
@@ -322,7 +321,7 @@ public class RuneChanger implements Launcher {
                         handleSession((LolChampSelectChampSelectSession) event.getData());
                     }
                 }
-                else if (Boolean.parseBoolean(SimplePreferences.getValue(SimplePreferences.SettingsKeys.AUTO_ACCEPT)) &&
+                else if (Boolean.parseBoolean(SimplePreferences.getValue(SimplePreferences.SettingsKeys.AUTO_ACCEPT, "false")) &&
                         event.getUri().equalsIgnoreCase("/lol-lobby/v2/lobby/matchmaking/search-state")) {
                     if (((LolLobbyLobbyMatchmakingSearchResource) event.getData()).searchState ==
                             LolLobbyLobbyMatchmakingSearchState.FOUND) {

@@ -26,8 +26,7 @@ public class AutoUpdater {
             return true;
         }
         if (DebugConsts.DISABLE_AUTOUPDATE ||
-                (SimplePreferences.containsKey(SimplePreferences.SettingsKeys.AUTO_UPDATE) &&
-                        SimplePreferences.getValue(SimplePreferences.SettingsKeys.AUTO_UPDATE).equals("false"))) {
+                SimplePreferences.getValue(SimplePreferences.SettingsKeys.AUTO_UPDATE, "true").equals("false")) {
             return true;
         }
 

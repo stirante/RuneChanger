@@ -66,31 +66,31 @@ public class RuneforgeSource implements RuneSource {
 //        }
 //    }
 
-    public Position getPositionForChampion(Champion champion) {
-        for (Loadout loadout : cache) {
-            if (loadout.loadout_champion_name.equalsIgnoreCase(champion.getName()) ||
-                    loadout.loadout_champion_name.equalsIgnoreCase(champion.getAlias()) ||
-                    loadout.loadout_champion_name.equalsIgnoreCase(champion.getInternalName())) {
-                switch (loadout.loadout_position_name) {
-                    case "support":
-                        return Position.UTILITY;
-                    case "middle":
-                        return Position.MIDDLE;
-                    case "bottom":
-                        return Position.BOTTOM;
-                    case "top":
-                        return Position.TOP;
-                    case "jungle":
-                        return Position.JUNGLE;
-                    default:
-                        log.warn("Unknown position name: " + loadout.loadout_position_name);
-                        return Position.UNSELECTED;
-                }
-            }
-        }
-        log.warn("Champion not found: " + champion.getName());
-        return Position.UNSELECTED;
-    }
+//    public Position getPositionForChampion(Champion champion) {
+//        for (Loadout loadout : cache) {
+//            if (loadout.loadout_champion_name.equalsIgnoreCase(champion.getName()) ||
+//                    loadout.loadout_champion_name.equalsIgnoreCase(champion.getAlias()) ||
+//                    loadout.loadout_champion_name.equalsIgnoreCase(champion.getInternalName())) {
+//                switch (loadout.loadout_position_name) {
+//                    case "support":
+//                        return Position.UTILITY;
+//                    case "middle":
+//                        return Position.MIDDLE;
+//                    case "bottom":
+//                        return Position.BOTTOM;
+//                    case "top":
+//                        return Position.TOP;
+//                    case "jungle":
+//                        return Position.JUNGLE;
+//                    default:
+//                        log.warn("Unknown position name: " + loadout.loadout_position_name);
+//                        return Position.UNSELECTED;
+//                }
+//            }
+//        }
+//        log.warn("Champion not found: " + champion.getName());
+//        return Position.UNSELECTED;
+//    }
 
     /**
      * Gets rune page from specified url
@@ -148,7 +148,7 @@ public class RuneforgeSource implements RuneSource {
      */
     public void getForChampion(Champion champion, ObservableList<RunePage> pages) {
         if (pagesCache.containsKey(champion)) {
-            FxUtils.doOnFxThread(() -> pagesCache.get(champion));
+            FxUtils.doOnFxThread(() -> pages.addAll(pagesCache.get(champion)));
             return;
         }
         ArrayList<RunePage> result = new ArrayList<>();
