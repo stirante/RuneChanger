@@ -79,6 +79,9 @@ public class ChampionGGSource implements RuneSource {
     }
 
     private void extractRunes(Champion champion, ObservableList<RunePage> pages) {
+        if (!pageCache.containsKey(champion)) {
+            return;
+        }
         for (String role : pageCache.get(champion)) {
             final String URL = CHAMPION_URL + champion.getInternalName() + "/" + role;
             try {
