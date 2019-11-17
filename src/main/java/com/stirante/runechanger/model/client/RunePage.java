@@ -19,6 +19,7 @@ public class RunePage {
     private String source;
     private Champion champion;
     private boolean fromClient;
+    private boolean synced;
     private String name;
     private Style mainStyle;
     private Style subStyle;
@@ -317,6 +318,14 @@ public class RunePage {
         fromClient = value;
     }
 
+    public boolean isSynced() {
+        return synced;
+    }
+
+    public void setSynced(boolean synced) {
+        this.synced = synced;
+    }
+
     public void setChampion(Champion champion) {
         this.champion = champion;
         this.name = toClientName(name);
@@ -326,19 +335,17 @@ public class RunePage {
         return champion;
     }
 
-    //Maybe it will be useful someday
-//    public RunePage copy() {
-//        RunePage page = new RunePage();
-//        page.name = name;
-//        page.runes.addAll(runes);
-//        page.modifiers.addAll(modifiers);
-//        page.source = source;
-//        page.champion = champion;
-//        page.fromClient = fromClient;
-//        page.mainStyle = mainStyle;
-//        page.subStyle = subStyle;
-//        return page;
-//    }
+    public RunePage copy() {
+        RunePage page = new RunePage();
+        page.name = name;
+        page.runes.addAll(runes);
+        page.modifiers.addAll(modifiers);
+        page.source = source;
+        page.champion = champion;
+        page.mainStyle = mainStyle;
+        page.subStyle = subStyle;
+        return page;
+    }
 
     @Override
     public boolean equals(Object o) {

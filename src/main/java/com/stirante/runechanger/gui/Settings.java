@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
@@ -190,13 +191,7 @@ public class Settings extends Application {
         }
     }
 
-    AtomicBoolean test = new AtomicBoolean(false);
-
     private void updateRunes() {
-        if (test.get()) {
-            return;
-        }
-        test.set(true);
         new AsyncTask<Void, Void, List<RunePage>>() {
             @Override
             public List<RunePage> doInBackground(Void[] params) {
@@ -225,19 +220,33 @@ public class Settings extends Application {
                             LangHelper.getLang().getString("local_runes"),
                             result.size(),
                             runeChanger.getRunesModule().getOwnedPageCount());
-                    runeBookValues =
+//                     Get only those runepages from runebook, which are not in client
+//                    runeBookValues =
+//                            SimplePreferences.getRuneBookValues()
+//                                    .stream()
+//                                    .filter(runePage -> result
+//                                            .stream().noneMatch(runePage1 -> runePage1.equals(runePage)))
+//                                    .collect(Collectors.toCollection(ArrayList::new));
+                    // Split list into runepages, that are both in runebook and in client, and those, that are only in runebook
+                    Map<Boolean, List<RunePage>> results =
                             SimplePreferences.getRuneBookValues()
                                     .stream()
-                                    .filter(runePage -> result
-                                            .stream().noneMatch(runePage1 -> runePage1.equals(runePage)))
-                                    .collect(Collectors.toCollection(ArrayList::new));
-                    runeBookValues.addAll(result);
+                                    .collect(Collectors.partitioningBy(runePage -> result
+                                            .stream().noneMatch(runePage1 -> runePage1.equals(runePage))));
+                    for (RunePage page : result.stream()
+                            .filter(p -> results.get(false)
+                                    .stream()
+                                    .anyMatch(runePage -> runePage.getName().equals(p.getName())))
+                            .collect(Collectors.toCollection(ArrayList::new))) {
+                        page.setSynced(true);
+                    }
+                    runeBookValues = new ArrayList<>(result);
+                    runeBookValues.addAll(results.get(true));
                 }
                 home.localRunesTitle.setText(title);
                 runebook.localRunesTitle.setText(title);
                 home.localRunes.addAll(runeBookValues);
                 runebook.localRunes.addAll(runeBookValues);
-                test.set(false);
             }
         }.execute();
     }

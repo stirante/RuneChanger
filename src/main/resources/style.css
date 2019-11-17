@@ -99,32 +99,49 @@
     -fx-border-color: transparent;
 }
 
+.tooltip {
+    -fx-font-family: "Roboto";
+    -fx-font-weight: normal;
+    -fx-font-size: 13px;
+    -fx-text-fill: #918D80;
+    -fx-border-color: linear-gradient(from 50% 0% to 50% 100%, #60491F, #463714);
+    -fx-border-style: solid;
+    -fx-border-width: 2px;
+    -fx-background-radius: 0;
+    -fx-background-color: rgba(25, 28, 33, 1);
+    -fx-border-image-slice: 1;
+    -fx-effect: none;
+}
+
 .button {
-    -fx-background-color: none;
+    -fx-border-color: linear-gradient(from 50% 0% to 50% 100%, #c3a758, #6b521e);
+    -fx-border-style: solid;
+    -fx-background-color: rgba(25, 28, 33, 1);
     -fx-background-radius: 0;
     -fx-background-insets: 0;
-    -fx-background-image: url("images/button.png");
-    -fx-background-size: contain;
     -fx-text-alignment: center;
-    -fx-text-fill: #C8AA6E;
-    -fx-min-width: 157px;
-    -fx-max-width: 157px;
-    -fx-min-height: 32px;
-    -fx-max-height: 32px;
+    -fx-text-fill: #937341;
     -fx-cursor: hand;
     -fx-font-family: "Beaufort for LOL";
     -fx-font-weight: bold;
     -fx-font-size: 15px;
 }
 
-.button-menu {
-    -fx-background-image: url("images/button.png");
-    -fx-background-position: center;
+.settings-button {
     -fx-background-size: contain;
-    -fx-min-width: 220px;
-    -fx-max-width: 220px;
-    -fx-min-height: 44px;
-    -fx-max-height: 44px;
+    -fx-min-width: 40px;
+    -fx-max-width: 40px;
+    -fx-min-height: 40px;
+    -fx-max-height: 40px;
+    -fx-background-image: url("images/settingsButton.png");
+}
+
+.settings-button:hover {
+    -fx-background-image: url("images/settingsButtonHovered.png");
+}
+
+.settings-button:pressed {
+    -fx-background-image: url("images/settingsButtonPressed.png");
 }
 
 .bug-button {
@@ -269,7 +286,7 @@
     -fx-text-fill: #AFAFAF;
     -fx-font-family: "Roboto";
     -fx-font-weight: normal;
-    -fx-font-size: 12px;
+    -fx-font-size: 13px;
     -fx-text-alignment: left;
     -fx-alignment: top-left;
 }

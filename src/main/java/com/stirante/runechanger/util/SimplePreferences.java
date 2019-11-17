@@ -122,7 +122,7 @@ public class SimplePreferences {
     }
 
     public static void addRuneBookPage(RunePage page) {
-        runeBookValues.add(page);
+        runeBookValues.add(page.copy());
         save();
         RuneChanger.getInstance().getRunesModule().handlePageChange(null);
     }

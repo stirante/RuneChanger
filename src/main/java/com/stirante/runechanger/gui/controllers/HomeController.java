@@ -20,11 +20,13 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.ImagePattern;
 import javafx.scene.shape.Circle;
+import javafx.util.Duration;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.Comparator;
+import java.util.Objects;
 
 public class HomeController {
 
@@ -60,6 +62,7 @@ public class HomeController {
         localRunesList.setCellFactory(listView -> new RuneItemController.RunePageCell(RuneItemController::setHomeRuneMode));
         syncButton.setVisible(!SimplePreferences.getValue(SimplePreferences.SettingsKeys.AUTO_SYNC, "false")
                 .equalsIgnoreCase("true"));
+        Objects.requireNonNull(syncButton.getTooltip()).setShowDelay(Duration.ZERO);
     }
 
     public void setOnline(LolSummonerSummoner summoner, Loot lootModule) {

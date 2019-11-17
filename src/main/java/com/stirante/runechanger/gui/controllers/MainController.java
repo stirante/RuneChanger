@@ -22,6 +22,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 import me.xdrop.fuzzywuzzy.FuzzySearch;
 import org.controlsfx.control.textfield.AutoCompletionBinding;
 import org.controlsfx.control.textfield.TextFields;
@@ -85,6 +86,7 @@ public class MainController {
         autoCompletion.prefWidthProperty().bind(search.widthProperty());
         back.setVisible(false);
         sidebarButtons = new Button[]{settings/*, gameSettings, otherSettings, loot*/};
+        report.getTooltip().setShowDelay(Duration.ZERO);
     }
 
     public void setFullContent(Node node) {

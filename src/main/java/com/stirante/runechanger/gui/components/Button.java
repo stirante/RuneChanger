@@ -8,6 +8,7 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.VPos;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
@@ -19,7 +20,8 @@ public class Button extends Component {
     private static final int STATE_PRESSED = 2;
     private static final int STATE_DISABLED = 3;
     private static final Color GOLD_COLOR = new Color(0xC8 / 255D, 0xAA / 255D, 0x6E / 255D, 1D);
-    private static final Font FONT = Font.loadFont(Button.class.getResource("/fonts/Beaufort-Bold.ttf").toExternalForm(), 12);
+    private static final Font FONT =
+            Font.loadFont(Button.class.getResource("/fonts/Beaufort-Bold.ttf").toExternalForm(), 12);
 
     private StringProperty textProperty = new SimpleStringProperty();
     private ObjectProperty<EventHandler<ActionEvent>> onAction = new ObjectPropertyBase<>() {
@@ -38,6 +40,57 @@ public class Button extends Component {
             return "onAction";
         }
     };
+
+    // --- tooltip
+
+    /**
+     * The ToolTip for this control.
+     *
+     * @return the tool tip for this control
+     */
+    public final ObjectProperty<Tooltip> tooltipProperty() {
+        if (tooltip == null) {
+            tooltip = new ObjectPropertyBase<>() {
+                private Tooltip old = null;
+
+                @Override
+                protected void invalidated() {
+                    Tooltip t = get();
+                    // install / uninstall
+                    if (t != old) {
+                        if (old != null) {
+                            Tooltip.uninstall(Button.this, old);
+                        }
+                        if (t != null) {
+                            Tooltip.install(Button.this, t);
+                        }
+                        old = t;
+                    }
+                }
+
+                @Override
+                public Object getBean() {
+                    return Button.this;
+                }
+
+                @Override
+                public String getName() {
+                    return "tooltip";
+                }
+            };
+        }
+        return tooltip;
+    }
+
+    private ObjectProperty<Tooltip> tooltip;
+
+    public final void setTooltip(Tooltip value) {
+        tooltipProperty().setValue(value);
+    }
+
+    public final Tooltip getTooltip() {
+        return tooltip == null ? null : tooltip.getValue();
+    }
 
     private Image[] side = new Image[4];
     private Image[] center = new Image[4];
@@ -94,7 +147,7 @@ public class Button extends Component {
         g.setTextAlign(TextAlignment.CENTER);
         g.setTextBaseline(VPos.CENTER);
         g.setFont(FONT);
-        g.fillText(textProperty.get(), getWidth()/2, getHeight()/2);
+        g.fillText(textProperty.get(), getWidth() / 2, getHeight() / 2);
     }
 
     public StringProperty textProperty() {

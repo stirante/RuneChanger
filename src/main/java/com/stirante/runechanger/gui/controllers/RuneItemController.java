@@ -12,9 +12,13 @@ import javafx.scene.Node;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
+import javafx.scene.control.Tooltip;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
+import javafx.scene.shape.Circle;
+import javafx.stage.PopupWindow;
+import javafx.util.Duration;
 
 import java.io.IOException;
 import java.net.URI;
@@ -38,6 +42,7 @@ public class RuneItemController {
     private List<Node> newRuneNodes;
     private List<Node> localRuneNodes;
     private RunePage page;
+    public Circle syncStatus;
 
     public RuneItemController() {
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/fxml/RuneItem.fxml"), LangHelper.getLang());
@@ -50,6 +55,9 @@ public class RuneItemController {
         newRuneNodes = Arrays.asList(shortName, source, importPage);
         localRuneNodes = Arrays.asList(name, selected, delete);
         edit.setVisible(false);
+        Tooltip statusTooltip = new Tooltip(LangHelper.getLang().getString("runepage_not_synced"));
+        statusTooltip.setShowDelay(Duration.ZERO);
+        Tooltip.install(syncStatus, statusTooltip);
     }
 
     public void setNewRuneMode(RunePage page) {
@@ -81,6 +89,7 @@ public class RuneItemController {
                 .get(0)
                 .getImage()), null));
         selected.setSelected(page.isFromClient());
+        syncStatus.setVisible(page.isFromClient() && !page.isSynced());
     }
 
     @FXML
@@ -114,9 +123,6 @@ public class RuneItemController {
         else if (selected.isSelected() && RuneChanger.getInstance().getRunesModule().getOwnedPageCount() >
                 RuneChanger.getInstance().getRunesModule().getRunePages().size()) {
             RuneChanger.getInstance().getRunesModule().addPage(page);
-        }
-        else if (selected.isSelected()) {
-            selected.setSelected(false);
         }
     }
 
