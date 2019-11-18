@@ -79,7 +79,6 @@ public class HomeController {
         emptyProfilePicture.setVisible(false);
         disenchantChampionsButton.setDisable(false);
         syncButton.setDisable(false);
-        username.setText(LangHelper.getLang().getString("not_connected"));
     }
 
     public void setOffline() {
@@ -89,6 +88,7 @@ public class HomeController {
         disenchantChampionsButton.setDisable(true);
         syncButton.setDisable(true);
         localRunesTitle.setText(LangHelper.getLang().getString("local_runes_no_connection"));
+        username.setText(LangHelper.getLang().getString("not_connected"));
     }
 
     @FXML

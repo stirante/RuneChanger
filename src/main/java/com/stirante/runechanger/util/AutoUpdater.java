@@ -186,7 +186,7 @@ public class AutoUpdater {
         imageDir.mkdir();
         extract(zip, imageDir);
         Configuration build = Configuration.builder()
-                .baseUri("https://s3.amazonaws.com/runechanger.stirante.com/dev")
+                .baseUri("https://runechanger.stirante.com/dev")
                 .basePath(new File("").getAbsolutePath())
                 .files(FileMetadata.streamDirectory(imageDir.getAbsolutePath())
                         .peek(r -> r.classpath(r.getSource().toString().endsWith(".jar"))))
@@ -197,7 +197,7 @@ public class AutoUpdater {
         writer.flush();
         writer.close();
         build = Configuration.builder()
-                .baseUri("https://s3.amazonaws.com/runechanger.stirante.com/stable")
+                .baseUri("https://runechanger.stirante.com/stable")
                 .basePath(new File("").getAbsolutePath())
                 .files(FileMetadata.streamDirectory(imageDir.getAbsolutePath())
                         .filter(r -> !r.getSource().toString().endsWith("dev.xml"))

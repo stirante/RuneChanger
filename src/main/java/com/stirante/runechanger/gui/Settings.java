@@ -220,14 +220,7 @@ public class Settings extends Application {
                             LangHelper.getLang().getString("local_runes"),
                             result.size(),
                             runeChanger.getRunesModule().getOwnedPageCount());
-//                     Get only those runepages from runebook, which are not in client
-//                    runeBookValues =
-//                            SimplePreferences.getRuneBookValues()
-//                                    .stream()
-//                                    .filter(runePage -> result
-//                                            .stream().noneMatch(runePage1 -> runePage1.equals(runePage)))
-//                                    .collect(Collectors.toCollection(ArrayList::new));
-                    // Split list into runepages, that are both in runebook and in client, and those, that are only in runebook
+                    // Split list into runepages, that are both in runebook and in client and those, that are only in runebook
                     Map<Boolean, List<RunePage>> results =
                             SimplePreferences.getRuneBookValues()
                                     .stream()
