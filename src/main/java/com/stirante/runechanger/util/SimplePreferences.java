@@ -97,10 +97,6 @@ public class SimplePreferences {
 
     }
 
-//    public static String getValue(String key) {
-//        return settingsValues.get(key);
-//    }
-
     public static String getValue(String key, String def) {
         return settingsValues.getOrDefault(key, def);
     }
@@ -142,6 +138,7 @@ public class SimplePreferences {
         public static final String EXPERIMENTAL_CHANNEL = "devChannel";
         public static final String ALWAYS_ON_TOP = "alwaysOnTop";
         public static final String AUTO_SYNC = "autoSync";
+        public static final String SMART_DISENCHANT = "smartDisenchant";
     }
 
 

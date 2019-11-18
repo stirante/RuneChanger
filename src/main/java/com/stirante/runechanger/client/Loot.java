@@ -51,6 +51,12 @@ public class Loot extends ClientModule {
         }
     }
 
+    /**
+     * Disenchant champion shards based on rules:
+     * 1. Don't disenchant unowned champions
+     * 2. Don't disenchant shards, if mastery is higher that 3 but less than 6
+     * 3. Leave only one shards, if mastery is 6
+     */
     public void smartDisenchantChampions() {
         try {
             LolChampionsCollectionsChampionMinimal[] champions =

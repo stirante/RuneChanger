@@ -93,7 +93,13 @@ public class HomeController {
 
     @FXML
     public void onChampionDisenchant(ActionEvent event) {
-        lootModule.smartDisenchantChampions();
+        if (SimplePreferences.getValue(SimplePreferences.SettingsKeys.SMART_DISENCHANT, "false")
+                .equalsIgnoreCase("true")) {
+            lootModule.smartDisenchantChampions();
+        }
+        else {
+            lootModule.disenchantChampions();
+        }
     }
 
     @FXML

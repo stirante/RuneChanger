@@ -25,6 +25,7 @@ public class SettingsController {
     public CheckBox forceEnglish;
     public CheckBox experimental;
     public CheckBox autoSync;
+    public CheckBox smartDisenchant;
     public Pane container;
 
     public SettingsController(Stage stage) {
@@ -57,6 +58,9 @@ public class SettingsController {
         }
         else if (target == autoUpdate) {
             SimplePreferences.putValue(SimplePreferences.SettingsKeys.AUTO_UPDATE, String.valueOf(target.isSelected()));
+        }
+        else if (target == smartDisenchant) {
+            SimplePreferences.putValue(SimplePreferences.SettingsKeys.SMART_DISENCHANT, String.valueOf(target.isSelected()));
         }
         else if (target == experimental) {
             SimplePreferences.putValue(SimplePreferences.SettingsKeys.EXPERIMENTAL_CHANNEL, String.valueOf(target
@@ -96,6 +100,7 @@ public class SettingsController {
         setupPreference(SimplePreferences.SettingsKeys.FORCE_ENGLISH, "false", forceEnglish);
         setupPreference(SimplePreferences.SettingsKeys.ALWAYS_ON_TOP, "false", alwaysOnTop);
         setupPreference(SimplePreferences.SettingsKeys.AUTO_SYNC, "false", autoSync);
+        setupPreference(SimplePreferences.SettingsKeys.SMART_DISENCHANT, "false", smartDisenchant);
 
         if (AutoStartUtils.isAutoStartEnabled()) {
             autoStart.setSelected(true);

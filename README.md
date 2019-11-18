@@ -9,7 +9,6 @@ RuneChanger is an app that improves and speeds up the use of LoL client.
 * Quickly send message to champion selection room (BOT/MID/TOP) with one click of a button
 * Quickly select one of your recently played champions in champion selection
 * Disenchant all your champion shards with one click
-* Craft all your hextech key fragments 
 * Automatically accept the game queue
 * Disable 'Away' status
 * Save your runes, restore them in champion selection and share them with friends
