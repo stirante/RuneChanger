@@ -13,8 +13,8 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 public class AutoUpdater {
-    private static final String DEV_UPDATE_CONFIG = "https://s3.amazonaws.com/runechanger.stirante.com/dev/dev.xml";
-    private static final String STABLE_UPDATE_CONFIG = "https://s3.amazonaws.com/runechanger.stirante.com/stable/stable.xml";
+    private static final String DEV_UPDATE_CONFIG = "https://runechanger.stirante.com/dev/dev.xml";
+    private static final String STABLE_UPDATE_CONFIG = "https://runechanger.stirante.com/stable/stable.xml";
 
     /**
      * Checks whether RuneChanger is up to date

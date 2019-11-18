@@ -79,6 +79,7 @@ public class HomeController {
         emptyProfilePicture.setVisible(false);
         disenchantChampionsButton.setDisable(false);
         syncButton.setDisable(false);
+        username.setText(LangHelper.getLang().getString("not_connected"));
     }
 
     public void setOffline() {

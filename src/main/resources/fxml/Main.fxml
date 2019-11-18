@@ -13,20 +13,17 @@
     <ImageView layoutX="-457.0" layoutY="-220.0">
         <Image url="@../images/blueBackground.png" />
     </ImageView>
-    <Pane fx:id="sidebar" layoutX="-170.0" layoutY="67.0">
-        <Button fx:id="report" layoutX="170.0" layoutY="393.0" mnemonicParsing="false" onAction="#onBugReport" styleClass="bug-button">
-            <tooltip>
-                <Tooltip text="%send_logs" />
-            </tooltip>
-        </Button>
-        <Button fx:id="settings" contentDisplay="RIGHT" layoutX="170.0" layoutY="1.0" maxHeight="40.0" maxWidth="40.0" minHeight="40.0" minWidth="40.0" mnemonicParsing="false" onAction="#onTabSelect" prefHeight="40.0" prefWidth="40.0" styleClass="settings-button" />
-    </Pane>
+     <Button fx:id="report" layoutY="460.0" mnemonicParsing="false" onAction="#onBugReport" styleClass="bug-button">
+         <tooltip>
+             <Tooltip text="%send_logs" />
+         </tooltip>
+     </Button>
     <Line endX="599.0" endY="45.0" startY="44.0" stroke="#c8aa6e" strokeWidth="3.0" />
     <Pane fx:id="fullContentPane" prefHeight="500.0" prefWidth="600.0" visible="false" />
     <Pane fx:id="contentPane" layoutX="80.0" layoutY="70.0" prefHeight="430.0" prefWidth="520.0" visible="false" />
     <ImageView fitHeight="44.0" fitWidth="600.0" onMouseDragged="#onHandleDrag" onMousePressed="#onHandlePress" pickOnBounds="true" preserveRatio="true" />
     <TextField fx:id="search" focusTraversable="false" layoutX="30.0" layoutY="10.0" maxHeight="24.0" maxWidth="235.0" minHeight="24.0" minWidth="235.0" prefHeight="24.0" prefWidth="235.0" promptText="%search_champion" styleClass="text-field" stylesheets="@../style.css" />
-    <ImageView fx:id="back" accessibleRole="BUTTON" fitHeight="20.0" fitWidth="12.0" layoutX="11.0" layoutY="12.0" onMouseClicked="#onBack" pickOnBounds="true" preserveRatio="true">
+    <ImageView fx:id="back" accessibleRole="BUTTON" fitHeight="30.0" fitWidth="30.0" layoutX="1.0" layoutY="7.0" onMouseClicked="#onBack" pickOnBounds="true" preserveRatio="true" rotate="180.0">
         <cursor>
             <Cursor fx:constant="HAND" />
         </cursor>
@@ -38,10 +35,18 @@
         </cursor>
         <Image url="@../images/close.png" />
     </ImageView>
-    <ImageView accessibleRole="BUTTON" fitHeight="20.0" fitWidth="20.0" layoutX="550.0" layoutY="12.0" onMouseClicked="#onMinimize" pickOnBounds="true" preserveRatio="true">
+    <ImageView accessibleRole="BUTTON" fitHeight="20.0" fitWidth="20.0" layoutX="510.0" layoutY="12.0" onMouseClicked="#onMinimize" pickOnBounds="true" preserveRatio="true">
         <cursor>
             <Cursor fx:constant="HAND" />
         </cursor>
         <Image url="@../images/minimize.png" />
     </ImageView>
+   <ImageView accessibleRole="BUTTON" fitHeight="20.0" fitWidth="20.0" layoutX="540.0" layoutY="12.0" onMouseClicked="#onSettings" pickOnBounds="true" preserveRatio="true">
+      <cursor>
+         <Cursor fx:constant="HAND" />
+      </cursor>
+      <image>
+         <Image url="@../images/settings.png" />
+      </image>
+   </ImageView>
 </Pane>

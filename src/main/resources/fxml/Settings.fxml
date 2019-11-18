@@ -31,6 +31,12 @@
                   <Label layoutX="10.5" layoutY="24.0" maxHeight="20.0" maxWidth="430.0" prefHeight="20.0" prefWidth="430.0" styleClass="checkbox-desc" text="%quick_replies_message" />
               </Pane>
               <Pane>
+                  <Label layoutX="10.5" layoutY="5.0" styleClass="checkbox-label" text="%auto_sync_pages" />
+                  <CheckBox fx:id="autoSync" layoutX="495.5" mnemonicParsing="false" onAction="#handleCheckboxPressed" />
+                  <Line endX="530.0" layoutY="48.5" stroke="#c7a96d42" strokeWidth="3.0" />
+                  <Label layoutX="10.5" layoutY="24.0" maxHeight="20.0" maxWidth="430.0" prefHeight="20.0" prefWidth="430.0" styleClass="checkbox-desc" text="%auto_sync_pages_message" />
+              </Pane>
+              <Pane>
                   <Label layoutX="10.5" layoutY="5.0" styleClass="checkbox-label" text="%autoupdate_state" />
                   <CheckBox fx:id="autoUpdate" layoutX="495.5" mnemonicParsing="false" onAction="#handleCheckboxPressed" />
                   <Line endX="530.0" layoutY="48.5" stroke="#c7a96d42" strokeWidth="3.0" />
@@ -59,12 +65,6 @@
                   <CheckBox fx:id="forceEnglish" layoutX="495.5" mnemonicParsing="false" onAction="#handleCheckboxPressed" />
                   <Line endX="530.0" layoutY="48.5" stroke="#c7a96d42" strokeWidth="3.0" />
                   <Label layoutX="10.5" layoutY="24.0" maxHeight="20.0" maxWidth="430.0" prefHeight="20.0" prefWidth="430.0" styleClass="checkbox-desc" text="%force_english_message" />
-              </Pane>
-              <Pane>
-                  <Label layoutX="10.5" layoutY="5.0" styleClass="checkbox-label" text="%auto_sync_pages" />
-                  <CheckBox fx:id="autoSync" layoutX="495.5" mnemonicParsing="false" onAction="#handleCheckboxPressed" />
-                  <Line endX="530.0" layoutY="48.5" stroke="#c7a96d42" strokeWidth="3.0" />
-                  <Label layoutX="10.5" layoutY="24.0" maxHeight="20.0" maxWidth="430.0" prefHeight="20.0" prefWidth="430.0" styleClass="checkbox-desc" text="%auto_sync_pages_message" />
               </Pane>
           </VBox>
       </content>

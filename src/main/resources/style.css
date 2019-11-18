@@ -128,20 +128,16 @@
 }
 
 .settings-button {
+    -fx-background-color: transparent;
+    -fx-border-style: none;
+    -fx-border-width: 0;
+    -fx-border-color: transparent;
     -fx-background-size: contain;
     -fx-min-width: 40px;
     -fx-max-width: 40px;
     -fx-min-height: 40px;
     -fx-max-height: 40px;
-    -fx-background-image: url("images/settingsButton.png");
-}
-
-.settings-button:hover {
-    -fx-background-image: url("images/settingsButtonHovered.png");
-}
-
-.settings-button:pressed {
-    -fx-background-image: url("images/settingsButtonPressed.png");
+    -fx-background-image: url("images/settings.png");
 }
 
 .bug-button {

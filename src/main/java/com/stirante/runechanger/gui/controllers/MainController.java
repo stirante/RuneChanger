@@ -45,17 +45,10 @@ public class MainController {
 
     public TextField search;
     public ImageView back;
-    public Pane sidebar;
     public Button report;
     public Pane fullContentPane;
     public Pane contentPane;
     public Pane container;
-
-    public Button settings;
-    //    public Button gameSettings;
-//    public Button otherSettings;
-//    public Button loot;
-    public Button[] sidebarButtons;
 
     private Consumer<Champion> searchHandler;
 
@@ -85,7 +78,6 @@ public class MainController {
         autoCompletion.setOnAutoCompleted(this::onSearch);
         autoCompletion.prefWidthProperty().bind(search.widthProperty());
         back.setVisible(false);
-        sidebarButtons = new Button[]{settings/*, gameSettings, otherSettings, loot*/};
         report.getTooltip().setShowDelay(Duration.ZERO);
     }
 
@@ -94,7 +86,6 @@ public class MainController {
         fullContentPane.getChildren().add(node);
         fullContentPane.setVisible(true);
         contentPane.setVisible(false);
-        sidebar.setVisible(false);
         report.setVisible(false);
         back.setVisible(true);
     }
@@ -104,7 +95,6 @@ public class MainController {
         contentPane.getChildren().add(node);
         contentPane.setVisible(true);
         fullContentPane.setVisible(false);
-        sidebar.setVisible(true);
         report.setVisible(true);
         back.setVisible(false);
     }
@@ -162,26 +152,8 @@ public class MainController {
     }
 
     @FXML
-    public void onTabSelect(ActionEvent actionEvent) {
-        if (actionEvent.getTarget() == settings) {
-            setFullContent(new SettingsController(stage).container);
-        }
-//        Button clicked = (Button) actionEvent.getTarget();
-//        KeyValue[] startValues = new KeyValue[sidebarButtons.length];
-//        KeyValue[] endValues = new KeyValue[sidebarButtons.length];
-//        int i = 0;
-//        for (Button button : sidebarButtons) {
-//            if (button == clicked) continue;
-//            startValues[i] = new KeyValue(button.translateXProperty(), button.translateXProperty().doubleValue(), Interpolator.EASE_OUT);
-//            endValues[i] = new KeyValue(button.translateXProperty(), 0, Interpolator.EASE_OUT);
-//            i++;
-//        }
-//        startValues[i] = new KeyValue(clicked.translateXProperty(), clicked.translateXProperty().doubleValue(), Interpolator.EASE_OUT);
-//        endValues[i] = new KeyValue(clicked.translateXProperty(), 20, Interpolator.EASE_OUT);
-//        KeyFrame start = new KeyFrame(Duration.ZERO, startValues);
-//        KeyFrame end = new KeyFrame(Duration.millis(100), endValues);
-//        Timeline timeline = new Timeline(start, end);
-//        timeline.play();
+    public void onSettings(MouseEvent event) {
+        setFullContent(new SettingsController(stage).container);
     }
 
     @FXML
@@ -223,7 +195,6 @@ public class MainController {
         fullContentPane.getChildren().clear();
         contentPane.setVisible(true);
         fullContentPane.setVisible(false);
-        sidebar.setVisible(true);
         report.setVisible(true);
         back.setVisible(false);
     }
