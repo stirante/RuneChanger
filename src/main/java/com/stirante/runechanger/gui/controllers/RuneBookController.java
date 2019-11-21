@@ -50,6 +50,12 @@ public class RuneBookController {
                     return;
                 }
             }
+            if (localRunes.size() > 4) {
+                localRunesList.setPrefWidth(282);
+            }
+            else {
+                localRunesList.setPrefWidth(272);
+            }
         });
         newRunes.addListener((ListChangeListener<RunePage>) observable -> {
             while (observable.next()) {
@@ -57,6 +63,12 @@ public class RuneBookController {
                     FXCollections.sort(newRunes, Comparator.comparing(RunePage::getName));
                     return;
                 }
+            }
+            if (newRunes.size() > 4) {
+                newRunesList.setPrefWidth(282);
+            }
+            else {
+                newRunesList.setPrefWidth(272);
             }
         });
         localRunesList.setCellFactory(listView -> new RuneItemController.RunePageCell(RuneItemController::setLocalRuneMode));
@@ -107,9 +119,25 @@ public class RuneBookController {
         championName.setText(champion.getName());
         joke.setText(champion.getPickQuote());
         setPosition(champion.getPosition());
-        localRunesList.setItems(new FilteredList<>(localRunes, runePage ->
+        FilteredList<RunePage> filteredList = new FilteredList<>(localRunes, runePage ->
                 runePage.isFromClient() ||
                         runePage.getChampion() == null ||
-                        runePage.getChampion() == champion));
+                        runePage.getChampion().equals(champion)
+        );
+        localRunesList.setItems(filteredList);
+        if (filteredList.size() > 4) {
+            localRunesList.setPrefWidth(282);
+        }
+        else {
+            localRunesList.setPrefWidth(272);
+        }
+        filteredList.addListener((ListChangeListener<RunePage>) observable -> {
+            if (filteredList.size() > 4) {
+                localRunesList.setPrefWidth(282);
+            }
+            else {
+                localRunesList.setPrefWidth(272);
+            }
+        });
     }
 }

@@ -17,7 +17,6 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.shape.Circle;
-import javafx.stage.PopupWindow;
 import javafx.util.Duration;
 
 import java.io.IOException;
@@ -77,7 +76,6 @@ public class RuneItemController {
 
     public void setLocalRuneMode(RunePage page) {
         setHomeRuneMode(page);
-//        edit.setVisible(false);
     }
 
     public void setHomeRuneMode(RunePage page) {
@@ -115,6 +113,12 @@ public class RuneItemController {
 
     @FXML
     public void onSelectChange(ActionEvent actionEvent) {
+        // Don't do anything, if we're not connected to the client
+        if (!RuneChanger.getInstance().getApi().isConnected()) {
+            selected.setSelected(false);
+            RuneChanger.getInstance().getGuiHandler().showWarningMessage(LangHelper.getLang().getString("not_connected_warning"));
+            return;
+        }
         // Page is from client and we're deselecting it, so we need to remove it
         if (page.isFromClient() && !selected.isSelected()) {
             RuneChanger.getInstance().getRunesModule().deletePage(page);
@@ -129,6 +133,7 @@ public class RuneItemController {
     @FXML
     public void onPageImport(MouseEvent mouseEvent) {
         if (SimplePreferences.getRuneBookPage(page.getName()) != null) {
+            RuneChanger.getInstance().getGuiHandler().showWarningMessage(LangHelper.getLang().getString("page_already_exists"));
             return;
         }
         SimplePreferences.addRuneBookPage(page);

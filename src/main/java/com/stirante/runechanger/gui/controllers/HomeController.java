@@ -57,6 +57,11 @@ public class HomeController {
                     return;
                 }
             }
+            if (localRunes.size() > 7) {
+                localRunesList.setPrefWidth(282);
+            } else {
+                localRunesList.setPrefWidth(272);
+            }
         });
         localRunesList.setItems(localRunes);
         localRunesList.setCellFactory(listView -> new RuneItemController.RunePageCell(RuneItemController::setHomeRuneMode));

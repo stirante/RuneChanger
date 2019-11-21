@@ -4,7 +4,6 @@ import com.google.gson.Gson;
 import com.stirante.runechanger.RuneChanger;
 import com.stirante.runechanger.runestore.ChampionGGSource;
 import com.stirante.runechanger.runestore.RuneStore;
-import com.stirante.runechanger.runestore.RuneforgeSource;
 import com.stirante.runechanger.util.PathUtils;
 import com.stirante.runechanger.util.StringUtils;
 import generated.Position;
