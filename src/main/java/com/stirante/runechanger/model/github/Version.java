@@ -21,8 +21,9 @@ public class Version {
             InputStream stream = Version.class.getResourceAsStream("/version.json");
             //Add our own date deserializer, which will return current date in case of parsing error
             //It's added, so it won't crash when running from IDE
-            JsonDeserializer<Date> dateDeserializer = new JsonDeserializer<Date>() {
+            JsonDeserializer<Date> dateDeserializer = new JsonDeserializer<>() {
                 DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
+
                 @Override
                 public Date deserialize(final JsonElement json, final Type typeOfT, final JsonDeserializationContext context)
                         throws JsonParseException {

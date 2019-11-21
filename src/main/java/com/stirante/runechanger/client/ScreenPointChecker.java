@@ -79,6 +79,7 @@ public class ScreenPointChecker {
         // Every second, we take screenshot and check if it matches the specified colors. Used for actually creating the screen points.
         // First, I take a screenshot of LoL client and then calculate percentage position of the point of interest.
         // After that, I check what color is there, when I want it to be triggered and then replace the values below, to check whether it triggers correctly
+        //noinspection InfiniteLoopStatement
         while (true) {
             BufferedImage screenshot = GDI32Util.getScreenshot(hwnd);
             float x = 0.1234375f;

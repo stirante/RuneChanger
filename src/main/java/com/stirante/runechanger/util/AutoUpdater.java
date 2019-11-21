@@ -120,7 +120,7 @@ public class AutoUpdater {
     private static void extractFile(ZipInputStream in, File outdir, String name) throws IOException {
         byte[] buffer = new byte[BUFFER_SIZE];
         BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(new File(outdir, name)));
-        int count = -1;
+        int count;
         while ((count = in.read(buffer)) != -1) {
             out.write(buffer, 0, count);
         }

@@ -4,10 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.text.Normalizer;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 
 public class StringUtils {
     private static final Logger log = LoggerFactory.getLogger(StringUtils.class);
@@ -46,25 +43,6 @@ public class StringUtils {
             str = Normalizer.normalize(str, Normalizer.Form.NFC);
         }
         return str;
-    }
-
-    /**
-     * Convert a string structured like a array to a list
-     *
-     * @param str string
-     * @return List<String>
-     */
-    public static List<String> stringToList(String str) {
-        log.debug("String before list conversion: " + str);
-        String replace = str.replace("[", "");
-        String replace1 = replace.replace("]", "");
-        String[] parts = replace1.split(",", 2);
-        String part1 = parts[0];
-        replace1 = parts[1].replace(" ", "");
-        replace1 = part1 + "," + replace1;
-        List<String> myList = new ArrayList<>(Arrays.asList(replace1.split(",")));
-        log.debug("List after string to list conversion: " + myList);
-        return myList;
     }
 
     /**

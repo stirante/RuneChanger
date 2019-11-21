@@ -261,13 +261,9 @@ public class RunePage {
         runepageList.add(mainStyle);
         runepageList.add(subStyle);
 
-        runes.forEach(rune -> {
-            runepageList.add(rune.getId());
-        });
+        runes.forEach(rune -> runepageList.add(rune.getId()));
 
-        modifiers.forEach(modifier -> {
-            runepageList.add(modifier.getId());
-        });
+        modifiers.forEach(modifier -> runepageList.add(modifier.getId()));
 
         return runepageList.toString();
     }

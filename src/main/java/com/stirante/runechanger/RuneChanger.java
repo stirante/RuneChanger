@@ -262,13 +262,9 @@ public class RuneChanger implements Launcher {
 
     private void onChampionChanged(Champion champion) {
         ObservableList<RunePage> pages = FXCollections.observableArrayList();
-        gui.setRunes(pages, (page) -> {
-            new Thread(() -> runesModule.setCurrentRunePage(page)).start();
-        });
+        gui.setRunes(pages, (page) -> new Thread(() -> runesModule.setCurrentRunePage(page)).start());
         log.info("Downloading runes for champion: " + champion.getName());
-        pages.addListener((InvalidationListener) observable -> {
-            gui.setRunes(pages);
-        });
+        pages.addListener((InvalidationListener) observable -> gui.setRunes(pages));
         RuneStore.getRunes(champion, pages);
     }
 

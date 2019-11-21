@@ -4,7 +4,6 @@ import com.google.gson.Gson;
 import com.stirante.runechanger.model.client.*;
 import com.stirante.runechanger.util.FxUtils;
 import com.stirante.runechanger.util.StringUtils;
-import generated.Position;
 import javafx.collections.ObservableList;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;

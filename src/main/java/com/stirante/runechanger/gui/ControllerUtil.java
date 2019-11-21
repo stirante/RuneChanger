@@ -3,14 +3,8 @@ package com.stirante.runechanger.gui;
 import com.jfoenix.controls.JFXAlert;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXDialogLayout;
-import com.stirante.runechanger.util.LangHelper;
-import javafx.animation.FadeTransition;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
 import javafx.scene.control.Label;
-import javafx.scene.layout.BorderPane;
 import javafx.stage.Modality;
-import javafx.util.Duration;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 

@@ -44,6 +44,7 @@ public class RuneStore {
         }
     }
 
+    @SuppressWarnings("unchecked")
     public static <T extends RuneSource> T getSource(Class<T> clz) {
         for (RuneSource source : sources) {
             if (clz.isAssignableFrom(source.getClass())) {

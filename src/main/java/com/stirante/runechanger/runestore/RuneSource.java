@@ -4,8 +4,6 @@ import com.stirante.runechanger.model.client.Champion;
 import com.stirante.runechanger.model.client.RunePage;
 import javafx.collections.ObservableList;
 
-import java.util.List;
-
 public interface RuneSource {
 
     /**
