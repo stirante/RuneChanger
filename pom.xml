@@ -6,10 +6,10 @@
 
     <groupId>com.stirante</groupId>
     <artifactId>RuneChanger</artifactId>
-    <version>1.11.2</version>
+    <version>1.12</version>
 
     <properties>
-        <java.version>1.8</java.version>
+        <java.version>12</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
@@ -22,10 +22,29 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <version>1.18.8</version>
-            <scope>provided</scope>
+            <groupId>org.update4j</groupId>
+            <artifactId>update4j</artifactId>
+            <version>1.4.4</version>
+        </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-base</artifactId>
+            <version>12.0.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-controls</artifactId>
+            <version>12.0.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-swing</artifactId>
+            <version>12.0.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-fxml</artifactId>
+            <version>12.0.1</version>
         </dependency>
         <dependency>
             <groupId>ch.qos.logback</groupId>
@@ -33,21 +52,15 @@
             <version>1.2.3</version>
         </dependency>
         <dependency>
-            <groupId>com.google.code.gson</groupId>
-            <artifactId>gson</artifactId>
-            <version>2.8.1</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
             <groupId>com.github.stirante</groupId>
             <artifactId>lol-client-java-api</artifactId>
-            <version>1.1.1</version>
+            <version>1.1.4</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.jsoup</groupId>
             <artifactId>jsoup</artifactId>
-            <version>1.10.3</version>
+            <version>1.11.3</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
@@ -65,8 +78,18 @@
         <dependency>
             <groupId>com.jfoenix</groupId>
             <artifactId>jfoenix</artifactId>
-            <version>8.0.8</version>
+            <version>9.0.8</version>
             <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>me.xdrop</groupId>
+            <artifactId>fuzzywuzzy</artifactId>
+            <version>1.2.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.controlsfx</groupId>
+            <artifactId>controlsfx</artifactId>
+            <version>11.0.0</version>
         </dependency>
     </dependencies>
 
@@ -80,11 +103,17 @@
                 </includes>
             </resource>
             <resource>
+                <directory>${project.basedir}${file.separator}scripts</directory>
+                <targetPath>${project.build.directory}</targetPath>
+                <filtering>true</filtering>
+                <includes>
+                    <include>*.bat</include>
+                    <include>*.vbs</include>
+                </includes>
+            </resource>
+            <resource>
                 <directory>src/main/resources</directory>
                 <filtering>false</filtering>
-                <excludes>
-                    <exclude>**/version.json</exclude>
-                </excludes>
             </resource>
         </resources>
         <plugins>
@@ -102,7 +131,7 @@
                 </executions>
                 <configuration>
                     <injectAllReactorProjects>true</injectAllReactorProjects>
-                    <dotGitDirectory>${project.basedir}/.git</dotGitDirectory>
+                    <dotGitDirectory>${project.basedir}${file.separator}.git</dotGitDirectory>
                     <verbose>false</verbose>
                     <generateGitPropertiesFile>false</generateGitPropertiesFile>
                     <gitDescribe>
@@ -117,8 +146,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.6.1</version>
                 <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
+                    <source>12</source>
+                    <target>12</target>
                 </configuration>
             </plugin>
             <plugin>
@@ -128,21 +157,87 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>com.stirante.RuneChanger.RuneChanger</mainClass>
+                            <mainClass>com.stirante.runechanger.RuneChanger</mainClass>
                         </manifest>
                     </archive>
+                    <finalName>${project.artifactId}</finalName>
                 </configuration>
             </plugin>
             <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>1.2.1</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>java</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <mainClass>com.stirante.runechanger.util.AutoUpdater</mainClass>
+                </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-clean-plugin</artifactId>
+                <version>2.4.1</version>
+                <configuration>
+                    <filesets>
+                        <fileset>
+                            <directory>image/</directory>
+                            <includes>
+                                <include>**/*</include>
+                            </includes>
+                            <followSymlinks>false</followSymlinks>
+                        </fileset>
+                    </filesets>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>com.igormaznitsa</groupId>
+                <artifactId>mvn-jlink-wrapper</artifactId>
+                <version>1.0.3</version>
+                <executions>
+                    <execution>
+                        <id>call-jlink</id>
+                        <goals>
+                            <goal>jlink</goal>
+                        </goals>
+                        <configuration>
+                            <output>${project.build.directory}${file.separator}image</output>
+                            <addModules>
+                                <module>java.base</module>
+                                <module>java.scripting</module>
+                                <module>javafx.graphics</module>
+                                <module>jdk.unsupported.desktop</module>
+                                <module>java.naming</module>
+                                <module>java.sql</module>
+                                <module>jdk.crypto.ec</module>
+                            </addModules>
+                            <options>
+                                <option>--compress=2</option>
+                                <option>--no-header-files</option>
+                                <option>--no-man-pages</option>
+                            </options>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-shade-plugin</artifactId>
-                <version>2.3</version>
+                <artifactId>maven-assembly-plugin</artifactId>
                 <executions>
                     <execution>
                         <phase>package</phase>
                         <goals>
-                            <goal>shade</goal>
+                            <goal>single</goal>
                         </goals>
+                        <configuration>
+                            <appendAssemblyId>false</appendAssemblyId>
+                            <descriptors>
+                                <descriptor>src/main/assembly/zip.xml</descriptor>
+                            </descriptors>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>

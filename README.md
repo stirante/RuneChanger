@@ -9,7 +9,6 @@ RuneChanger is an app that improves and speeds up the use of LoL client.
 * Quickly send message to champion selection room (BOT/MID/TOP) with one click of a button
 * Quickly select one of your recently played champions in champion selection
 * Disenchant all your champion shards with one click
-* Craft all your hextech key fragments 
 * Automatically accept the game queue
 * Disable 'Away' status
 * Save your runes, restore them in champion selection and share them with friends
@@ -18,10 +17,10 @@ RuneChanger is an app that improves and speeds up the use of LoL client.
 ## Requirements
 #### Running
 * Windows
-* JRE 8
 #### Building
-* JDK 8
+* AdoptOpenJDK 12
 * Maven
+* JavaFX
 
 ## Building
 
@@ -36,7 +35,7 @@ mvn package
 Just run jar or start it using ``java -jar RuneChanger.jar`` for extra logging
 
 ## Translating
-Right now translation is done through [Zanata](https://translate.zanata.org/project/view/runechanger). Feel free to translate this project into your language.
+Right now translation is done through [Crowdin](https://crowdin.com/project/runechanger). Feel free to translate this project into your language.
 
 ## How it works
 RuneChanger uses internal LoL client API. If it finds active session it gets rune pages for currently selected champion and displays option to set those runes to active rune page.

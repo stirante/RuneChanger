@@ -1,0 +1,7 @@
+<?import javafx.scene.layout.*?>
+
+<?import com.stirante.runechanger.gui.components.Component?>
+<fx:root type="javafx.scene.layout.BorderPane" prefHeight="93.0" prefWidth="304.0" xmlns="http://javafx.com/javafx/8"
+         xmlns:fx="http://javafx.com/fxml/1">
+    <Component/>
+</fx:root>

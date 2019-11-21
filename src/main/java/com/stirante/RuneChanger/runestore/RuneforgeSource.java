@@ -1,13 +1,17 @@
-package com.stirante.RuneChanger.runestore;
+package com.stirante.runechanger.runestore;
 
 import com.google.gson.Gson;
-import com.stirante.RuneChanger.model.*;
-import com.stirante.RuneChanger.util.StringUtils;
-import lombok.extern.slf4j.Slf4j;
+import com.stirante.runechanger.model.client.*;
+import com.stirante.runechanger.util.FxUtils;
+import com.stirante.runechanger.util.StringUtils;
+import generated.Position;
+import javafx.collections.ObservableList;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -17,8 +21,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-@Slf4j
 public class RuneforgeSource implements RuneSource {
+    private static final Logger log = LoggerFactory.getLogger(RuneforgeSource.class);
 
     private static final String URL_ADDRESS = "https://runeforge.gg/all-loadouts-data.json";
     private static final int TIMEOUT = 10000;
@@ -36,31 +40,57 @@ public class RuneforgeSource implements RuneSource {
         }
     }
 
-    /**
-     * Verifies all runes from runeforge.gg
-     *
-     * @param args program arguments
-     */
-    public static void main(String[] args) {
-        try {
-            Champion.init();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        RuneforgeSource src = new RuneforgeSource();
-        for (Champion champion : Champion.values()) {
-            log.info("Champion source name: " + champion.getName());
-            List<RunePage> runes = src.getForChampion(champion);
-            for (RunePage rune : runes) {
-                if (!rune.verify()) {
-                    log.error("Bad rune source: " + rune.getSource());
-                }
-            }
-            if (runes.size() == 0) {
-                log.error("Bad rune source, reason: EMPTY");
-            }
-        }
-    }
+//    /**
+//     * Verifies all runes from runeforge.gg
+//     *
+//     * @param args program arguments
+//     */
+//    public static void main(String[] args) {
+//        try {
+//            Champion.init();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//        RuneforgeSource src = new RuneforgeSource();
+//        for (Champion champion : Champion.values()) {
+//            log.info("Champion source name: " + champion.getName());
+//            List<RunePage> runes = src.getForChampion(champion);
+//            for (RunePage rune : runes) {
+//                if (!rune.verify()) {
+//                    log.error("Bad rune source: " + rune.getSource());
+//                }
+//            }
+//            if (runes.size() == 0) {
+//                log.error("Bad rune source, reason: EMPTY");
+//            }
+//        }
+//    }
+
+//    public Position getPositionForChampion(Champion champion) {
+//        for (Loadout loadout : cache) {
+//            if (loadout.loadout_champion_name.equalsIgnoreCase(champion.getName()) ||
+//                    loadout.loadout_champion_name.equalsIgnoreCase(champion.getAlias()) ||
+//                    loadout.loadout_champion_name.equalsIgnoreCase(champion.getInternalName())) {
+//                switch (loadout.loadout_position_name) {
+//                    case "support":
+//                        return Position.UTILITY;
+//                    case "middle":
+//                        return Position.MIDDLE;
+//                    case "bottom":
+//                        return Position.BOTTOM;
+//                    case "top":
+//                        return Position.TOP;
+//                    case "jungle":
+//                        return Position.JUNGLE;
+//                    default:
+//                        log.warn("Unknown position name: " + loadout.loadout_position_name);
+//                        return Position.UNSELECTED;
+//                }
+//            }
+//        }
+//        log.warn("Champion not found: " + champion.getName());
+//        return Position.UNSELECTED;
+//    }
 
     /**
      * Gets rune page from specified url
@@ -75,7 +105,7 @@ public class RuneforgeSource implements RuneSource {
             RunePage r = new RunePage();
             r.setSource(url);
             //get rune page name
-            r.setName(champion.getName() + ":" + StringUtils.fixString(parse.select("h2.loadout-title").text()));
+            r.setName(StringUtils.fixString(parse.select("h2.loadout-title").text()));
             Element style = parse.getElementsByClass("rune-path--primary").first();
             String styleName = style.getElementsByClass("rune-path--path").first().attr("data-content-title");
             r.setMainStyle(Style.getByName(styleName));
@@ -100,6 +130,7 @@ public class RuneforgeSource implements RuneSource {
                     r.getModifiers().add(Modifier.getByName(text));
                 }
             }
+            r.setChampion(champion);
             return r;
         } catch (IOException e) {
             log.error(e.getMessage());
@@ -115,9 +146,10 @@ public class RuneforgeSource implements RuneSource {
      * @param champion champion
      * @return list of rune pages
      */
-    public List<RunePage> getForChampion(Champion champion) {
+    public void getForChampion(Champion champion, ObservableList<RunePage> pages) {
         if (pagesCache.containsKey(champion)) {
-            return pagesCache.get(champion);
+            FxUtils.doOnFxThread(() -> pages.addAll(pagesCache.get(champion)));
+            return;
         }
         ArrayList<RunePage> result = new ArrayList<>();
         try {
@@ -138,7 +170,12 @@ public class RuneforgeSource implements RuneSource {
             e.printStackTrace();
         }
         pagesCache.put(champion, result);
-        return result;
+        FxUtils.doOnFxThread(() -> pages.addAll(result));
+    }
+
+    @Override
+    public String getSourceName() {
+        return "RuneForge.gg";
     }
 
     private static class Loadout {

@@ -1,6 +1,17 @@
-.list-cell:filled:selected:focused, .list-cell:filled:selected {
-    -fx-background-color: rgba(255, 255, 255, 0.2);
-    -fx-text-fill: white;
+@font-face {
+    src: url('fonts/Beaufort-Bold.ttf');
+}
+
+@font-face {
+    src: url('fonts/Roboto-Bold.ttf');
+}
+
+@font-face {
+    src: url('fonts/Roboto-Regular.ttf');
+}
+
+.text {
+    -fx-font-smoothing-type: gray;
 }
 
 .list-cell {
@@ -10,28 +21,36 @@
 
 .list-cell:filled:hover {
     -fx-background-color: rgba(255, 255, 255, 0.1);
-    -fx-text-fill: white;
+}
+
+.list-cell:filled:selected:focused, .list-cell:filled:selected {
+    -fx-background-color: rgba(255, 255, 255, 0.2);
 }
 
 .scroll-pane > .viewport {
-   -fx-background-color: transparent;
+    -fx-background-color: transparent;
 }
 
 .scroll-pane {
-   -fx-background-color: transparent;
-}
-
-.scroll-bar:horizontal, .scroll-bar:vertical{
-    -fx-background-color:transparent;
-}
-
-.increment-button, .decrement-button {
     -fx-background-color: transparent;
-    -fx-border-color: transparent;
+}
+
+.scroll-pane > .viewport {
+    -fx-background-color: transparent;
+}
+
+.scroll-pane {
+    -fx-background-color: transparent;
+}
+
+.scroll-bar:horizontal,
+.scroll-bar:vertical {
+    -fx-background-color: transparent;
+    -fx-font-size: 1px;
 }
 
 .scroll-bar:horizontal .track,
-.scroll-bar:vertical .track{
+.scroll-bar:vertical .track {
     -fx-background-color: transparent;
     -fx-border-color: transparent;
     -fx-background-radius: 0em;
@@ -39,6 +58,231 @@
 
 .scroll-bar:horizontal .thumb,
 .scroll-bar:vertical .thumb {
+    -fx-background-color: #785A28;
+    -fx-background-radius: 4em;
+}
+
+.scroll-bar .increment-arrow,
+.scroll-bar .decrement-arrow {
+    -fx-shape: " ";
+    -fx-padding: 0.15em 0.0;
+}
+
+.scroll-bar:vertical .increment-arrow,
+.scroll-bar:vertical .decrement-arrow {
+    -fx-shape: " ";
+    -fx-padding: 0.0 0.15em;
+}
+
+.scroll-bar:horizontal .increment-button,
+.scroll-bar:horizontal .decrement-button {
+    -fx-background-color: transparent;
+    -fx-background-radius: 0.0em;
+    -fx-padding: 0.0 0.0 10.0 0.0;
+}
+
+.scroll-bar:vertical .increment-button,
+.scroll-bar:vertical .decrement-button {
+    -fx-background-color: transparent;
+    -fx-background-radius: 0.0em;
+    -fx-padding: 0.0 10.0 0.0 0.0;
+}
+
+.text-field {
+    -fx-background-radius: 9;
+    -fx-background-image: url("images/search.png");
+    -fx-background-size: 24px;
+    -fx-background-repeat: no-repeat;
+    -fx-background-position: left center;
+    -fx-padding: 0 0 0 24px;
+    -fx-focus-color: transparent;
+    -fx-border-color: transparent;
+}
+
+.tooltip {
+    -fx-font-family: "Roboto";
+    -fx-font-weight: normal;
+    -fx-font-size: 13px;
+    -fx-text-fill: #918D80;
+    -fx-border-color: linear-gradient(from 50% 0% to 50% 100%, #60491F, #463714);
+    -fx-border-style: solid;
+    -fx-border-width: 2px;
+    -fx-background-radius: 0;
+    -fx-background-color: rgba(25, 28, 33, 1);
+    -fx-border-image-slice: 1;
+    -fx-effect: none;
+}
+
+.button {
+    -fx-border-color: linear-gradient(from 50% 0% to 50% 100%, #c3a758, #6b521e);
+    -fx-border-style: solid;
+    -fx-background-color: rgba(25, 28, 33, 1);
+    -fx-background-radius: 0;
+    -fx-background-insets: 0;
+    -fx-text-alignment: center;
+    -fx-text-fill: #937341;
+    -fx-cursor: hand;
+    -fx-font-family: "Beaufort for LOL";
+    -fx-font-weight: bold;
+    -fx-font-size: 15px;
+}
+
+.settings-button {
+    -fx-background-color: transparent;
+    -fx-border-style: none;
+    -fx-border-width: 0;
+    -fx-border-color: transparent;
+    -fx-background-size: contain;
+    -fx-min-width: 40px;
+    -fx-max-width: 40px;
+    -fx-min-height: 40px;
+    -fx-max-height: 40px;
+    -fx-background-image: url("images/settings.png");
+}
+
+.bug-button {
+    -fx-background-size: contain;
+    -fx-min-width: 40px;
+    -fx-max-width: 40px;
+    -fx-min-height: 40px;
+    -fx-max-height: 40px;
+    -fx-background-image: url("images/bugButton.png");
+}
+
+.bug-button:hover {
+    -fx-background-image: url("images/bugButtonHovered.png");
+}
+
+.bug-button:pressed {
+    -fx-background-image: url("images/bugButtonPressed.png");
+}
+
+.root {
+    -fx-focus-color: transparent;
+}
+
+.header {
+    -fx-text-fill: #C8AA6E;
+    -fx-font-family: "Beaufort for LOL";
+    -fx-font-weight: bold;
+    -fx-font-size: 18px;
+    -fx-text-alignment: center;
+    -fx-alignment: center;
+}
+
+.joke {
+    -fx-text-fill: #C8AA6E;
+    -fx-font-family: "Roboto";
+    -fx-font-size: 15px;
+    -fx-text-alignment: center;
+    -fx-alignment: center;
+}
+
+.rune-item {
+    -fx-background-color: rgba(23, 38, 53, 0.5);
+}
+
+.rune-item-text {
+    -fx-text-fill: #5A7481;
+    -fx-font-family: "Beaufort for LOL";
+    -fx-font-weight: bold;
+    -fx-font-size: 15px;
+}
+
+.rune-item-source {
+    -fx-text-fill: #707070;
+    -fx-font-family: "Beaufort for LOL";
+    -fx-font-weight: bold;
+    -fx-font-size: 10px;
+    -fx-alignment: center-right;
+}
+
+.check-box > .box {
+    -fx-background-insets: 0;
+    -fx-background-radius: 0;
+    -fx-background-color: transparent;
+    -fx-padding: 12px 0px 12px 0px;
+}
+
+.check-box > .box > .mark {
+    -fx-background-image: url("images/checkbox.png");
+    -fx-background-position: center;
+    -fx-background-repeat: no-repeat;
+    -fx-background-size: contain;
+    -fx-shape: none;
+    -fx-padding: 12px 12px 12px 12px;
+}
+
+.check-box:selected > .box > .mark {
+    -fx-background-color: transparent;
+    -fx-background-image: url("images/checkboxChecked.png");
+    -fx-padding: 12px 12px 12px 12px;
+}
+
+.list-view {
+    -fx-background-color: transparent;
+}
+
+.list-cell {
+    -fx-padding: 0;
+}
+
+.auto-complete-popup > .list-view {
     -fx-background-color: white;
-    -fx-background-radius: 5em;
+    -fx-background-insets: -1 -2 -1 -1, 0 -1 0 0;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.2), 12, 0.0, 0, 8);
+}
+
+.auto-complete-popup > .list-view > .virtual-flow > .clipped-container > .sheet > .list-cell {
+    -fx-padding: 4 0 4 5;
+    -fx-background: -fx-control-inner-background;
+    -fx-text-fill: black;
+}
+
+.auto-complete-popup > .list-view > .virtual-flow > .clipped-container > .sheet > .list-cell:filled:selected {
+    -fx-background: -fx-selection-bar-non-focused;
+    -fx-background-color: -fx-background;
+}
+
+.auto-complete-popup > .list-view > .virtual-flow > .clipped-container > .sheet > .list-cell:filled:hover,
+.auto-complete-popup > .list-view > .virtual-flow > .clipped-container > .sheet > .list-cell:filled:selected:hover {
+    -fx-background: -fx-accent;
+    -fx-background-color: -fx-selection-bar;
+}
+
+.auto-complete-popup > .list-view > .placeholder > .label {
+    -fx-text-fill: derive(-fx-control-inner-background, -30%);
+}
+
+.dialog-button {
+    -fx-min-width: 80px;
+    -fx-max-width: 80px;
+    -fx-min-height: 25px;
+    -fx-max-height: 25px;
+    -fx-font-size: 12px;
+    -fx-background-size: stretch;
+}
+
+.dialog-message {
+    -fx-font-size: 15px;
+    -fx-alignment: top-center;
+    -fx-font-family: "Roboto";
+}
+
+.checkbox-label {
+    -fx-text-fill: #ffffff;
+    -fx-font-family: "Roboto";
+    -fx-font-weight: bold;
+    -fx-font-size: 15px;
+    -fx-text-alignment: center;
+    -fx-alignment: center;
+}
+
+.checkbox-desc {
+    -fx-text-fill: #AFAFAF;
+    -fx-font-family: "Roboto";
+    -fx-font-weight: normal;
+    -fx-font-size: 13px;
+    -fx-text-alignment: left;
+    -fx-alignment: top-left;
 }
