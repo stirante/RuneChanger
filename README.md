@@ -32,10 +32,11 @@ mvn package
 ```
 
 ## Running
-Just run jar or start it using ``java -jar RuneChanger.jar`` for extra logging
+Just run open.bat.
+For extra information, use run.bat, which leaves command line with logs.
 
 ## Translating
-Right now translation is done through [Crowdin](https://crowdin.com/project/runechanger). Feel free to translate this project into your language.
+Translation is done through [Crowdin](https://crowdin.com/project/runechanger). Feel free to translate this project into your language.
 
 ## How it works
 RuneChanger uses internal LoL client API. If it finds active session it gets rune pages for currently selected champion and displays option to set those runes to active rune page.
