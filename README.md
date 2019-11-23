@@ -2,7 +2,7 @@
 
 RuneChanger is an app that improves and speeds up the use of LoL client.
 
-[![Video](https://upload.wikimedia.org/wikipedia/commons/thumb/e/e1/YouTube_play_buttom_icon_%282013-2017%29.svg/200px-YouTube_play_buttom_icon_%282013-2017%29.svg.png)](https://www.youtube.com/watch?v=cTbkTanju8I)
+[![Video](https://upload.wikimedia.org/wikipedia/commons/thumb/e/e1/YouTube_play_buttom_icon_%282013-2017%29.svg/200px-YouTube_play_buttom_icon_%282013-2017%29.svg.png)](https://www.youtube.com/watch?v=ScsoHfm1vgE)
 
 #### Features
 * Quickly import runes for selected champion in champion selection
