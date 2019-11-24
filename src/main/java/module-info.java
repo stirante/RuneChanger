@@ -21,6 +21,7 @@ module RuneChanger {
     requires org.controlsfx.controls;
     requires jna;
     requires org.update4j;
+    requires mslinks;
 
     exports com.stirante.runechanger;
     exports com.stirante.runechanger.gui;

@@ -91,6 +91,11 @@
             <artifactId>controlsfx</artifactId>
             <version>11.0.0</version>
         </dependency>
+        <dependency>
+            <groupId>com.github.vatbub</groupId>
+            <artifactId>mslinks</artifactId>
+            <version>1.0.5</version>
+        </dependency>
     </dependencies>
 
     <build>

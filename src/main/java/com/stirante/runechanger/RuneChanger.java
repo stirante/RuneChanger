@@ -60,6 +60,15 @@ public class RuneChanger implements Launcher {
         cleanupLogs();
         setDefaultUncaughtExceptionHandler();
         checkOperatingSystem();
+
+        //TODO: Add some kind of trigger for this
+        try {
+            ShortcutUtils.createDesktopShortcut();
+            ShortcutUtils.createMenuShortcuts();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         try {
             Champion.init();
         } catch (IOException e) {
