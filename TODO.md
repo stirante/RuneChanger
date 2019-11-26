@@ -4,7 +4,7 @@
 - [ ] OSX support
 - [x] Settings GUI
 - [x] Ability to run in background all the time
-- [ ] Auto updating
+- [x] Auto updating
 - [ ] More rune sources
 - [x] A settings pane to load and save runes into/from
 - [x] Update settings GUI
