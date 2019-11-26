@@ -99,6 +99,11 @@ public class ClientOverlay extends JPanel implements MouseMotionListener, MouseL
         return type;
     }
 
+    public void setSceneType(SceneType type) {
+        this.type = type;
+        timer.restart();
+    }
+
     @Override
     public void paintComponent(Graphics g) {
         int fontSize = (int) (Constants.FONT_SIZE * getHeight());
@@ -129,11 +134,6 @@ public class ClientOverlay extends JPanel implements MouseMotionListener, MouseL
         if (DebugConsts.DISPLAY_FAKE) {
             g.drawImage(fake.getSubimage(x, y, w, Math.max(1, Math.min(fake.getHeight(), h))), x, y, null);
         }
-    }
-
-    public void setSceneType(SceneType type) {
-        this.type = type;
-        timer.restart();
     }
 
     public void mouseReleased(MouseEvent e) {

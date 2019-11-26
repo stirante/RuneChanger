@@ -50,4 +50,4 @@ hs_err_pid*
 .zanata-cache/
 
 # Helper scripts
-cleanup.sh
+*.sh

@@ -22,6 +22,10 @@ public abstract class OverlayLayer implements MouseMotionListener, MouseListener
         this.overlay = overlay;
     }
 
+    protected static float ease(float currentPosition, float targetPosition) {
+        return currentPosition + ((targetPosition - currentPosition) * 0.2f);
+    }
+
     public int getZIndex() {
         return 0;
     }
@@ -36,10 +40,6 @@ public abstract class OverlayLayer implements MouseMotionListener, MouseListener
     }
 
     protected abstract void draw(Graphics g);
-
-    protected static float ease(float currentPosition, float targetPosition) {
-        return currentPosition + ((targetPosition - currentPosition) * 0.2f);
-    }
 
     protected ClientOverlay getClientOverlay() {
         return overlay;

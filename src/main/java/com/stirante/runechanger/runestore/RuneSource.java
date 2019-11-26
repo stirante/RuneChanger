@@ -10,7 +10,7 @@ public interface RuneSource {
      * Gets list of rune pages for champion
      *
      * @param champion champion
-     * @param pages list of pages, which will be filled with pages
+     * @param pages    list of pages, which will be filled with pages
      */
     void getForChampion(Champion champion, ObservableList<RunePage> pages);
 

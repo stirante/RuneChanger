@@ -26,11 +26,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class Champion {
     private static final Logger log = LoggerFactory.getLogger(Champion.class);
-
-    private static File portraitsDir = new File(PathUtils.getAssetsDir(), "champions");
     private static final List<Champion> values = new ArrayList<>(256);
     private static final AtomicBoolean IMAGES_READY = new AtomicBoolean(false);
     private static final List<Runnable> imagesReadyEvenListeners = new ArrayList<>();
+    private static File portraitsDir = new File(PathUtils.getAssetsDir(), "champions");
 
     static {
         portraitsDir.mkdirs();
@@ -178,6 +177,17 @@ public class Champion {
     }
 
     /**
+     * Returns whether all images are downloaded and loaded into memory.
+     */
+    public static boolean areImagesReady() {
+        return IMAGES_READY.get();
+    }
+
+    public static void addImagesReadyListener(Runnable r) {
+        imagesReadyEvenListeners.add(r);
+    }
+
+    /**
      * Returns image with champion's portrait
      */
     public java.awt.Image getPortrait() {
@@ -227,17 +237,6 @@ public class Champion {
      */
     public String getPickQuote() {
         return pickQuote;
-    }
-
-    /**
-     * Returns whether all images are downloaded and loaded into memory.
-     */
-    public static boolean areImagesReady() {
-        return IMAGES_READY.get();
-    }
-
-    public static void addImagesReadyListener(Runnable r) {
-        imagesReadyEvenListeners.add(r);
     }
 
     public BufferedImage getSplashArt() {

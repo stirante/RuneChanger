@@ -38,7 +38,8 @@ public class ChampionSuggestions extends OverlayLayer {
             if (getRuneChanger().getChampionSelectionModule().getGameMode() == GameMode.ARAM) {
                 return;
             }
-            if ((getSceneType() != SceneType.CHAMPION_SELECT && getSceneType() != SceneType.CHAMPION_SELECT_RUNE_PAGE_EDIT) ||
+            if ((getSceneType() != SceneType.CHAMPION_SELECT &&
+                    getSceneType() != SceneType.CHAMPION_SELECT_RUNE_PAGE_EDIT) ||
                     getRuneChanger().getChampionSelectionModule().isChampionLocked()) {
                 currentChampionsPosition = ease(currentChampionsPosition, 0f);
                 if (currentChampionsPosition > 1f) {

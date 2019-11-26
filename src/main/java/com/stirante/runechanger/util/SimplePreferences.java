@@ -9,8 +9,10 @@ import java.util.HashMap;
 
 public class SimplePreferences {
 
-    private static final String SETTINGS_FILENAME = new File(PathUtils.getWorkingDirectory(), "RuneChangerSettings.dat").getAbsolutePath();
-    private static final String RUNEBOOK_FILENAME = new File(PathUtils.getWorkingDirectory(), "RuneChangerRuneBook.dat").getAbsolutePath();
+    private static final String SETTINGS_FILENAME =
+            new File(PathUtils.getWorkingDirectory(), "RuneChangerSettings.dat").getAbsolutePath();
+    private static final String RUNEBOOK_FILENAME =
+            new File(PathUtils.getWorkingDirectory(), "RuneChangerRuneBook.dat").getAbsolutePath();
     private static ArrayList<RunePage> runeBookValues;
     private static HashMap<String, String> settingsValues;
 
@@ -97,16 +99,26 @@ public class SimplePreferences {
 
     }
 
-    public static String getValue(String key, String def) {
-        return settingsValues.getOrDefault(key, def);
+//    public static String getValue(String key, String def) {
+//        return settingsValues.getOrDefault(key, def);
+//    }
+
+    public static boolean getValue(String key, boolean def) {
+        String val = settingsValues.getOrDefault(key, Boolean.toString(def));
+        return Boolean.parseBoolean(val) || val.equals("1");
     }
 
     public static boolean containsKey(String key) {
         return settingsValues.containsKey(key);
     }
 
-    public static void putValue(String key, String value) {
-        settingsValues.put(key, value);
+//    public static void putValue(String key, String value) {
+//        settingsValues.put(key, value);
+//        save();
+//    }
+
+    public static void putValue(String key, boolean value) {
+        settingsValues.put(key, Boolean.toString(value));
         save();
     }
 
@@ -141,5 +153,8 @@ public class SimplePreferences {
         public static final String SMART_DISENCHANT = "smartDisenchant";
     }
 
+    public static class FlagKeys {
+        public static final String CREATED_SHORTCUTS = "createdShortcuts";
+    }
 
 }

@@ -28,13 +28,14 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
 
 public class GuiHandler {
-    private static final Logger log = LoggerFactory.getLogger(GuiHandler.class);
     public static final int MINIMIZED_POSITION = -32000;
+    private static final Logger log = LoggerFactory.getLogger(GuiHandler.class);
     private final AtomicBoolean threadRunning = new AtomicBoolean(false);
     private final AtomicBoolean windowOpen = new AtomicBoolean(false);
     private final List<RunePage> runes = Collections.synchronizedList(new ArrayList<>());
     private final ResourceBundle resourceBundle = LangHelper.getLang();
     private final RuneChanger runeChanger;
+    private final ReentrantLock lock = new ReentrantLock();
     private JWindow win;
     private ClientOverlay clientOverlay;
     private WinDef.HWND hwnd;
@@ -44,7 +45,6 @@ public class GuiHandler {
     private ArrayList<Champion> suggestedChampions;
     private Consumer<Champion> suggestedChampionSelectedListener;
     private ArrayList<Champion> bannedChampions;
-    private final ReentrantLock lock = new ReentrantLock();
     private int screenCheckCounter = 0;
 
     public GuiHandler(RuneChanger runeChanger) {
@@ -202,7 +202,7 @@ public class GuiHandler {
             action.setEnabled(false);
             trayPopupMenu.add(action);
 
-            MenuItem settings = new MenuItem(resourceBundle.getString("settings"));
+            MenuItem settings = new MenuItem(resourceBundle.getString("show_gui"));
             settings.addActionListener(e -> Settings.show());
             trayPopupMenu.add(settings);
 

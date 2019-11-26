@@ -43,9 +43,8 @@ import java.util.*;
 
 public class RuneChanger implements Launcher {
     private static final Logger log = LoggerFactory.getLogger(RuneChanger.class);
-
-    public String[] programArguments;
     private static RuneChanger instance;
+    public String[] programArguments;
     private ClientApi api;
     private GuiHandler gui;
     private List<RunePage> runes;
@@ -60,15 +59,6 @@ public class RuneChanger implements Launcher {
         cleanupLogs();
         setDefaultUncaughtExceptionHandler();
         checkOperatingSystem();
-
-        //TODO: Add some kind of trigger for this
-        try {
-            ShortcutUtils.createDesktopShortcut();
-            ShortcutUtils.createMenuShortcuts();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
         try {
             Champion.init();
         } catch (IOException e) {
@@ -89,23 +79,16 @@ public class RuneChanger implements Launcher {
         }
         try {
             AutoStartUtils.checkAutoStartPath();
-//            if (!AutoUpdater.check()) {
-//                JFrame frame = new JFrame();
-//                frame.setUndecorated(true);
-//                frame.setVisible(true);
-//                frame.setLocationRelativeTo(null);
-//                int dialogResult =
-//                        JOptionPane.showConfirmDialog(frame, String.format(LangHelper.getLang()
-//                                .getString("update_question"), AutoUpdater.getEstimatedUpdateSize()), LangHelper.getLang()
-//                                .getString("update_available"), JOptionPane.YES_NO_OPTION);
-//                frame.dispose();
-//                if (dialogResult == JOptionPane.YES_OPTION) {
-//                    AutoUpdater.performUpdate();
-//                    return;
-//                }
-//            }
         } catch (Exception e) {
             e.printStackTrace();
+        }
+        if (!SimplePreferences.getValue(SimplePreferences.FlagKeys.CREATED_SHORTCUTS, false)) {
+            try {
+                ShortcutUtils.createDesktopShortcut();
+                ShortcutUtils.createMenuShortcuts();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
         instance = new RuneChanger();
         instance.programArguments = args;
@@ -145,6 +128,58 @@ public class RuneChanger implements Launcher {
                     Constants.APP_NAME,
                     JOptionPane.WARNING_MESSAGE);
             System.exit(0);
+        }
+    }
+
+    private static void checkAndCreateLockfile() {
+        String userHome = PathUtils.getWorkingDirectory();
+        File file = new File(userHome, "runechanger.lock");
+        try {
+            FileChannel fc = FileChannel.open(file.toPath(),
+                    StandardOpenOption.CREATE,
+                    StandardOpenOption.WRITE);
+            FileLock lock = fc.tryLock();
+            if (lock == null) {
+                log.error("Another instance of runechanger is open. Exiting program now.");
+                System.exit(1);
+            }
+        } catch (IOException e) {
+            log.error("Error creating lockfile" + e);
+            System.exit(1);
+        }
+    }
+
+    private static void setDefaultUncaughtExceptionHandler() {
+        try {
+            Thread.setDefaultUncaughtExceptionHandler((t, e) -> log.error(
+                    "Uncaught Exception detected in thread " + t, e));
+        } catch (SecurityException e) {
+            log.error("Could not set the Default Uncaught Exception Handler", e);
+        }
+    }
+
+    private static void cleanupLogs() {
+        Calendar c = Calendar.getInstance();
+        c.add(Calendar.DAY_OF_YEAR, -30);
+        LoggerContext context = (LoggerContext) LoggerFactory.getILoggerFactory();
+        for (ch.qos.logback.classic.Logger logger : context.getLoggerList()) {
+            for (Iterator<Appender<ILoggingEvent>> index = logger.iteratorForAppenders(); index.hasNext(); ) {
+                Appender<ILoggingEvent> appender = index.next();
+                if (appender instanceof FileAppender) {
+                    FileAppender<ILoggingEvent> fa = (FileAppender<ILoggingEvent>) appender;
+                    File logFile = new File(PathUtils.getWorkingDirectory(), fa.getFile());
+                    //Remove logs older than 30 days
+                    if (logFile.getParentFile().exists()) {
+                        for (File file : Objects.requireNonNull(logFile.getParentFile().listFiles())) {
+                            if (new Date(file.lastModified()).before(c.getTime())) {
+                                if (!file.delete()) {
+                                    log.error("Failed to remove logs older then 30 days!");
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -203,8 +238,7 @@ public class RuneChanger implements Launcher {
                 } catch (Exception ignored) {
                 }
                 // Auto sync rune pages to RuneChanger
-                if (SimplePreferences.getValue(SimplePreferences.SettingsKeys.AUTO_SYNC, "false")
-                        .equalsIgnoreCase("true")) {
+                if (SimplePreferences.getValue(SimplePreferences.SettingsKeys.AUTO_SYNC, false)) {
                     runesModule.syncRunePages();
                 }
                 //sometimes, the api is connected too quickly and there is WebsocketNotConnectedException
@@ -304,7 +338,7 @@ public class RuneChanger implements Launcher {
 //                    System.out.println(new Gson().toJson(event.getData()));
                 }
                 if (event.getUri().equalsIgnoreCase("/lol-chat/v1/me") &&
-                        SimplePreferences.getValue(SimplePreferences.SettingsKeys.ANTI_AWAY, "false").equalsIgnoreCase("true")) {
+                        SimplePreferences.getValue(SimplePreferences.SettingsKeys.ANTI_AWAY, false)) {
                     if (((LolChatUserResource) event.getData()).availability.equalsIgnoreCase("away")) {
                         new Thread(() -> {
                             try {
@@ -326,7 +360,7 @@ public class RuneChanger implements Launcher {
                         handleSession((LolChampSelectChampSelectSession) event.getData());
                     }
                 }
-                else if (Boolean.parseBoolean(SimplePreferences.getValue(SimplePreferences.SettingsKeys.AUTO_ACCEPT, "false")) &&
+                else if (SimplePreferences.getValue(SimplePreferences.SettingsKeys.AUTO_ACCEPT, false) &&
                         event.getUri().equalsIgnoreCase("/lol-lobby/v2/lobby/matchmaking/search-state")) {
                     if (((LolLobbyLobbyMatchmakingSearchResource) event.getData()).searchState ==
                             LolLobbyLobbyMatchmakingSearchState.FOUND) {
@@ -358,58 +392,6 @@ public class RuneChanger implements Launcher {
                 socket = null;
             }
         });
-    }
-
-    private static void checkAndCreateLockfile() {
-        String userHome = PathUtils.getWorkingDirectory();
-        File file = new File(userHome, "runechanger.lock");
-        try {
-            FileChannel fc = FileChannel.open(file.toPath(),
-                    StandardOpenOption.CREATE,
-                    StandardOpenOption.WRITE);
-            FileLock lock = fc.tryLock();
-            if (lock == null) {
-                log.error("Another instance of runechanger is open. Exiting program now.");
-                System.exit(1);
-            }
-        } catch (IOException e) {
-            log.error("Error creating lockfile" + e);
-            System.exit(1);
-        }
-    }
-
-    private static void setDefaultUncaughtExceptionHandler() {
-        try {
-            Thread.setDefaultUncaughtExceptionHandler((t, e) -> log.error(
-                    "Uncaught Exception detected in thread " + t, e));
-        } catch (SecurityException e) {
-            log.error("Could not set the Default Uncaught Exception Handler", e);
-        }
-    }
-
-    private static void cleanupLogs() {
-        Calendar c = Calendar.getInstance();
-        c.add(Calendar.DAY_OF_YEAR, -30);
-        LoggerContext context = (LoggerContext) LoggerFactory.getILoggerFactory();
-        for (ch.qos.logback.classic.Logger logger : context.getLoggerList()) {
-            for (Iterator<Appender<ILoggingEvent>> index = logger.iteratorForAppenders(); index.hasNext(); ) {
-                Appender<ILoggingEvent> appender = index.next();
-                if (appender instanceof FileAppender) {
-                    FileAppender<ILoggingEvent> fa = (FileAppender<ILoggingEvent>) appender;
-                    File logFile = new File(PathUtils.getWorkingDirectory(), fa.getFile());
-                    //Remove logs older than 30 days
-                    if (logFile.getParentFile().exists()) {
-                        for (File file : Objects.requireNonNull(logFile.getParentFile().listFiles())) {
-                            if (new Date(file.lastModified()).before(c.getTime())) {
-                                if (!file.delete()) {
-                                    log.error("Failed to remove logs older then 30 days!");
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
     }
 
     public ClientApi getApi() {

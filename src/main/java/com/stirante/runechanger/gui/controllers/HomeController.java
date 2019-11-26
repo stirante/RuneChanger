@@ -59,14 +59,14 @@ public class HomeController {
             }
             if (localRunes.size() > 7) {
                 localRunesList.setPrefWidth(282);
-            } else {
+            }
+            else {
                 localRunesList.setPrefWidth(272);
             }
         });
         localRunesList.setItems(localRunes);
         localRunesList.setCellFactory(listView -> new RuneItemController.RunePageCell(RuneItemController::setHomeRuneMode));
-        syncButton.setVisible(!SimplePreferences.getValue(SimplePreferences.SettingsKeys.AUTO_SYNC, "false")
-                .equalsIgnoreCase("true"));
+        syncButton.setVisible(!SimplePreferences.getValue(SimplePreferences.SettingsKeys.AUTO_SYNC, false));
         Objects.requireNonNull(syncButton.getTooltip()).setShowDelay(Duration.ZERO);
     }
 
@@ -98,8 +98,7 @@ public class HomeController {
 
     @FXML
     public void onChampionDisenchant(ActionEvent event) {
-        if (SimplePreferences.getValue(SimplePreferences.SettingsKeys.SMART_DISENCHANT, "false")
-                .equalsIgnoreCase("true")) {
+        if (SimplePreferences.getValue(SimplePreferences.SettingsKeys.SMART_DISENCHANT, false)) {
             lootModule.smartDisenchantChampions();
         }
         else {

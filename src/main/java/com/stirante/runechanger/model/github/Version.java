@@ -34,7 +34,9 @@ public class Version {
                     }
                 }
             };
-            inst = new GsonBuilder().registerTypeAdapter(Date.class, dateDeserializer).create().fromJson(new InputStreamReader(stream), Version.class);
+            inst = new GsonBuilder().registerTypeAdapter(Date.class, dateDeserializer)
+                    .create()
+                    .fromJson(new InputStreamReader(stream), Version.class);
             stream.close();
         } catch (IOException e) {
             e.printStackTrace();

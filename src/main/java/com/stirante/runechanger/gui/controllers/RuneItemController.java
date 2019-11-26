@@ -38,10 +38,10 @@ public class RuneItemController {
     public Label shortName;
     public Label source;
     public ImageView importPage;
+    public Circle syncStatus;
     private List<Node> newRuneNodes;
     private List<Node> localRuneNodes;
     private RunePage page;
-    public Circle syncStatus;
 
     public RuneItemController() {
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/fxml/RuneItem.fxml"), LangHelper.getLang());
@@ -116,7 +116,9 @@ public class RuneItemController {
         // Don't do anything, if we're not connected to the client
         if (!RuneChanger.getInstance().getApi().isConnected()) {
             selected.setSelected(false);
-            RuneChanger.getInstance().getGuiHandler().showWarningMessage(LangHelper.getLang().getString("not_connected_warning"));
+            RuneChanger.getInstance()
+                    .getGuiHandler()
+                    .showWarningMessage(LangHelper.getLang().getString("not_connected_warning"));
             return;
         }
         // Page is from client and we're deselecting it, so we need to remove it
@@ -133,7 +135,9 @@ public class RuneItemController {
     @FXML
     public void onPageImport(MouseEvent mouseEvent) {
         if (SimplePreferences.getRuneBookPage(page.getName()) != null) {
-            RuneChanger.getInstance().getGuiHandler().showWarningMessage(LangHelper.getLang().getString("page_already_exists"));
+            RuneChanger.getInstance()
+                    .getGuiHandler()
+                    .showWarningMessage(LangHelper.getLang().getString("page_already_exists"));
             return;
         }
         SimplePreferences.addRuneBookPage(page);

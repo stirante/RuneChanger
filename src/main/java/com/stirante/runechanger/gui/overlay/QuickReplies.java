@@ -36,7 +36,7 @@ public class QuickReplies extends OverlayLayer {
     @Override
     protected void draw(Graphics g) {
         if (getSceneType() == SceneType.CHAMPION_SELECT &&
-                Boolean.parseBoolean(SimplePreferences.getValue(SimplePreferences.SettingsKeys.QUICK_REPLIES, "false"))) {
+                SimplePreferences.getValue(SimplePreferences.SettingsKeys.QUICK_REPLIES, false)) {
             if (getRuneChanger().getChampionSelectionModule().isPositionSelector()) {
                 return;
             }

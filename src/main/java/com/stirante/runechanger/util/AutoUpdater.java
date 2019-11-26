@@ -15,6 +15,12 @@ import java.util.zip.ZipInputStream;
 public class AutoUpdater {
     private static final String DEV_UPDATE_CONFIG = "https://runechanger.stirante.com/dev/dev.xml";
     private static final String STABLE_UPDATE_CONFIG = "https://runechanger.stirante.com/stable/stable.xml";
+    /**
+     * From https://stackoverflow.com/a/10634536/6459649
+     */
+
+    private static final int BUFFER_SIZE = 4096;
+    private static Configuration configuration = null;
 
     /**
      * Checks whether RuneChanger is up to date
@@ -26,7 +32,7 @@ public class AutoUpdater {
             return true;
         }
         if (DebugConsts.DISABLE_AUTOUPDATE ||
-                SimplePreferences.getValue(SimplePreferences.SettingsKeys.AUTO_UPDATE, "true").equals("false")) {
+                !SimplePreferences.getValue(SimplePreferences.SettingsKeys.AUTO_UPDATE, true)) {
             return true;
         }
 
@@ -95,14 +101,12 @@ public class AutoUpdater {
         });
     }
 
-    private static Configuration configuration = null;
-
     private static Configuration getConfiguration() throws IOException {
         if (configuration != null) {
             return configuration;
         }
         String configUrl = STABLE_UPDATE_CONFIG;
-        if (SimplePreferences.getValue(SimplePreferences.SettingsKeys.EXPERIMENTAL_CHANNEL, "0").equalsIgnoreCase("1")) {
+        if (SimplePreferences.getValue(SimplePreferences.SettingsKeys.EXPERIMENTAL_CHANNEL, false)) {
             configUrl = DEV_UPDATE_CONFIG;
         }
         Reader reader = new InputStreamReader(new URL(configUrl).openStream());
@@ -110,12 +114,6 @@ public class AutoUpdater {
         reader.close();
         return configuration;
     }
-
-    /**
-     * From https://stackoverflow.com/a/10634536/6459649
-     */
-
-    private static final int BUFFER_SIZE = 4096;
 
     private static void extractFile(ZipInputStream in, File outdir, String name) throws IOException {
         byte[] buffer = new byte[BUFFER_SIZE];

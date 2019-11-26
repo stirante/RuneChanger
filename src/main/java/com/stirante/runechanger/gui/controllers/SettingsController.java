@@ -48,35 +48,33 @@ public class SettingsController {
             AutoStartUtils.setAutoStart(target.isSelected());
         }
         if (target == autoAccept) {
-            SimplePreferences.putValue(SimplePreferences.SettingsKeys.AUTO_ACCEPT, String.valueOf(target.isSelected()));
+            SimplePreferences.putValue(SimplePreferences.SettingsKeys.AUTO_ACCEPT, target.isSelected());
         }
         else if (target == antiAway) {
-            SimplePreferences.putValue(SimplePreferences.SettingsKeys.ANTI_AWAY, String.valueOf(target.isSelected()));
+            SimplePreferences.putValue(SimplePreferences.SettingsKeys.ANTI_AWAY, target.isSelected());
         }
         else if (target == quickReplies) {
-            SimplePreferences.putValue(SimplePreferences.SettingsKeys.QUICK_REPLIES, String.valueOf(target.isSelected()));
+            SimplePreferences.putValue(SimplePreferences.SettingsKeys.QUICK_REPLIES, target.isSelected());
         }
         else if (target == autoUpdate) {
-            SimplePreferences.putValue(SimplePreferences.SettingsKeys.AUTO_UPDATE, String.valueOf(target.isSelected()));
+            SimplePreferences.putValue(SimplePreferences.SettingsKeys.AUTO_UPDATE, target.isSelected());
         }
         else if (target == smartDisenchant) {
-            SimplePreferences.putValue(SimplePreferences.SettingsKeys.SMART_DISENCHANT, String.valueOf(target.isSelected()));
+            SimplePreferences.putValue(SimplePreferences.SettingsKeys.SMART_DISENCHANT, target.isSelected());
         }
         else if (target == experimental) {
-            SimplePreferences.putValue(SimplePreferences.SettingsKeys.EXPERIMENTAL_CHANNEL, String.valueOf(target
-                    .isSelected()));
+            SimplePreferences.putValue(SimplePreferences.SettingsKeys.EXPERIMENTAL_CHANNEL, target.isSelected());
         }
         else if (target == autoSync) {
-            SimplePreferences.putValue(SimplePreferences.SettingsKeys.AUTO_SYNC, String.valueOf(target
-                    .isSelected()));
+            SimplePreferences.putValue(SimplePreferences.SettingsKeys.AUTO_SYNC, target.isSelected());
             tryRestart();
         }
         else if (target == alwaysOnTop) {
-            SimplePreferences.putValue(SimplePreferences.SettingsKeys.ALWAYS_ON_TOP, String.valueOf(target.isSelected()));
+            SimplePreferences.putValue(SimplePreferences.SettingsKeys.ALWAYS_ON_TOP, target.isSelected());
             stage.setAlwaysOnTop(target.isSelected());
         }
         else if (target == forceEnglish) {
-            SimplePreferences.putValue(SimplePreferences.SettingsKeys.FORCE_ENGLISH, String.valueOf(target.isSelected()));
+            SimplePreferences.putValue(SimplePreferences.SettingsKeys.FORCE_ENGLISH, target.isSelected());
             tryRestart();
         }
         SimplePreferences.save();
@@ -92,26 +90,26 @@ public class SettingsController {
     }
 
     private void loadPreferences() {
-        setupPreference(SimplePreferences.SettingsKeys.QUICK_REPLIES, "false", quickReplies);
-        setupPreference(SimplePreferences.SettingsKeys.AUTO_ACCEPT, "false", autoAccept);
-        setupPreference(SimplePreferences.SettingsKeys.ANTI_AWAY, "false", antiAway);
-        setupPreference(SimplePreferences.SettingsKeys.AUTO_UPDATE, "true", autoUpdate);
-        setupPreference(SimplePreferences.SettingsKeys.EXPERIMENTAL_CHANNEL, "false", experimental);
-        setupPreference(SimplePreferences.SettingsKeys.FORCE_ENGLISH, "false", forceEnglish);
-        setupPreference(SimplePreferences.SettingsKeys.ALWAYS_ON_TOP, "false", alwaysOnTop);
-        setupPreference(SimplePreferences.SettingsKeys.AUTO_SYNC, "false", autoSync);
-        setupPreference(SimplePreferences.SettingsKeys.SMART_DISENCHANT, "false", smartDisenchant);
+        setupPreference(SimplePreferences.SettingsKeys.QUICK_REPLIES, false, quickReplies);
+        setupPreference(SimplePreferences.SettingsKeys.AUTO_ACCEPT, false, autoAccept);
+        setupPreference(SimplePreferences.SettingsKeys.ANTI_AWAY, false, antiAway);
+        setupPreference(SimplePreferences.SettingsKeys.AUTO_UPDATE, true, autoUpdate);
+        setupPreference(SimplePreferences.SettingsKeys.EXPERIMENTAL_CHANNEL, false, experimental);
+        setupPreference(SimplePreferences.SettingsKeys.FORCE_ENGLISH, false, forceEnglish);
+        setupPreference(SimplePreferences.SettingsKeys.ALWAYS_ON_TOP, false, alwaysOnTop);
+        setupPreference(SimplePreferences.SettingsKeys.AUTO_SYNC, false, autoSync);
+        setupPreference(SimplePreferences.SettingsKeys.SMART_DISENCHANT, false, smartDisenchant);
 
         if (AutoStartUtils.isAutoStartEnabled()) {
             autoStart.setSelected(true);
         }
     }
 
-    private void setupPreference(String key, String defaultValue, CheckBox checkbox) {
+    private void setupPreference(String key, boolean defaultValue, CheckBox checkbox) {
         if (!SimplePreferences.containsKey(key)) {
             SimplePreferences.putValue(key, defaultValue);
         }
-        if (SimplePreferences.getValue(key, defaultValue).equals("true")) {
+        if (SimplePreferences.getValue(key, defaultValue)) {
             Platform.runLater(() -> checkbox.setSelected(true));
         }
     }

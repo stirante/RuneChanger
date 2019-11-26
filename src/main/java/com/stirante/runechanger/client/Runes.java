@@ -115,7 +115,7 @@ public class Runes extends ClientModule {
 
     public void handlePageChange(LolPerksPerkPageResource[] pages) {
         // Auto sync rune pages to RuneChanger
-        if (SimplePreferences.getValue(SimplePreferences.SettingsKeys.AUTO_SYNC, "false").equalsIgnoreCase("true")) {
+        if (SimplePreferences.getValue(SimplePreferences.SettingsKeys.AUTO_SYNC, false)) {
             syncRunePages();
         }
 

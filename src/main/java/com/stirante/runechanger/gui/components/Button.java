@@ -42,6 +42,32 @@ public class Button extends Component {
     };
 
     // --- tooltip
+    private ObjectProperty<Tooltip> tooltip;
+    private Image[] side = new Image[4];
+    private Image[] center = new Image[4];
+
+    public Button() {
+        super();
+        //Invalidate currently rendered element on change
+        textProperty().addListener(this::invalidated);
+        hoverProperty().addListener(this::invalidated);
+        pressedProperty().addListener(this::invalidated);
+        onMouseClickedProperty().setValue(event -> {
+            if (onAction.get() != null) {
+                onAction.get().handle(new ActionEvent(this, this));
+            }
+        });
+
+        side[STATE_DEFAULT] = new Image(getClass().getResource("/images/leftstraightdefault.png").toExternalForm());
+        side[STATE_HOVERED] = new Image(getClass().getResource("/images/leftstraighthover.png").toExternalForm());
+        side[STATE_PRESSED] = new Image(getClass().getResource("/images/leftstraightclick.png").toExternalForm());
+        side[STATE_DISABLED] = new Image(getClass().getResource("/images/leftstraightdisabled.png").toExternalForm());
+
+        center[STATE_DEFAULT] = new Image(getClass().getResource("/images/middefault.png").toExternalForm());
+        center[STATE_HOVERED] = new Image(getClass().getResource("/images/midhover.png").toExternalForm());
+        center[STATE_PRESSED] = new Image(getClass().getResource("/images/midclick.png").toExternalForm());
+        center[STATE_DISABLED] = new Image(getClass().getResource("/images/middisabled.png").toExternalForm());
+    }
 
     /**
      * The ToolTip for this control.
@@ -82,52 +108,24 @@ public class Button extends Component {
         return tooltip;
     }
 
-    private ObjectProperty<Tooltip> tooltip;
-
-    public final void setTooltip(Tooltip value) {
-        tooltipProperty().setValue(value);
-    }
-
     public final Tooltip getTooltip() {
         return tooltip == null ? null : tooltip.getValue();
     }
 
-    private Image[] side = new Image[4];
-    private Image[] center = new Image[4];
-
-    public Button() {
-        super();
-        //Invalidate currently rendered element on change
-        textProperty().addListener(this::invalidated);
-        hoverProperty().addListener(this::invalidated);
-        pressedProperty().addListener(this::invalidated);
-        onMouseClickedProperty().setValue(event -> {
-            if (onAction.get() != null) {
-                onAction.get().handle(new ActionEvent(this, this));
-            }
-        });
-
-        side[STATE_DEFAULT] = new Image(getClass().getResource("/images/leftstraightdefault.png").toExternalForm());
-        side[STATE_HOVERED] = new Image(getClass().getResource("/images/leftstraighthover.png").toExternalForm());
-        side[STATE_PRESSED] = new Image(getClass().getResource("/images/leftstraightclick.png").toExternalForm());
-        side[STATE_DISABLED] = new Image(getClass().getResource("/images/leftstraightdisabled.png").toExternalForm());
-
-        center[STATE_DEFAULT] = new Image(getClass().getResource("/images/middefault.png").toExternalForm());
-        center[STATE_HOVERED] = new Image(getClass().getResource("/images/midhover.png").toExternalForm());
-        center[STATE_PRESSED] = new Image(getClass().getResource("/images/midclick.png").toExternalForm());
-        center[STATE_DISABLED] = new Image(getClass().getResource("/images/middisabled.png").toExternalForm());
+    public final void setTooltip(Tooltip value) {
+        tooltipProperty().setValue(value);
     }
 
     public final ObjectProperty<EventHandler<ActionEvent>> onActionProperty() {
         return onAction;
     }
 
-    public final void setOnAction(EventHandler<ActionEvent> value) {
-        onActionProperty().set(value);
-    }
-
     public final EventHandler<ActionEvent> getOnAction() {
         return onActionProperty().get();
+    }
+
+    public final void setOnAction(EventHandler<ActionEvent> value) {
+        onActionProperty().set(value);
     }
 
     @Override
@@ -154,12 +152,12 @@ public class Button extends Component {
         return textProperty;
     }
 
-    public void setText(String textProperty) {
-        this.textProperty.setValue(textProperty);
-    }
-
     public String getText() {
         return textProperty.get();
+    }
+
+    public void setText(String textProperty) {
+        this.textProperty.setValue(textProperty);
     }
 
 }

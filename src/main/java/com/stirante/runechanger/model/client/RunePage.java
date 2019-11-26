@@ -65,6 +65,44 @@ public class RunePage {
     }
 
     /**
+     * Imports runepage into a list with numbers.
+     *
+     * @param str rune page serialized to string
+     * @return RunePage if successful null if not
+     */
+    public static RunePage fromSerializedString(String str) {
+        try {
+            RunePage page = new RunePage();
+            String replace = str.replace("[", "");
+            String replace1 = replace.replace("]", "");
+            String[] parts = replace1.split(",", 2);
+            String part1 = parts[0];
+            replace1 = parts[1].replace(" ", "");
+            replace1 = part1 + "," + replace1;
+            List<String> runepageList = new ArrayList<>(Arrays.asList(replace1.split(",")));
+
+            if (runepageList.size() != 12) {
+                return null;
+            }
+
+            for (int i = 9; i < 12; i++) {
+                page.modifiers.add(Modifier.getById(Integer.parseInt(runepageList.get(i))));
+            }
+
+            for (int i = 3; i < 9; i++) {
+                page.runes.add(Rune.getById(Integer.parseInt(runepageList.get(i))));
+            }
+
+            page.name = runepageList.get(0);
+            page.mainStyle = Style.valueOf(runepageList.get(1));
+            page.subStyle = Style.valueOf(runepageList.get(2));
+            return page.verify() ? page : null;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    /**
      * Verifies rune page
      *
      * @return true if rune page is valid
@@ -268,44 +306,6 @@ public class RunePage {
         return runepageList.toString();
     }
 
-    /**
-     * Imports runepage into a list with numbers.
-     *
-     * @param str rune page serialized to string
-     * @return RunePage if successful null if not
-     */
-    public static RunePage fromSerializedString(String str) {
-        try {
-            RunePage page = new RunePage();
-            String replace = str.replace("[", "");
-            String replace1 = replace.replace("]", "");
-            String[] parts = replace1.split(",", 2);
-            String part1 = parts[0];
-            replace1 = parts[1].replace(" ", "");
-            replace1 = part1 + "," + replace1;
-            List<String> runepageList = new ArrayList<>(Arrays.asList(replace1.split(",")));
-
-            if (runepageList.size() != 12) {
-                return null;
-            }
-
-            for (int i = 9; i < 12; i++) {
-                page.modifiers.add(Modifier.getById(Integer.parseInt(runepageList.get(i))));
-            }
-
-            for (int i = 3; i < 9; i++) {
-                page.runes.add(Rune.getById(Integer.parseInt(runepageList.get(i))));
-            }
-
-            page.name = runepageList.get(0);
-            page.mainStyle = Style.valueOf(runepageList.get(1));
-            page.subStyle = Style.valueOf(runepageList.get(2));
-            return page.verify() ? page : null;
-        } catch (Exception e) {
-            return null;
-        }
-    }
-
     public boolean isFromClient() {
         return fromClient;
     }
@@ -322,13 +322,13 @@ public class RunePage {
         this.synced = synced;
     }
 
+    public Champion getChampion() {
+        return champion;
+    }
+
     public void setChampion(Champion champion) {
         this.champion = champion;
         this.name = toClientName(name);
-    }
-
-    public Champion getChampion() {
-        return champion;
     }
 
     public RunePage copy() {
