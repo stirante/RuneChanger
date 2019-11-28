@@ -16,6 +16,7 @@ public class ChampionSuggestions extends OverlayLayer {
     private ArrayList<Champion> bannedChampions;
     private Consumer<Champion> suggestedChampionSelectedListener;
     private float currentChampionsPosition = 0f;
+    private Runnable repaintLaterRunnable = this::repaintLater;
 
     ChampionSuggestions(ClientOverlay overlay) {
         super(overlay);
@@ -36,7 +37,7 @@ public class ChampionSuggestions extends OverlayLayer {
                 if (lastChampions == null) {
                     return;
                 }
-                if (getRuneChanger().getChampionSelectionModule().getGameMode().hasChampionSelection()) {
+                if (getRuneChanger().getChampionSelectionModule().getGameMode() == null || !getRuneChanger().getChampionSelectionModule().getGameMode().hasChampionSelection()) {
                     return;
                 }
                 if ((getSceneType() != SceneType.CHAMPION_SELECT &&
@@ -91,7 +92,7 @@ public class ChampionSuggestions extends OverlayLayer {
                 clearRect(g, getClientWidth() - barWidth, 0, barWidth, getHeight());
             }
             else if (!Champion.areImagesReady()) {
-                Champion.addImagesReadyListener(this::repaintLater);
+                Champion.addImagesReadyListener(repaintLaterRunnable);
             }
         }
     }

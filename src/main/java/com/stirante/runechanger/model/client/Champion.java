@@ -28,7 +28,7 @@ public class Champion {
     private static final Logger log = LoggerFactory.getLogger(Champion.class);
     private static final List<Champion> values = new ArrayList<>(256);
     private static final AtomicBoolean IMAGES_READY = new AtomicBoolean(false);
-    private static final List<Runnable> imagesReadyEvenListeners = new ArrayList<>();
+    private static final Set<Runnable> imagesReadyEvenListeners = new HashSet<>();
     private static File portraitsDir = new File(PathUtils.getAssetsDir(), "champions");
 
     static {
@@ -148,10 +148,28 @@ public class Champion {
 
         synchronized (Champion.values) {
             Champion.values.clear();
+            boolean allExist = true;
             for (ChampionDTO champion : values) {
                 Champion.values.add(new Champion(Integer.parseInt(champion.key), champion.id, champion.name,
                         champion.name.replaceAll(" ", ""), "https://cdn.communitydragon.org/" + patch + "/champion" +
                         "/" + champion.key));
+
+                File f = new File(portraitsDir, champion.key + ".jpg");
+                if (!f.exists()) {
+                    allExist = false;
+                }
+            }
+            if (allExist) {
+                log.info("Portraits ready");
+                IMAGES_READY.set(true);
+                for (Runnable r : imagesReadyEvenListeners) {
+                    try {
+                        r.run();
+                    } catch (Throwable t) {
+                        t.printStackTrace();
+                    }
+                }
+                imagesReadyEvenListeners.clear();
             }
         }
 
