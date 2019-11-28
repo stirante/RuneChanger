@@ -89,6 +89,7 @@ public class RuneChanger implements Launcher {
             try {
                 ShortcutUtils.createDesktopShortcut();
                 ShortcutUtils.createMenuShortcuts();
+                SimplePreferences.putValue(SimplePreferences.FlagKeys.CREATED_SHORTCUTS, true);
             } catch (IOException e) {
                 e.printStackTrace();
             }
