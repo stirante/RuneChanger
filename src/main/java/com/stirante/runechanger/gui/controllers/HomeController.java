@@ -6,7 +6,6 @@ import com.stirante.runechanger.gui.components.Button;
 import com.stirante.runechanger.model.client.RunePage;
 import com.stirante.runechanger.util.LangHelper;
 import com.stirante.runechanger.util.SimplePreferences;
-import generated.LolChatUserResource;
 import generated.LolSummonerSummoner;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
@@ -73,11 +72,7 @@ public class HomeController {
 
     public void setOnline(LolSummonerSummoner summoner, Loot lootModule) {
         this.lootModule = lootModule;
-        try {
-            username.setText(RuneChanger.getInstance().getApi().executeGet("/lol-chat/v1/me", LolChatUserResource.class).statusMessage);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        username.setText(summoner.displayName);
         try {
             BufferedImage profileIcon = ImageIO.read(RuneChanger.getInstance()
                     .getApi()
