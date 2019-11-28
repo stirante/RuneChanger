@@ -71,8 +71,9 @@ public class RuneChanger implements Launcher {
         ch.qos.logback.classic.Logger logger =
                 (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
         if (Arrays.asList(args).contains("-debug-mode")) {
+            logger.getAppender("STDOUT").clearAllFilters();
             logger.setLevel(Level.DEBUG);
-            logger.debug("Runechanger started with debug mode enabled");
+            log.debug("Runechanger started with debug mode enabled");
         }
         if (Arrays.asList(args).contains("-nologs")) {
             logger.detachAppender("FILE");
