@@ -151,6 +151,7 @@ public class SimplePreferences {
         public static final String ALWAYS_ON_TOP = "alwaysOnTop";
         public static final String AUTO_SYNC = "autoSync";
         public static final String SMART_DISENCHANT = "smartDisenchant";
+        public static final String CHAMPION_SUGGESTIONS = "championSuggestions";
     }
 
     public static class FlagKeys {

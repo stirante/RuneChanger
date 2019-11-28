@@ -26,6 +26,7 @@ public class SettingsController {
     public CheckBox experimental;
     public CheckBox autoSync;
     public CheckBox smartDisenchant;
+    public CheckBox championSuggestions;
     public Pane container;
 
     public SettingsController(Stage stage) {
@@ -42,12 +43,11 @@ public class SettingsController {
 
     @FXML
     void handleCheckboxPressed(ActionEvent e) {
-        System.out.println(e);
         CheckBox target = (CheckBox) e.getTarget();
         if (target == autoStart) {
             AutoStartUtils.setAutoStart(target.isSelected());
         }
-        if (target == autoAccept) {
+        else if (target == autoAccept) {
             SimplePreferences.putValue(SimplePreferences.SettingsKeys.AUTO_ACCEPT, target.isSelected());
         }
         else if (target == antiAway) {
@@ -64,6 +64,9 @@ public class SettingsController {
         }
         else if (target == experimental) {
             SimplePreferences.putValue(SimplePreferences.SettingsKeys.EXPERIMENTAL_CHANNEL, target.isSelected());
+        }
+        else if (target == championSuggestions) {
+            SimplePreferences.putValue(SimplePreferences.SettingsKeys.CHAMPION_SUGGESTIONS, target.isSelected());
         }
         else if (target == autoSync) {
             SimplePreferences.putValue(SimplePreferences.SettingsKeys.AUTO_SYNC, target.isSelected());
@@ -99,6 +102,7 @@ public class SettingsController {
         setupPreference(SimplePreferences.SettingsKeys.ALWAYS_ON_TOP, false, alwaysOnTop);
         setupPreference(SimplePreferences.SettingsKeys.AUTO_SYNC, false, autoSync);
         setupPreference(SimplePreferences.SettingsKeys.SMART_DISENCHANT, false, smartDisenchant);
+        setupPreference(SimplePreferences.SettingsKeys.CHAMPION_SUGGESTIONS, true, championSuggestions);
 
         if (AutoStartUtils.isAutoStartEnabled()) {
             autoStart.setSelected(true);

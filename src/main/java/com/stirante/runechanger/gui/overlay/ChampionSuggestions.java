@@ -3,7 +3,7 @@ package com.stirante.runechanger.gui.overlay;
 import com.stirante.runechanger.gui.Constants;
 import com.stirante.runechanger.gui.SceneType;
 import com.stirante.runechanger.model.client.Champion;
-import com.stirante.runechanger.model.client.GameMode;
+import com.stirante.runechanger.util.SimplePreferences;
 
 import java.awt.*;
 import java.awt.event.MouseEvent;
@@ -31,66 +31,68 @@ public class ChampionSuggestions extends OverlayLayer {
 
     @Override
     protected void draw(Graphics g) {
-        if (Champion.areImagesReady()) {
-            if (lastChampions == null) {
-                return;
-            }
-            if (getRuneChanger().getChampionSelectionModule().getGameMode() == GameMode.ARAM) {
-                return;
-            }
-            if ((getSceneType() != SceneType.CHAMPION_SELECT &&
-                    getSceneType() != SceneType.CHAMPION_SELECT_RUNE_PAGE_EDIT) ||
-                    getRuneChanger().getChampionSelectionModule().isChampionLocked()) {
-                currentChampionsPosition = ease(currentChampionsPosition, 0f);
-                if (currentChampionsPosition > 1f) {
-                    repaintLater();
+        if (SimplePreferences.getValue(SimplePreferences.SettingsKeys.CHAMPION_SUGGESTIONS, true)) {
+            if (Champion.areImagesReady()) {
+                if (lastChampions == null) {
+                    return;
+                }
+                if (getRuneChanger().getChampionSelectionModule().getGameMode().hasChampionSelection()) {
+                    return;
+                }
+                if ((getSceneType() != SceneType.CHAMPION_SELECT &&
+                        getSceneType() != SceneType.CHAMPION_SELECT_RUNE_PAGE_EDIT) ||
+                        getRuneChanger().getChampionSelectionModule().isChampionLocked()) {
+                    currentChampionsPosition = ease(currentChampionsPosition, 0f);
+                    if (currentChampionsPosition > 1f) {
+                        repaintLater();
+                    }
+                    else {
+                        currentChampionsPosition = 0f;
+                    }
                 }
                 else {
-                    currentChampionsPosition = 0f;
+                    currentChampionsPosition = ease(currentChampionsPosition, 100f);
+                    if (currentChampionsPosition < 99f) {
+                        repaintLater();
+                    }
+                    else {
+                        currentChampionsPosition = 100f;
+                    }
                 }
+                g.setColor(DARKER_TEXT_COLOR);
+                int barWidth = (int) (Constants.CHAMPION_SUGGESTION_WIDTH * getHeight());
+                g.drawRect(getWidth() - barWidth + 1 + (int) (currentChampionsPosition / 100f * barWidth) - barWidth, 0,
+                        barWidth - 2, getHeight() - 1);
+                g.setColor(BACKGROUND_COLOR);
+                g.fillRect(getWidth() - barWidth + (int) (currentChampionsPosition / 100f * barWidth) - barWidth, 1,
+                        barWidth - 1, getHeight() - 2);
+                int tileIndex = 0;
+                for (Champion champion : lastChampions) {
+                    if (bannedChampions.contains(champion)) {
+                        continue;
+                    }
+                    Image img = champion.getPortrait();
+                    int tileSize = (int) (Constants.CHAMPION_TILE_SIZE * getHeight());
+                    int rowSize = getHeight() / 6;
+                    if (selectedChampionIndex == tileIndex) {
+                        g.setColor(LIGHTEN_COLOR);
+                        g.fillRect(getClientWidth(), rowSize * tileIndex, barWidth, rowSize);
+                    }
+                    g.drawImage(img,
+                            (getClientWidth() + (barWidth - tileSize) / 2) +
+                                    (int) (currentChampionsPosition / 100f * barWidth) - barWidth,
+                            (rowSize - tileSize) / 2 + (rowSize * tileIndex),
+                            tileSize, tileSize, null);
+                    if (tileIndex >= 6) {
+                        break;
+                    }
+                    tileIndex++;
+                }
+                clearRect(g, getClientWidth() - barWidth, 0, barWidth, getHeight());
             }
-            else {
-                currentChampionsPosition = ease(currentChampionsPosition, 100f);
-                if (currentChampionsPosition < 99f) {
-                    repaintLater();
-                }
-                else {
-                    currentChampionsPosition = 100f;
-                }
+            else if (!Champion.areImagesReady()) {
+                Champion.addImagesReadyListener(this::repaintLater);
             }
-            g.setColor(DARKER_TEXT_COLOR);
-            int barWidth = (int) (Constants.CHAMPION_SUGGESTION_WIDTH * getHeight());
-            g.drawRect(getWidth() - barWidth + 1 + (int) (currentChampionsPosition / 100f * barWidth) - barWidth, 0,
-                    barWidth - 2, getHeight() - 1);
-            g.setColor(BACKGROUND_COLOR);
-            g.fillRect(getWidth() - barWidth + (int) (currentChampionsPosition / 100f * barWidth) - barWidth, 1,
-                    barWidth - 1, getHeight() - 2);
-            int tileIndex = 0;
-            for (Champion champion : lastChampions) {
-                if (bannedChampions.contains(champion)) {
-                    continue;
-                }
-                Image img = champion.getPortrait();
-                int tileSize = (int) (Constants.CHAMPION_TILE_SIZE * getHeight());
-                int rowSize = getHeight() / 6;
-                if (selectedChampionIndex == tileIndex) {
-                    g.setColor(LIGHTEN_COLOR);
-                    g.fillRect(getClientWidth(), rowSize * tileIndex, barWidth, rowSize);
-                }
-                g.drawImage(img,
-                        (getClientWidth() + (barWidth - tileSize) / 2) +
-                                (int) (currentChampionsPosition / 100f * barWidth) - barWidth,
-                        (rowSize - tileSize) / 2 + (rowSize * tileIndex),
-                        tileSize, tileSize, null);
-                if (tileIndex >= 6) {
-                    break;
-                }
-                tileIndex++;
-            }
-            clearRect(g, getClientWidth() - barWidth, 0, barWidth, getHeight());
-        }
-        else if (!Champion.areImagesReady()) {
-            Champion.addImagesReadyListener(this::repaintLater);
         }
     }
 
