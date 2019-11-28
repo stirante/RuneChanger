@@ -70,13 +70,15 @@ public class RuneChanger implements Launcher {
         SimplePreferences.load();
         ch.qos.logback.classic.Logger logger =
                 (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
+        if (Arrays.asList(args).contains("-nologs")) {
+            logger.getAppender("FILE").stop();
+            new File(((FileAppender<ILoggingEvent>) logger.getAppender("FILE")).getFile()).delete();
+            logger.detachAppender("FILE");
+        }
         if (Arrays.asList(args).contains("-debug-mode")) {
             logger.getAppender("STDOUT").clearAllFilters();
             logger.setLevel(Level.DEBUG);
             log.debug("Runechanger started with debug mode enabled");
-        }
-        if (Arrays.asList(args).contains("-nologs")) {
-            logger.detachAppender("FILE");
         }
         try {
             AutoStartUtils.checkAutoStartPath();
