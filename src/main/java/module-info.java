@@ -29,10 +29,12 @@ module RuneChanger {
     exports com.stirante.runechanger.model.client;
     exports com.stirante.runechanger.client;
     exports com.stirante.runechanger.gui.components;
+    exports com.stirante.runechanger.util;
     opens com.stirante.runechanger.runestore;
     opens com.stirante.runechanger.model.client;
     opens com.stirante.runechanger.model.github;
     opens com.stirante.runechanger.model.log;
     opens com.stirante.runechanger.gui.components;
     opens com.stirante.runechanger.gui.controllers;
+    opens com.stirante.runechanger.util;
 }

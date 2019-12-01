@@ -11,6 +11,7 @@ import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -20,7 +21,10 @@ import java.util.*;
 public class DataUpdater {
     private static final Logger log = LoggerFactory.getLogger(DataUpdater.class);
 
-    private static final String RUNE_ENUM_PREFIX = "package com.stirante.RuneChanger.model;\n" +
+    private static final String RUNE_ENUM_PREFIX = "package com.stirante.runechanger.model.client;\n" +
+            "\n" +
+            "import org.slf4j.Logger;\n" +
+            "import org.slf4j.LoggerFactory;\n" +
             "\n" +
             "import javax.imageio.ImageIO;\n" +
             "import java.awt.image.BufferedImage;\n" +
@@ -197,9 +201,9 @@ public class DataUpdater {
             }
         }
         try {
-            FileWriter writer = new FileWriter(new File("src/main/java/com/stirante/RuneChanger/model/Rune.java"));
+            FileWriter writer = new FileWriter(new File("src/main/java/com/stirante/RuneChanger/model/client/Rune.java"));
             writer.write(RUNE_ENUM_PREFIX + "    //Generated on " +
-                    SimpleDateFormat.getDateTimeInstance().format(new Date()) + "\n" + sb.toString() +
+                    SimpleDateFormat.getDateTimeInstance(DateFormat.FULL, DateFormat.FULL, Locale.ENGLISH).format(new Date()) + "\n" + sb.toString() +
                     RUNE_ENUM_POSTFIX);
             writer.flush();
             writer.close();
@@ -211,6 +215,7 @@ public class DataUpdater {
     private static void downloadImages() {
         HashMap<Rune, String> replacements = new HashMap<>();
         replacements.put(Rune.RUNE_8439, "veteranaftershock");
+        replacements.put(Rune.RUNE_8358, "masterkey");
         for (Rune rune : Rune.values()) {
             if (rune.getSlot() == 0) {
                 String internalName = rune.getName().toLowerCase().replaceAll(" ", "");
