@@ -184,16 +184,16 @@
 
 .rune-item-text {
     -fx-text-fill: #5A7481;
-    -fx-font-family: "Beaufort for LOL";
-    -fx-font-weight: bold;
+    -fx-font-family: "Roboto";
+    -fx-font-weight: normal;
     -fx-font-size: 15px;
 }
 
 .rune-item-source {
     -fx-text-fill: #707070;
-    -fx-font-family: "Beaufort for LOL";
-    -fx-font-weight: bold;
-    -fx-font-size: 10px;
+    -fx-font-family: "Roboto";
+    -fx-font-weight: normal;
+    -fx-font-size: 11px;
     -fx-alignment: center-right;
 }
 

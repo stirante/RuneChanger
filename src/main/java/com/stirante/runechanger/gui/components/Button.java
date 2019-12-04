@@ -6,13 +6,11 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-import javafx.geometry.VPos;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
-import javafx.scene.text.TextAlignment;
 
 public class Button extends Component {
     private static final int STATE_DEFAULT = 0;
@@ -21,7 +19,7 @@ public class Button extends Component {
     private static final int STATE_DISABLED = 3;
     private static final Color GOLD_COLOR = new Color(0xC8 / 255D, 0xAA / 255D, 0x6E / 255D, 1D);
     private static final Font FONT =
-            Font.loadFont(Button.class.getResource("/fonts/Beaufort-Bold.ttf").toExternalForm(), 12);
+            Font.loadFont(Button.class.getResource("/fonts/Roboto-Regular.ttf").toExternalForm(), 12);
 
     private StringProperty textProperty = new SimpleStringProperty();
     private ObjectProperty<EventHandler<ActionEvent>> onAction = new ObjectPropertyBase<>() {
@@ -142,10 +140,13 @@ public class Button extends Component {
         g.drawImage(centerImage, sideWidth, 0, getWidth() - (2 * sideWidth), getHeight());
         g.drawImage(sideImage, getWidth(), 0, -sideWidth, getHeight());
         g.setFill(GOLD_COLOR);
-        g.setTextAlign(TextAlignment.CENTER);
-        g.setTextBaseline(VPos.CENTER);
         g.setFont(FONT);
-        g.fillText(textProperty.get(), getWidth() / 2, getHeight() / 2);
+//        g.setTextAlign(TextAlignment.CENTER);
+//        g.setTextBaseline(VPos.CENTER);
+//        g.fillText(textProperty.get(), getWidth() / 2, getHeight() / 2);
+        if (textProperty.isNotNull().get()) {
+            fillNiceCenteredText(g, textProperty.get(), getWidth() / 2, getHeight() / 2, 0.5);
+        }
     }
 
     public StringProperty textProperty() {

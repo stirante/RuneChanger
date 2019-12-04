@@ -29,10 +29,6 @@ public class ChampionGGSource implements RuneSource {
     private final static HashMap<Champion, List<String>> pageCache = new HashMap<>();
     private static boolean initialized = false;
 
-    public static void main(String[] args) throws IOException {
-        Champion.init();
-    }
-
     private void extractRunePage(Document webPage, Champion champion, String role, ObservableList<RunePage> pages) {
         RunePage page = new RunePage();
         Elements elements = webPage.select("div.o-wrap");
