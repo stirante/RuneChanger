@@ -1,10 +1,9 @@
 package com.stirante.runechanger.runestore;
 
 import com.google.gson.*;
-import com.stirante.runechanger.model.client.Champion;
-import com.stirante.runechanger.model.client.Rune;
-import com.stirante.runechanger.model.client.RunePage;
-import com.stirante.runechanger.model.client.Style;
+import com.stirante.runechanger.DebugConsts;
+import com.stirante.runechanger.model.client.*;
+import com.stirante.runechanger.util.StringUtils;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import org.slf4j.Logger;
@@ -15,8 +14,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashMap;
 
 public class UGGSource implements RuneSource {
     private static final Logger log = LoggerFactory.getLogger(UGGSource.class);
@@ -27,13 +24,86 @@ public class UGGSource implements RuneSource {
             "https://stats2.u.gg/lol/" + UGG_VERSION + "/overview/%patch%/ranked_solo_5x5/%championId%/" +
                     OVERVIEW_VERSION + ".json";
     private static final String VERSIONS_URL = "https://ddragon.leagueoflegends.com/api/versions.json";
-    private static final Gson GSON = new GsonBuilder().create();
+    // Builds with game count lower than this won't be included in result
+    private static final int GAMES_THRESHOLD = 50;
+    private static final Tier DEFAULT_TIER = Tier.PLATINUM_PLUS;
+    private static final Server DEFAULT_SERVER = Server.WORLD;
 
     private static String patchString = null;
 
     public static void main(String[] args) throws IOException {
+        DebugConsts.enableDebugMode();
         Champion.init();
-        new UGGSource().getForChampion(Champion.getById(6), FXCollections.observableArrayList());
+        ObservableList<RunePage> pages = FXCollections.observableArrayList();
+        new UGGSource().getForChampion(Champion.getByName("blitzcrank"), pages);
+        for (RunePage page : pages) {
+            System.out.println(page);
+        }
+    }
+
+    public RunePage getForChampion(Champion champion, Tier tier, Position position, Server server) throws IOException {
+        return getForChampion(getRootObject(champion), champion, tier, position, server);
+    }
+
+    private JsonObject getRootObject(Champion champion) throws IOException {
+        if (patchString == null) {
+            initPatchString();
+        }
+        URL url = new URL(BASE_URL.replace("%patch%", patchString)
+                .replace("%championId%", Integer.toString(champion.getId())));
+        HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+        InputStream in = urlConnection.getInputStream();
+        JsonParser parser = new JsonParser();
+        JsonObject root = parser.parse(new InputStreamReader(in)).getAsJsonObject();
+        in.close();
+        return root;
+    }
+
+    private RunePage getForChampion(JsonObject root, Champion champion, Tier tier, Position position, Server server) {
+        if (!root.has(server.toString()) ||
+                !root.getAsJsonObject(server.toString()).has(tier.toString()) ||
+                !root.getAsJsonObject(server.toString()).getAsJsonObject(tier.toString()).has(position.toString())) {
+            return null;
+        }
+        JsonArray arr = root
+                .getAsJsonObject(server.toString())
+                .getAsJsonObject(tier.toString())
+                .getAsJsonArray(position.toString())
+                .get(0).getAsJsonArray();
+        int games = arr.get(OverviewElement.RUNE_PAGES.getKey()).getAsJsonArray().get(Page.GAMES.getKey()).getAsInt();
+        log.debug("Games count for " + champion.getName() + " on " + position.name() + ": " + games);
+        if (games < GAMES_THRESHOLD) {
+            log.debug("Excluding " + position.name() + " for " + champion.getName() + " due to low games count (" +
+                    games + ")");
+            return null;
+        }
+        RunePage page = new RunePage();
+        page.setMainStyle(Style.getById(arr.get(OverviewElement.RUNE_PAGES.getKey())
+                .getAsJsonArray()
+                .get(Page.MAIN_STYLE.getKey())
+                .getAsInt()));
+        page.setSubStyle(Style.getById(arr.get(OverviewElement.RUNE_PAGES.getKey())
+                .getAsJsonArray()
+                .get(Page.SUB_STYLE.getKey())
+                .getAsInt()));
+        for (JsonElement element : arr.get(OverviewElement.RUNE_PAGES.getKey())
+                .getAsJsonArray()
+                .get(Page.RUNES.getKey())
+                .getAsJsonArray()) {
+            page.getRunes().add(Rune.getById(element.getAsInt()));
+        }
+
+        for (JsonElement element : arr.get(OverviewElement.MODIFIERS.getKey()).getAsJsonArray().get(2).getAsJsonArray()) {
+            page.getModifiers().add(Modifier.getById(element.getAsInt()));
+        }
+        page.setName(StringUtils.fromEnumName(position.name()));
+        page.setChampion(champion);
+        page.setSource(getSourceName());
+        page.fixOrder();
+        if (!page.verify()) {
+            return null;
+        }
+        return page;
     }
 
     @Override
@@ -43,32 +113,15 @@ public class UGGSource implements RuneSource {
 
     @Override
     public void getForChampion(Champion champion, ObservableList<RunePage> pages) {
-        if (patchString == null) {
-            initPatchString();
-        }
         try {
-            URL url = new URL(BASE_URL.replace("%patch%", patchString)
-                    .replace("%championId%", Integer.toString(champion.getId())));
-            HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
-            InputStream in = urlConnection.getInputStream();
-            JsonParser parser = new JsonParser();
-            JsonObject rootObj = parser.parse(new InputStreamReader(in)).getAsJsonObject();
-            JsonArray perks = rootObj
-                    .getAsJsonObject(Server.WORLD.toString())
-                    .getAsJsonObject(Tier.PLATINUM_PLUS.toString())
-                    .getAsJsonArray(Position.TOP.toString())
-                    .get(0).getAsJsonArray()
-                    .get(Stat.PERKS.getKey()).getAsJsonArray();
-            System.out.println(Perk.MAIN_PERK.name() + ": " + Style.getById(perks.get(Perk.MAIN_PERK.getKey()).getAsInt()));
-            System.out.println(Perk.SUB_PERK.name() + ": " + Style.getById(perks.get(Perk.SUB_PERK.getKey()).getAsInt()));
-            for (JsonElement e : perks.get(Perk.PERKS.getKey()).getAsJsonArray()) {
-                System.out.println(Rune.getById(e.getAsInt()));
+            JsonObject root = getRootObject(champion);
+            for (Position position : Position.values()) {
+                RunePage page = getForChampion(root, champion, DEFAULT_TIER, position, DEFAULT_SERVER);
+                if (page == null) {
+                    continue;
+                }
+                pages.add(page);
             }
-            System.out.println(rootObj
-                    .getAsJsonObject(Server.WORLD.toString())
-                    .getAsJsonObject(Tier.PLATINUM_PLUS.toString())
-                    .getAsJsonArray(Position.ADC.toString()));
-            // data[servers][tiers][positions][0][stats][perks/shards]
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -79,8 +132,9 @@ public class UGGSource implements RuneSource {
             URL url = new URL(VERSIONS_URL);
             HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
             InputStream in = urlConnection.getInputStream();
-            String[] strings = GSON.fromJson(new InputStreamReader(in), String[].class);
-            String[] patch = strings[0].split("\\.");
+            JsonParser parser = new JsonParser();
+            JsonArray strings = parser.parse(new InputStreamReader(in)).getAsJsonArray();
+            String[] patch = strings.get(0).getAsString().split("\\.");
             patchString = patch[0] + "_" + patch[1];
             in.close();
         } catch (IOException e) {
@@ -171,14 +225,19 @@ public class UGGSource implements RuneSource {
         }
     }
 
-    private enum Stat {
-        PERKS(0),
+    private enum OverviewElement {
+        RUNE_PAGES(0),
+        SUMMONER_SPELLS(1),
+        STARTING_BUILD(2),
+        CORE_BUILD(3),
         SKILL_ORDER(4),
-        STAT_SHARDS(8);
+        ITEM_OPTIONS(4),
+        DATA_SAMPLE(6),
+        MODIFIERS(8);
 
         private final int key;
 
-        Stat(int key) {
+        OverviewElement(int key) {
             this.key = key;
         }
 
@@ -192,16 +251,16 @@ public class UGGSource implements RuneSource {
         }
     }
 
-    private enum Perk {
+    private enum Page {
         GAMES(0),
         WON(1),
-        MAIN_PERK(2),
-        SUB_PERK(3),
-        PERKS(4);
+        MAIN_STYLE(2),
+        SUB_STYLE(3),
+        RUNES(4);
 
         private final int key;
 
-        Perk(int key) {
+        Page(int key) {
             this.key = key;
         }
 

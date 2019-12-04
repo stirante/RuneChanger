@@ -103,6 +103,26 @@ public class RunePage {
     }
 
     /**
+     * Tries to fix rune order
+     */
+    public void fixOrder() {
+        if (getRunes().size() != 6) {
+            return;
+        }
+        if (runes.stream().anyMatch(Objects::isNull)) {
+            return;
+        }
+        for (Rune rune : runes) {
+            if (rune == null) {
+                return;
+            }
+        }
+        runes.sort((o1, o2) -> (o1.getStyle() == o2.getStyle()) ?
+                Integer.compare(o1.getSlot(), o2.getSlot()) :
+                (o1.getStyle() == mainStyle ? -1 : 1));
+    }
+
+    /**
      * Verifies rune page
      *
      * @return true if rune page is valid
@@ -111,10 +131,8 @@ public class RunePage {
         if (getRunes().size() != 6) {
             return false;
         }
-        for (Rune rune : runes) {
-            if (rune == null) {
-                return false;
-            }
+        if (runes.stream().anyMatch(Objects::isNull)) {
+            return false;
         }
         for (int i = 0; i < getRunes().size(); i++) {
             Rune rune = getRunes().get(i);
@@ -328,7 +346,9 @@ public class RunePage {
 
     public void setChampion(Champion champion) {
         this.champion = champion;
-        this.name = toClientName(name);
+        if (name != null) {
+            this.name = toClientName(name);
+        }
     }
 
     public RunePage copy() {

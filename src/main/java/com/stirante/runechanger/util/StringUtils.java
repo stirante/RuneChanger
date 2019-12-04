@@ -57,4 +57,8 @@ public class StringUtils {
         return s.hasNext() ? s.next() : "";
     }
 
+    public static String fromEnumName(String enumName) {
+        return enumName.toUpperCase().substring(0, 1) + enumName.toLowerCase().substring(1).replace('_', ' ');
+    }
+
 }

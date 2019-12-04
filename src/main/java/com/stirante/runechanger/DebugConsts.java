@@ -1,6 +1,9 @@
 package com.stirante.runechanger;
 
+import ch.qos.logback.classic.Level;
 import com.stirante.runechanger.util.PathUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 
@@ -24,6 +27,13 @@ public class DebugConsts {
      */
     public static boolean isRunningFromIDE() {
         return new File(PathUtils.getJarLocation()).isDirectory();
+    }
+
+    public static void enableDebugMode() {
+        ch.qos.logback.classic.Logger logger =
+                (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
+        logger.getAppender("STDOUT").clearAllFilters();
+        logger.setLevel(Level.DEBUG);
     }
 
 }

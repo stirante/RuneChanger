@@ -58,7 +58,11 @@ public class RuneChanger implements Launcher {
         changeWorkingDir();
         cleanupLogs();
         setDefaultUncaughtExceptionHandler();
-        checkOperatingSystem();
+        SimplePreferences.load();
+        // This flag is only meant for development. It disables whole client communication
+        if (!Arrays.asList(args).contains("-osx")) {
+            checkOperatingSystem();
+        }
         try {
             Champion.init();
         } catch (IOException e) {
@@ -67,7 +71,6 @@ public class RuneChanger implements Launcher {
                     JOptionPane.ERROR_MESSAGE);
             System.exit(0);
         }
-        SimplePreferences.load();
         ch.qos.logback.classic.Logger logger =
                 (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
         if (Arrays.asList(args).contains("-nologs")) {
@@ -76,8 +79,7 @@ public class RuneChanger implements Launcher {
             logger.detachAppender("FILE");
         }
         if (Arrays.asList(args).contains("-debug-mode")) {
-            logger.getAppender("STDOUT").clearAllFilters();
-            logger.setLevel(Level.DEBUG);
+            DebugConsts.enableDebugMode();
             log.debug("Runechanger started with debug mode enabled");
         }
         try {
@@ -90,7 +92,7 @@ public class RuneChanger implements Launcher {
                 ShortcutUtils.createDesktopShortcut();
                 ShortcutUtils.createMenuShortcuts();
                 SimplePreferences.putValue(SimplePreferences.FlagKeys.CREATED_SHORTCUTS, true);
-            } catch (IOException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
@@ -204,88 +206,92 @@ public class RuneChanger implements Launcher {
                 Version.INSTANCE.commitIdAbbrev + " built at " +
                 SimpleDateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT)
                         .format(Version.INSTANCE.buildTime) + ")");
-        ClientApi.setDisableEndpointWarnings(true);
-        try {
-            api = new ClientApi();
-        } catch (IllegalStateException e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(null, LangHelper.getLang()
-                    .getString("client_error"), Constants.APP_NAME, JOptionPane.ERROR_MESSAGE);
-            System.exit(0);
+        if (!Arrays.asList(programArguments).contains("-osx")) {
+            ClientApi.setDisableEndpointWarnings(true);
+            try {
+                api = new ClientApi();
+            } catch (IllegalStateException e) {
+                e.printStackTrace();
+                JOptionPane.showMessageDialog(null, LangHelper.getLang()
+                        .getString("client_error"), Constants.APP_NAME, JOptionPane.ERROR_MESSAGE);
+                System.exit(0);
+            }
         }
         initModules();
         Settings.initialize();
         gui = new GuiHandler(this);
-        api.addClientConnectionListener(new ClientConnectionListener() {
-            @Override
-            public void onClientConnected() {
-                gui.setSceneType(SceneType.NONE);
-                gui.openWindow();
-                if (DebugConsts.MOCK_SESSION) {
-                    gui.showWarningMessage("Mocking session");
-                    LolSummonerSummoner currentSummoner = champSelectModule.getCurrentSummoner();
-                    LolChampSelectChampSelectSession session = new LolChampSelectChampSelectSession();
-                    session.myTeam = new ArrayList<>();
-                    LolChampSelectChampSelectPlayerSelection e = new LolChampSelectChampSelectPlayerSelection();
-                    e.championId = Objects.requireNonNull(Champion.getByName("tahm kench")).getId();
-                    e.summonerId = currentSummoner.summonerId;
-                    session.myTeam.add(e);
-                    handleSession(session);
-                }
-                // Check if session is active after starting RuneChanger, since we might not get event right away
-                try {
-                    LolChampSelectChampSelectSession session =
-                            api.executeGet("/lol-champ-select/v1/session", LolChampSelectChampSelectSession.class);
-                    if (session != null) {
+        if (!Arrays.asList(programArguments).contains("-osx")) {
+            api.addClientConnectionListener(new ClientConnectionListener() {
+                @Override
+                public void onClientConnected() {
+                    gui.setSceneType(SceneType.NONE);
+                    gui.openWindow();
+                    if (DebugConsts.MOCK_SESSION) {
+                        gui.showWarningMessage("Mocking session");
+                        LolSummonerSummoner currentSummoner = champSelectModule.getCurrentSummoner();
+                        LolChampSelectChampSelectSession session = new LolChampSelectChampSelectSession();
+                        session.myTeam = new ArrayList<>();
+                        LolChampSelectChampSelectPlayerSelection e = new LolChampSelectChampSelectPlayerSelection();
+                        e.championId = Objects.requireNonNull(Champion.getByName("tahm kench")).getId();
+                        e.summonerId = currentSummoner.summonerId;
+                        session.myTeam.add(e);
                         handleSession(session);
                     }
-                } catch (Exception ignored) {
-                }
-                // Auto sync rune pages to RuneChanger
-                if (SimplePreferences.getValue(SimplePreferences.SettingsKeys.AUTO_SYNC, false)) {
-                    runesModule.syncRunePages();
-                }
-                //sometimes, the api is connected too quickly and there is WebsocketNotConnectedException
-                //That's why I added this little piece of code, which will retry opening socket every second
-                new Thread(() -> {
-                    while (true) {
-                        try {
-                            openSocket();
-                            return;
-                        } catch (Exception e) {
-                            if (!api.isConnected()) {
-                                return;
-                            }
-                            if (e instanceof WebsocketNotConnectedException || e instanceof ConnectException) {
-                                log.error("Connection failed, retrying in a second..");
-                                //try again in a second
-                                try {
-                                    Thread.sleep(1000);
-                                } catch (InterruptedException ex) {
-                                    ex.printStackTrace();
-                                }
-                                continue;
-                            }
-                            else {
-                                e.printStackTrace();
-                            }
+                    // Check if session is active after starting RuneChanger, since we might not get event right away
+                    try {
+                        LolChampSelectChampSelectSession session =
+                                api.executeGet("/lol-champ-select/v1/session", LolChampSelectChampSelectSession.class);
+                        if (session != null) {
+                            handleSession(session);
                         }
-                        return;
+                    } catch (Exception ignored) {
                     }
-                }).start();
-            }
-
-            @Override
-            public void onClientDisconnected() {
-                resetModules();
-                gui.setSceneType(SceneType.NONE);
-                if (gui.isWindowOpen()) {
-                    gui.closeWindow();
+                    // Auto sync rune pages to RuneChanger
+                    if (SimplePreferences.getValue(SimplePreferences.SettingsKeys.AUTO_SYNC, false)) {
+                        runesModule.syncRunePages();
+                    }
+                    //sometimes, the api is connected too quickly and there is WebsocketNotConnectedException
+                    //That's why I added this little piece of code, which will retry opening socket every second
+                    new Thread(() -> {
+                        while (true) {
+                            try {
+                                openSocket();
+                                return;
+                            } catch (Exception e) {
+                                if (!api.isConnected()) {
+                                    return;
+                                }
+                                if (e instanceof WebsocketNotConnectedException || e instanceof ConnectException) {
+                                    log.error("Connection failed, retrying in a second..");
+                                    //try again in a second
+                                    try {
+                                        Thread.sleep(1000);
+                                    } catch (InterruptedException ex) {
+                                        ex.printStackTrace();
+                                    }
+                                    continue;
+                                }
+                                else {
+                                    e.printStackTrace();
+                                }
+                            }
+                            return;
+                        }
+                    }).start();
                 }
-                gui.showInfoMessage(LangHelper.getLang().getString("client_disconnected"));
-                Settings.setClientConnected(false);
-            }
-        });
+
+                @Override
+                public void onClientDisconnected() {
+                    resetModules();
+                    gui.setSceneType(SceneType.NONE);
+                    if (gui.isWindowOpen()) {
+                        gui.closeWindow();
+                    }
+                    gui.showInfoMessage(LangHelper.getLang().getString("client_disconnected"));
+                    Settings.setClientConnected(false);
+                }
+            });
+        }
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             if (socket != null) {
                 socket.close();
