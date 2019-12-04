@@ -8,7 +8,7 @@ import java.net.URL;
 
 public class LogRequest {
 
-    private static final String URL = "https://u570wx94k6.execute-api.eu-central-1.amazonaws.com/v1/upload";
+    private static final String URL = "https://api.runechanger.stirante.com/v1/upload";
 
     public String log;
 
