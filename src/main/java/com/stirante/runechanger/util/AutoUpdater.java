@@ -2,6 +2,7 @@ package com.stirante.runechanger.util;
 
 import com.stirante.runechanger.DebugConsts;
 import com.stirante.runechanger.RuneChanger;
+import com.stirante.runechanger.gui.Settings;
 import org.update4j.Configuration;
 import org.update4j.FileMetadata;
 
@@ -15,29 +16,29 @@ import java.util.zip.ZipInputStream;
 public class AutoUpdater {
     private static final String DEV_UPDATE_CONFIG = "https://runechanger.stirante.com/dev/dev.xml";
     private static final String STABLE_UPDATE_CONFIG = "https://runechanger.stirante.com/stable/stable.xml";
-    /**
-     * From https://stackoverflow.com/a/10634536/6459649
-     */
-
     private static final int BUFFER_SIZE = 4096;
     private static Configuration configuration = null;
 
+    public static void resetCache() {
+        configuration = null;
+    }
+
     /**
-     * Checks whether RuneChanger is up to date
+     * Checks whether RuneChanger needs an update
      *
-     * @return true, if RuneChanger is up to date
+     * @return true, if RuneChanger requires an update
      */
-    public static boolean check() throws IOException {
+    public static boolean needsUpdate() throws IOException {
         if (DebugConsts.isRunningFromIDE()) {
-            return true;
+            return false;
         }
         if (DebugConsts.DISABLE_AUTOUPDATE ||
                 !SimplePreferences.getValue(SimplePreferences.SettingsKeys.AUTO_UPDATE, true)) {
-            return true;
+            return false;
         }
 
         Configuration read = getConfiguration();
-        return !read.requiresUpdate();
+        return read.requiresUpdate();
     }
 
     public static String getEstimatedUpdateSize() throws IOException {
@@ -48,24 +49,22 @@ public class AutoUpdater {
                 size += file.getSize();
             }
         }
-        return humanReadableByteCount(size, false);
+        return humanReadableByteCountSI(size);
     }
 
     /**
-     * From https://stackoverflow.com/a/3758880/6459649
-     *
-     * @param bytes
-     * @param si
-     * @return
+     * From: https://programming.guide/java/formatting-byte-size-to-human-readable-format.html
      */
-    private static String humanReadableByteCount(long bytes, boolean si) {
-        int unit = si ? 1000 : 1024;
-        if (bytes < unit) {
-            return bytes + " B";
-        }
-        int exp = (int) (Math.log(bytes) / Math.log(unit));
-        String pre = (si ? "kMGTPE" : "KMGTPE").charAt(exp - 1) + (si ? "" : "i");
-        return String.format("%.1f %sB", bytes / Math.pow(unit, exp), pre);
+    public static String humanReadableByteCountSI(long bytes) {
+        String s = bytes < 0 ? "-" : "";
+        long b = bytes == Long.MIN_VALUE ? Long.MAX_VALUE : Math.abs(bytes);
+        return b < 1000L ? bytes + " B"
+                : b < 999_950L ? String.format("%s%.1f kB", s, b / 1e3)
+                : (b /= 1000) < 999_950L ? String.format("%s%.1f MB", s, b / 1e3)
+                : (b /= 1000) < 999_950L ? String.format("%s%.1f GB", s, b / 1e3)
+                : (b /= 1000) < 999_950L ? String.format("%s%.1f TB", s, b / 1e3)
+                : (b /= 1000) < 999_950L ? String.format("%s%.1f PB", s, b / 1e3)
+                : String.format("%s%.1f EB", s, b / 1e6);
     }
 
     public static void performUpdate() {
@@ -115,6 +114,9 @@ public class AutoUpdater {
         return configuration;
     }
 
+    /**
+     * From https://stackoverflow.com/a/15135212/6459649
+     */
     private static void extractFile(ZipInputStream in, File outdir, String name) throws IOException {
         byte[] buffer = new byte[BUFFER_SIZE];
         BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(new File(outdir, name)));
@@ -213,4 +215,18 @@ public class AutoUpdater {
         Runtime.getRuntime().exec("explorer.exe \"" + new File("image").getAbsolutePath() + "\"");
     }
 
+    public static void checkUpdate() {
+        try {
+            if (needsUpdate()) {
+                boolean update = Settings.openYesNoDialog(LangHelper.getLang()
+                        .getString("update_available"), String.format(LangHelper.getLang()
+                        .getString("update_question"), getEstimatedUpdateSize()));
+                if (update) {
+                    performUpdate();
+                }
+            }
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+    }
 }

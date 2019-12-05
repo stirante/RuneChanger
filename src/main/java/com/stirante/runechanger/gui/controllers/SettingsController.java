@@ -2,6 +2,7 @@ package com.stirante.runechanger.gui.controllers;
 
 import com.stirante.runechanger.gui.Settings;
 import com.stirante.runechanger.util.AutoStartUtils;
+import com.stirante.runechanger.util.AutoUpdater;
 import com.stirante.runechanger.util.LangHelper;
 import com.stirante.runechanger.util.SimplePreferences;
 import javafx.application.Platform;
@@ -64,6 +65,8 @@ public class SettingsController {
         }
         else if (target == experimental) {
             SimplePreferences.putValue(SimplePreferences.SettingsKeys.EXPERIMENTAL_CHANNEL, target.isSelected());
+            AutoUpdater.resetCache();
+            AutoUpdater.checkUpdate();
         }
         else if (target == championSuggestions) {
             SimplePreferences.putValue(SimplePreferences.SettingsKeys.CHAMPION_SUGGESTIONS, target.isSelected());

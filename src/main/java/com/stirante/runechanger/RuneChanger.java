@@ -296,20 +296,7 @@ public class RuneChanger implements Launcher {
                 socket.close();
             }
         }));
-        FxUtils.doOnFxThread(() -> {
-            try {
-                if (!AutoUpdater.check()) {
-                    boolean update = Settings.openYesNoDialog(LangHelper.getLang()
-                            .getString("update_available"), String.format(LangHelper.getLang()
-                            .getString("update_question"), AutoUpdater.getEstimatedUpdateSize()));
-                    if (update) {
-                        AutoUpdater.performUpdate();
-                    }
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        });
+        FxUtils.doOnFxThread(AutoUpdater::checkUpdate);
     }
 
     private void onChampionChanged(Champion champion) {
