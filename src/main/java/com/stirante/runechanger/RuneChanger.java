@@ -1,6 +1,5 @@
 package com.stirante.runechanger;
 
-import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.Appender;
@@ -316,21 +315,28 @@ public class RuneChanger implements Launcher {
     private void onChampionChanged(Champion champion) {
         ObservableList<RunePage> pages = FXCollections.observableArrayList();
         gui.setRunes(pages, (page) -> new Thread(() -> runesModule.setCurrentRunePage(page)).start());
-        log.info("Downloading runes for champion: " + champion.getName());
         pages.addListener((InvalidationListener) observable -> gui.setRunes(pages));
-        RuneStore.getRunes(champion, pages);
+        if (champion != null) {
+            log.info("Downloading runes for champion: " + champion.getName());
+            RuneStore.getRunes(champion, pages);
+        }
+        else {
+            log.info("Showing local runes");
+            RuneStore.getLocalRunes(pages);
+        }
     }
 
     private void handleSession(LolChampSelectChampSelectSession session) {
+        boolean isFirstEvent = false;
         Champion oldChampion = champSelectModule.getSelectedChampion();
         champSelectModule.onSession(session);
         if (gui.getSceneType() == SceneType.NONE) {
             gui.setSuggestedChampions(champSelectModule.getLastChampions(), champSelectModule.getBannedChampions(),
                     champSelectModule::selectChampion);
+            isFirstEvent = true;
         }
         gui.setSceneType(SceneType.CHAMPION_SELECT);
-        if (champSelectModule.getSelectedChampion() != null &&
-                champSelectModule.getSelectedChampion() != oldChampion) {
+        if (champSelectModule.getSelectedChampion() != oldChampion || isFirstEvent) {
             onChampionChanged(champSelectModule.getSelectedChampion());
         }
     }

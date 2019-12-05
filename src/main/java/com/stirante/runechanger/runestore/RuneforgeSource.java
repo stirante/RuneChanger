@@ -130,6 +130,9 @@ public class RuneforgeSource implements RuneSource {
                 }
             }
             r.setChampion(champion);
+            if (!r.verify()) {
+                return null;
+            }
             return r;
         } catch (IOException e) {
             log.error(e.getMessage());
@@ -162,7 +165,10 @@ public class RuneforgeSource implements RuneSource {
                 if (loadout.loadout_champion_name.equalsIgnoreCase(champion.getName()) ||
                         loadout.loadout_champion_name.equalsIgnoreCase(champion.getAlias()) ||
                         loadout.loadout_champion_name.equalsIgnoreCase(champion.getInternalName())) {
-                    result.add(getRunes(champion, loadout.loadout_url));
+                    RunePage runes = getRunes(champion, loadout.loadout_url);
+                    if (runes != null) {
+                        result.add(runes);
+                    }
                 }
             }
         } catch (IOException e) {

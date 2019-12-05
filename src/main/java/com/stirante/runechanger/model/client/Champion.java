@@ -150,13 +150,17 @@ public class Champion {
             Champion.values.clear();
             boolean allExist = true;
             for (ChampionDTO champion : values) {
-                Champion.values.add(new Champion(Integer.parseInt(champion.key), champion.id, champion.name,
+                Champion c = new Champion(Integer.parseInt(champion.key), champion.id, champion.name,
                         champion.name.replaceAll(" ", ""), "https://cdn.communitydragon.org/" + patch + "/champion" +
-                        "/" + champion.key));
+                        "/" + champion.key);
+                Champion.values.add(c);
 
                 File f = new File(portraitsDir, champion.key + ".jpg");
                 if (!f.exists()) {
                     allExist = false;
+                }
+                else {
+                    c.image = ImageIO.read(f).getScaledInstance(70, 70, java.awt.Image.SCALE_SMOOTH);
                 }
             }
             if (allExist) {

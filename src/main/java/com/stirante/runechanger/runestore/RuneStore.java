@@ -2,6 +2,7 @@ package com.stirante.runechanger.runestore;
 
 import com.stirante.runechanger.model.client.Champion;
 import com.stirante.runechanger.model.client.RunePage;
+import com.stirante.runechanger.util.SimplePreferences;
 import javafx.collections.ObservableList;
 
 import java.util.ArrayList;
@@ -43,6 +44,15 @@ public class RuneStore {
             }
             new Thread(() -> source.getForChampion(champion, pages)).start();
         }
+    }
+
+    /**
+     * Get list of local rune pages
+     *
+     * @param pages    list of pages, which will be filled with pages
+     */
+    public static void getLocalRunes(ObservableList<RunePage> pages) {
+        pages.addAll(SimplePreferences.getRuneBookValues());
     }
 
     @SuppressWarnings("unchecked")

@@ -1,8 +1,12 @@
 package com.stirante.runechanger.runestore;
 
-import com.google.gson.*;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.stirante.runechanger.DebugConsts;
 import com.stirante.runechanger.model.client.*;
+import com.stirante.runechanger.util.FxUtils;
 import com.stirante.runechanger.util.StringUtils;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -24,6 +28,7 @@ public class UGGSource implements RuneSource {
             "https://stats2.u.gg/lol/" + UGG_VERSION + "/overview/%patch%/ranked_solo_5x5/%championId%/" +
                     OVERVIEW_VERSION + ".json";
     private static final String VERSIONS_URL = "https://ddragon.leagueoflegends.com/api/versions.json";
+    private static final String PUBLIC_URL = "https://u.gg/lol/champions/%championName%/build";
     // Builds with game count lower than this won't be included in result
     private static final int GAMES_THRESHOLD = 50;
     private static final Tier DEFAULT_TIER = Tier.PLATINUM_PLUS;
@@ -93,12 +98,15 @@ public class UGGSource implements RuneSource {
             page.getRunes().add(Rune.getById(element.getAsInt()));
         }
 
-        for (JsonElement element : arr.get(OverviewElement.MODIFIERS.getKey()).getAsJsonArray().get(2).getAsJsonArray()) {
+        for (JsonElement element : arr.get(OverviewElement.MODIFIERS.getKey())
+                .getAsJsonArray()
+                .get(2)
+                .getAsJsonArray()) {
             page.getModifiers().add(Modifier.getById(element.getAsInt()));
         }
         page.setName(StringUtils.fromEnumName(position.name()));
         page.setChampion(champion);
-        page.setSource(getSourceName());
+        page.setSource(PUBLIC_URL.replace("%championName%", champion.getName().toLowerCase()));
         page.fixOrder();
         if (!page.verify()) {
             return null;
@@ -120,7 +128,7 @@ public class UGGSource implements RuneSource {
                 if (page == null) {
                     continue;
                 }
-                pages.add(page);
+                FxUtils.doOnFxThread(() -> pages.add(page));
             }
         } catch (IOException e) {
             e.printStackTrace();

@@ -37,14 +37,15 @@ public class ChampionSuggestions extends OverlayLayer {
                 if (lastChampions == null) {
                     return;
                 }
-                if (getRuneChanger().getChampionSelectionModule().getGameMode() == null || !getRuneChanger().getChampionSelectionModule().getGameMode().hasChampionSelection()) {
+                if (getRuneChanger().getChampionSelectionModule().getGameMode() == null ||
+                        !getRuneChanger().getChampionSelectionModule().getGameMode().hasChampionSelection()) {
                     return;
                 }
                 if ((getSceneType() != SceneType.CHAMPION_SELECT &&
                         getSceneType() != SceneType.CHAMPION_SELECT_RUNE_PAGE_EDIT) ||
                         getRuneChanger().getChampionSelectionModule().isChampionLocked()) {
-                    currentChampionsPosition = ease(currentChampionsPosition, 0f);
                     if (currentChampionsPosition > 1f) {
+                        currentChampionsPosition = ease(currentChampionsPosition, 0f);
                         repaintLater();
                     }
                     else {
@@ -52,8 +53,8 @@ public class ChampionSuggestions extends OverlayLayer {
                     }
                 }
                 else {
-                    currentChampionsPosition = ease(currentChampionsPosition, 100f);
                     if (currentChampionsPosition < 99f) {
+                        currentChampionsPosition = ease(currentChampionsPosition, 100f);
                         repaintLater();
                     }
                     else {
