@@ -8,7 +8,7 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 
 public enum Rune {
-    //Generated on Sunday, December 1, 2019 at 9:21:25 PM Central European Standard Time
+    //Generated on Friday, December 6, 2019 at 2:50:05 PM Central European Standard Time
     RUNE_8005(8005, 8000, 0, "Press the Attack"),
     RUNE_8008(8008, 8000, 0, "Lethal Tempo"),
     RUNE_8009(8009, 8000, 1, "Presence of Mind"),

@@ -16,7 +16,7 @@
             </image>
         </ImageView>
         <Label fx:id="name" layoutX="35.0" prefHeight="36.0" prefWidth="154.0" styleClass="rune-item-text" text="Label" />
-        <CheckBox fx:id="selected" layoutX="240.0" layoutY="5.0" maxHeight="36.0" maxWidth="46.0" minHeight="24.0" minWidth="24.0" mnemonicParsing="false" onAction="#onSelectChange" prefHeight="24.0" prefWidth="24.0" />
+        <CheckBox fx:id="selected" styleClass="client-box" layoutX="240.0" layoutY="5.0" maxHeight="36.0" maxWidth="46.0" minHeight="24.0" minWidth="24.0" mnemonicParsing="false" onAction="#onSelectChange" prefHeight="24.0" prefWidth="24.0" />
         <ImageView fx:id="delete" accessibleRole="BUTTON" fitHeight="24.0" fitWidth="24.0" layoutX="216.0" layoutY="5.0" onMouseClicked="#onDelete" pickOnBounds="true" preserveRatio="true">
             <image>
                 <Image url="@../images/delete.png" />
