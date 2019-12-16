@@ -2,6 +2,7 @@ package com.stirante.runechanger.gui.overlay;
 
 import com.stirante.runechanger.gui.Constants;
 import com.stirante.runechanger.gui.SceneType;
+import com.stirante.runechanger.model.client.GameMap;
 import com.stirante.runechanger.util.SimplePreferences;
 
 import javax.imageio.ImageIO;
@@ -37,7 +38,7 @@ public class QuickReplies extends OverlayLayer {
     protected void draw(Graphics g) {
         if (getSceneType() == SceneType.CHAMPION_SELECT &&
                 SimplePreferences.getValue(SimplePreferences.SettingsKeys.QUICK_REPLIES, false)) {
-            if (getRuneChanger().getChampionSelectionModule().isPositionSelector()) {
+            if (getRuneChanger().getChampionSelectionModule().isPositionSelector() || getRuneChanger().getChampionSelectionModule().getMap() != GameMap.MAP_11) {
                 return;
             }
             Graphics2D g2d = (Graphics2D) g;
