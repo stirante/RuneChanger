@@ -163,8 +163,8 @@
 
 .header {
     -fx-text-fill: #C8AA6E;
-    -fx-font-family: "Beaufort for LOL";
-    -fx-font-weight: bold;
+    -fx-font-family: "Roboto";
+    -fx-font-weight: normal;
     -fx-font-size: 18px;
     -fx-text-alignment: center;
     -fx-alignment: center;

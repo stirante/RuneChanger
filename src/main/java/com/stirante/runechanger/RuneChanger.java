@@ -225,17 +225,25 @@ public class RuneChanger implements Launcher {
                 public void onClientConnected() {
                     gui.setSceneType(SceneType.NONE);
                     gui.openWindow();
-                    if (DebugConsts.MOCK_SESSION) {
-                        gui.showWarningMessage("Mocking session");
-                        LolSummonerSummoner currentSummoner = champSelectModule.getCurrentSummoner();
-                        LolChampSelectChampSelectSession session = new LolChampSelectChampSelectSession();
-                        session.myTeam = new ArrayList<>();
-                        LolChampSelectChampSelectPlayerSelection e = new LolChampSelectChampSelectPlayerSelection();
-                        e.championId = Objects.requireNonNull(Champion.getByName("tahm kench")).getId();
-                        e.summonerId = currentSummoner.summonerId;
-                        session.myTeam.add(e);
-                        handleSession(session);
-                    }
+                    new Thread(() -> {
+                        try {
+                            Thread.sleep(1000);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                        if (DebugConsts.MOCK_SESSION) {
+                            gui.showWarningMessage("Mocking session");
+                            LolSummonerSummoner currentSummoner = champSelectModule.getCurrentSummoner();
+                            LolChampSelectChampSelectSession session = new LolChampSelectChampSelectSession();
+                            session.myTeam = new ArrayList<>();
+                            LolChampSelectChampSelectPlayerSelection e = new LolChampSelectChampSelectPlayerSelection();
+                            e.championId = 223;//Tahm kench
+                            e.championPickIntent = 223;
+                            e.summonerId = currentSummoner.summonerId;
+                            session.myTeam.add(e);
+                            handleSession(session);
+                        }
+                    }).start();
                     // Check if session is active after starting RuneChanger, since we might not get event right away
                     try {
                         LolChampSelectChampSelectSession session =

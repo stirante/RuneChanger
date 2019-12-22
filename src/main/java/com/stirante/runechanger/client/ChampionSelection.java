@@ -111,7 +111,7 @@ public class ChampionSelection extends ClientModule {
     private void findSelectedChampion(LolChampSelectChampSelectSession session) {
         //find selected champion
         for (LolChampSelectChampSelectPlayerSelection selection : session.myTeam) {
-            if (Objects.equals(selection.summonerId, getCurrentSummoner().summonerId)) {
+            if (selection != null && Objects.equals(selection.summonerId, getCurrentSummoner().summonerId)) {
                 //first check locked champion
                 champion = Champion.getById(selection.championId);
                 //if it fails check just selected champion
@@ -163,7 +163,6 @@ public class ChampionSelection extends ClientModule {
             map = GameMap.MAP_11;
             positionSelector = false;
         }
-        System.out.println(map);
     }
 
     public void onSession(LolChampSelectChampSelectSession session) {

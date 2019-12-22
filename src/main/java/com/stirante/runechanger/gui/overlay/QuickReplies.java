@@ -12,8 +12,6 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 
 public class QuickReplies extends OverlayLayer {
-    private static final Color BG_COLOR = new Color(0f, 0f, 0f, 0.01f);
-
     private BufferedImage[] icons = new BufferedImage[5];
     private String[] messages = new String[]{"bot", "support", "jungle", "mid", "top"};
     private Rectangle[] rectangles = new Rectangle[5];
@@ -38,7 +36,8 @@ public class QuickReplies extends OverlayLayer {
     protected void draw(Graphics g) {
         if (getSceneType() == SceneType.CHAMPION_SELECT &&
                 SimplePreferences.getValue(SimplePreferences.SettingsKeys.QUICK_REPLIES, false)) {
-            if (getRuneChanger().getChampionSelectionModule().isPositionSelector() || getRuneChanger().getChampionSelectionModule().getMap() != GameMap.MAP_11) {
+            if (getRuneChanger().getChampionSelectionModule().isPositionSelector() ||
+                    getRuneChanger().getChampionSelectionModule().getMap() != GameMap.MAP_11) {
                 return;
             }
             Graphics2D g2d = (Graphics2D) g;
@@ -50,7 +49,7 @@ public class QuickReplies extends OverlayLayer {
                 rectangles[i].width = 15;
                 rectangles[i].height = 15;
                 //we give it a background, since otherwise it wouldn't be clickable everywhere
-                g2d.setPaint(BG_COLOR);
+                g2d.setPaint(DARKEN_COLOR);
                 g2d.fillRect(chatX, chatY, 15, 15);
                 g2d.drawImage(icons[i], chatX, chatY, 15, 15, null);
                 chatX += 25;

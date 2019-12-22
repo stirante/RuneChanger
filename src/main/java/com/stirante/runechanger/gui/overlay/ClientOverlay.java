@@ -56,7 +56,7 @@ public class ClientOverlay extends JPanel implements MouseMotionListener, MouseL
         try {
             InputStream is = getClass().getResourceAsStream("/fonts/Beaufort-Bold.ttf");
             font = Font.createFont(Font.TRUETYPE_FONT, is);
-            font = font.deriveFont(15f);
+            font = font.deriveFont(12f);
             if (DebugConsts.DISPLAY_FAKE) {
                 fake = ImageIO.read(new File("champ select.png"));
             }

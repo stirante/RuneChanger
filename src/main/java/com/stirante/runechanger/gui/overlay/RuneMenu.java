@@ -10,6 +10,8 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
@@ -114,7 +116,13 @@ public class RuneMenu extends OverlayLayer {
             }
             g2d.setColor(TEXT_COLOR);
             g2d.drawImage(page.getRunes().get(0).getImage(), menuX, itemTop, itemHeight, itemHeight, null);
-            drawCenteredHorizontalString(g2d, menuX + itemHeight, itemBottom, page.getName());
+            String runeSource = null;
+            try {
+                runeSource = new URL(page.getSource()).getHost();
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            }
+            drawRuneText(g2d, menuX + itemHeight, itemBottom, page.getName(), runeSource);
             //draw dividers, except at the bottom
             if (i != pages.size() - 1) {
                 g2d.setColor(DIVIDER_COLOR);
@@ -136,6 +144,29 @@ public class RuneMenu extends OverlayLayer {
         g2d.setColor(TEXT_COLOR);
         if (pages.size() > 10 && opened && scroll > 0f) {
             g2d.drawLine(menuX, upperY, menuX + itemWidth, upperY);
+        }
+    }
+
+    protected void drawRuneText(Graphics2D g, int x, int bottom, String runeName, String runeSource) {
+        FontMetrics metrics = g.getFontMetrics(g.getFont());
+        //we subtract item height, so we leave space for rune icon
+        if (metrics.stringWidth(runeName) >
+                (Constants.RUNE_ITEM_WIDTH * (getClientWidth())) - (Constants.RUNE_ITEM_HEIGHT * getHeight())) {
+            while (metrics.stringWidth(runeName) >
+                    (Constants.RUNE_ITEM_WIDTH * (getClientWidth())) -
+                            (Constants.RUNE_ITEM_HEIGHT * getHeight())) {
+                runeName = runeName.substring(0, runeName.length() - 1);
+            }
+            runeName = runeName.substring(0, runeName.length() - 2) + "...";
+        }
+        g.drawString(runeName, x - 1, bottom - (metrics.getHeight() / 2) - metrics.getAscent());
+        if (runeSource != null) {
+            Color color = g.getColor();
+            g.setColor(DARKER_TEXT_COLOR);
+            g.drawString(runeSource,
+                    x - 1,
+                    bottom - (metrics.getHeight() / 2F));
+            g.setColor(color);
         }
     }
 

@@ -77,20 +77,6 @@ public abstract class OverlayLayer implements MouseMotionListener, MouseListener
         return getClientOverlay().runeChanger;
     }
 
-    protected void drawCenteredHorizontalString(Graphics2D g, int x, int bottom, String text) {
-        FontMetrics metrics = g.getFontMetrics(g.getFont());
-        //we subtract item height, so we leave space for rune icon
-        if (metrics.stringWidth(text) >
-                (Constants.RUNE_ITEM_WIDTH * (getClientWidth())) - (Constants.RUNE_ITEM_HEIGHT * getHeight())) {
-            while (metrics.stringWidth(text) >
-                    (Constants.RUNE_ITEM_WIDTH * (getClientWidth())) - (Constants.RUNE_ITEM_HEIGHT * getHeight())) {
-                text = text.substring(0, text.length() - 1);
-            }
-            text = text.substring(0, text.length() - 2) + "...";
-        }
-        g.drawString(text, x - 1, bottom - metrics.getHeight() + (metrics.getAscent() / 2));
-    }
-
     @Override
     public void mouseClicked(MouseEvent mouseEvent) {
 
