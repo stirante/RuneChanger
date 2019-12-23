@@ -1,0 +1,8 @@
+"project_identifier" : "runechanger"
+"preserve_hierarchy": true
+files: [
+ {
+  "source" : "\\src\\main\\resources\\lang\\messages.properties",
+  "translation" : "\\src\\main\\resources\\lang\\%file_name%_%osx_locale%.properties",
+ }
+]
