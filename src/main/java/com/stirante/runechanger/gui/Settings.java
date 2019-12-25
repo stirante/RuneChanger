@@ -71,7 +71,7 @@ public class Settings extends Application {
     }
 
     public static void setClientConnected(boolean value) {
-        if (!instance.mainStage.isShowing()) {
+        if (instance.home == null) {
             return;
         }
         Platform.runLater(() -> {
@@ -140,7 +140,7 @@ public class Settings extends Application {
         });
 
         home = new HomeController();
-        setClientConnected(false);
+        setClientConnected(runeChanger.getApi() != null && runeChanger.getApi().isConnected());
         runeChanger.getRunesModule().addOnPageChangeListener(this::updateRunes);
         controller.setContent(home.container);
 
@@ -212,7 +212,7 @@ public class Settings extends Application {
     }
 
     private void updateRunes() {
-        if (!instance.mainStage.isShowing()) {
+        if (home == null) {
             return;
         }
         new AsyncTask<Void, Void, List<RunePage>>() {
