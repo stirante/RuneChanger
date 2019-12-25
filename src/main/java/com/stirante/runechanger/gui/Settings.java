@@ -161,9 +161,6 @@ public class Settings extends Application {
         instance = this;
         runeChanger = RuneChanger.getInstance();
         mainStage = stage;
-        if (!Arrays.asList(runeChanger.programArguments).contains("-minimized")) {
-            createScene();
-        }
 
         mainStage.initStyle(StageStyle.TRANSPARENT);
         mainStage.setTitle(Constants.APP_NAME);
@@ -172,6 +169,10 @@ public class Settings extends Application {
                         .toExternalForm()));
 
         Platform.setImplicitExit(false);
+
+        if (!Arrays.asList(runeChanger.programArguments).contains("-minimized")) {
+            createScene();
+        }
 
     }
 
