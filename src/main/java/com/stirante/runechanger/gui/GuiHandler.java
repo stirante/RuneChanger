@@ -11,6 +11,7 @@ import com.stirante.runechanger.model.client.RunePage;
 import com.stirante.runechanger.util.LangHelper;
 import com.stirante.runechanger.util.NativeUtils;
 import com.sun.jna.Native;
+import com.sun.jna.platform.win32.Advapi32Util;
 import com.sun.jna.platform.win32.User32;
 import com.sun.jna.platform.win32.WinDef;
 import org.slf4j.Logger;
@@ -27,9 +28,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
 
+import static com.sun.jna.platform.win32.WinReg.HKEY_CURRENT_USER;
+
 public class GuiHandler {
     public static final int MINIMIZED_POSITION = -32000;
     private static final Logger log = LoggerFactory.getLogger(GuiHandler.class);
+    public static final String REGISTRY_WINDOW_METRICS = "Control Panel\\Desktop\\WindowMetrics";
+    public static final String REGISTRY_APPLIED_DPI = "AppliedDPI";
     private final AtomicBoolean threadRunning = new AtomicBoolean(false);
     private final AtomicBoolean windowOpen = new AtomicBoolean(false);
     private final List<RunePage> runes = Collections.synchronizedList(new ArrayList<>());
@@ -46,6 +51,7 @@ public class GuiHandler {
     private Consumer<Champion> suggestedChampionSelectedListener;
     private ArrayList<Champion> bannedChampions;
     private int screenCheckCounter = 0;
+    private double screenScale = 1d;
 
     public GuiHandler(RuneChanger runeChanger) {
         this.runeChanger = runeChanger;
@@ -147,12 +153,20 @@ public class GuiHandler {
         }
     }
 
+    private void adjustWindowSize(Rectangle rect) {
+        rect.height = (int) (rect.height * screenScale);
+        rect.width = (int) (rect.width * screenScale);
+        rect.x = (int) (rect.x * screenScale);
+        rect.y = (int) (rect.y * screenScale);
+    }
+
     /**
      * Actually create and show client overlay
      *
      * @param rect client window bounds
      */
     private void showWindow(Rectangle rect) {
+        adjustWindowSize(rect);
         if (win != null) {
             win.dispose();
         }
@@ -189,6 +203,12 @@ public class GuiHandler {
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (Exception ignored) {
+        }
+        try {
+            screenScale = 96d /
+                    (double) Advapi32Util.registryGetIntValue(HKEY_CURRENT_USER, REGISTRY_WINDOW_METRICS, REGISTRY_APPLIED_DPI);
+        } catch (Exception e) {
+            screenScale = 1.0d;
         }
         try {
             //Create icon in system tray and right click menu
@@ -273,6 +293,7 @@ public class GuiHandler {
                         }
                         Rectangle rect1 = rect.toRectangle();
                         if (rect1 != null) {
+                            adjustWindowSize(rect1);
                             trackPosition(rect1);
                         }
                     } catch (Throwable t) {

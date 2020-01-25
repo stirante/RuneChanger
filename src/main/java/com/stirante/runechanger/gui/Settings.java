@@ -13,6 +13,7 @@ import com.stirante.runechanger.util.LangHelper;
 import com.stirante.runechanger.util.SimplePreferences;
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.event.EventHandler;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
@@ -39,6 +40,7 @@ public class Settings extends Application {
     private MainController controller;
     private RuneBookController runebook;
     private HomeController home;
+    private EventHandler<KeyEvent> keyPress = this::handleKeyPress;
 
     public static void initialize() {
         new Thread(Application::launch).start();
@@ -46,17 +48,17 @@ public class Settings extends Application {
 
     public static void show() {
         if (!instance.mainStage.isShowing()) {
-            Platform.runLater(() -> instance.mainStage.show());
+            Platform.runLater(() -> instance.createScene());
         }
     }
 
     public static void toggle() {
         Platform.runLater(() -> {
             if (instance.mainStage.isShowing()) {
-                instance.mainStage.hide();
+                instance.destroyScene();
             }
             else {
-                instance.mainStage.show();
+                instance.createScene();
             }
         });
     }
@@ -69,6 +71,9 @@ public class Settings extends Application {
     }
 
     public static void setClientConnected(boolean value) {
+        if (instance.home == null) {
+            return;
+        }
         Platform.runLater(() -> {
             if (value) {
                 try {
@@ -92,13 +97,40 @@ public class Settings extends Application {
         RuneChanger.main(args);
     }
 
-    @Override
-    public void start(Stage stage) {
-        instance = this;
-        runeChanger = RuneChanger.getInstance();
-        mainStage = stage;
+    private void destroyScene() {
+        mainStage.hide();
+        mainStage.setScene(null);
+        runebook = null;
+        controller = null;
+        home = null;
+        mainStage.removeEventHandler(KeyEvent.KEY_PRESSED, keyPress);
+    }
 
-        controller = new MainController(stage);
+    private void handleKeyPress(KeyEvent event) {
+        boolean isRunebook = controller.fullContentPane.getChildren().contains(runebook.container) &&
+                controller.contentPane.getChildren().isEmpty();
+        boolean isHome = controller.fullContentPane.getChildren().isEmpty() &&
+                controller.contentPane.getChildren().contains(home.container);
+        if (event.getCode() == KeyCode.C && event.isControlDown()) {
+            if (isRunebook) {
+                copyRunePage(runebook.localRunesList.getSelectionModel().getSelectedItem());
+            }
+            else if (isHome) {
+                copyRunePage(home.localRunesList.getSelectionModel().getSelectedItem());
+            }
+        }
+        else if (event.getCode() == KeyCode.V && event.isControlDown()) {
+            if (isRunebook) {
+                pasteRunePage(Champion.getByName(runebook.championName.getText()));
+            }
+            else if (isHome) {
+                pasteRunePage(null);
+            }
+        }
+    }
+
+    private void createScene() {
+        controller = new MainController(mainStage);
         runebook = new RuneBookController();
 
         controller.setOnChampionSearch(champion -> {
@@ -108,50 +140,40 @@ public class Settings extends Application {
         });
 
         home = new HomeController();
-        setClientConnected(false);
+        setClientConnected(runeChanger.getApi() != null && runeChanger.getApi().isConnected());
         runeChanger.getRunesModule().addOnPageChangeListener(this::updateRunes);
         controller.setContent(home.container);
 
         Scene scene = new Scene(controller.container, 600, 500);
         scene.getStylesheets().add(getClass().getResource("/style.css").toExternalForm());
         scene.setFill(null);
-        stage.initStyle(StageStyle.TRANSPARENT);
-        stage.setScene(scene);
-        stage.setTitle(Constants.APP_NAME);
-        stage.getIcons()
+        mainStage.setScene(scene);
+
+        mainStage.addEventHandler(KeyEvent.KEY_PRESSED, keyPress);
+
+        mainStage.show();
+        mainStage.setAlwaysOnTop(true);
+        mainStage.setAlwaysOnTop(false);
+    }
+
+    @Override
+    public void start(Stage stage) {
+        instance = this;
+        runeChanger = RuneChanger.getInstance();
+        mainStage = stage;
+
+        mainStage.initStyle(StageStyle.TRANSPARENT);
+        mainStage.setTitle(Constants.APP_NAME);
+        mainStage.getIcons()
                 .add(new Image(getClass().getResource("/images/runechanger-runeforge-icon-32x32.png")
                         .toExternalForm()));
 
         Platform.setImplicitExit(false);
 
         if (!Arrays.asList(runeChanger.programArguments).contains("-minimized")) {
-            stage.show();
-            stage.setAlwaysOnTop(true);
-            stage.setAlwaysOnTop(false);
+            createScene();
         }
 
-        stage.addEventHandler(KeyEvent.KEY_PRESSED, event -> {
-            boolean isRunebook = controller.fullContentPane.getChildren().contains(runebook.container) &&
-                    controller.contentPane.getChildren().isEmpty();
-            boolean isHome = controller.fullContentPane.getChildren().isEmpty() &&
-                    controller.contentPane.getChildren().contains(home.container);
-            if (event.getCode() == KeyCode.C && event.isControlDown()) {
-                if (isRunebook) {
-                    copyRunePage(runebook.localRunesList.getSelectionModel().getSelectedItem());
-                }
-                else if (isHome) {
-                    copyRunePage(home.localRunesList.getSelectionModel().getSelectedItem());
-                }
-            }
-            else if (event.getCode() == KeyCode.V && event.isControlDown()) {
-                if (isRunebook) {
-                    pasteRunePage(Champion.getByName(runebook.championName.getText()));
-                }
-                else if (isHome) {
-                    pasteRunePage(null);
-                }
-            }
-        });
     }
 
     private void copyRunePage(RunePage runePage) {
@@ -191,6 +213,9 @@ public class Settings extends Application {
     }
 
     private void updateRunes() {
+        if (home == null) {
+            return;
+        }
         new AsyncTask<Void, Void, List<RunePage>>() {
             @Override
             public List<RunePage> doInBackground(Void[] params) {

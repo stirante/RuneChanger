@@ -1,5 +1,7 @@
 package com.stirante.runechanger.model.client;
 
+import com.github.benmanes.caffeine.cache.Caffeine;
+import com.github.benmanes.caffeine.cache.LoadingCache;
 import com.google.gson.Gson;
 import com.stirante.runechanger.RuneChanger;
 import com.stirante.runechanger.runestore.ChampionGGSource;
@@ -22,6 +24,7 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class Champion {
@@ -30,6 +33,12 @@ public class Champion {
     private static final AtomicBoolean IMAGES_READY = new AtomicBoolean(false);
     private static final Set<Runnable> imagesReadyEvenListeners = new HashSet<>();
     private static File portraitsDir = new File(PathUtils.getAssetsDir(), "champions");
+    private static LoadingCache<Champion, java.awt.Image> portraitCache = Caffeine.newBuilder()
+            .maximumSize(10_000)
+            .expireAfterWrite(5, TimeUnit.MINUTES)
+            .refreshAfterWrite(1, TimeUnit.MINUTES)
+            .build(key -> ImageIO.read(new File(portraitsDir, key.getId() + ".jpg"))
+                    .getScaledInstance(70, 70, java.awt.Image.SCALE_SMOOTH));
 
     static {
         portraitsDir.mkdirs();
@@ -40,7 +49,6 @@ public class Champion {
     private final String name;
     private final String alias;
     private final String url;
-    private transient java.awt.Image image;
     private String pickQuote = "";
     private Position position;
 
@@ -159,9 +167,6 @@ public class Champion {
                 if (!f.exists()) {
                     allExist = false;
                 }
-                else {
-                    c.image = ImageIO.read(f).getScaledInstance(70, 70, java.awt.Image.SCALE_SMOOTH);
-                }
             }
             if (allExist) {
                 log.info("Portraits ready");
@@ -213,7 +218,7 @@ public class Champion {
      * Returns image with champion's portrait
      */
     public java.awt.Image getPortrait() {
-        return image;
+        return portraitCache.get(this);
     }
 
     /**
@@ -298,13 +303,6 @@ public class Champion {
                 checkAndDownload(f,
                         champion.url + "/tile",
                         "v1/champion-tiles/" + champion.getId() + "/" + champion.getId() + "000.jpg");
-                // Loading a scaled version of portrait
-                try {
-                    champion.image = ImageIO.read(f);
-                    champion.image = champion.image.getScaledInstance(70, 70, java.awt.Image.SCALE_SMOOTH);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
                 // Checking and downloading splash art
                 f = new File(portraitsDir, champion.id + "_full.jpg");
                 checkAndDownload(f,

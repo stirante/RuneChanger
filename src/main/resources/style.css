@@ -163,8 +163,8 @@
 
 .header {
     -fx-text-fill: #C8AA6E;
-    -fx-font-family: "Beaufort for LOL";
-    -fx-font-weight: bold;
+    -fx-font-family: "Roboto";
+    -fx-font-weight: normal;
     -fx-font-size: 18px;
     -fx-text-alignment: center;
     -fx-alignment: center;
@@ -202,6 +202,7 @@
     -fx-background-radius: 0;
     -fx-background-color: transparent;
     -fx-padding: 12px 0px 12px 0px;
+    -fx-cursor: hand;
 }
 
 .check-box > .box > .mark {
@@ -216,6 +217,21 @@
 .check-box:selected > .box > .mark {
     -fx-background-color: transparent;
     -fx-background-image: url("images/checkboxChecked.png");
+    -fx-padding: 12px 12px 12px 12px;
+}
+
+.client-box > .box > .mark {
+    -fx-background-image: url("images/add.png");
+    -fx-background-position: center;
+    -fx-background-repeat: no-repeat;
+    -fx-background-size: contain;
+    -fx-shape: none;
+    -fx-padding: 12px 12px 12px 12px;
+}
+
+.client-box:selected > .box > .mark {
+    -fx-background-color: transparent;
+    -fx-background-image: url("images/check.png");
     -fx-padding: 12px 12px 12px 12px;
 }
 

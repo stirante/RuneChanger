@@ -22,6 +22,7 @@ module RuneChanger {
     requires jna;
     requires org.update4j;
     requires mslinks;
+    requires com.github.benmanes.caffeine;
 
     exports com.stirante.runechanger;
     exports com.stirante.runechanger.gui;

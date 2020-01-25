@@ -3,6 +3,7 @@ package com.stirante.runechanger.client;
 import com.stirante.lolclient.ClientApi;
 import com.stirante.runechanger.DebugConsts;
 import com.stirante.runechanger.model.client.Champion;
+import com.stirante.runechanger.model.client.GameMap;
 import com.stirante.runechanger.model.client.GameMode;
 import generated.*;
 import org.slf4j.Logger;
@@ -22,6 +23,7 @@ public class ChampionSelection extends ClientModule {
     private GameMode gameMode;
     private boolean positionSelector;
     private ArrayList<Champion> banned = new ArrayList<>();
+    private GameMap map;
 
     public ChampionSelection(ClientApi api) {
         super(api);
@@ -109,7 +111,7 @@ public class ChampionSelection extends ClientModule {
     private void findSelectedChampion(LolChampSelectChampSelectSession session) {
         //find selected champion
         for (LolChampSelectChampSelectPlayerSelection selection : session.myTeam) {
-            if (Objects.equals(selection.summonerId, getCurrentSummoner().summonerId)) {
+            if (selection != null && Objects.equals(selection.summonerId, getCurrentSummoner().summonerId)) {
                 //first check locked champion
                 champion = Champion.getById(selection.championId);
                 //if it fails check just selected champion
@@ -129,6 +131,10 @@ public class ChampionSelection extends ClientModule {
         return gameMode;
     }
 
+    public GameMap getMap() {
+        return map;
+    }
+
     public boolean isChampionLocked() {
         if (action != null && action.containsKey("completed")) {
             return ((boolean) action.get("completed"));
@@ -140,18 +146,21 @@ public class ChampionSelection extends ClientModule {
         if (!DebugConsts.MOCK_SESSION) {
             try {
                 LolLobbyLobbyDto lolLobbyLobbyDto = getApi().executeGet("/lol-lobby/v2/lobby", LolLobbyLobbyDto.class);
-                gameMode = GameMode.valueOf(lolLobbyLobbyDto.gameConfig.gameMode);
+                map = GameMap.getById(lolLobbyLobbyDto.gameConfig.mapId);
                 positionSelector = lolLobbyLobbyDto.gameConfig.showPositionSelector;
+                gameMode = GameMode.valueOf(lolLobbyLobbyDto.gameConfig.gameMode);
             } catch (IOException | IllegalArgumentException e) {
                 log.error("Exception thrown when updating the gamemode! GameMode.java might not be updated. " +
                         e.getMessage());
                 positionSelector = false;
                 gameMode = GameMode.CLASSIC;
+                map = GameMap.MAP_11;
             }
         }
         else {
             //mock classic game without positions selector
             gameMode = GameMode.CLASSIC;
+            map = GameMap.MAP_11;
             positionSelector = false;
         }
     }

@@ -30,7 +30,6 @@ public class UGGSource implements RuneSource {
     private static final String VERSIONS_URL = "https://ddragon.leagueoflegends.com/api/versions.json";
     private static final String PUBLIC_URL = "https://u.gg/lol/champions/%championName%/build";
     // Builds with game count lower than this won't be included in result
-    private static final int GAMES_THRESHOLD = 50;
     private static final Tier DEFAULT_TIER = Tier.PLATINUM_PLUS;
     private static final Server DEFAULT_SERVER = Server.WORLD;
 
@@ -77,11 +76,6 @@ public class UGGSource implements RuneSource {
                 .get(0).getAsJsonArray();
         int games = arr.get(OverviewElement.RUNE_PAGES.getKey()).getAsJsonArray().get(Page.GAMES.getKey()).getAsInt();
         log.debug("Games count for " + champion.getName() + " on " + position.name() + ": " + games);
-        if (games < GAMES_THRESHOLD) {
-            log.debug("Excluding " + position.name() + " for " + champion.getName() + " due to low games count (" +
-                    games + ")");
-            return null;
-        }
         RunePage page = new RunePage();
         page.setMainStyle(Style.getById(arr.get(OverviewElement.RUNE_PAGES.getKey())
                 .getAsJsonArray()

@@ -57,6 +57,9 @@ public class RuneItemController {
         Tooltip statusTooltip = new Tooltip(LangHelper.getLang().getString("runepage_not_synced"));
         statusTooltip.setShowDelay(Duration.ZERO);
         Tooltip.install(syncStatus, statusTooltip);
+        Tooltip tooltip = new Tooltip();
+        tooltip.setShowDelay(Duration.ZERO);
+        selected.setTooltip(tooltip);
     }
 
     public void setNewRuneMode(RunePage page) {
@@ -88,6 +91,10 @@ public class RuneItemController {
                 .getImage()), null));
         selected.setSelected(page.isFromClient());
         syncStatus.setVisible(page.isFromClient() && !page.isSynced());
+        selected.getTooltip()
+                .setText(page.isFromClient() ?
+                        LangHelper.getLang().getString("client_runepage") :
+                        LangHelper.getLang().getString("local_runepage"));
     }
 
     @FXML
@@ -130,6 +137,10 @@ public class RuneItemController {
                 RuneChanger.getInstance().getRunesModule().getRunePages().size()) {
             RuneChanger.getInstance().getRunesModule().addPage(page);
         }
+        selected.getTooltip()
+                .setText(page.isFromClient() ?
+                        LangHelper.getLang().getString("client_runepage") :
+                        LangHelper.getLang().getString("local_runepage"));
     }
 
     @FXML
