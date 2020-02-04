@@ -33,7 +33,7 @@ public class AutoUpdater {
             return false;
         }
         if (DebugConsts.DISABLE_AUTOUPDATE ||
-                !SimplePreferences.getValue(SimplePreferences.SettingsKeys.AUTO_UPDATE, true)) {
+                !SimplePreferences.getBooleanValue(SimplePreferences.SettingsKeys.AUTO_UPDATE, true)) {
             return false;
         }
 
@@ -105,7 +105,7 @@ public class AutoUpdater {
             return configuration;
         }
         String configUrl = STABLE_UPDATE_CONFIG;
-        if (SimplePreferences.getValue(SimplePreferences.SettingsKeys.EXPERIMENTAL_CHANNEL, false)) {
+        if (SimplePreferences.getBooleanValue(SimplePreferences.SettingsKeys.EXPERIMENTAL_CHANNEL, false)) {
             configUrl = DEV_UPDATE_CONFIG;
         }
         Reader reader = new InputStreamReader(new URL(configUrl).openStream());

@@ -49,38 +49,38 @@ public class SettingsController {
             AutoStartUtils.setAutoStart(target.isSelected());
         }
         else if (target == autoAccept) {
-            SimplePreferences.putValue(SimplePreferences.SettingsKeys.AUTO_ACCEPT, target.isSelected());
+            SimplePreferences.putBooleanValue(SimplePreferences.SettingsKeys.AUTO_ACCEPT, target.isSelected());
         }
         else if (target == antiAway) {
-            SimplePreferences.putValue(SimplePreferences.SettingsKeys.ANTI_AWAY, target.isSelected());
+            SimplePreferences.putBooleanValue(SimplePreferences.SettingsKeys.ANTI_AWAY, target.isSelected());
         }
         else if (target == quickReplies) {
-            SimplePreferences.putValue(SimplePreferences.SettingsKeys.QUICK_REPLIES, target.isSelected());
+            SimplePreferences.putBooleanValue(SimplePreferences.SettingsKeys.QUICK_REPLIES, target.isSelected());
         }
         else if (target == autoUpdate) {
-            SimplePreferences.putValue(SimplePreferences.SettingsKeys.AUTO_UPDATE, target.isSelected());
+            SimplePreferences.putBooleanValue(SimplePreferences.SettingsKeys.AUTO_UPDATE, target.isSelected());
         }
         else if (target == smartDisenchant) {
-            SimplePreferences.putValue(SimplePreferences.SettingsKeys.SMART_DISENCHANT, target.isSelected());
+            SimplePreferences.putBooleanValue(SimplePreferences.SettingsKeys.SMART_DISENCHANT, target.isSelected());
         }
         else if (target == experimental) {
-            SimplePreferences.putValue(SimplePreferences.SettingsKeys.EXPERIMENTAL_CHANNEL, target.isSelected());
+            SimplePreferences.putBooleanValue(SimplePreferences.SettingsKeys.EXPERIMENTAL_CHANNEL, target.isSelected());
             AutoUpdater.resetCache();
             AutoUpdater.checkUpdate();
         }
         else if (target == championSuggestions) {
-            SimplePreferences.putValue(SimplePreferences.SettingsKeys.CHAMPION_SUGGESTIONS, target.isSelected());
+            SimplePreferences.putBooleanValue(SimplePreferences.SettingsKeys.CHAMPION_SUGGESTIONS, target.isSelected());
         }
         else if (target == autoSync) {
-            SimplePreferences.putValue(SimplePreferences.SettingsKeys.AUTO_SYNC, target.isSelected());
+            SimplePreferences.putBooleanValue(SimplePreferences.SettingsKeys.AUTO_SYNC, target.isSelected());
             tryRestart();
         }
         else if (target == alwaysOnTop) {
-            SimplePreferences.putValue(SimplePreferences.SettingsKeys.ALWAYS_ON_TOP, target.isSelected());
+            SimplePreferences.putBooleanValue(SimplePreferences.SettingsKeys.ALWAYS_ON_TOP, target.isSelected());
             stage.setAlwaysOnTop(target.isSelected());
         }
         else if (target == forceEnglish) {
-            SimplePreferences.putValue(SimplePreferences.SettingsKeys.FORCE_ENGLISH, target.isSelected());
+            SimplePreferences.putBooleanValue(SimplePreferences.SettingsKeys.FORCE_ENGLISH, target.isSelected());
             tryRestart();
         }
         SimplePreferences.save();
@@ -114,9 +114,9 @@ public class SettingsController {
 
     private void setupPreference(String key, boolean defaultValue, CheckBox checkbox) {
         if (!SimplePreferences.containsKey(key)) {
-            SimplePreferences.putValue(key, defaultValue);
+            SimplePreferences.putBooleanValue(key, defaultValue);
         }
-        if (SimplePreferences.getValue(key, defaultValue)) {
+        if (SimplePreferences.getBooleanValue(key, defaultValue)) {
             Platform.runLater(() -> checkbox.setSelected(true));
         }
     }

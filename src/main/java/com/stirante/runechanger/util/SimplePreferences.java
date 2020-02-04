@@ -99,26 +99,26 @@ public class SimplePreferences {
 
     }
 
-//    public static String getValue(String key, String def) {
-//        return settingsValues.getOrDefault(key, def);
-//    }
-
-    public static boolean getValue(String key, boolean def) {
+    public static boolean getBooleanValue(String key, boolean def) {
         String val = settingsValues.getOrDefault(key, Boolean.toString(def));
         return Boolean.parseBoolean(val) || val.equals("1");
+    }
+
+    public static String getStringValue(String key, String def) {
+        return settingsValues.getOrDefault(key, def);
     }
 
     public static boolean containsKey(String key) {
         return settingsValues.containsKey(key);
     }
 
-//    public static void putValue(String key, String value) {
-//        settingsValues.put(key, value);
-//        save();
-//    }
-
-    public static void putValue(String key, boolean value) {
+    public static void putBooleanValue(String key, boolean value) {
         settingsValues.put(key, Boolean.toString(value));
+        save();
+    }
+
+    public static void putStringValue(String key, String value) {
+        settingsValues.put(key, value);
         save();
     }
 
@@ -152,6 +152,10 @@ public class SimplePreferences {
         public static final String AUTO_SYNC = "autoSync";
         public static final String SMART_DISENCHANT = "smartDisenchant";
         public static final String CHAMPION_SUGGESTIONS = "championSuggestions";
+    }
+
+    public static class AnalyticsKeys {
+        public static final String USER_ID = "userId";
     }
 
     public static class FlagKeys {

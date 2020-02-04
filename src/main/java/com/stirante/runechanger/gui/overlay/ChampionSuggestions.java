@@ -32,7 +32,7 @@ public class ChampionSuggestions extends OverlayLayer {
 
     @Override
     protected void draw(Graphics g) {
-        if (SimplePreferences.getValue(SimplePreferences.SettingsKeys.CHAMPION_SUGGESTIONS, true)) {
+        if (SimplePreferences.getBooleanValue(SimplePreferences.SettingsKeys.CHAMPION_SUGGESTIONS, true)) {
             if (Champion.areImagesReady()) {
                 if (lastChampions == null) {
                     return;

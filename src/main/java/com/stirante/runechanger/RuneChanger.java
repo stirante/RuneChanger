@@ -4,6 +4,7 @@ import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.Appender;
 import ch.qos.logback.core.FileAppender;
+import com.google.gson.Gson;
 import com.stirante.lolclient.ClientApi;
 import com.stirante.lolclient.ClientConnectionListener;
 import com.stirante.lolclient.ClientWebSocket;
@@ -23,7 +24,7 @@ import generated.*;
 import javafx.beans.InvalidationListener;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import org.java_websocket.exceptions.WebsocketNotConnectedException;
+import com.stirante.lolclient.libs.org.java_websocket.exceptions.WebsocketNotConnectedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.update4j.LaunchContext;
@@ -86,11 +87,11 @@ public class RuneChanger implements Launcher {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        if (!SimplePreferences.getValue(SimplePreferences.FlagKeys.CREATED_SHORTCUTS, false)) {
+        if (!SimplePreferences.getBooleanValue(SimplePreferences.FlagKeys.CREATED_SHORTCUTS, false)) {
             try {
                 ShortcutUtils.createDesktopShortcut();
                 ShortcutUtils.createMenuShortcuts();
-                SimplePreferences.putValue(SimplePreferences.FlagKeys.CREATED_SHORTCUTS, true);
+                SimplePreferences.putBooleanValue(SimplePreferences.FlagKeys.CREATED_SHORTCUTS, true);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -254,7 +255,7 @@ public class RuneChanger implements Launcher {
                     } catch (Exception ignored) {
                     }
                     // Auto sync rune pages to RuneChanger
-                    if (SimplePreferences.getValue(SimplePreferences.SettingsKeys.AUTO_SYNC, false)) {
+                    if (SimplePreferences.getBooleanValue(SimplePreferences.SettingsKeys.AUTO_SYNC, false)) {
                         runesModule.syncRunePages();
                     }
                     //sometimes, the api is connected too quickly and there is WebsocketNotConnectedException
@@ -349,7 +350,7 @@ public class RuneChanger implements Launcher {
 //                    System.out.println(new Gson().toJson(event.getData()));
                 }
                 if (event.getUri().equalsIgnoreCase("/lol-chat/v1/me") &&
-                        SimplePreferences.getValue(SimplePreferences.SettingsKeys.ANTI_AWAY, false)) {
+                        SimplePreferences.getBooleanValue(SimplePreferences.SettingsKeys.ANTI_AWAY, false)) {
                     if (((LolChatUserResource) event.getData()).availability.equalsIgnoreCase("away")) {
                         new Thread(() -> {
                             try {
@@ -371,7 +372,7 @@ public class RuneChanger implements Launcher {
                         handleSession((LolChampSelectChampSelectSession) event.getData());
                     }
                 }
-                else if (SimplePreferences.getValue(SimplePreferences.SettingsKeys.AUTO_ACCEPT, false) &&
+                else if (SimplePreferences.getBooleanValue(SimplePreferences.SettingsKeys.AUTO_ACCEPT, false) &&
                         event.getUri().equalsIgnoreCase("/lol-lobby/v2/lobby/matchmaking/search-state")) {
                     if (((LolLobbyLobbyMatchmakingSearchResource) event.getData()).searchState ==
                             LolLobbyLobbyMatchmakingSearchState.FOUND) {

@@ -66,7 +66,7 @@ public class HomeController {
         });
         localRunesList.setItems(localRunes);
         localRunesList.setCellFactory(listView -> new RuneItemController.RunePageCell(RuneItemController::setHomeRuneMode));
-        syncButton.setVisible(!SimplePreferences.getValue(SimplePreferences.SettingsKeys.AUTO_SYNC, false));
+        syncButton.setVisible(!SimplePreferences.getBooleanValue(SimplePreferences.SettingsKeys.AUTO_SYNC, false));
         Objects.requireNonNull(syncButton.getTooltip()).setShowDelay(Duration.ZERO);
     }
 
@@ -98,7 +98,7 @@ public class HomeController {
 
     @FXML
     public void onChampionDisenchant(ActionEvent event) {
-        if (SimplePreferences.getValue(SimplePreferences.SettingsKeys.SMART_DISENCHANT, false)) {
+        if (SimplePreferences.getBooleanValue(SimplePreferences.SettingsKeys.SMART_DISENCHANT, false)) {
             lootModule.smartDisenchantChampions();
         }
         else {

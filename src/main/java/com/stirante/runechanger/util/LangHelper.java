@@ -21,7 +21,7 @@ public class LangHelper {
                 resourceBundle =
                         ResourceBundle.getBundle("lang.messages", Locale.forLanguageTag(DebugConsts.OVERRIDE_LANGUAGE));
             }
-            else if (SimplePreferences.getValue(SimplePreferences.SettingsKeys.FORCE_ENGLISH, false)) {
+            else if (SimplePreferences.getBooleanValue(SimplePreferences.SettingsKeys.FORCE_ENGLISH, false)) {
                 resourceBundle =
                         ResourceBundle.getBundle("lang.messages", Locale.ROOT);
             }
