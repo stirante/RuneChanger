@@ -3,6 +3,7 @@ package com.stirante.runechanger.gui.overlay;
 import com.stirante.runechanger.gui.Constants;
 import com.stirante.runechanger.gui.SceneType;
 import com.stirante.runechanger.model.client.RunePage;
+import com.stirante.runechanger.util.LangHelper;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -116,11 +117,11 @@ public class RuneMenu extends OverlayLayer {
             }
             g2d.setColor(TEXT_COLOR);
             g2d.drawImage(page.getRunes().get(0).getImage(), menuX, itemTop, itemHeight, itemHeight, null);
-            String runeSource = null;
+            String runeSource;
             try {
                 runeSource = new URL(page.getSource()).getHost();
             } catch (MalformedURLException e) {
-                e.printStackTrace();
+                runeSource = LangHelper.getLang().getString("local_source");
             }
             drawRuneText(g2d, menuX + itemHeight, itemBottom, page.getName(), runeSource);
             //draw dividers, except at the bottom

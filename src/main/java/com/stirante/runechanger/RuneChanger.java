@@ -58,7 +58,6 @@ public class RuneChanger implements Launcher {
         changeWorkingDir();
         cleanupLogs();
         setDefaultUncaughtExceptionHandler();
-        SimplePreferences.load();
         // This flag is only meant for development. It disables whole client communication
         if (!Arrays.asList(args).contains("-osx")) {
             checkOperatingSystem();
@@ -71,6 +70,7 @@ public class RuneChanger implements Launcher {
                     JOptionPane.ERROR_MESSAGE);
             System.exit(0);
         }
+        SimplePreferences.load();
         ch.qos.logback.classic.Logger logger =
                 (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
         if (Arrays.asList(args).contains("-nologs")) {

@@ -91,9 +91,22 @@ public class Champion {
      * @return champion
      */
     public static Champion getByName(String name) {
+        return getByName(name, false);
+    }
+
+    /**
+     * Get champion by name
+     *
+     * @param name             name
+     * @param additionalChecks if set to true, there will be additional checks
+     * @return champion
+     */
+    public static Champion getByName(String name, boolean additionalChecks) {
         for (Champion champion : values) {
             if (champion.name.equalsIgnoreCase(name) || champion.alias.equalsIgnoreCase(name) ||
-                    champion.internalName.equalsIgnoreCase(name)) {
+                    champion.internalName.equalsIgnoreCase(name) ||
+                    (additionalChecks && champion.name.replaceAll("[^a-zA-Z]", "")
+                            .equalsIgnoreCase(name.replaceAll("[^a-zA-Z]", "")))) {
                 return champion;
             }
         }

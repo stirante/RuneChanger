@@ -14,7 +14,7 @@ public class LocalSource implements RuneSource {
     public void getForChampion(Champion champion, ObservableList<RunePage> pages) {
         FxUtils.doOnFxThread(() -> pages.addAll(SimplePreferences.getRuneBookValues()
                 .stream()
-                .filter(runePage -> runePage.getChampion() == null || runePage.getChampion() == champion)
+                .filter(runePage -> runePage.getChampion() == null || runePage.getChampion().getId() == champion.getId())
                 .collect(Collectors.toCollection(ArrayList::new))));
     }
 

@@ -46,6 +46,14 @@ public class RunePage {
         p.champion = null;
         p.fromClient = true;
 
+        if (p.name.contains(":")) {
+            String[] split = p.name.split(":");
+            Champion champ = Champion.getByName(split[0], true);
+            if (champ != null) {
+                p.champion = champ;
+            }
+        }
+
         // copy selected runes
         for (int i = 0; i < 6; i++) {
             p.runes.add(Rune.getById(page.selectedPerkIds.get(i)));
@@ -276,7 +284,11 @@ public class RunePage {
             }
         }
         if (version >= 0x2) {
-            champion = Champion.getById(in.readInt());
+            int id = in.readInt();
+            champion = Champion.getById(id);
+            if (champion == null) {
+                log.warn("Champion " + id + " not found!");
+            }
         }
         else {
             log.warn("Unknown rune page version " + version);
