@@ -5,7 +5,7 @@ import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.Appender;
 import ch.qos.logback.core.FileAppender;
-import com.stirante.runechanger.gui.ProgressDialog;
+import com.stirante.runechanger.gui.Settings;
 import com.stirante.runechanger.model.client.Champion;
 import com.stirante.runechanger.model.log.LogRequest;
 import com.stirante.runechanger.util.AsyncTask;
@@ -14,9 +14,8 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
-import javafx.scene.control.Alert;
+import javafx.scene.control.*;
 import javafx.scene.control.Button;
-import javafx.scene.control.ButtonType;
 import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
@@ -101,8 +100,10 @@ public class MainController {
 
     @FXML
     public void onBugReport(ActionEvent actionEvent) {
-        ProgressDialog progressDialog = new ProgressDialog(LangHelper.getLang().getString("logs_progress"));
-        progressDialog.getDialogStage().show();
+        ProgressDialogController progressDialog = new ProgressDialogController();
+        progressDialog.setTitle(LangHelper.getLang().getString("logs_progress"));
+        progressDialog.setProgress(ProgressBar.INDETERMINATE_PROGRESS);
+        progressDialog.show();
         new AsyncTask<Void, Void, String>() {
             @Override
             public String doInBackground(Void[] params) {
@@ -126,26 +127,22 @@ public class MainController {
 
             @Override
             public void onPostExecute(String code) {
-                progressDialog.getDialogStage().close();
-                Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                ButtonType copyBtn = new ButtonType(LangHelper.getLang().getString("copy_code"));
+                progressDialog.close();
                 if (code != null) {
-                    alert.setTitle(LangHelper.getLang().getString("logs_sent"));
-                    alert.setContentText(
-                            String.format(LangHelper.getLang().getString("logs_sent_msg"), code));
-                    alert.getButtonTypes().add(copyBtn);
+                    ButtonType copyBtn = new ButtonType(LangHelper.getLang().getString("copy_code"));
+                    ButtonType result = Settings.openDialog(LangHelper.getLang().getString("logs_sent"),
+                            String.format(LangHelper.getLang().getString("logs_sent_msg"), code),
+                            copyBtn, ButtonType.OK);
+                    if (result == copyBtn) {
+                        StringSelection stringSelection = new StringSelection(code);
+                        Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+                        clipboard.setContents(stringSelection, null);
+                    }
                 }
                 else {
-                    alert.setTitle(LangHelper.getLang().getString("logs_failed"));
-                    alert.setContentText(LangHelper.getLang().getString("logs_failed"));
-                    alert.setAlertType(Alert.AlertType.ERROR);
-                }
-                alert.setHeaderText(null);
-                Optional<ButtonType> buttonType = alert.showAndWait();
-                if (buttonType.isPresent() && buttonType.get() == copyBtn) {
-                    StringSelection stringSelection = new StringSelection(code);
-                    Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-                    clipboard.setContents(stringSelection, null);
+                    Settings.openDialog(LangHelper.getLang().getString("logs_failed"),
+                            LangHelper.getLang().getString("logs_failed"),
+                            ButtonType.OK);
                 }
             }
         }.execute();

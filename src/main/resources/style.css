@@ -170,6 +170,42 @@
     -fx-alignment: center;
 }
 
+.dialog-title {
+    -fx-text-fill: #C8AA6E;
+    -fx-font-family: "Beaufort for LOL";
+    -fx-font-weight: bold;
+    -fx-font-size: 18px;
+    -fx-text-alignment: center;
+    -fx-alignment: center;
+}
+
+.dialog-message {
+    -fx-text-fill: #C8AA6E;
+    -fx-font-family: "Roboto";
+    -fx-font-weight: normal;
+    -fx-font-size: 14px;
+    -fx-text-alignment: left;
+    -fx-alignment: top-left;
+}
+
+.dialog-container {
+    -fx-background-color: #1F2831;
+    -fx-border-color: #0F404D;
+    -fx-border-width: 3;
+}
+
+.progress-bar > .bar {
+    -fx-background-insets: 1 1 2 1;
+    -fx-padding: 0.50em;
+    -fx-background-radius: 4;
+    -fx-background-color: #0A567A;
+}
+.progress-bar > .track {
+    -fx-background-color: #C5CDD1;
+    -fx-background-insets: 1 1 2 1;
+    -fx-background-radius: 4;
+}
+
 .joke {
     -fx-text-fill: #C8AA6E;
     -fx-font-family: "Roboto";
@@ -277,12 +313,6 @@
     -fx-max-height: 25px;
     -fx-font-size: 12px;
     -fx-background-size: stretch;
-}
-
-.dialog-message {
-    -fx-font-size: 15px;
-    -fx-alignment: top-center;
-    -fx-font-family: "Roboto";
 }
 
 .checkbox-label {

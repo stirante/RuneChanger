@@ -15,6 +15,7 @@ import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.scene.Scene;
+import javafx.scene.control.ButtonType;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
@@ -63,11 +64,20 @@ public class Settings extends Application {
         });
     }
 
-    public static boolean openYesNoDialog(String title, String message) {
+    public static ButtonType openDialog(String title, String message, ButtonType... buttons) {
         DialogController dialog = new DialogController();
         dialog.setContentText(message);
         dialog.setTitle(title);
-        return dialog.showAndWait().orElse(false);
+        dialog.setButtonTypes(buttons);
+        return dialog.showAndWait().orElse(null);
+    }
+
+    public static boolean openYesNoDialog(String title, String message) {
+        return openDialog(title, message, ButtonType.YES, ButtonType.NO) == ButtonType.YES;
+    }
+
+    public static void openOkDialog(String title, String message) {
+        openDialog(title, message, ButtonType.OK);
     }
 
     public static void setClientConnected(boolean value) {

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+
+<Pane fx:id="container" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="180.0" prefWidth="450.0" styleClass="dialog-container" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1">
+    <Label fx:id="title" layoutX="29.0" layoutY="14.0" prefHeight="24.0" prefWidth="392.0" styleClass="dialog-title" text="TITLE" />
+    <Label fx:id="message" layoutX="29.0" layoutY="55.0" prefHeight="70.0" prefWidth="392.0" styleClass="dialog-message" text="This is a very long message" wrapText="true" />
+    <ImageView fitHeight="40.0" fitWidth="450.0" layoutY="6.0" onMouseDragged="#onHandleDrag" onMousePressed="#onHandlePress" pickOnBounds="true" preserveRatio="true" />
+    <HBox fx:id="buttonContainer" alignment="CENTER" layoutX="25.0" layoutY="116.0" prefHeight="50.0" prefWidth="400.0" spacing="40.0">
+    </HBox>
+</Pane>

@@ -13,7 +13,7 @@ public enum GameMode {
     ASSASSINATE("Assassinate", true),
     DARKSTAR("Dark Star", false),
     ARSR("All Random Summoner's Rift", false),
-    URF("Urf", true),
+    URF("Urf", false),
     DOOMBOTSTEEMO("Doom Bots", true),
     STARGUARDIAN("Star Guardian", true),
     PROJECT("Project", true),
