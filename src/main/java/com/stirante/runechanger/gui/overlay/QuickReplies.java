@@ -4,6 +4,8 @@ import com.stirante.runechanger.gui.Constants;
 import com.stirante.runechanger.gui.SceneType;
 import com.stirante.runechanger.model.client.GameMap;
 import com.stirante.runechanger.util.SimplePreferences;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -12,6 +14,7 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 
 public class QuickReplies extends OverlayLayer {
+    private static final Logger log = LoggerFactory.getLogger(QuickReplies.class);
     private BufferedImage[] icons = new BufferedImage[5];
     private String[] messages = new String[]{"bot", "support", "jungle", "mid", "top"};
     private Rectangle[] rectangles = new Rectangle[5];
@@ -25,7 +28,7 @@ public class QuickReplies extends OverlayLayer {
             icons[3] = ImageIO.read(getClass().getResourceAsStream("/images/icon-position-middle.png"));
             icons[4] = ImageIO.read(getClass().getResourceAsStream("/images/icon-position-top.png"));
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("Exception occurred while loading position icons", e);
         }
         for (int i = 0; i < rectangles.length; i++) {
             rectangles[i] = new Rectangle(0, 0, 0, 0);

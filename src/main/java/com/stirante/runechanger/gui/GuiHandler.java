@@ -215,7 +215,7 @@ public class GuiHandler {
             SystemTray systemTray = SystemTray.getSystemTray();
             //Create icon in tray
             Image image =
-                    ImageIO.read(GuiHandler.class.getResourceAsStream("/images/runechanger-runeforge-icon-32x32.png"));
+                    ImageIO.read(GuiHandler.class.getResourceAsStream("/images/32.png"));
             //Create tray menu
             PopupMenu trayPopupMenu = new PopupMenu();
             MenuItem action = new MenuItem("RuneChanger v" + Constants.VERSION_STRING);
@@ -238,7 +238,7 @@ public class GuiHandler {
             trayIcon.addActionListener(e -> Settings.toggle());
             systemTray.add(trayIcon);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Exception occurred while initializing gui", e);
             System.exit(0);
         }
     }
@@ -297,7 +297,7 @@ public class GuiHandler {
                             trackPosition(rect1);
                         }
                     } catch (Throwable t) {
-                        t.printStackTrace();
+                        log.error("", t);
                     }
                 }
                 else {
@@ -309,8 +309,7 @@ public class GuiHandler {
                 try {
                     //60FPS master race
                     Thread.sleep(16);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+                } catch (InterruptedException ignored) {
                 }
             }
             threadRunning.set(false);

@@ -58,7 +58,7 @@ public class ChampionSelection extends ClientModule {
             }
             return new ArrayList<>(lastChampions);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Exception occurred while getting last picked champions", e);
             return null;
         }
     }
@@ -184,7 +184,7 @@ public class ChampionSelection extends ClientModule {
             getApi().executePatch("/lol-champ-select/v1/session/actions/" +
                     ((Double) action.get("id")).intValue(), action);
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("Exception occurred while soft picking champion", e);
         }
     }
 
@@ -206,10 +206,10 @@ public class ChampionSelection extends ClientModule {
             try {
                 getApi().executePost("/lol-chat/v1/conversations/" + name + "/messages", message);
             } catch (IOException e) {
-                e.printStackTrace();
+                log.error("Exception occurred while sending a message", e);
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("Exception occurred while getting a champion selection session", e);
         }
     }
 
@@ -227,5 +227,19 @@ public class ChampionSelection extends ClientModule {
     public void reset() {
         super.reset();
         clearSession();
+    }
+
+    public String getLastGrade() {
+        try {
+            LolMatchHistoryMatchHistoryPlayerDelta delta =
+                    getApi().executeGet("/lol-match-history/v1/delta", LolMatchHistoryMatchHistoryPlayerDelta.class);
+            if (delta == null) {
+                return null;
+            }
+            return delta.deltas.stream().map(gameDelta -> gameDelta.champMastery.grade).findFirst().orElse(null);
+        } catch (IOException e) {
+            log.error("", e);
+            return null;
+        }
     }
 }

@@ -35,61 +35,9 @@ public class RuneforgeSource implements RuneSource {
             cache = new Gson().fromJson(new InputStreamReader(conn.getInputStream()), Loadout[].class);
             conn.getInputStream().close();
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("Exception occurred while getting RuneForge source data", e);
         }
     }
-
-//    /**
-//     * Verifies all runes from runeforge.gg
-//     *
-//     * @param args program arguments
-//     */
-//    public static void main(String[] args) {
-//        try {
-//            Champion.init();
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//        RuneforgeSource src = new RuneforgeSource();
-//        for (Champion champion : Champion.values()) {
-//            log.info("Champion source name: " + champion.getName());
-//            List<RunePage> runes = src.getForChampion(champion);
-//            for (RunePage rune : runes) {
-//                if (!rune.verify()) {
-//                    log.error("Bad rune source: " + rune.getSource());
-//                }
-//            }
-//            if (runes.size() == 0) {
-//                log.error("Bad rune source, reason: EMPTY");
-//            }
-//        }
-//    }
-
-//    public Position getPositionForChampion(Champion champion) {
-//        for (Loadout loadout : cache) {
-//            if (loadout.loadout_champion_name.equalsIgnoreCase(champion.getName()) ||
-//                    loadout.loadout_champion_name.equalsIgnoreCase(champion.getAlias()) ||
-//                    loadout.loadout_champion_name.equalsIgnoreCase(champion.getInternalName())) {
-//                switch (loadout.loadout_position_name) {
-//                    case "support":
-//                        return Position.UTILITY;
-//                    case "middle":
-//                        return Position.MIDDLE;
-//                    case "bottom":
-//                        return Position.BOTTOM;
-//                    case "top":
-//                        return Position.TOP;
-//                    case "jungle":
-//                        return Position.JUNGLE;
-//                    default:
-//                        log.warn("Unknown position name: " + loadout.loadout_position_name);
-//                        return Position.UNSELECTED;
-//                }
-//            }
-//        }
-//        log.warn("Champion not found: " + champion.getName());
-//        return Position.UNSELECTED;
-//    }
 
     /**
      * Gets rune page from specified url
@@ -172,7 +120,7 @@ public class RuneforgeSource implements RuneSource {
                 }
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("Exception occurred while getting RuneForge rune page for champion " + champion.getName(), e);
         }
         pagesCache.put(champion, result);
         FxUtils.doOnFxThread(() -> pages.addAll(result));

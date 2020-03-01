@@ -3,6 +3,8 @@ package com.stirante.runechanger.util;
 import com.stirante.runechanger.DebugConsts;
 import com.stirante.runechanger.RuneChanger;
 import com.stirante.runechanger.gui.Settings;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.update4j.Configuration;
 import org.update4j.FileMetadata;
 
@@ -14,6 +16,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 public class AutoUpdater {
+    private static final Logger log = LoggerFactory.getLogger(AutoUpdater.class);
     private static final String DEV_UPDATE_CONFIG = "https://runechanger.stirante.com/dev/dev.xml";
     private static final String STABLE_UPDATE_CONFIG = "https://runechanger.stirante.com/stable/stable.xml";
     private static final int BUFFER_SIZE = 4096;
@@ -77,7 +80,7 @@ public class AutoUpdater {
             Runtime.getRuntime().exec("cmd /c start update.bat");
             System.exit(0);
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("Exception occurred while starting update", e);
         }
     }
 
@@ -170,7 +173,7 @@ public class AutoUpdater {
             }
             zin.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("Exception occurred while extracting zip file", e);
         }
     }
 
@@ -226,7 +229,7 @@ public class AutoUpdater {
                 }
             }
         } catch (IOException ex) {
-            ex.printStackTrace();
+            log.error("", ex);
         }
     }
 }

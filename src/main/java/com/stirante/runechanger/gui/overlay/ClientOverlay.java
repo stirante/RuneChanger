@@ -61,7 +61,7 @@ public class ClientOverlay extends JPanel implements MouseMotionListener, MouseL
                 fake = ImageIO.read(new File("champ select.png"));
             }
         } catch (IOException | FontFormatException e) {
-            e.printStackTrace();
+            log.error("Exception occurred while loading font", e);
         }
         setBackground(new Color(0f, 0f, 0f, 0f));
         timer = new Timer(16, new AbstractAction() {

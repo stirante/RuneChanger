@@ -3,6 +3,8 @@ package com.stirante.runechanger.util;
 import com.stirante.runechanger.DebugConsts;
 import com.stirante.runechanger.gui.Constants;
 import com.sun.jna.platform.win32.Advapi32Util;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -12,6 +14,7 @@ import java.io.IOException;
 import static com.sun.jna.platform.win32.WinReg.HKEY_CURRENT_USER;
 
 public class AutoStartUtils {
+    private static final Logger log = LoggerFactory.getLogger(AutoStartUtils.class);
 
     private static final String REGISTRY_AUTOSTART_KEY = "Software\\Microsoft\\Windows\\CurrentVersion\\Run";
 
@@ -31,7 +34,7 @@ public class AutoStartUtils {
                 try {
                     prepareScript();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    log.error("Exception occurred while checking auto start path", e);
                 }
             }
         }
@@ -46,7 +49,7 @@ public class AutoStartUtils {
             try {
                 prepareScript();
             } catch (IOException e) {
-                e.printStackTrace();
+                log.error("Exception occurred while setting auto start", e);
             }
             Advapi32Util.registryCreateKey(HKEY_CURRENT_USER, REGISTRY_AUTOSTART_KEY);
             Advapi32Util.registrySetStringValue(HKEY_CURRENT_USER, REGISTRY_AUTOSTART_KEY, Constants.APP_NAME, getStartCommand());

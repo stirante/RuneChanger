@@ -5,17 +5,20 @@ import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.Appender;
 import ch.qos.logback.core.FileAppender;
+import com.google.gson.Gson;
 import com.stirante.runechanger.gui.Settings;
 import com.stirante.runechanger.model.client.Champion;
 import com.stirante.runechanger.model.log.LogRequest;
+import com.stirante.runechanger.util.AnalyticsUtil;
 import com.stirante.runechanger.util.AsyncTask;
 import com.stirante.runechanger.util.LangHelper;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
-import javafx.scene.control.*;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.ProgressBar;
 import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
@@ -35,11 +38,11 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 public class MainController {
+    private static final org.slf4j.Logger log = LoggerFactory.getLogger(MainController.class);
     private final Stage stage;
 
     public TextField search;
@@ -115,9 +118,9 @@ public class MainController {
                             try {
                                 byte[] encoded =
                                         Files.readAllBytes(Paths.get(((FileAppender<ILoggingEvent>) appender).getFile()));
-                                return new LogRequest(new String(encoded)).submit();
+                                return new LogRequest(new String(encoded) + "\n" + new Gson().toJson(AnalyticsUtil.getAllHardwareInfo())).submit();
                             } catch (IOException e) {
-                                e.printStackTrace();
+                                log.error("Exception occurred while sending a debug log (ironic)", e);
                             }
                         }
                     }

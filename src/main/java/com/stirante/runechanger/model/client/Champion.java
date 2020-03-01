@@ -123,7 +123,7 @@ public class Champion {
                 offlineInit(cache);
             } catch (Exception e) {
                 //Cache failed, try online init
-                e.printStackTrace();
+                log.error("Exception occurred while performing offline init of champions", e);
                 onlineInit(cache);
                 return;
             }
@@ -132,7 +132,7 @@ public class Champion {
                 try {
                     onlineInit(cache);
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    log.error("Exception occurred while performing online init of champions", e);
                 }
             }).start();
         }
@@ -188,7 +188,7 @@ public class Champion {
                     try {
                         r.run();
                     } catch (Throwable t) {
-                        t.printStackTrace();
+                        log.error("", t);
                     }
                 }
                 imagesReadyEvenListeners.clear();
@@ -340,7 +340,7 @@ public class Champion {
                     out.flush();
                 }
             } catch (IOException e) {
-                e.printStackTrace();
+                log.error("Exception occurred while saving champions cache", e);
             }
 
             log.info("Champions initialized");
@@ -349,7 +349,7 @@ public class Champion {
                 try {
                     r.run();
                 } catch (Throwable t) {
-                    t.printStackTrace();
+                    log.error("", t);
                 }
             }
             imagesReadyEvenListeners.clear();
@@ -394,7 +394,7 @@ public class Champion {
                     }
                 }
             } catch (IOException e) {
-                e.printStackTrace();
+                log.error("Exception occurred while getting quote for champion " + champion.name, e);
             }
         }
 
@@ -425,7 +425,7 @@ public class Champion {
                     fileOutputStream.flush();
                     fileOutputStream.close();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    log.error("Exception occurred while downloading asset", e);
                 }
             }
         }

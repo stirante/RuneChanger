@@ -1,5 +1,7 @@
 package com.stirante.runechanger.gui.components;
 
+import com.stirante.runechanger.gui.Constants;
+import com.stirante.runechanger.util.FxUtils;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ObjectPropertyBase;
 import javafx.beans.property.SimpleStringProperty;
@@ -10,7 +12,7 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
+import javafx.util.Pair;
 
 public class Button extends Component {
     private static final int STATE_DEFAULT = 0;
@@ -18,8 +20,6 @@ public class Button extends Component {
     private static final int STATE_PRESSED = 2;
     private static final int STATE_DISABLED = 3;
     private static final Color GOLD_COLOR = new Color(0xC8 / 255D, 0xAA / 255D, 0x6E / 255D, 1D);
-    private static final Font FONT =
-            Font.loadFont(Button.class.getResource("/fonts/Roboto-Regular.ttf").toExternalForm(), 12);
 
     private StringProperty textProperty = new SimpleStringProperty();
     private ObjectProperty<EventHandler<ActionEvent>> onAction = new ObjectPropertyBase<>() {
@@ -140,12 +140,10 @@ public class Button extends Component {
         g.drawImage(centerImage, sideWidth, 0, getWidth() - (2 * sideWidth), getHeight());
         g.drawImage(sideImage, getWidth(), 0, -sideWidth, getHeight());
         g.setFill(GOLD_COLOR);
-        g.setFont(FONT);
-//        g.setTextAlign(TextAlignment.CENTER);
-//        g.setTextBaseline(VPos.CENTER);
-//        g.fillText(textProperty.get(), getWidth() / 2, getHeight() / 2);
+        g.setFont(Constants.BUTTON_FONT);
         if (textProperty.isNotNull().get()) {
-            fillNiceCenteredText(g, textProperty.get(), getWidth() / 2, getHeight() / 2, 0.5);
+            FxUtils.fillNiceCenteredText(g, textProperty.get(),
+                    getWidth() / 2, getHeight() / 2, Constants.BUTTON_FONT_SPACING);
         }
     }
 
@@ -161,4 +159,15 @@ public class Button extends Component {
         this.textProperty.setValue(textProperty);
     }
 
+    @Override
+    public void invalidate() {
+        if (getText() != null) {
+            Pair<Double, Double> size =
+                    FxUtils.measureTextSize(Constants.BUTTON_FONT, getText(), Constants.BUTTON_FONT_SPACING);
+            Image sideImage = side[0];
+            double sideWidth = (sideImage.getWidth() / sideImage.getHeight()) * getHeight();
+            setWidth(Math.max(sideWidth * 2 + size.getKey(), getWidth()));
+        }
+        super.invalidate();
+    }
 }

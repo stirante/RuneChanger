@@ -158,7 +158,7 @@ public class ChampionGGSource implements RuneSource {
                 pageCache.get(champion).add(element.text());
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Exception occurred while initializing cache for ChampionGG source", e);
         }
         initialized = true;
         LOCK.unlock();

@@ -4,6 +4,8 @@ import com.stirante.runechanger.gui.Constants;
 import com.stirante.runechanger.gui.SceneType;
 import com.stirante.runechanger.model.client.RunePage;
 import com.stirante.runechanger.util.LangHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -18,6 +20,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 public class RuneMenu extends OverlayLayer {
+    private static final Logger log = LoggerFactory.getLogger(RuneMenu.class);
     private final List<RunePage> pages = new ArrayList<>();
     private Consumer<RunePage> runeSelectedListener;
     private boolean opened = false;
@@ -30,10 +33,10 @@ public class RuneMenu extends OverlayLayer {
     public RuneMenu(ClientOverlay overlay) {
         super(overlay);
         try {
-            icon = ImageIO.read(getClass().getResourceAsStream("/images/runechanger-runeforge-icon-28x28.png"));
-            grayscaleIcon = ImageIO.read(getClass().getResourceAsStream("/images/runeforce-icon-grayscale.png"));
+            icon = ImageIO.read(getClass().getResourceAsStream("/images/28.png"));
+            grayscaleIcon = ImageIO.read(getClass().getResourceAsStream("/images/28grayscale.png"));
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("Exception occurred while loading rune button icons", e);
         }
     }
 

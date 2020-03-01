@@ -1,19 +1,22 @@
 package com.stirante.runechanger.model.log;
 
 import com.google.gson.Gson;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
 public class LogRequest {
+    private static final Logger log = LoggerFactory.getLogger(LogRequest.class);
 
     private static final String URL = "https://api.runechanger.stirante.com/v1/upload";
 
-    public String log;
+    public String logContent;
 
     public LogRequest(String log) {
-        this.log = log;
+        this.logContent = log;
     }
 
     public String submit() {
@@ -36,7 +39,7 @@ public class LogRequest {
             conn.disconnect();
             return result.code;
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("Exception occurred while submitting logs", e);
             return null;
         }
     }

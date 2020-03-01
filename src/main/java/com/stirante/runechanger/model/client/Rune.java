@@ -169,7 +169,7 @@ public enum Rune {
             try {
                 image = ImageIO.read(getClass().getResourceAsStream("/runes/" + getId() + ".png"));
             } catch (IOException e) {
-                e.printStackTrace();
+                log.error("Exception occurred while reading a rune icon", e);
             }
         }
         return image;

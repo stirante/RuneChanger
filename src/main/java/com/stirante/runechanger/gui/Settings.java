@@ -21,6 +21,8 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.awt.*;
 import java.awt.datatransfer.DataFlavor;
@@ -34,6 +36,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class Settings extends Application {
+    private static final Logger log = LoggerFactory.getLogger(Settings.class);
 
     private static Settings instance;
     private Stage mainStage;
@@ -175,8 +178,12 @@ public class Settings extends Application {
         mainStage.initStyle(StageStyle.TRANSPARENT);
         mainStage.setTitle(Constants.APP_NAME);
         mainStage.getIcons()
-                .add(new Image(getClass().getResource("/images/runechanger-runeforge-icon-32x32.png")
-                        .toExternalForm()));
+                .addAll(
+                        new Image(getClass().getResource("/images/16.png").toExternalForm()),
+                        new Image(getClass().getResource("/images/32.png").toExternalForm()),
+                        new Image(getClass().getResource("/images/48.png").toExternalForm()),
+                        new Image(getClass().getResource("/images/256.png").toExternalForm())
+                );
 
         Platform.setImplicitExit(false);
 
@@ -218,7 +225,7 @@ public class Settings extends Application {
                         .getString("invalid_runepage"));
             }
         } catch (UnsupportedFlavorException | IOException e) {
-            e.printStackTrace();
+            log.error("Exception occurred while pasting a rune page", e);
         }
     }
 

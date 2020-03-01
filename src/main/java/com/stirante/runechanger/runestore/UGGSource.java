@@ -125,7 +125,7 @@ public class UGGSource implements RuneSource {
                 FxUtils.doOnFxThread(() -> pages.add(page));
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("Exception occurred while getting UGG rune page for champion " + champion.getName(), e);
         }
     }
 
@@ -134,13 +134,21 @@ public class UGGSource implements RuneSource {
             URL url = new URL(VERSIONS_URL);
             HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
             InputStream in = urlConnection.getInputStream();
-            JsonParser parser = new JsonParser();
-            JsonArray strings = parser.parse(new InputStreamReader(in)).getAsJsonArray();
-            String[] patch = strings.get(0).getAsString().split("\\.");
-            patchString = patch[0] + "_" + patch[1];
+            JsonArray strings = JsonParser.parseReader(new InputStreamReader(in)).getAsJsonArray();
+            int i = 0;
+            while (patchString == null) {
+                String[] patch = strings.get(i).getAsString().split("\\.");
+                patchString = patch[0] + "_" + patch[1];
+                try {
+                    getRootObject(Champion.getByName("annie"));
+                } catch (IOException e) {
+                    i++;
+                    patchString = null;
+                }
+            }
             in.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("Exception occurred while initializing patch string", e);
         }
     }
 

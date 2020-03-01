@@ -5,17 +5,30 @@ import com.stirante.runechanger.util.AutoStartUtils;
 import com.stirante.runechanger.util.AutoUpdater;
 import com.stirante.runechanger.util.LangHelper;
 import com.stirante.runechanger.util.SimplePreferences;
+import javafx.animation.Animation;
+import javafx.animation.Interpolator;
+import javafx.animation.Transition;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import javafx.util.Duration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
 public class SettingsController {
+    private static final Logger log = LoggerFactory.getLogger(SettingsController.class);
+    private final static int TRANSITION_DURATION = 200;
+    private final static double BASE_MODIFIER = 2;
     private final Stage stage;
     public CheckBox antiAway;
     public CheckBox autoAccept;
@@ -28,7 +41,10 @@ public class SettingsController {
     public CheckBox autoSync;
     public CheckBox smartDisenchant;
     public CheckBox championSuggestions;
+    public CheckBox enableAnalytics;
     public Pane container;
+    public VBox wrapper;
+    public ScrollPane scroll;
 
     public SettingsController(Stage stage) {
         this.stage = stage;
@@ -39,6 +55,7 @@ public class SettingsController {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+        fixScroll();
         loadPreferences();
     }
 
@@ -62,6 +79,9 @@ public class SettingsController {
         }
         else if (target == smartDisenchant) {
             SimplePreferences.putBooleanValue(SimplePreferences.SettingsKeys.SMART_DISENCHANT, target.isSelected());
+        }
+        else if (target == enableAnalytics) {
+            SimplePreferences.putBooleanValue(SimplePreferences.SettingsKeys.ANALYTICS, target.isSelected());
         }
         else if (target == experimental) {
             SimplePreferences.putBooleanValue(SimplePreferences.SettingsKeys.EXPERIMENTAL_CHANNEL, target.isSelected());
@@ -106,6 +126,7 @@ public class SettingsController {
         setupPreference(SimplePreferences.SettingsKeys.AUTO_SYNC, false, autoSync);
         setupPreference(SimplePreferences.SettingsKeys.SMART_DISENCHANT, false, smartDisenchant);
         setupPreference(SimplePreferences.SettingsKeys.CHAMPION_SUGGESTIONS, true, championSuggestions);
+        setupPreference(SimplePreferences.SettingsKeys.ANALYTICS, true, enableAnalytics);
 
         if (AutoStartUtils.isAutoStartEnabled()) {
             autoStart.setSelected(true);
@@ -126,9 +147,93 @@ public class SettingsController {
         try {
             Runtime.getRuntime().exec("wscript silent.vbs open.bat");
         } catch (Exception ex) {
-            ex.printStackTrace();
+            log.error("Exception occurred while executing a restart command", ex);
         }
         System.exit(0);
+    }
+
+    /*
+     * From https://gist.github.com/Col-E/7d31b6b8684669cf1997831454681b85
+     */
+
+    private void fixScroll() {
+        wrapper.setOnScroll(new EventHandler<>() {
+            private SmoothishTransition transition;
+
+            @Override
+            public void handle(ScrollEvent event) {
+                double deltaY = BASE_MODIFIER * event.getDeltaY();
+                double width = scroll.getContent().getBoundsInLocal().getWidth();
+                double vvalue = scroll.getVvalue();
+                Interpolator interp = Interpolator.LINEAR;
+                transition = new SmoothishTransition(transition, deltaY) {
+                    @Override
+                    protected void interpolate(double frac) {
+                        double x = interp.interpolate(vvalue, vvalue + -deltaY * getMod() / width, frac);
+                        scroll.setVvalue(x);
+                    }
+                };
+                transition.play();
+            }
+        });
+    }
+
+    /**
+     * @param t Transition to check.
+     * @return {@code true} if transition is playing.
+     */
+    private static boolean playing(Transition t) {
+        return t.getStatus() == Animation.Status.RUNNING;
+    }
+
+    /**
+     * @param d1 Value 1
+     * @param d2 Value 2.
+     * @return {@code true} if values signes are matching.
+     */
+    private static boolean sameSign(double d1, double d2) {
+        return (d1 > 0 && d2 > 0) || (d1 < 0 && d2 < 0);
+    }
+
+    /**
+     * Transition with varying speed based on previously existing transitions.
+     *
+     * @author Matt
+     */
+    abstract class SmoothishTransition extends Transition {
+        private final double mod;
+        private final double delta;
+
+        public SmoothishTransition(SmoothishTransition old, double delta) {
+            setCycleDuration(Duration.millis(TRANSITION_DURATION));
+            setCycleCount(0);
+            // if the last transition was moving inthe same direction, and is still playing
+            // then increment the modifer. This will boost the distance, thus looking faster
+            // and seemingly consecutive.
+            if (old != null && sameSign(delta, old.delta) && playing(old)) {
+                mod = old.getMod() + 1;
+            }
+            else {
+                mod = 1;
+            }
+            this.delta = delta;
+        }
+
+        public double getMod() {
+            return mod;
+        }
+
+        @Override
+        public void play() {
+            super.play();
+            // Even with a linear interpolation, startup is visibly slower than the middle.
+            // So skip a small bit of the animation to keep up with the speed of prior
+            // animation. The value of 10 works and isn't noticeable unless you really pay
+            // close attention. This works best on linear but also is decent for others.
+            if (getMod() > 1) {
+                jumpTo(getCycleDuration().divide(10));
+            }
+        }
     }
 
 }

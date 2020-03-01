@@ -1,6 +1,8 @@
 package com.stirante.runechanger.gui.controllers;
 
+import com.stirante.runechanger.gui.Constants;
 import com.stirante.runechanger.gui.components.Button;
+import com.stirante.runechanger.util.FxUtils;
 import com.stirante.runechanger.util.LangHelper;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -14,6 +16,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.stage.StageStyle;
+import javafx.util.Pair;
 
 import java.io.IOException;
 
@@ -63,7 +66,7 @@ public class DialogController extends Dialog<ButtonType> {
         for (ButtonType button : buttons) {
             Button btn = new Button();
             btn.setText(button.getText());
-            btn.setWidth(80);
+            btn.setWidth(120);
             btn.setHeight(30);
             buttonContainer.getChildren().add(btn);
             btn.setOnAction(event -> {

@@ -1,6 +1,8 @@
 package com.stirante.runechanger.model.github;
 
 import com.google.gson.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -12,6 +14,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class Version {
+    private static final Logger log = LoggerFactory.getLogger(Version.class);
 
     public static final Version INSTANCE;
 
@@ -39,7 +42,7 @@ public class Version {
                     .fromJson(new InputStreamReader(stream), Version.class);
             stream.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("Exception occurred while reading version file", e);
         }
         INSTANCE = inst;
     }

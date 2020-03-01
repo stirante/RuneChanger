@@ -21,6 +21,8 @@ import javafx.scene.layout.Pane;
 import javafx.scene.paint.ImagePattern;
 import javafx.scene.shape.Circle;
 import javafx.util.Duration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -29,6 +31,7 @@ import java.util.Comparator;
 import java.util.Objects;
 
 public class HomeController {
+    private static final Logger log = LoggerFactory.getLogger(HomeController.class);
 
     public Pane container;
     public Circle profilePicture;
@@ -79,7 +82,7 @@ public class HomeController {
                     .getAsset("lol-game-data", "v1/profile-icons/" + summoner.profileIconId + ".jpg"));
             profilePicture.setFill(new ImagePattern(SwingFXUtils.toFXImage(profileIcon, null)));
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("Exception occurred while getting a profile icon", e);
         }
         emptyProfilePicture.setVisible(false);
         disenchantChampionsButton.setDisable(false);

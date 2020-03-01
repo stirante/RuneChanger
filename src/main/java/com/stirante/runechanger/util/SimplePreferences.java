@@ -2,12 +2,15 @@ package com.stirante.runechanger.util;
 
 import com.stirante.runechanger.RuneChanger;
 import com.stirante.runechanger.model.client.RunePage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 
 public class SimplePreferences {
+    private static final Logger log = LoggerFactory.getLogger(SimplePreferences.class);
 
     private static final String SETTINGS_FILENAME =
             new File(PathUtils.getWorkingDirectory(), "RuneChangerSettings.dat").getAbsolutePath();
@@ -33,7 +36,7 @@ public class SimplePreferences {
             }
         } catch (IOException e) {
             if (!(e instanceof FileNotFoundException)) {
-                e.printStackTrace();
+                log.error("Exception occurred while loading settings file", e);
             }
         }
         if (settingsValues == null) {
@@ -50,7 +53,7 @@ public class SimplePreferences {
             }
         } catch (IOException e) {
             if (!(e instanceof FileNotFoundException)) {
-                e.printStackTrace();
+                log.error("Exception occurred while loading rune book file", e);
             }
         }
         if (runeBookValues == null) {
@@ -64,7 +67,7 @@ public class SimplePreferences {
             try {
                 prefs.createNewFile();
             } catch (IOException e) {
-                e.printStackTrace();
+                log.error("Exception occurred while creating settings file", e);
             }
         }
         try (DataOutputStream dataOutputStream = new DataOutputStream(new FileOutputStream(prefs))) {
@@ -75,7 +78,7 @@ public class SimplePreferences {
             }
             dataOutputStream.flush();
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("Exception occurred while saving settings file", e);
         }
 
 
@@ -84,7 +87,7 @@ public class SimplePreferences {
             try {
                 runeBookFile.createNewFile();
             } catch (IOException e) {
-                e.printStackTrace();
+                log.error("Exception occurred while creating rune book file", e);
             }
         }
         try (DataOutputStream dataOutputStream = new DataOutputStream(new FileOutputStream(runeBookFile))) {
@@ -94,7 +97,7 @@ public class SimplePreferences {
             }
             dataOutputStream.flush();
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("Exception occurred while saving rune book file", e);
         }
 
     }
@@ -152,10 +155,17 @@ public class SimplePreferences {
         public static final String AUTO_SYNC = "autoSync";
         public static final String SMART_DISENCHANT = "smartDisenchant";
         public static final String CHAMPION_SUGGESTIONS = "championSuggestions";
+        public static final String ANALYTICS = "analytics";
     }
 
     public static class AnalyticsKeys {
         public static final String USER_ID = "userId";
+    }
+
+    public static class InternalKeys {
+        public static final String CLIENT_PATH = "clientPath";
+        public static final String DONATE_DONT_ASK = "donateDontAsk";
+        public static final String ASKED_ANALYTICS = "askedAnalytics";
     }
 
     public static class FlagKeys {

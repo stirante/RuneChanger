@@ -18,6 +18,8 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.shape.Circle;
 import javafx.util.Duration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.URI;
@@ -28,6 +30,7 @@ import java.util.Objects;
 import java.util.function.BiConsumer;
 
 public class RuneItemController {
+    private static final Logger log = LoggerFactory.getLogger(RuneItemController.class);
 
     public Pane container;
     public ImageView icon;
@@ -70,7 +73,7 @@ public class RuneItemController {
         try {
             source.setText("(" + new URI(page.getSource()).getHost() + ")");
         } catch (URISyntaxException e) {
-            e.printStackTrace();
+            log.error("Exception occurred while getting source host", e);
         }
         icon.setImage(SwingFXUtils.toFXImage(Objects.requireNonNull(page.getRunes()
                 .get(0)

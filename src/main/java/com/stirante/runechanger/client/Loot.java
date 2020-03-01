@@ -5,12 +5,16 @@ import com.stirante.runechanger.model.client.Champion;
 import generated.LolChampionsCollectionsChampionMinimal;
 import generated.LolCollectionsCollectionsChampionMastery;
 import generated.LolLootPlayerLoot;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Optional;
 
 public class Loot extends ClientModule {
+    private static final Logger log = LoggerFactory.getLogger(Loot.class);
+
     public Loot(ClientApi api) {
         super(api);
     }
@@ -30,7 +34,7 @@ public class Loot extends ClientModule {
             }
             return keyFragments.count / 3;
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("Exception occurred while crafting keys", e);
             return -1;
         }
     }
@@ -47,7 +51,7 @@ public class Loot extends ClientModule {
                 }
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("Exception occurred while disenchanting champions", e);
         }
     }
 
@@ -107,7 +111,7 @@ public class Loot extends ClientModule {
                 }
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("Exception occurred while smart disenchanting champions", e);
         }
     }
 }

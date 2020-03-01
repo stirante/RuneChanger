@@ -184,8 +184,8 @@
     -fx-font-family: "Roboto";
     -fx-font-weight: normal;
     -fx-font-size: 14px;
-    -fx-text-alignment: left;
-    -fx-alignment: top-left;
+    -fx-text-alignment: center;
+    -fx-alignment: center;
 }
 
 .dialog-container {
@@ -287,19 +287,20 @@
 
 .auto-complete-popup > .list-view > .virtual-flow > .clipped-container > .sheet > .list-cell {
     -fx-padding: 4 0 4 5;
-    -fx-background: -fx-control-inner-background;
+    -fx-background: #785A28;
     -fx-text-fill: black;
 }
 
 .auto-complete-popup > .list-view > .virtual-flow > .clipped-container > .sheet > .list-cell:filled:selected {
-    -fx-background: -fx-selection-bar-non-focused;
-    -fx-background-color: -fx-background;
+    -fx-background: #785A28;
+    -fx-background-color: #785A28;
 }
 
 .auto-complete-popup > .list-view > .virtual-flow > .clipped-container > .sheet > .list-cell:filled:hover,
 .auto-complete-popup > .list-view > .virtual-flow > .clipped-container > .sheet > .list-cell:filled:selected:hover {
-    -fx-background: -fx-accent;
-    -fx-background-color: -fx-selection-bar;
+    -fx-background: #785A28;
+    -fx-background-color: #785A28;
+    -fx-text-fill: white;
 }
 
 .auto-complete-popup > .list-view > .placeholder > .label {

@@ -7,6 +7,7 @@ import ch.qos.logback.core.FileAppender;
 import com.stirante.lolclient.ClientApi;
 import com.stirante.lolclient.ClientConnectionListener;
 import com.stirante.lolclient.ClientWebSocket;
+import com.stirante.lolclient.libs.org.java_websocket.exceptions.WebsocketNotConnectedException;
 import com.stirante.runechanger.client.ChampionSelection;
 import com.stirante.runechanger.client.Loot;
 import com.stirante.runechanger.client.Runes;
@@ -23,21 +24,25 @@ import generated.*;
 import javafx.beans.InvalidationListener;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import com.stirante.lolclient.libs.org.java_websocket.exceptions.WebsocketNotConnectedException;
+import javafx.scene.control.ButtonType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.update4j.LaunchContext;
 import org.update4j.service.Launcher;
 
 import javax.swing.*;
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.net.ConnectException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 import java.nio.file.StandardOpenOption;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.List;
 import java.util.*;
 
 public class RuneChanger implements Launcher {
@@ -51,6 +56,7 @@ public class RuneChanger implements Launcher {
     private Runes runesModule;
     private Loot lootModule;
     private ClientWebSocket socket;
+    private boolean donateDontAsk = false;
 
     public static void main(String[] args) {
         checkAndCreateLockfile();
@@ -64,7 +70,7 @@ public class RuneChanger implements Launcher {
         try {
             Champion.init();
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("Exception occurred while initializing champions", e);
             JOptionPane.showMessageDialog(null, LangHelper.getLang().getString("init_data_error"), Constants.APP_NAME,
                     JOptionPane.ERROR_MESSAGE);
             System.exit(0);
@@ -84,7 +90,7 @@ public class RuneChanger implements Launcher {
         try {
             AutoStartUtils.checkAutoStartPath();
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Exception occurred while checking autostart path", e);
         }
         if (!SimplePreferences.getBooleanValue(SimplePreferences.FlagKeys.CREATED_SHORTCUTS, false)) {
             try {
@@ -92,7 +98,7 @@ public class RuneChanger implements Launcher {
                 ShortcutUtils.createMenuShortcuts();
                 SimplePreferences.putBooleanValue(SimplePreferences.FlagKeys.CREATED_SHORTCUTS, true);
             } catch (Exception e) {
-                e.printStackTrace();
+                log.error("Exception occurred while creating shortcuts", e);
             }
         }
         instance = new RuneChanger();
@@ -122,7 +128,7 @@ public class RuneChanger implements Launcher {
                 System.exit(0);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Exception occurred while changing current directory", e);
         }
     }
 
@@ -208,9 +214,13 @@ public class RuneChanger implements Launcher {
         if (!Arrays.asList(programArguments).contains("-osx")) {
             ClientApi.setDisableEndpointWarnings(true);
             try {
-                api = new ClientApi();
+                String clientPath = SimplePreferences.getStringValue(SimplePreferences.InternalKeys.CLIENT_PATH, null);
+                if (clientPath != null && !new File(clientPath).exists()) {
+                    clientPath = null;
+                }
+                api = new ClientApi(clientPath);
             } catch (IllegalStateException e) {
-                e.printStackTrace();
+                log.error("Exception occurred while creating client api", e);
                 JOptionPane.showMessageDialog(null, LangHelper.getLang()
                         .getString("client_error"), Constants.APP_NAME, JOptionPane.ERROR_MESSAGE);
                 System.exit(0);
@@ -223,13 +233,17 @@ public class RuneChanger implements Launcher {
             api.addClientConnectionListener(new ClientConnectionListener() {
                 @Override
                 public void onClientConnected() {
+                    if (!api.getClientPath()
+                            .equalsIgnoreCase(SimplePreferences.getStringValue(SimplePreferences.InternalKeys.CLIENT_PATH, null))) {
+                        log.info("Saving client path to \"" + api.getClientPath() + "\"");
+                        SimplePreferences.putStringValue(SimplePreferences.InternalKeys.CLIENT_PATH, api.getClientPath());
+                    }
                     gui.setSceneType(SceneType.NONE);
                     gui.openWindow();
                     new Thread(() -> {
                         try {
                             Thread.sleep(1000);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
+                        } catch (InterruptedException ignored) {
                         }
                         if (DebugConsts.MOCK_SESSION) {
                             gui.showWarningMessage("Mocking session");
@@ -273,13 +287,12 @@ public class RuneChanger implements Launcher {
                                     //try again in a second
                                     try {
                                         Thread.sleep(1000);
-                                    } catch (InterruptedException ex) {
-                                        ex.printStackTrace();
+                                    } catch (InterruptedException ignored) {
                                     }
                                     continue;
                                 }
                                 else {
-                                    e.printStackTrace();
+                                    log.error("Exception occurred while opening socket", e);
                                 }
                             }
                             return;
@@ -305,6 +318,17 @@ public class RuneChanger implements Launcher {
             }
         }));
         FxUtils.doOnFxThread(AutoUpdater::checkUpdate);
+        donateDontAsk = SimplePreferences.getBooleanValue(SimplePreferences.InternalKeys.DONATE_DONT_ASK, false);
+        if (!SimplePreferences.getBooleanValue(SimplePreferences.InternalKeys.ASKED_ANALYTICS, false)) {
+            FxUtils.doOnFxThread(() -> {
+                boolean analytics = Settings.openYesNoDialog(
+                        LangHelper.getLang().getString("analytics_dialog_title"),
+                        LangHelper.getLang().getString("analytics_dialog_message")
+                );
+                SimplePreferences.putBooleanValue(SimplePreferences.InternalKeys.ASKED_ANALYTICS, true);
+                SimplePreferences.putBooleanValue(SimplePreferences.SettingsKeys.ANALYTICS, analytics);
+            });
+        }
     }
 
     private void onChampionChanged(Champion champion) {
@@ -336,7 +360,37 @@ public class RuneChanger implements Launcher {
         }
     }
 
+    private void showDonateDialog() {
+        if (donateDontAsk) {
+            return;
+        }
+        donateDontAsk = true;
+        ButtonType donate = new ButtonType(LangHelper.getLang().getString("donate_button"));
+        ButtonType later = new ButtonType(LangHelper.getLang().getString("later_button"));
+        ButtonType never = new ButtonType(LangHelper.getLang().getString("never_ask_again_button"));
+        ButtonType result = Settings.openDialog(
+                LangHelper.getLang().getString("donate_dialog_title"),
+                LangHelper.getLang().getString("donate_dialog_message"),
+                donate,
+                later,
+                never
+        );
+        if (result == donate) {
+            if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
+                try {
+                    Desktop.getDesktop().browse(new URI("https://www.paypal.me/stirante"));
+                } catch (IOException | URISyntaxException e) {
+                    log.error("Exception occurred while navigating to donate page", e);
+                }
+            }
+        }
+        else if (result == never) {
+            SimplePreferences.putBooleanValue(SimplePreferences.InternalKeys.DONATE_DONT_ASK, true);
+        }
+    }
+
     private void openSocket() throws Exception {
+        ClientApi.setPrintResponse(true);
         socket = api.openWebSocket();
         gui.showInfoMessage(LangHelper.getLang().getString("client_connected"));
         Settings.setClientConnected(true);
@@ -348,6 +402,14 @@ public class RuneChanger implements Launcher {
                     log.info("Event: " + event);
 //                    System.out.println(new Gson().toJson(event.getData()));
                 }
+                if (event.getUri().equalsIgnoreCase("/lol-gameflow/v1/gameflow-phase") &&
+                        event.getData() == LolGameflowGameflowPhase.ENDOFGAME) {
+                    String lastGrade = champSelectModule.getLastGrade();
+                    log.debug("Grade: " + lastGrade);
+                    if (lastGrade.startsWith("S")) {
+                        showDonateDialog();
+                    }
+                }
                 if (event.getUri().equalsIgnoreCase("/lol-chat/v1/me") &&
                         SimplePreferences.getBooleanValue(SimplePreferences.SettingsKeys.ANTI_AWAY, false)) {
                     if (((LolChatUserResource) event.getData()).availability.equalsIgnoreCase("away")) {
@@ -357,7 +419,7 @@ public class RuneChanger implements Launcher {
                                 data.availability = "chat";
                                 api.executePut("/lol-chat/v1/me", data);
                             } catch (IOException e) {
-                                e.printStackTrace();
+                                log.error("Exception occurred while setting availability", e);
                             }
                         }).start();
                     }
@@ -378,7 +440,7 @@ public class RuneChanger implements Launcher {
                         try {
                             api.executePost("/lol-matchmaking/v1/ready-check/accept");
                         } catch (IOException e) {
-                            e.printStackTrace();
+                            log.error("Exception occurred while autoaccepting", e);
                         }
                     }
                 }
@@ -427,7 +489,7 @@ public class RuneChanger implements Launcher {
             Runtime.getRuntime().exec("wscript silent.vbs open.bat");
             System.exit(0);
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("Exception occurred while executing command", e);
         }
     }
 

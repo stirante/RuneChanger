@@ -128,7 +128,7 @@ public class DataUpdater {
             "            try {\n" +
             "                image = ImageIO.read(getClass().getResourceAsStream(\"/runes/\" + getId() + \".png\"));\n" +
             "            } catch (IOException e) {\n" +
-            "                e.printStackTrace();\n" +
+            "                log.error(\"Exception occurred while reading rune icon\", e);\n" +
             "            }\n" +
             "        }\n" +
             "        return image;\n" +
@@ -208,7 +208,7 @@ public class DataUpdater {
             writer.flush();
             writer.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("Exception occurred while generating Rune enum", e);
         }
     }
 
@@ -233,7 +233,7 @@ public class DataUpdater {
                     conn.getInputStream().close();
                     ImageIO.write(read, "png", new File("src/main/resources/runes/" + rune.getId() + ".png"));
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    log.error("Exception occurred while downloading rune image for rune " + rune.getName(), e);
                 }
             }
         }

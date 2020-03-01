@@ -6,6 +6,8 @@ import com.stirante.runechanger.util.FxUtils;
 import com.stirante.runechanger.util.SimplePreferences;
 import generated.LolPerksPerkPageResource;
 import generated.LolPerksPlayerInventory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -14,6 +16,7 @@ import java.util.List;
 import java.util.Optional;
 
 public class Runes extends ClientModule {
+    private static final Logger log = LoggerFactory.getLogger(Runes.class);
 
     private final HashSet<Runnable> onPageChange = new HashSet<>();
 
@@ -44,7 +47,7 @@ public class Runes extends ClientModule {
             getApi().executeDelete("/lol-perks/v1/pages/" + id);
             getApi().executePost("/lol-perks/v1/pages/", page1);
         } catch (IOException ex) {
-            ex.printStackTrace();
+            log.error("", ex);
         }
 
     }
@@ -79,7 +82,7 @@ public class Runes extends ClientModule {
             }
             getApi().executePost("/lol-perks/v1/pages/", page1);
         } catch (IOException ex) {
-            ex.printStackTrace();
+            log.error("", ex);
         }
     }
 
@@ -99,7 +102,7 @@ public class Runes extends ClientModule {
                 }
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("Exception occurred while getting all rune pages", e);
         }
         return availablePages;
     }
@@ -108,7 +111,7 @@ public class Runes extends ClientModule {
         try {
             return getApi().executeGet("/lol-perks/v1/inventory", LolPerksPlayerInventory.class).ownedPageCount;
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("Exception occurred while getting owned rune page count", e);
         }
         return 0;
     }
@@ -124,7 +127,7 @@ public class Runes extends ClientModule {
                 try {
                     FxUtils.doOnFxThread(runnable);
                 } catch (Throwable t) {
-                    t.printStackTrace();
+                    log.error("", t);
                 }
             }
         }
@@ -142,7 +145,7 @@ public class Runes extends ClientModule {
         try {
             getApi().executeDelete("/lol-perks/v1/pages/" + page.getSource());
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("Exception occurred while deleting a rune page", e);
         }
     }
 
@@ -152,7 +155,7 @@ public class Runes extends ClientModule {
         try {
             getApi().executePost("/lol-perks/v1/pages/", page1);
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("Exception occurred while adding a rune page", e);
         }
     }
 
