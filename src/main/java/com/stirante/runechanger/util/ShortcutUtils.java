@@ -9,6 +9,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
+import java.nio.file.StandardOpenOption;
 
 public class ShortcutUtils {
     private static final Logger log = LoggerFactory.getLogger(ShortcutUtils.class);
@@ -16,13 +17,14 @@ public class ShortcutUtils {
     public static void createShortcut(File directory, String linkName, String fileName) throws IOException {
         String dir = PathUtils.getWorkingDirectory();
         File iconFile = new File(dir + File.separator + "icon.ico");
-        if (!iconFile.exists()) {
-            InputStream iconStream =
-                    ShortcutUtils.class.getResourceAsStream("/images/runechanger-runeforge-icon-32x32.ico");
-            byte[] bytes = iconStream.readAllBytes();
-            iconStream.close();
-            Files.write(iconFile.toPath(), bytes);
+        if (iconFile.exists()) {
+            iconFile.delete();
         }
+        InputStream iconStream =
+                ShortcutUtils.class.getResourceAsStream("/images/256.ico");
+        byte[] bytes = iconStream.readAllBytes();
+        iconStream.close();
+        Files.write(iconFile.toPath(), bytes);
         ShellLink sl = ShellLink.createLink(fileName);
         sl.setIconLocation(iconFile.getAbsolutePath());
         sl.setWorkingDir(dir);

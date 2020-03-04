@@ -92,11 +92,13 @@ public class RuneChanger implements Launcher {
         } catch (Exception e) {
             log.error("Exception occurred while checking autostart path", e);
         }
-        if (!SimplePreferences.getBooleanValue(SimplePreferences.FlagKeys.CREATED_SHORTCUTS, false)) {
+        if (!SimplePreferences.getBooleanValue(SimplePreferences.FlagKeys.CREATED_SHORTCUTS, false) ||
+                !SimplePreferences.getBooleanValue(SimplePreferences.FlagKeys.UPDATED_LOGO, false)) {
             try {
                 ShortcutUtils.createDesktopShortcut();
                 ShortcutUtils.createMenuShortcuts();
                 SimplePreferences.putBooleanValue(SimplePreferences.FlagKeys.CREATED_SHORTCUTS, true);
+                SimplePreferences.putBooleanValue(SimplePreferences.FlagKeys.UPDATED_LOGO, true);
             } catch (Exception e) {
                 log.error("Exception occurred while creating shortcuts", e);
             }
@@ -214,11 +216,11 @@ public class RuneChanger implements Launcher {
         if (!Arrays.asList(programArguments).contains("-osx")) {
             ClientApi.setDisableEndpointWarnings(true);
             try {
-                String clientPath = SimplePreferences.getStringValue(SimplePreferences.InternalKeys.CLIENT_PATH, null);
-                if (clientPath != null && !new File(clientPath).exists()) {
-                    clientPath = null;
-                }
-                api = new ClientApi(clientPath);
+//                String clientPath = SimplePreferences.getStringValue(SimplePreferences.InternalKeys.CLIENT_PATH, null);
+//                if (clientPath != null && !new File(clientPath).exists()) {
+//                    clientPath = null;
+//                }
+                api = new ClientApi(null);
             } catch (IllegalStateException e) {
                 log.error("Exception occurred while creating client api", e);
                 JOptionPane.showMessageDialog(null, LangHelper.getLang()
@@ -390,7 +392,6 @@ public class RuneChanger implements Launcher {
     }
 
     private void openSocket() throws Exception {
-        ClientApi.setPrintResponse(true);
         socket = api.openWebSocket();
         gui.showInfoMessage(LangHelper.getLang().getString("client_connected"));
         Settings.setClientConnected(true);
@@ -404,11 +405,20 @@ public class RuneChanger implements Launcher {
                 }
                 if (event.getUri().equalsIgnoreCase("/lol-gameflow/v1/gameflow-phase") &&
                         event.getData() == LolGameflowGameflowPhase.ENDOFGAME) {
-                    String lastGrade = champSelectModule.getLastGrade();
-                    log.debug("Grade: " + lastGrade);
-                    if (lastGrade.startsWith("S")) {
-                        showDonateDialog();
-                    }
+                    new Thread(() -> {
+                        try {
+                            Thread.sleep(10000);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                        FxUtils.doOnFxThread(() -> {
+                            String lastGrade = champSelectModule.getLastGrade();
+                            log.debug("Grade: " + lastGrade);
+                            if (lastGrade.startsWith("S")) {
+                                showDonateDialog();
+                            }
+                        });
+                    }).start();
                 }
                 if (event.getUri().equalsIgnoreCase("/lol-chat/v1/me") &&
                         SimplePreferences.getBooleanValue(SimplePreferences.SettingsKeys.ANTI_AWAY, false)) {

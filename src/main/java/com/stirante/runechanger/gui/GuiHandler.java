@@ -215,7 +215,7 @@ public class GuiHandler {
             SystemTray systemTray = SystemTray.getSystemTray();
             //Create icon in tray
             Image image =
-                    ImageIO.read(GuiHandler.class.getResourceAsStream("/images/32.png"));
+                    ImageIO.read(GuiHandler.class.getResourceAsStream("/images/16.png"));
             //Create tray menu
             PopupMenu trayPopupMenu = new PopupMenu();
             MenuItem action = new MenuItem("RuneChanger v" + Constants.VERSION_STRING);

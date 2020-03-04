@@ -179,10 +179,9 @@ public class Settings extends Application {
         mainStage.setTitle(Constants.APP_NAME);
         mainStage.getIcons()
                 .addAll(
-                        new Image(getClass().getResource("/images/16.png").toExternalForm()),
                         new Image(getClass().getResource("/images/32.png").toExternalForm()),
-                        new Image(getClass().getResource("/images/48.png").toExternalForm()),
-                        new Image(getClass().getResource("/images/256.png").toExternalForm())
+                        new Image(getClass().getResource("/images/256.png").toExternalForm()),
+                        new Image(getClass().getResource("/images/48.png").toExternalForm())
                 );
 
         Platform.setImplicitExit(false);

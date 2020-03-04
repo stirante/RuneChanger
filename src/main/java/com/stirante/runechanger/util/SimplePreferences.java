@@ -170,6 +170,7 @@ public class SimplePreferences {
 
     public static class FlagKeys {
         public static final String CREATED_SHORTCUTS = "createdShortcuts";
+        public static final String UPDATED_LOGO = "updatedLogo";
     }
 
 }
