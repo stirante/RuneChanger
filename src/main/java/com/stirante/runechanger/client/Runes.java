@@ -1,11 +1,14 @@
 package com.stirante.runechanger.client;
 
+import com.stirante.eventbus.EventBus;
+import com.stirante.eventbus.Subscribe;
 import com.stirante.lolclient.ClientApi;
 import com.stirante.runechanger.model.client.RunePage;
 import com.stirante.runechanger.util.FxUtils;
 import com.stirante.runechanger.util.SimplePreferences;
 import generated.LolPerksPerkPageResource;
 import generated.LolPerksPlayerInventory;
+import ly.count.sdk.java.Countly;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,37 +25,21 @@ public class Runes extends ClientModule {
 
     public Runes(ClientApi api) {
         super(api);
+        EventBus.register(this);
     }
 
-    public void replaceRunePage(RunePage page, int id) {
-        try {
-            //get all rune pages
-            LolPerksPerkPageResource[] pages =
-                    getApi().executeGet("/lol-perks/v1/pages", LolPerksPerkPageResource[].class);
-            //find available pages
-            ArrayList<LolPerksPerkPageResource> availablePages = new ArrayList<>();
-            for (LolPerksPerkPageResource p : pages) {
-                if (p.isEditable) {
-                    availablePages.add(p);
-                }
-            }
-            //change pages
-            LolPerksPerkPageResource page1 =
-                    getApi().executeGet("/lol-perks/v1/pages/" + id, LolPerksPerkPageResource.class);
-            if (!page1.isEditable || !page1.isActive) {
-                page1 = availablePages.get(0);
-            }
-            page.toClient(page1);
-            //updating rune page sometimes bugs out client, so we remove and add new one
-            getApi().executeDelete("/lol-perks/v1/pages/" + id);
-            getApi().executePost("/lol-perks/v1/pages/", page1);
-        } catch (IOException ex) {
-            log.error("", ex);
-        }
-
+    @Subscribe(ClientEventListener.CurrentSummonerEvent.NAME)
+    public void onCurrentSummoner(ClientEventListener.CurrentSummonerEvent event) {
+        resetSummoner();
     }
 
     public void setCurrentRunePage(RunePage page) {
+        if (Countly.isInitialized()) {
+            Countly.session()
+                    .event("rune_page_selection")
+                    .addSegment("remote", String.valueOf(page.getSource().startsWith("http")))
+                    .record();
+        }
         try {
             //get all rune pages
             LolPerksPerkPageResource[] pages =
@@ -82,7 +69,7 @@ public class Runes extends ClientModule {
             }
             getApi().executePost("/lol-perks/v1/pages/", page1);
         } catch (IOException ex) {
-            log.error("", ex);
+            log.error("Exception occurred while setting current rune page", ex);
         }
     }
 
@@ -116,7 +103,8 @@ public class Runes extends ClientModule {
         return 0;
     }
 
-    public void handlePageChange(LolPerksPerkPageResource[] pages) {
+    @Subscribe(ClientEventListener.RunePagesEvent.NAME)
+    public void onRunePages(ClientEventListener.RunePagesEvent event) {
         // Auto sync rune pages to RuneChanger
         if (SimplePreferences.getBooleanValue(SimplePreferences.SettingsKeys.AUTO_SYNC, false)) {
             syncRunePages();
@@ -127,11 +115,34 @@ public class Runes extends ClientModule {
                 try {
                     FxUtils.doOnFxThread(runnable);
                 } catch (Throwable t) {
-                    log.error("", t);
+                    log.error("Exception occurred while executing page change listener", t);
+                    if (Countly.isInitialized()) {
+                        Countly.session().addCrashReport(t, false);
+                    }
                 }
             }
         }
     }
+
+//    public void handlePageChange(LolPerksPerkPageResource[] pages) {
+//        // Auto sync rune pages to RuneChanger
+//        if (SimplePreferences.getBooleanValue(SimplePreferences.SettingsKeys.AUTO_SYNC, false)) {
+//            syncRunePages();
+//        }
+//
+//        for (Runnable runnable : onPageChange) {
+//            if (runnable != null) {
+//                try {
+//                    FxUtils.doOnFxThread(runnable);
+//                } catch (Throwable t) {
+//                    log.error("Exception occurred while executing page change listener", t);
+//                    if (Countly.isInitialized()) {
+//                        Countly.session().addCrashReport(t, false);
+//                    }
+//                }
+//            }
+//        }
+//    }
 
     public void addOnPageChangeListener(Runnable runnable) {
         onPageChange.add(runnable);

@@ -1,10 +1,7 @@
 package com.stirante.runechanger.gui.controllers;
 
 import com.stirante.runechanger.gui.Settings;
-import com.stirante.runechanger.util.AutoStartUtils;
-import com.stirante.runechanger.util.AutoUpdater;
-import com.stirante.runechanger.util.LangHelper;
-import com.stirante.runechanger.util.SimplePreferences;
+import com.stirante.runechanger.util.*;
 import javafx.animation.Animation;
 import javafx.animation.Interpolator;
 import javafx.animation.Transition;
@@ -20,6 +17,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+import ly.count.sdk.java.Countly;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,6 +40,8 @@ public class SettingsController {
     public CheckBox smartDisenchant;
     public CheckBox championSuggestions;
     public CheckBox enableAnalytics;
+    public CheckBox enableAnimations;
+    public CheckBox restartOnDodge;
     public Pane container;
     public VBox wrapper;
     public ScrollPane scroll;
@@ -81,6 +81,7 @@ public class SettingsController {
             SimplePreferences.putBooleanValue(SimplePreferences.SettingsKeys.SMART_DISENCHANT, target.isSelected());
         }
         else if (target == enableAnalytics) {
+            AnalyticsUtil.onConsent(target.isSelected());
             SimplePreferences.putBooleanValue(SimplePreferences.SettingsKeys.ANALYTICS, target.isSelected());
         }
         else if (target == experimental) {
@@ -102,6 +103,12 @@ public class SettingsController {
         else if (target == forceEnglish) {
             SimplePreferences.putBooleanValue(SimplePreferences.SettingsKeys.FORCE_ENGLISH, target.isSelected());
             tryRestart();
+        }
+        else if (target == enableAnimations) {
+            SimplePreferences.putBooleanValue(SimplePreferences.SettingsKeys.ENABLE_ANIMATIONS, target.isSelected());
+        }
+        else if (target == restartOnDodge) {
+            SimplePreferences.putBooleanValue(SimplePreferences.SettingsKeys.RESTART_ON_DODGE, target.isSelected());
         }
         SimplePreferences.save();
     }
@@ -127,6 +134,8 @@ public class SettingsController {
         setupPreference(SimplePreferences.SettingsKeys.SMART_DISENCHANT, false, smartDisenchant);
         setupPreference(SimplePreferences.SettingsKeys.CHAMPION_SUGGESTIONS, true, championSuggestions);
         setupPreference(SimplePreferences.SettingsKeys.ANALYTICS, true, enableAnalytics);
+        setupPreference(SimplePreferences.SettingsKeys.ENABLE_ANIMATIONS, true, enableAnimations);
+        setupPreference(SimplePreferences.SettingsKeys.RESTART_ON_DODGE, false, restartOnDodge);
 
         if (AutoStartUtils.isAutoStartEnabled()) {
             autoStart.setSelected(true);
@@ -148,6 +157,9 @@ public class SettingsController {
             Runtime.getRuntime().exec("wscript silent.vbs open.bat");
         } catch (Exception ex) {
             log.error("Exception occurred while executing a restart command", ex);
+            if (Countly.isInitialized()) {
+                Countly.session().addCrashReport(ex, false);
+            }
         }
         System.exit(0);
     }

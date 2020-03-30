@@ -1,9 +1,11 @@
 package com.stirante.runechanger.gui.overlay;
 
+import com.stirante.runechanger.RuneChanger;
 import com.stirante.runechanger.gui.Constants;
 import com.stirante.runechanger.gui.SceneType;
 import com.stirante.runechanger.model.client.GameMap;
 import com.stirante.runechanger.util.SimplePreferences;
+import ly.count.sdk.java.Countly;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,6 +31,9 @@ public class QuickReplies extends OverlayLayer {
             icons[4] = ImageIO.read(getClass().getResourceAsStream("/images/icon-position-top.png"));
         } catch (IOException e) {
             log.error("Exception occurred while loading position icons", e);
+            if (Countly.isInitialized()) {
+                Countly.session().addCrashReport(e, false);
+            }
         }
         for (int i = 0; i < rectangles.length; i++) {
             rectangles[i] = new Rectangle(0, 0, 0, 0);
@@ -61,7 +66,7 @@ public class QuickReplies extends OverlayLayer {
     }
 
     public void mouseReleased(MouseEvent e) {
-        new Thread(() -> {
+        RuneChanger.EXECUTOR_SERVICE.submit(() -> {
             for (int i = 0; i < rectangles.length; i++) {
                 Rectangle rectangle = rectangles[i];
                 if (rectangle.contains(e.getX(), e.getY())) {
@@ -69,7 +74,7 @@ public class QuickReplies extends OverlayLayer {
                     return;
                 }
             }
-        }).start();
+        });
     }
 
     public void mouseMoved(MouseEvent e) {

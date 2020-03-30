@@ -1,19 +1,28 @@
 package com.stirante.runechanger.gui;
 
+import com.stirante.eventbus.EventBus;
+import com.stirante.eventbus.Subscribe;
 import com.stirante.runechanger.DebugConsts;
 import com.stirante.runechanger.RuneChanger;
+import com.stirante.runechanger.client.ChampionSelection;
+import com.stirante.runechanger.client.ClientEventListener;
 import com.stirante.runechanger.client.ScreenPointChecker;
 import com.stirante.runechanger.gui.overlay.ChampionSuggestions;
 import com.stirante.runechanger.gui.overlay.ClientOverlay;
 import com.stirante.runechanger.gui.overlay.RuneMenu;
 import com.stirante.runechanger.model.client.Champion;
 import com.stirante.runechanger.model.client.RunePage;
+import com.stirante.runechanger.runestore.RuneStore;
 import com.stirante.runechanger.util.LangHelper;
 import com.stirante.runechanger.util.NativeUtils;
-import com.sun.jna.Native;
+import com.stirante.runechanger.util.PerformanceMonitor;
 import com.sun.jna.platform.win32.Advapi32Util;
 import com.sun.jna.platform.win32.User32;
 import com.sun.jna.platform.win32.WinDef;
+import javafx.beans.InvalidationListener;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import ly.count.sdk.java.Countly;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -73,6 +82,7 @@ public class GuiHandler {
     public void closeWindow() {
         lock.lock();
         log.info("Closing window");
+        PerformanceMonitor.pushEvent(PerformanceMonitor.EventType.OVERLAY_HIDE);
         if (win != null) {
             win.dispose();
             win = null;
@@ -87,6 +97,7 @@ public class GuiHandler {
     public void openWindow() {
         lock.lock();
         log.info("Opening window");
+        PerformanceMonitor.pushEvent(PerformanceMonitor.EventType.OVERLAY_SHOW);
         if (!windowOpen.get()) {
             startWindow();
             windowOpen.set(true);
@@ -239,8 +250,12 @@ public class GuiHandler {
             systemTray.add(trayIcon);
         } catch (Exception e) {
             log.error("Exception occurred while initializing gui", e);
+            if (Countly.isInitialized()) {
+                Countly.session().addCrashReport(e, true);
+            }
             System.exit(0);
         }
+        EventBus.register(this);
     }
 
     /**
@@ -250,14 +265,14 @@ public class GuiHandler {
         if (threadRunning.get()) {
             return;
         }
-        new Thread(() -> {
+        RuneChanger.EXECUTOR_SERVICE.submit(() -> {
             threadRunning.set(true);
             while (windowOpen.get()) {
                 //if window is open set it's position or hide if client is not active window
                 lock.lock();
-                WinDef.HWND top = User32Extended.INSTANCE.GetForegroundWindow();
+                WinDef.HWND top = User32.INSTANCE.GetForegroundWindow();
                 WinDef.RECT rect = new WinDef.RECT();
-                User32Extended.INSTANCE.GetWindowRect(top, rect);
+                User32.INSTANCE.GetWindowRect(top, rect);
                 boolean isClientWindow = NativeUtils.isLeagueOfLegendsClientWindow(top);
                 if (isClientWindow) {
                     screenCheckCounter++;
@@ -297,7 +312,10 @@ public class GuiHandler {
                             trackPosition(rect1);
                         }
                     } catch (Throwable t) {
-                        log.error("", t);
+                        log.error("Exception occurred while updating window", t);
+                        if (Countly.isInitialized()) {
+                            Countly.session().addCrashReport(t, false);
+                        }
                     }
                 }
                 else {
@@ -313,7 +331,7 @@ public class GuiHandler {
                 }
             }
             threadRunning.set(false);
-        }).start();
+        });
     }
 
     /**
@@ -343,6 +361,31 @@ public class GuiHandler {
         }, null);
     }
 
+    @Subscribe(ClientEventListener.ChampionSelectionEvent.NAME)
+    public void onChampionSelection(ClientEventListener.ChampionSelectionEvent event) {
+        if (event.getEventType() == ClientEventListener.WebSocketEventType.CREATE) {
+            ChampionSelection selectionModule = RuneChanger.getInstance().getChampionSelectionModule();
+            setSuggestedChampions(
+                    selectionModule.getLastChampions(),
+                    selectionModule.getBannedChampions(),
+                    selectionModule::selectChampion);
+        }
+        if (event.getEventType() == ClientEventListener.WebSocketEventType.DELETE) {
+            setSceneType(SceneType.NONE);
+        }
+        else if (getSceneType() != SceneType.CHAMPION_SELECT_RUNE_PAGE_EDIT) {
+            setSceneType(SceneType.CHAMPION_SELECT);
+        }
+    }
+
+
+    @Subscribe(ClientEventListener.ClientZoomScaleEvent.NAME)
+    public void onClientZoomScale(ClientEventListener.ClientZoomScaleEvent event) {
+        //Client window size changed, so we restart the overlay
+        closeWindow();
+        openWindow();
+    }
+
     public void setSuggestedChampions(ArrayList<Champion> lastChampions,
                                       ArrayList<Champion> bannedChampions, Consumer<Champion> suggestedChampionSelectedListener) {
         this.suggestedChampions = lastChampions;
@@ -354,13 +397,21 @@ public class GuiHandler {
         }
     }
 
-    /**
-     * Extended User32 library with GetForegroundWindow method
-     */
-    public interface User32Extended extends User32 {
-        User32Extended INSTANCE = Native.loadLibrary("user32", User32Extended.class);
-
-        HWND GetForegroundWindow();
-
+    @Subscribe(ChampionSelection.ChampionChangedEvent.NAME)
+    public void onChampionChange(ChampionSelection.ChampionChangedEvent event) {
+        ObservableList<RunePage> pages = FXCollections.observableArrayList();
+        setRunes(pages, (page) -> RuneChanger.EXECUTOR_SERVICE.submit(() -> RuneChanger.getInstance()
+                .getRunesModule()
+                .setCurrentRunePage(page)));
+        pages.addListener((InvalidationListener) observable -> setRunes(pages));
+        if (event.getChampion() != null) {
+            log.info("Downloading runes for champion: " + event.getChampion().getName());
+            RuneStore.getRunes(event.getChampion(), pages);
+        }
+        else {
+            log.info("Showing local runes");
+            RuneStore.getLocalRunes(pages);
+        }
     }
+
 }

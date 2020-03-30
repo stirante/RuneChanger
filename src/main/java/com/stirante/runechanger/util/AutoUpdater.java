@@ -3,6 +3,7 @@ package com.stirante.runechanger.util;
 import com.stirante.runechanger.DebugConsts;
 import com.stirante.runechanger.RuneChanger;
 import com.stirante.runechanger.gui.Settings;
+import ly.count.sdk.java.Countly;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.update4j.Configuration;
@@ -35,8 +36,7 @@ public class AutoUpdater {
         if (DebugConsts.isRunningFromIDE()) {
             return false;
         }
-        if (DebugConsts.DISABLE_AUTOUPDATE ||
-                !SimplePreferences.getBooleanValue(SimplePreferences.SettingsKeys.AUTO_UPDATE, true)) {
+        if (!SimplePreferences.getBooleanValue(SimplePreferences.SettingsKeys.AUTO_UPDATE, true)) {
             return false;
         }
 
@@ -81,6 +81,9 @@ public class AutoUpdater {
             System.exit(0);
         } catch (IOException e) {
             log.error("Exception occurred while starting update", e);
+            if (Countly.isInitialized()) {
+                Countly.session().addCrashReport(e, true);
+            }
         }
     }
 
@@ -174,6 +177,9 @@ public class AutoUpdater {
             zin.close();
         } catch (IOException e) {
             log.error("Exception occurred while extracting zip file", e);
+            if (Countly.isInitialized()) {
+                Countly.session().addCrashReport(e, false);
+            }
         }
     }
 
@@ -229,7 +235,7 @@ public class AutoUpdater {
                 }
             }
         } catch (IOException ex) {
-            log.error("", ex);
+            log.error("Exception occurred while checking for update", ex);
         }
     }
 }

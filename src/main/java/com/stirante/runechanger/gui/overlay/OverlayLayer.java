@@ -3,6 +3,7 @@ package com.stirante.runechanger.gui.overlay;
 import com.stirante.runechanger.RuneChanger;
 import com.stirante.runechanger.gui.Constants;
 import com.stirante.runechanger.gui.SceneType;
+import com.stirante.runechanger.util.SimplePreferences;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -23,6 +24,9 @@ public abstract class OverlayLayer implements MouseMotionListener, MouseListener
     }
 
     protected static float ease(float currentPosition, float targetPosition) {
+        if (!SimplePreferences.getBooleanValue(SimplePreferences.SettingsKeys.ENABLE_ANIMATIONS, true)) {
+            return targetPosition;
+        }
         return currentPosition + ((targetPosition - currentPosition) * 0.2f);
     }
 

@@ -1,4 +1,4 @@
-package com.stirante.runechanger.model.github;
+package com.stirante.runechanger.model.app;
 
 import com.google.gson.*;
 import org.slf4j.Logger;

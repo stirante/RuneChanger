@@ -14,13 +14,15 @@ public class DebugConsts {
 
     //those are really annoying while testing
     public static final boolean DISABLE_NOTIFICATIONS = false;
-    public static final boolean DISABLE_AUTOUPDATE = false;
 
     //logs every event (except for voice) to System.out
     public static final boolean PRINT_EVENTS = false;
 
     //set to lang code for overriding language
     public static final String OVERRIDE_LANGUAGE = null;
+
+    //enables extra info from analytics library
+    public static final boolean ENABLE_ANALYTICS_DEBUG = false;
 
     /**
      * If instead of a JAR we have a folder, it is very likely, that RuneChanger is running from an IDE

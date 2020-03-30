@@ -4,6 +4,7 @@ import com.stirante.runechanger.gui.Constants;
 import com.stirante.runechanger.gui.SceneType;
 import com.stirante.runechanger.model.client.RunePage;
 import com.stirante.runechanger.util.LangHelper;
+import ly.count.sdk.java.Countly;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,6 +38,9 @@ public class RuneMenu extends OverlayLayer {
             grayscaleIcon = ImageIO.read(getClass().getResourceAsStream("/images/28grayscale.png"));
         } catch (IOException e) {
             log.error("Exception occurred while loading rune button icons", e);
+            if (Countly.isInitialized()) {
+                Countly.session().addCrashReport(e, false);
+            }
         }
     }
 

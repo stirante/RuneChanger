@@ -1,26 +1,28 @@
 package com.stirante.runechanger.gui;
 
+import com.stirante.eventbus.EventBus;
+import com.stirante.eventbus.EventPriority;
+import com.stirante.eventbus.Subscribe;
 import com.stirante.runechanger.RuneChanger;
-import com.stirante.runechanger.gui.controllers.DialogController;
-import com.stirante.runechanger.gui.controllers.HomeController;
-import com.stirante.runechanger.gui.controllers.MainController;
-import com.stirante.runechanger.gui.controllers.RuneBookController;
+import com.stirante.runechanger.client.ClientEventListener;
+import com.stirante.runechanger.gui.controllers.*;
 import com.stirante.runechanger.model.client.Champion;
 import com.stirante.runechanger.model.client.RunePage;
 import com.stirante.runechanger.runestore.RuneStore;
-import com.stirante.runechanger.util.AsyncTask;
-import com.stirante.runechanger.util.LangHelper;
-import com.stirante.runechanger.util.SimplePreferences;
+import com.stirante.runechanger.util.*;
+import generated.LolGameflowGameflowPhase;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.scene.Scene;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.ProgressBar;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import ly.count.sdk.java.Countly;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,6 +31,8 @@ import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -45,9 +49,11 @@ public class Settings extends Application {
     private RuneBookController runebook;
     private HomeController home;
     private EventHandler<KeyEvent> keyPress = this::handleKeyPress;
+    private boolean donateDontAsk = false;
 
     public static void initialize() {
-        new Thread(Application::launch).start();
+        EventBus.register(Settings.class);
+        RuneChanger.EXECUTOR_SERVICE.submit((Runnable) Application::launch);
     }
 
     public static void show() {
@@ -83,6 +89,11 @@ public class Settings extends Application {
         openDialog(title, message, ButtonType.OK);
     }
 
+    @Subscribe(ClientEventListener.CurrentSummonerEvent.NAME)
+    public static void onCurrentSummoner(ClientEventListener.CurrentSummonerEvent event) {
+        setClientConnected(true);
+    }
+
     public static void setClientConnected(boolean value) {
         if (instance.home == null) {
             return;
@@ -111,6 +122,7 @@ public class Settings extends Application {
     }
 
     private void destroyScene() {
+        PerformanceMonitor.pushEvent(PerformanceMonitor.EventType.GUI_HIDE);
         mainStage.hide();
         mainStage.setScene(null);
         runebook = null;
@@ -143,6 +155,7 @@ public class Settings extends Application {
     }
 
     private void createScene() {
+        PerformanceMonitor.pushEvent(PerformanceMonitor.EventType.GUI_SHOW);
         controller = new MainController(mainStage);
         runebook = new RuneBookController();
 
@@ -184,12 +197,43 @@ public class Settings extends Application {
                         new Image(getClass().getResource("/images/48.png").toExternalForm())
                 );
 
+        mainStage.addEventHandler(KeyEvent.KEY_RELEASED, event -> {
+            if (event.isControlDown() && event.getCode() == KeyCode.D) {
+                if (PerformanceMonitor.isRunning()) {
+                    ProgressDialogController progressDialog = new ProgressDialogController();
+                    progressDialog.setTitle("Saving performance monitor output");
+                    progressDialog.setProgress(ProgressBar.INDETERMINATE_PROGRESS);
+                    progressDialog.show();
+                    new AsyncTask<Void, Void, Void>() {
+                        @Override
+                        public Void doInBackground(Void[] params) {
+                            PerformanceMonitor.stop();
+                            return null;
+                        }
+
+                        @Override
+                        public void onPostExecute(Void result) {
+                            progressDialog.close();
+                            RuneChanger.getInstance()
+                                    .getGuiHandler()
+                                    .showInfoMessage("Performance monitor output saved");
+                        }
+                    }.execute();
+                }
+                else {
+                    PerformanceMonitor.start();
+                    RuneChanger.getInstance().getGuiHandler().showInfoMessage("Performance monitor started");
+                }
+            }
+        });
+
         Platform.setImplicitExit(false);
 
         if (!Arrays.asList(runeChanger.programArguments).contains("-minimized")) {
             createScene();
         }
 
+        donateDontAsk = SimplePreferences.getBooleanValue(SimplePreferences.InternalKeys.DONATE_DONT_ASK, false);
     }
 
     private void copyRunePage(RunePage runePage) {
@@ -228,7 +272,60 @@ public class Settings extends Application {
         }
     }
 
-    private void updateRunes() {
+    @Subscribe(ClientEventListener.GamePhaseEvent.NAME)
+    public void onGamePhase(ClientEventListener.GamePhaseEvent event) {
+        if (event.getData() == LolGameflowGameflowPhase.ENDOFGAME) {
+            RuneChanger.EXECUTOR_SERVICE.submit(() -> {
+                try {
+                    Thread.sleep(10000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                FxUtils.doOnFxThread(() -> {
+                    String lastGrade = RuneChanger.getInstance().getChampionSelectionModule().getLastGrade();
+                    log.debug("Grade: " + lastGrade);
+                    if (lastGrade != null && lastGrade.startsWith("S")) {
+                        showDonateDialog();
+                    }
+                });
+            });
+        }
+    }
+
+    private void showDonateDialog() {
+        if (donateDontAsk) {
+            return;
+        }
+        donateDontAsk = true;
+        ButtonType donate = new ButtonType(LangHelper.getLang().getString("donate_button"));
+        ButtonType later = new ButtonType(LangHelper.getLang().getString("later_button"));
+        ButtonType never = new ButtonType(LangHelper.getLang().getString("never_ask_again_button"));
+        ButtonType result = Settings.openDialog(
+                LangHelper.getLang().getString("donate_dialog_title"),
+                LangHelper.getLang().getString("donate_dialog_message"),
+                donate,
+                later,
+                never
+        );
+        if (result == donate) {
+            if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
+                try {
+                    Desktop.getDesktop().browse(new URI("https://www.paypal.me/stirante"));
+                } catch (IOException | URISyntaxException e) {
+                    log.error("Exception occurred while navigating to donate page", e);
+                    if (Countly.isInitialized()) {
+                        Countly.session().addCrashReport(e, false);
+                    }
+                }
+            }
+        }
+        else if (result == never) {
+            SimplePreferences.putBooleanValue(SimplePreferences.InternalKeys.DONATE_DONT_ASK, true);
+        }
+    }
+
+    @Subscribe(value = ClientEventListener.RunePagesEvent.NAME, priority = EventPriority.LOWEST)
+    public void updateRunes() {
         if (home == null) {
             return;
         }

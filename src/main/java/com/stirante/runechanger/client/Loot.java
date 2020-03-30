@@ -1,5 +1,7 @@
 package com.stirante.runechanger.client;
 
+import com.stirante.eventbus.EventBus;
+import com.stirante.eventbus.Subscribe;
 import com.stirante.lolclient.ClientApi;
 import com.stirante.runechanger.model.client.Champion;
 import generated.LolChampionsCollectionsChampionMinimal;
@@ -17,6 +19,12 @@ public class Loot extends ClientModule {
 
     public Loot(ClientApi api) {
         super(api);
+        EventBus.register(this);
+    }
+
+    @Subscribe(ClientEventListener.CurrentSummonerEvent.NAME)
+    public void onCurrentSummoner(ClientEventListener.CurrentSummonerEvent event) {
+        resetSummoner();
     }
 
     /**

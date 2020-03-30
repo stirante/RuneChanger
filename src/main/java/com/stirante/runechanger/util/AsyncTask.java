@@ -1,19 +1,20 @@
 package com.stirante.runechanger.util;
 
+import com.stirante.runechanger.RuneChanger;
 import javafx.application.Platform;
 
 public abstract class AsyncTask<P, T, R> {
 
     @SafeVarargs
     public final void execute(P... params) {
-        new Thread(() -> {
+        RuneChanger.EXECUTOR_SERVICE.submit(() -> {
             try {
                 R result = doInBackground(params);
                 Platform.runLater(() -> onPostExecute(result));
             } catch (Exception e) {
                 Platform.runLater(() -> onError(e));
             }
-        }).start();
+        });
     }
 
     public void onProgress(T progress) {

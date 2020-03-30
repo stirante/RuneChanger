@@ -1,6 +1,7 @@
 package com.stirante.runechanger.model.log;
 
 import com.google.gson.Gson;
+import ly.count.sdk.java.Countly;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,6 +41,9 @@ public class LogRequest {
             return result.code;
         } catch (IOException e) {
             log.error("Exception occurred while submitting logs", e);
+            if (Countly.isInitialized()) {
+                Countly.session().addCrashReport(e, false);
+            }
             return null;
         }
     }

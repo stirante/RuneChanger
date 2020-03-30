@@ -3,12 +3,15 @@ package com.stirante.runechanger.model.client;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.LoadingCache;
 import com.google.gson.Gson;
+import com.stirante.eventbus.EventBus;
 import com.stirante.runechanger.RuneChanger;
 import com.stirante.runechanger.runestore.ChampionGGSource;
 import com.stirante.runechanger.runestore.RuneStore;
 import com.stirante.runechanger.util.PathUtils;
+import com.stirante.runechanger.util.PerformanceMonitor;
 import com.stirante.runechanger.util.StringUtils;
 import generated.Position;
+import ly.count.sdk.java.Countly;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -28,10 +31,12 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class Champion {
+
+    public static final String IMAGES_READY_EVENT = "IMAGES_READY_EVENT";
+
     private static final Logger log = LoggerFactory.getLogger(Champion.class);
     private static final List<Champion> values = new ArrayList<>(256);
     private static final AtomicBoolean IMAGES_READY = new AtomicBoolean(false);
-    private static final Set<Runnable> imagesReadyEvenListeners = new HashSet<>();
     private static File portraitsDir = new File(PathUtils.getAssetsDir(), "champions");
     private static LoadingCache<Champion, java.awt.Image> portraitCache = Caffeine.newBuilder()
             .maximumSize(10_000)
@@ -117,6 +122,7 @@ public class Champion {
      * Initializes all champions in game
      */
     public static void init() throws IOException {
+        PerformanceMonitor.pushEvent(PerformanceMonitor.EventType.CHAMPIONS_INIT_START);
         File cache = new File(portraitsDir, "champions.json");
         if (cache.exists()) {
             try {
@@ -128,13 +134,13 @@ public class Champion {
                 return;
             }
             //Do online init anyways, but async, so it won't hold back GUI
-            new Thread(() -> {
+            RuneChanger.EXECUTOR_SERVICE.submit(() -> {
                 try {
                     onlineInit(cache);
                 } catch (IOException e) {
                     log.error("Exception occurred while performing online init of champions", e);
                 }
-            }).start();
+            });
         }
         else {
             //We don't have any cache for champions, so we get all champions on the main thread since champion list is required for GUI to work
@@ -183,15 +189,7 @@ public class Champion {
             }
             if (allExist) {
                 log.info("Portraits ready");
-                IMAGES_READY.set(true);
-                for (Runnable r : imagesReadyEvenListeners) {
-                    try {
-                        r.run();
-                    } catch (Throwable t) {
-                        log.error("", t);
-                    }
-                }
-                imagesReadyEvenListeners.clear();
+                DownloadThread.publishImagesReadyEvent();
             }
         }
 
@@ -221,10 +219,6 @@ public class Champion {
      */
     public static boolean areImagesReady() {
         return IMAGES_READY.get();
-    }
-
-    public static void addImagesReadyListener(Runnable r) {
-        imagesReadyEvenListeners.add(r);
     }
 
     /**
@@ -341,18 +335,26 @@ public class Champion {
                 }
             } catch (IOException e) {
                 log.error("Exception occurred while saving champions cache", e);
+                if (Countly.isInitialized()) {
+                    Countly.session().addCrashReport(e, false);
+                }
             }
 
             log.info("Champions initialized");
+            publishImagesReadyEvent();
+            PerformanceMonitor.pushEvent(PerformanceMonitor.EventType.CHAMPIONS_INIT_END);
+        }
+
+        private static void publishImagesReadyEvent() {
             IMAGES_READY.set(true);
-            for (Runnable r : imagesReadyEvenListeners) {
-                try {
-                    r.run();
-                } catch (Throwable t) {
-                    log.error("", t);
+            try {
+                EventBus.publish(IMAGES_READY_EVENT);
+            } catch (Throwable t) {
+                log.error("Exception occurred while publishing images ready event", t);
+                if (Countly.isInitialized()) {
+                    Countly.session().addCrashReport(t, false);
                 }
             }
-            imagesReadyEvenListeners.clear();
         }
 
         private void getQuoteForChampion(Champion champion) {
@@ -395,6 +397,9 @@ public class Champion {
                 }
             } catch (IOException e) {
                 log.error("Exception occurred while getting quote for champion " + champion.name, e);
+                if (Countly.isInitialized()) {
+                    Countly.session().addCrashReport(e, false);
+                }
             }
         }
 

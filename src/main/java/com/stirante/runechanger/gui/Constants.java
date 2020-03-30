@@ -1,6 +1,6 @@
 package com.stirante.runechanger.gui;
 
-import com.stirante.runechanger.model.github.Version;
+import com.stirante.runechanger.model.app.Version;
 import javafx.scene.text.Font;
 
 public class Constants {

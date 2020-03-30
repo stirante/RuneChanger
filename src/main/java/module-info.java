@@ -13,17 +13,20 @@ module RuneChanger {
     requires lol.client.java.api;
     requires com.jfoenix;
     requires slf4j.api;
-    requires jna.platform;
+    requires com.sun.jna;
     requires logback.classic;
     requires logback.core;
     requires org.jsoup;
     requires fuzzywuzzy;
     requires org.controlsfx.controls;
-    requires jna;
+    requires com.sun.jna.platform;
     requires org.update4j;
     requires mslinks;
     requires com.github.benmanes.caffeine;
     requires com.google.gson;
+    requires core;
+    requires java;
+    requires simple.event.bus;
 
     exports com.stirante.runechanger;
     exports com.stirante.runechanger.gui;
@@ -32,9 +35,10 @@ module RuneChanger {
     exports com.stirante.runechanger.client;
     exports com.stirante.runechanger.gui.components;
     exports com.stirante.runechanger.util;
+    exports com.stirante.runechanger.gui.overlay;
     opens com.stirante.runechanger.runestore;
     opens com.stirante.runechanger.model.client;
-    opens com.stirante.runechanger.model.github;
+    opens com.stirante.runechanger.model.app;
     opens com.stirante.runechanger.model.log;
     opens com.stirante.runechanger.gui.components;
     opens com.stirante.runechanger.gui.controllers;

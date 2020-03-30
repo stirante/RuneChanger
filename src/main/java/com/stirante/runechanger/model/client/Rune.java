@@ -1,5 +1,6 @@
 package com.stirante.runechanger.model.client;
 
+import ly.count.sdk.java.Countly;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -170,6 +171,9 @@ public enum Rune {
                 image = ImageIO.read(getClass().getResourceAsStream("/runes/" + getId() + ".png"));
             } catch (IOException e) {
                 log.error("Exception occurred while reading a rune icon", e);
+                if (Countly.isInitialized()) {
+                    Countly.session().addCrashReport(e, false);
+                }
             }
         }
         return image;

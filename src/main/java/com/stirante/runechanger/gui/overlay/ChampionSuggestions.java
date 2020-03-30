@@ -1,9 +1,12 @@
 package com.stirante.runechanger.gui.overlay;
 
+import com.stirante.eventbus.EventBus;
+import com.stirante.eventbus.Subscribe;
 import com.stirante.runechanger.gui.Constants;
 import com.stirante.runechanger.gui.SceneType;
 import com.stirante.runechanger.model.client.Champion;
 import com.stirante.runechanger.util.SimplePreferences;
+import com.stirante.runechanger.util.UiEventExecutor;
 
 import java.awt.*;
 import java.awt.event.MouseEvent;
@@ -16,7 +19,6 @@ public class ChampionSuggestions extends OverlayLayer {
     private ArrayList<Champion> bannedChampions;
     private Consumer<Champion> suggestedChampionSelectedListener;
     private float currentChampionsPosition = 0f;
-    private Runnable repaintLaterRunnable = this::repaintLater;
 
     ChampionSuggestions(ClientOverlay overlay) {
         super(overlay);
@@ -93,9 +95,15 @@ public class ChampionSuggestions extends OverlayLayer {
                 clearRect(g, getClientWidth() - barWidth, 0, barWidth, getHeight());
             }
             else if (!Champion.areImagesReady()) {
-                Champion.addImagesReadyListener(repaintLaterRunnable);
+                EventBus.register(this);
             }
         }
+    }
+
+    @Subscribe(value = Champion.IMAGES_READY_EVENT, eventExecutor = UiEventExecutor.class)
+    public void onImagesReady() {
+        repaintLater();
+        EventBus.unregister(this);
     }
 
     public void mouseReleased(MouseEvent e) {

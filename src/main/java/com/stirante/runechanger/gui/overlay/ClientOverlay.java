@@ -5,6 +5,7 @@ import com.stirante.runechanger.RuneChanger;
 import com.stirante.runechanger.gui.Constants;
 import com.stirante.runechanger.gui.SceneType;
 import com.stirante.runechanger.util.ClassSet;
+import ly.count.sdk.java.Countly;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,6 +63,9 @@ public class ClientOverlay extends JPanel implements MouseMotionListener, MouseL
             }
         } catch (IOException | FontFormatException e) {
             log.error("Exception occurred while loading font", e);
+            if (Countly.isInitialized()) {
+                Countly.session().addCrashReport(e, false);
+            }
         }
         setBackground(new Color(0f, 0f, 0f, 0f));
         timer = new Timer(16, new AbstractAction() {

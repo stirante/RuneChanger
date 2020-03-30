@@ -1,5 +1,6 @@
 package com.stirante.runechanger.runestore;
 
+import com.stirante.runechanger.RuneChanger;
 import com.stirante.runechanger.model.client.Champion;
 import com.stirante.runechanger.model.client.RunePage;
 import com.stirante.runechanger.util.SimplePreferences;
@@ -27,7 +28,7 @@ public class RuneStore {
      */
     public static void getRunes(Champion champion, ObservableList<RunePage> pages) {
         for (RuneSource source : sources) {
-            new Thread(() -> source.getForChampion(champion, pages)).start();
+            RuneChanger.EXECUTOR_SERVICE.submit(() -> source.getForChampion(champion, pages));
         }
     }
 
@@ -42,7 +43,7 @@ public class RuneStore {
             if (source instanceof LocalSource) {
                 continue;
             }
-            new Thread(() -> source.getForChampion(champion, pages)).start();
+            RuneChanger.EXECUTOR_SERVICE.submit(() -> source.getForChampion(champion, pages));
         }
     }
 

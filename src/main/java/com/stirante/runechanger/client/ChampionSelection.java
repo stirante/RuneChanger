@@ -1,11 +1,15 @@
 package com.stirante.runechanger.client;
 
+import com.stirante.eventbus.BusEvent;
+import com.stirante.eventbus.EventBus;
+import com.stirante.eventbus.Subscribe;
 import com.stirante.lolclient.ClientApi;
 import com.stirante.runechanger.DebugConsts;
 import com.stirante.runechanger.model.client.Champion;
 import com.stirante.runechanger.model.client.GameMap;
 import com.stirante.runechanger.model.client.GameMode;
 import generated.*;
+import ly.count.sdk.java.Countly;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,6 +31,7 @@ public class ChampionSelection extends ClientModule {
 
     public ChampionSelection(ClientApi api) {
         super(api);
+        EventBus.register(this);
     }
 
     public ArrayList<Champion> getLastChampions() {
@@ -37,6 +42,9 @@ public class ChampionSelection extends ClientModule {
                             LolMatchHistoryMatchHistoryList.class,
                             "begIndex", "0",
                             "endIndex", "20");
+            if (historyList == null || historyList.games == null) {
+                return null;
+            }
             List<LolMatchHistoryMatchHistoryGame> games = historyList.games.games;
             historyList =
                     getApi().executeGet("/lol-match-history/v2/matchlist",
@@ -152,6 +160,9 @@ public class ChampionSelection extends ClientModule {
             } catch (IOException | IllegalArgumentException e) {
                 log.error("Exception thrown when updating the gamemode! GameMode.java might not be updated. " +
                         e.getMessage());
+                if (Countly.isInitialized()) {
+                    Countly.session().addCrashReport(e, false);
+                }
                 positionSelector = false;
                 gameMode = GameMode.CLASSIC;
                 map = GameMap.MAP_11;
@@ -165,14 +176,28 @@ public class ChampionSelection extends ClientModule {
         }
     }
 
-    public void onSession(LolChampSelectChampSelectSession session) {
-        findCurrentAction(session);
-        findSelectedChampion(session);
+    @Subscribe(ClientEventListener.ChampionSelectionEvent.NAME)
+    public void onSession(ClientEventListener.ChampionSelectionEvent event) {
+        if (event.getEventType() == ClientEventListener.WebSocketEventType.DELETE) {
+            clearSession();
+        }
+        else {
+            Champion oldChampion = champion;
+            findCurrentAction(event.getData());
+            findSelectedChampion(event.getData());
 //        String currentPhase = session.timer.phase;
 //        System.out.println(currentPhase);
-        updateGameMode();
+            updateGameMode();
+            if (event.getEventType() == ClientEventListener.WebSocketEventType.CREATE || oldChampion != champion) {
+                EventBus.publish(ChampionChangedEvent.NAME, new ChampionChangedEvent(champion));
+            }
+        }
     }
 
+    @Subscribe(ClientEventListener.CurrentSummonerEvent.NAME)
+    public void onCurrentSummoner(ClientEventListener.CurrentSummonerEvent event) {
+        resetSummoner();
+    }
 
     public void selectChampion(Champion champion) {
         if (action == null) {
@@ -238,8 +263,23 @@ public class ChampionSelection extends ClientModule {
             }
             return delta.deltas.stream().map(gameDelta -> gameDelta.champMastery.grade).findFirst().orElse(null);
         } catch (IOException e) {
-            log.error("", e);
+            log.error("Exception occurred while getting last grade", e);
             return null;
         }
     }
+
+    public static class ChampionChangedEvent implements BusEvent {
+        public static final String NAME = "ChampionChangedEvent";
+
+        private final Champion champion;
+
+        public ChampionChangedEvent(Champion champion) {
+            this.champion = champion;
+        }
+
+        public Champion getChampion() {
+            return champion;
+        }
+    }
+
 }

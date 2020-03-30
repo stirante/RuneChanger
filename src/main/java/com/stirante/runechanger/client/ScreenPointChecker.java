@@ -1,8 +1,8 @@
 package com.stirante.runechanger.client;
 
-import com.stirante.runechanger.gui.GuiHandler;
 import com.stirante.runechanger.util.NativeUtils;
 import com.sun.jna.platform.win32.GDI32Util;
+import com.sun.jna.platform.win32.User32;
 import com.sun.jna.platform.win32.WinDef;
 
 import java.awt.image.BufferedImage;
@@ -70,7 +70,7 @@ public class ScreenPointChecker {
         // Give me a second to focus LoL client window
         Thread.sleep(1000);
         // Get window in foreground
-        WinDef.HWND hwnd = GuiHandler.User32Extended.INSTANCE.GetForegroundWindow();
+        WinDef.HWND hwnd = User32.INSTANCE.GetForegroundWindow();
         // Check if window in foreground is LoL
         if (!NativeUtils.isLeagueOfLegendsClientWindow(hwnd)) {
             System.out.println("NOT LOL");

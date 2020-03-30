@@ -1,305 +1,208 @@
 package com.stirante.runechanger.util;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.stirante.eventbus.EventBus;
+import com.stirante.eventbus.Subscribe;
+import com.stirante.runechanger.DebugConsts;
+import com.stirante.runechanger.RuneChanger;
+import com.stirante.runechanger.client.ChampionSelection;
+import com.stirante.runechanger.client.ClientEventListener;
+import com.stirante.runechanger.model.app.Version;
+import ly.count.sdk.ConfigCore;
+import ly.count.sdk.internal.CtxCore;
+import ly.count.sdk.internal.DeviceCore;
+import ly.count.sdk.internal.Params;
+import ly.count.sdk.java.Config;
+import ly.count.sdk.java.Countly;
 
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.File;
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
+import java.util.HashMap;
+import java.util.Map;
 
 public class AnalyticsUtil {
-    private static final Logger log = LoggerFactory.getLogger(AnalyticsUtil.class);
+    public static final String APP_KEY = "555ef1b803f476d2169f8bf18fed9ac41ce6bd91";
+    public static final String SERVER_URL = "https://stats.stirante.com";
+    public static final String ANALYTICS_DIR = "analytics";
 
     public static void main(String[] args) {
-        HardwareInfo info = getAllHardwareInfo();
-        System.out.println(new GsonBuilder().setPrettyPrinting().create().toJson(info));
+        SimplePreferences.load();
+        init(true);
+        try {
+            Thread.sleep(20000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        Countly.session().end();
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        Countly.stop(false);
     }
 
-    private static <T> List<T> executeCommand(String cmd, Class<T> clz, boolean csv) {
-        InputStream in = null;
-        Process process = null;
-        List<T> result = new ArrayList<>();
-        try {
-            process = Runtime.getRuntime().exec("wmic /locale:MS_409 " + cmd + (csv ? " /format:csv" : ""));
-            in = process.getInputStream();
-            Scanner sc = new Scanner(in);
-            boolean hadHeader = false;
-            ArrayList<Integer> indexes = new ArrayList<>();
-            while (sc.hasNextLine()) {
-                String s = sc.nextLine();
-                if (s.isBlank()) {
+    @Subscribe(ClientEventListener.ChampionSelectionEvent.NAME)
+    public static void onChampionSelect(ClientEventListener.ChampionSelectionEvent event) {
+        if (!Countly.isInitialized()) {
+            return;
+        }
+        if (event.getEventType() == ClientEventListener.WebSocketEventType.CREATE) {
+            ChampionSelection championSelectionModule = RuneChanger.getInstance().getChampionSelectionModule();
+            Countly.session()
+                    .event("champion_select")
+                    .addSegment("type", championSelectionModule.getGameMode().name())
+                    .addSegment("draft", String.valueOf(championSelectionModule.isPositionSelector()))
+                    .record();
+        }
+    }
+
+    public static void onConsent(boolean consent) {
+        initNoData();
+        if (consent) {
+            Countly.onConsent(Config.Feature.values());
+        }
+        else {
+            Countly.onConsentRemoval(Config.Feature.values());
+        }
+    }
+
+    private static void initNoData() {
+        if (DebugConsts.isRunningFromIDE()) {
+            return;
+        }
+        if (!Countly.isInitialized()) {
+            Config config = (Config) new Config(SERVER_URL, APP_KEY)
+                    .enableFeatures(Config.Feature.Events, Config.Feature.Sessions, Config.Feature.CrashReporting, Config.Feature.UserProfiles)
+                    .setDeviceIdStrategy(Config.DeviceIdStrategy.UUID)
+                    .setApplicationVersion(Version.INSTANCE.version);
+
+            if (DebugConsts.ENABLE_ANALYTICS_DEBUG) {
+                config
+                        .setLoggingLevel(ConfigCore.LoggingLevel.DEBUG)
+                        .enableTestMode();
+            }
+
+            if (!SimplePreferences.getBooleanValue(SimplePreferences.SettingsKeys.ANALYTICS, true)) {
+                config.disableFeatures(Config.Feature.values());
+            }
+
+            File targetFolder = new File(PathUtils.getWorkingDirectory() + File.separator + ANALYTICS_DIR);
+            targetFolder.mkdir();
+
+            Countly.init(targetFolder, config);
+
+            EventBus.register(AnalyticsUtil.class);
+        }
+    }
+
+    public static void init(boolean begin) {
+        RuneChanger.EXECUTOR_SERVICE.submit(() -> {
+            Hardware.HardwareInfo info = Hardware.getAllHardwareInfo();
+
+            CustomDevice device = new CustomDevice();
+            device
+                    .setCpu(info.cpuName)
+                    .setCpuSpeed(info.cpuSpeed)
+                    .setGpu(info.gpuNames.length == 0 ? "none" : info.gpuNames[0])
+                    .setRam(info.ram);
+
+            for (Field field : SimplePreferences.SettingsKeys.class.getFields()) {
+                String id;
+                try {
+                    id = (String) field.get(null);
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
                     continue;
                 }
-                if (csv) {
-                    if (!hadHeader) {
-                        hadHeader = true;
-                        continue;
-                    }
-                    result.add(fromCsvLine(s, clz));
-                }
-                else {
-                    StringBuilder sb = new StringBuilder();
-                    if (!hadHeader) {
-                        boolean adding = true;
-                        indexes.add(0);
-                        for (int i = 0; i < s.length(); i++) {
-                            if (adding && Character.isWhitespace(s.charAt(i))) {
-                                adding = false;
-                            }
-                            else if (!adding && !Character.isWhitespace(s.charAt(i))) {
-                                adding = true;
-                                indexes.add(i);
-                            }
-                        }
-                        hadHeader = true;
-                        continue;
-                    }
-                    for (int i = 0; i < indexes.size(); i++) {
-                        if (i + 1 < indexes.size()) {
-                            sb.append(s.substring(indexes.get(i), indexes.get(i + 1)).trim().replaceAll(",", ";"))
-                                    .append(",");
-                        }
-                    }
-                    result.add(fromCsvLine(sb.toString(), clz));
-                }
+                device.put(id, SimplePreferences.getStringValue(id, ""));
             }
-        } catch (Exception e) {
-            log.error("Exception occurred while getting cpu info", e);
-        } finally {
-            if (in != null) {
-                try {
-                    in.close();
-                } catch (IOException ignored) {
-                }
+
+            DeviceCore.dev = device;
+
+            initNoData();
+            if (begin && Countly.isInitialized()) {
+                Countly.session().begin();
             }
-            if (process != null) {
-                process.destroy();
-            }
+        });
+    }
+
+    public static class CustomDevice extends DeviceCore {
+        public static CustomDevice dev = new CustomDevice();
+
+        private String cpu;
+        private String gpu;
+        private Long cpuSpeed;
+        private Long ram;
+        private Map<String, String> additional = new HashMap<>();
+
+        private CustomDevice() {
+            dev = this;
         }
-        return result;
-    }
 
-    private static <T> T fromCsvLine(String line, Class<T> clz) {
-        try {
-            T result = clz.getConstructor().newInstance();
-            String[] split = line.split(",");
-            Field[] declaredFields = clz.getDeclaredFields();
-            setCsvFields(declaredFields, split, result);
-            return result;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
+        public String getCpu() {
+            return cpu;
         }
-    }
 
-    private static void setCsvFields(Field[] classFields, String[] csvFields, Object model) throws Exception {
-        for (int i = 0; i < Math.min(csvFields.length, classFields.length); i++) {
-            Field field = classFields[i];
-            field.setAccessible(true);
-            String s = csvFields[i];
-            if (field.getType() == String.class) {
-                field.set(model, s);
-            }
-            else if (field.getType() == int.class) {
-                if (!s.isEmpty()) {
-                    field.set(model, Integer.parseInt(s));
-                }
-            }
-            else if (field.getType() == long.class) {
-                if (!s.isEmpty()) {
-                    field.set(model, Long.parseLong(s));
-                }
-            }
-            else if (field.getType() == boolean.class) {
-                if (!s.isEmpty()) {
-                    field.set(model, Boolean.parseBoolean(s.toLowerCase()));
-                }
-            }
+        public CustomDevice setCpu(String cpu) {
+            this.cpu = cpu;
+            return this;
         }
-    }
 
-    public static class HardwareInfo {
-        public String cpuName;
-        public long cpuSpeed;
-        public long ram;
-        public String[] gpuNames;
-    }
-
-    public static HardwareInfo getAllHardwareInfo() {
-        HardwareInfo info = new HardwareInfo();
-        CpuInfo cpuInfo = getCpuInfo();
-        if (cpuInfo != null) {
-            info.cpuName = cpuInfo.Name;
-            info.cpuSpeed = cpuInfo.CurrentClockSpeed;
+        public String getGpu() {
+            return gpu;
         }
-        List<MemoryInfo> memInfo = getMemoryInfo();
-        info.ram = memInfo.stream().mapToLong(memoryInfo -> memoryInfo.Capacity / (1024 * 1024)).sum();
-        List<GpuInfo> gpuInfo = getGpuInfo();
-        info.gpuNames = new String[gpuInfo.size()];
-        for (int i = 0; i < gpuInfo.size(); i++) {
-            GpuInfo gpu = gpuInfo.get(i);
-            info.gpuNames[i] = gpu.Name;
+
+        public CustomDevice setGpu(String gpu) {
+            this.gpu = gpu;
+            return this;
         }
-        return info;
-    }
 
-    public static class CpuInfo {
-        public String Node;
-        public int AddressWidth;
-        public int Architecture;
-        public int Availability;
-        public String Caption;
-        public long ConfigManagerErrorCode;
-        public boolean ConfigManagerUserConfig;
-        public int CpuStatus;
-        public String CreationClassName;
-        public long CurrentClockSpeed;
-        public int CurrentVoltage;
-        public int DataWidth;
-        public String Description;
-        public String DeviceID;
-        public boolean ErrorCleared;
-        public String ErrorDescription;
-        public long ExtClock;
-        public int Family;
-        public String InstallDate;
-        public long L2CacheSize;
-        public long L2CacheSpeed;
-        public long LastErrorCode;
-        public int Level;
-        public int LoadPercentage;
-        public String Manufacturer;
-        public long MaxClockSpeed;
-        public String Name;
-        public String OtherFamilyDescription;
-        public String PNPDeviceID;
-        public String PowerManagementCapabilities;
-        public boolean PowerManagementSupported;
-        public String ProcessorId;
-        public int ProcessorType;
-        public int Revision;
-        public String Role;
-        public String SocketDesignation;
-        public String Status;
-        public int StatusInfo;
-        public String Stepping;
-        public String SystemCreationClassName;
-        public String SystemName;
-        public String UniqueId;
-        public int UpgradeMethod;
-        public String Version;
-        public long VoltageCaps;
-    }
+        public Long getCpuSpeed() {
+            return cpuSpeed;
+        }
 
-    public static CpuInfo getCpuInfo() {
-        return executeCommand("cpu list", CpuInfo.class, true).stream().findFirst().orElse(null);
-    }
+        public CustomDevice setCpuSpeed(Long cpuSpeed) {
+            this.cpuSpeed = cpuSpeed;
+            return this;
+        }
 
-    public static class MemoryInfo {
-        public String Node;
-        public String BankLabel;
-        public long Capacity;
-        public short DataWidth;
-        public String Description;
-        public String DeviceLocator;
-        public short FormFactor;
-        public boolean HotSwappable;
-        public String InstallDate;
-        public short InterleaveDataDepth;
-        public int InterleavePosition;
-        public String Manufacturer;
-        public short MemoryType;
-        public String Model;
-        public String Name;
-        public String OtherIdentifyingInfo;
-        public String PartNumber;
-        public int PositionInRow;
-        public boolean PoweredOn;
-        public boolean Removable;
-        public boolean Replaceable;
-        public String SerialNumber;
-        public String SKU;
-        public int Speed;
-        public String Status;
-        public String Tag;
-        public short TotalWidth;
-        public short TypeDetail;
-        public String Version;
-    }
+        public Long getRam() {
+            return ram;
+        }
 
-    public static List<MemoryInfo> getMemoryInfo() {
-        return executeCommand("memorychip list", MemoryInfo.class, true);
-    }
+        public CustomDevice setRam(Long ram) {
+            this.ram = ram;
+            return this;
+        }
 
-    public static class GpuInfo {
-        public String AcceleratorCapabilities;
-        public String AdapterCompatibility;
-        public String AdapterDACType;
-        public long AdapterRAM;
-        public short Availability;
-        public String CapabilityDescriptions;
-        public String Caption;
-        public int ColorTableEntries;
-        public int ConfigManagerErrorCode;
-        public boolean ConfigManagerUserConfig;
-        public String CreationClassName;
-        public int CurrentBitsPerPixel;
-        public int CurrentHorizontalResolution;
-        public long CurrentNumberOfColors;
-        public int CurrentNumberOfColumns;
-        public int CurrentNumberOfRows;
-        public int CurrentRefreshRate;
-        public short CurrentScanMode;
-        public int CurrentVerticalResolution;
-        public String Description;
-        public String DeviceID;
-        public int DeviceSpecificPens;
-        public int DitherType;
-        public String DriverDate;
-        public String DriverVersion;
-        public boolean ErrorCleared;
-        public String ErrorDescription;
-        public int ICMIntent;
-        public int ICMMethod;
-        public String InfFilename;
-        public String InfSection;
-        public String InstallDate;
-        public String InstalledDisplayDrivers;
-        public int LastErrorCode;
-        public int MaxMemorySupported;
-        public int MaxNumberControlled;
-        public int MaxRefreshRate;
-        public int MinRefreshRate;
-        public boolean Monochrome;
-        public String Name;
-        public short NumberOfColorPlanes;
-        public int NumberOfVideoPages;
-        public String PNPDeviceID;
-        public String PowerManagementCapabilities;
-        public boolean PowerManagementSupported;
-        public short ProtocolSupported;
-        public int ReservedSystemPaletteEntries;
-        public int SpecificationVersion;
-        public String Status;
-        public short StatusInfo;
-        public String SystemCreationClassName;
-        public String SystemName;
-        public short SystemPaletteEntries;
-        public String TimeOfLastReset;
-        public short VideoArchitecture;
-        public short VideoMemoryType;
-        public short VideoMode;
-        public String VideoModeDescription;
-        public String VideoProcessor;
-    }
+        public CustomDevice put(String key, String value) {
+            additional.put(key, value);
+            return this;
+        }
 
-    public static List<GpuInfo> getGpuInfo() {
-        return executeCommand("path win32_VideoController", GpuInfo.class, false);
-    }
+        public String get(String key) {
+            return additional.get(key);
+        }
 
+        @Override
+        public Params buildMetrics(final CtxCore sdkctx) {
+            Params params = new Params();
+            Params.Obj obj = params.obj("metrics")
+                    .put("_os", getOS())
+                    .put("_os_version", getOSVersion())
+                    .put("_locale", getLocale())
+                    .put("_app_version", sdkctx.getConfig().getApplicationVersion())
+                    .put("cpu", getCpu())
+                    .put("cpu_speed", getCpuSpeed())
+                    .put("gpu", getGpu())
+                    .put("ram", getRam());
+            for (String key : additional.keySet()) {
+                obj.put(key, additional.get(key));
+            }
+            obj.add();
+
+            return params;
+        }
+
+    }
 }

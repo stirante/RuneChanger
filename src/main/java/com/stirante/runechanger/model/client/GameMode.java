@@ -23,7 +23,8 @@ public enum GameMode {
     ODYSSEY("Odyssey: Extraction", true),
     TUTORIAL_MODULE_1("Tutorial Part 1", false),
     TUTORIAL_MODULE_2("Tutorial Part 2", false),
-    TUTORIAL_MODULE_3("Tutorial Part 3", false);
+    TUTORIAL_MODULE_3("Tutorial Part 3", false),
+    PRACTICETOOL("Practice tool", true);
 
     private final String name;
     private final boolean championSelection;
