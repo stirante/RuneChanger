@@ -409,6 +409,7 @@ public class RuneChanger implements Launcher {
     @Override
     public void run(LaunchContext context) {
         try {
+            AutoUpdater.deleteOldLibs();
             Runtime.getRuntime().exec("wscript silent.vbs open.bat");
             System.exit(0);
         } catch (IOException e) {

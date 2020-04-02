@@ -11388,7 +11388,8 @@
                             <div class="col mr-2">
                                 <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">CPU
                                 </div>
-                                <div id="cpuDiv" class="h5 mb-0 font-weight-bold text-gray-800">Intel® Core™ i7-7700 CPU @ 3.60GHz
+                                <div id="cpuDiv" class="h5 mb-0 font-weight-bold text-gray-800">Intel® Core™ i7-7700 CPU
+                                    @ 3.60GHz
                                 </div>
                             </div>
                             <div class="col-auto">
@@ -11421,7 +11422,9 @@
                             <div class="col mr-2">
                                 <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">GPU
                                 </div>
-                                <div id="gpuDiv" class="h5 mb-0 font-weight-bold text-gray-800">NVIDIA GeForce GTX 1050 Ti</div>
+                                <div id="gpuDiv" class="h5 mb-0 font-weight-bold text-gray-800">NVIDIA GeForce GTX 1050
+                                    Ti
+                                </div>
                             </div>
                             <div class="col-auto">
                                 <i class="fas fa-desktop fa-2x text-gray-300"></i>
@@ -11438,8 +11441,7 @@
                         <h6 class="m-0 font-weight-bold text-primary">CPU usage</h6>
                     </div>
                     <div class="card-body">
-                        <div class="chart-area">
-                            <canvas id="cpuArea"></canvas>
+                        <div id="cpuArea" class="chart-area">
                         </div>
                     </div>
                 </div>
@@ -11452,8 +11454,7 @@
                         <h6 class="m-0 font-weight-bold text-primary">Memory usage</h6>
                     </div>
                     <div class="card-body">
-                        <div class="chart-area">
-                            <canvas id="memArea"></canvas>
+                        <div id="memArea" class="chart-area">
                         </div>
                     </div>
                 </div>
@@ -11461,9 +11462,8 @@
         </div>
     </div>
 </div>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.3/dist/Chart.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8"></script>
-<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@0.7.4"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/dygraph/2.1.0/dygraph.min.js"></script>
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/dygraph/2.1.0/dygraph.min.css"/>
 <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
         integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n"
         crossorigin="anonymous"></script>
@@ -11478,10 +11478,7 @@
 </script>
 <script>
 
-    Chart.defaults.global.defaultFontFamily = 'Nunito', '-apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif';
-    Chart.defaults.global.defaultFontColor = '#858796';
-
-    function number_format(number, decimals, dec_point, thousands_sep) {
+    function numberFormat(number, decimals, dec_point, thousands_sep) {
         number = (number + '').replace(',', '').replace(' ', '');
         var n = !isFinite(+number) ? 0 : +number,
             prec = !isFinite(+decimals) ? 0 : Math.abs(decimals),
@@ -11504,6 +11501,31 @@
         return s.join(dec);
     }
 
+    function bytesToSize(bytes) {
+        var sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+        if (bytes === 0) return '0 Byte';
+        var i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)));
+        return Math.round(bytes / Math.pow(1024, i), 2) + ' ' + sizes[i];
+    }
+
+    function formatTime(time) {
+        var s = Number(time);
+        var ms = s % 1000;
+        s = (s - ms) / 1000;
+        var secs = s % 60;
+        s = (s - secs) / 60;
+        var mins = s % 60;
+        var hrs = (s - mins) / 60;
+
+        return prependZero(hrs) + ':' + prependZero(mins) + ':' + prependZero(secs);
+    }
+
+    function prependZero(num) {
+        num = num + "";
+        if (num.length === 1) num = "0" + num;
+        return num;
+    }
+
     $("#dateDiv").text(new Date(data.startTime).toUTCString());
     $("#cpuDiv").text(data.hardware.cpuName);
     $("#gpuDiv").text(data.hardware.gpuNames[0]);
@@ -11517,251 +11539,95 @@
     var maxMem = 0;
     for (let event of data.events) {
         if (event.type === "RESOURCE_USAGE") {
-            cpuData.push(event.additionalInfo.cpuUsage);
-            memData.push(event.additionalInfo.memoryUsage);
-            eventData.push(0);
+            cpuData.push([event.time, event.additionalInfo.cpuUsage]);
+            memData.push([event.time, event.additionalInfo.memoryUsage]);
             lastCpu = event.additionalInfo.cpuUsage;
             lastMem = event.additionalInfo.memoryUsage;
             if (maxMem < lastMem) {
                 maxMem = lastMem;
             }
         } else {
-            cpuData.push(lastCpu);
-            memData.push(lastMem);
-            eventData.push(100);
+            cpuData.push([event.time, lastCpu]);
+            memData.push([event.time, lastMem]);
+            eventData.push({
+                series: "Usage",
+                x: event.time,
+                shortText: "E",
+                text: event.type
+            });
         }
     }
 
-    var ctx = document.getElementById("cpuArea");
-    var cpuUsage = new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: data.events.map(value => value.time),
-            datasets: [{
-                label: "CPU usage",
-                lineTension: 0.3,
-                backgroundColor: "rgba(78, 115, 223, 0.05)",
-                borderColor: "rgba(78, 115, 223, 1)",
-                pointRadius: 3,
-                pointBackgroundColor: "rgba(78, 115, 223, 1)",
-                pointBorderColor: "rgba(78, 115, 223, 1)",
-                pointHoverRadius: 3,
-                pointHoverBackgroundColor: "rgba(78, 115, 223, 1)",
-                pointHoverBorderColor: "rgba(78, 115, 223, 1)",
-                pointHitRadius: 10,
-                pointBorderWidth: 2,
-                data: cpuData,
-            }, {
-                label: "Event",
-                type: "bar",
-                lineTension: 0.3,
-                backgroundColor: "rgba(222,80,80,0.4)",
-                barThickness: 5,
-                data: eventData,
-            }],
-        },
-        options: {
-            maintainAspectRatio: false,
-            plugins: {
-                zoom: {
-                    pan: {
-                        enabled: true,
-                        mode: 'x',
-                        speed: 10,
-                        threshold: 10,
-                    },
-                    zoom: {
-                        enabled: true,
-                        mode: 'x',
-                        speed: 3,
-                        sensitivity: 1,
-                    }
-                }
+    var g1 = new Dygraph(document.getElementById("cpuArea"),
+        cpuData,
+        {
+            labels: ["time", "Usage"],
+            legend: "follow",
+            xlabel: "Time",
+            ylabel: "CPU usage",
+            legendFormatter: function (data) {
+                if (data.x == null) return '';
+                return formatTime(data.x) + " " + data.series.map(v => v.labelHTML + ': ' + v.y).join(' ');
             },
-            layout: {
-                padding: {
-                    left: 10,
-                    right: 25,
-                    top: 25,
-                    bottom: 0
-                }
-            },
-            scales: {
-                xAxes: [{
-                    time: {
-                        unit: 'date'
+            axes: {
+                x: {
+                    valueFormatter: function(num) {
+                        return formatTime(num);
                     },
-                    gridLines: {
-                        display: false,
-                        drawBorder: false
+                    axisLabelFormatter: function(num) {
+                        return formatTime(num);
                     },
-                    ticks: {
-                        callback: function (s, index, values) {
-                            var ms = s % 1000;
-                            s = (s - ms) / 1000;
-                            var secs = s % 60;
-                            s = (s - secs) / 60;
-                            var mins = s % 60;
-                            var hrs = (s - mins) / 60;
-
-                            return hrs + ':' + mins + ':' + secs;
-                        }
-                    }
-                }],
-                yAxes: [{
-                    ticks: {
-                        maxTicksLimit: 5,
-                        padding: 10,
-                        callback: function (value, index, values) {
-                            return number_format(value) + "%";
-                        }
+                    pixelsPerLabel: 100,
+                    axisLabelWidth: 100,
+                },
+                y: {
+                    valueFormatter: function(num) {
+                        return numberFormat(num) + "%";
                     },
-                    gridLines: {
-                        color: "rgb(234, 236, 244)",
-                        zeroLineColor: "rgb(234, 236, 244)",
-                        drawBorder: false,
-                        borderDash: [2],
-                        zeroLineBorderDash: [2]
-                    }
-                }],
-            },
-            legend: {
-                display: false
-            },
-            tooltips: {
-                backgroundColor: "rgb(255,255,255)",
-                bodyFontColor: "#858796",
-                titleMarginBottom: 10,
-                titleFontColor: '#6e707e',
-                titleFontSize: 14,
-                borderColor: '#dddfeb',
-                borderWidth: 1,
-                xPadding: 15,
-                yPadding: 15,
-                displayColors: false,
-                intersect: false,
-                mode: 'index',
-                caretPadding: 10,
-                callbacks: {
-                    label: function (tooltipItem, chart) {
-                        if (chart.datasets[tooltipItem.datasetIndex].label === "Event") {
-                            return "Event: " + data.events[tooltipItem.index].type + (tooltipItem.yLabel !== 0 && data.events[tooltipItem.index].additionalInfo ? ", " + JSON.stringify(data.events[tooltipItem.index].additionalInfo) : "");
-                        } else {
-                            var datasetLabel = chart.datasets[tooltipItem.datasetIndex].label || '';
-                            return datasetLabel + ': ' + number_format(tooltipItem.yLabel) + "%";
-                        }
-                    }
+                    axisLabelFormatter: function(num) {
+                        return numberFormat(num) + "%";
+                    },
+                    axisLabelWidth: 100
                 }
             }
-        }
+        });
+
+    g1.ready(function () {
+        g1.setAnnotations(eventData);
     });
 
-    ctx = document.getElementById("memArea");
-    var memUsage = new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: data.events.map(value => value.time),
-            datasets: [{
-                label: "Memory usage",
-                lineTension: 0.3,
-                backgroundColor: "rgba(78, 115, 223, 0.05)",
-                borderColor: "rgba(78, 115, 223, 1)",
-                pointRadius: 3,
-                pointBackgroundColor: "rgba(78, 115, 223, 1)",
-                pointBorderColor: "rgba(78, 115, 223, 1)",
-                pointHoverRadius: 3,
-                pointHoverBackgroundColor: "rgba(78, 115, 223, 1)",
-                pointHoverBorderColor: "rgba(78, 115, 223, 1)",
-                pointHitRadius: 10,
-                pointBorderWidth: 2,
-                data: memData,
-            }, {
-                label: "Event",
-                type: "bar",
-                lineTension: 0.3,
-                backgroundColor: "rgba(222,80,80,0.4)",
-                barThickness: 5,
-                data: eventData.map(value => value === 100 ? maxMem : 0),
-            }],
-        },
-        options: {
-            maintainAspectRatio: false,
-            layout: {
-                padding: {
-                    left: 10,
-                    right: 25,
-                    top: 25,
-                    bottom: 0
-                }
-            },
-            scales: {
-                xAxes: [{
-                    time: {
-                        unit: 'date'
+    var g2 = new Dygraph(document.getElementById("memArea"),
+        memData,
+        {
+            labels: ["time", "Usage"],
+            legend: "follow",
+            xlabel: "Time",
+            ylabel: "Memory usage",
+            axes: {
+                x: {
+                    valueFormatter: function(num) {
+                        return formatTime(num);
                     },
-                    gridLines: {
-                        display: false,
-                        drawBorder: false
+                    axisLabelFormatter: function(num) {
+                        return formatTime(num);
                     },
-                    ticks: {
-                        callback: function (s, index, values) {
-                            var ms = s % 1000;
-                            s = (s - ms) / 1000;
-                            var secs = s % 60;
-                            s = (s - secs) / 60;
-                            var mins = s % 60;
-                            var hrs = (s - mins) / 60;
-
-                            return hrs + ':' + mins + ':' + secs;
-                        }
-                    }
-                }],
-                yAxes: [{
-                    ticks: {
-                        maxTicksLimit: 5,
-                        padding: 10,
-                        callback: function (value, index, values) {
-                            return number_format(Math.floor(value)) + "KB";
-                        }
+                    pixelsPerLabel: 100,
+                    axisLabelWidth: 100,
+                },
+                y: {
+                    valueFormatter: function(num) {
+                        return bytesToSize(num * 1024);
                     },
-                    gridLines: {
-                        color: "rgb(234, 236, 244)",
-                        zeroLineColor: "rgb(234, 236, 244)",
-                        drawBorder: false,
-                        borderDash: [2],
-                        zeroLineBorderDash: [2]
-                    }
-                }],
-            },
-            legend: {
-                display: false
-            },
-            tooltips: {
-                backgroundColor: "rgb(255,255,255)",
-                bodyFontColor: "#858796",
-                titleMarginBottom: 10,
-                titleFontColor: '#6e707e',
-                titleFontSize: 14,
-                borderColor: '#dddfeb',
-                borderWidth: 1,
-                xPadding: 15,
-                yPadding: 15,
-                displayColors: false,
-                intersect: false,
-                mode: 'index',
-                caretPadding: 10,
-                callbacks: {
-                    label: function (tooltipItem, chart) {
-                        if (chart.datasets[tooltipItem.datasetIndex].label === "Event") {
-                            return "Event: " + data.events[tooltipItem.index].type + (tooltipItem.yLabel !== 0 && data.events[tooltipItem.index].additionalInfo ? ", " + JSON.stringify(data.events[tooltipItem.index].additionalInfo) : "");
-                        } else {
-                            var datasetLabel = chart.datasets[tooltipItem.datasetIndex].label || '';
-                            return datasetLabel + ': ' + number_format(Math.floor(tooltipItem.yLabel)) + "KB";
-                        }
-                    }
+                    axisLabelFormatter: function(num) {
+                        return bytesToSize(num * 1024);
+                    },
+                    axisLabelWidth: 100
                 }
             }
-        }
+        });
+
+    g2.ready(function () {
+        g2.setAnnotations(eventData);
     });
 
 </script>

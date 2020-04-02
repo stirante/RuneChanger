@@ -1,14 +1,12 @@
 package com.stirante.runechanger.client;
 
+import com.stirante.eventbus.AsyncEventExecutor;
 import com.stirante.eventbus.EventBus;
 import com.stirante.eventbus.Subscribe;
 import com.stirante.lolclient.ClientApi;
 import com.stirante.runechanger.RuneChanger;
 import com.stirante.runechanger.util.SimplePreferences;
-import generated.LolLobbyLobby;
-import generated.LolLobbyLobbyMatchmakingSearchState;
-import generated.LolMatchmakingMatchmakingDodgeState;
-import generated.LolMatchmakingMatchmakingSearchResource;
+import generated.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,12 +52,26 @@ public class Matchmaking extends ClientModule {
         }
     }
 
-    @Subscribe(ClientEventListener.MatchmakingSearchStateEvent.NAME)
+    @Subscribe(value = ClientEventListener.MatchmakingSearchStateEvent.NAME, eventExecutor = AsyncEventExecutor.class)
     public void onMatchmakingSearchState(ClientEventListener.MatchmakingSearchStateEvent event) {
         if (SimplePreferences.getBooleanValue(SimplePreferences.SettingsKeys.AUTO_ACCEPT, false)) {
             if (event.getData().searchState == LolLobbyLobbyMatchmakingSearchState.FOUND) {
+                log.info("Found match, waiting 3 seconds and accepting");
                 try {
-                    getApi().executePost("/lol-matchmaking/v1/ready-check/accept");
+                    Thread.sleep(3000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                try {
+                    LolMatchmakingMatchmakingReadyCheckResource state =
+                            getApi().executeGet("/lol-matchmaking/v1/ready-check", LolMatchmakingMatchmakingReadyCheckResource.class);
+                    if (state.state == LolMatchmakingMatchmakingReadyCheckState.INPROGRESS) {
+                        log.info("Accepting queue");
+                        getApi().executePost("/lol-matchmaking/v1/ready-check/accept");
+                    }
+                    else {
+                        log.info("Not accepting queue, because it's already accepted");
+                    }
                 } catch (IOException e) {
                     log.error("Exception occurred while autoaccepting", e);
                 }

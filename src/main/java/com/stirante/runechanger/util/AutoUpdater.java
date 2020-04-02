@@ -13,6 +13,7 @@ import java.io.*;
 import java.net.URL;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.ArrayList;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -21,6 +22,7 @@ public class AutoUpdater {
     private static final String DEV_UPDATE_CONFIG = "https://runechanger.stirante.com/dev/dev.xml";
     private static final String STABLE_UPDATE_CONFIG = "https://runechanger.stirante.com/stable/stable.xml";
     private static final int BUFFER_SIZE = 4096;
+    public static final String LOCAL_UPDATE_CONFIG = "update.xml";
     private static Configuration configuration = null;
 
     public static void resetCache() {
@@ -73,7 +75,7 @@ public class AutoUpdater {
     public static void performUpdate() {
         try {
             copyDir(new File("image").toPath(), new File("updateImage").toPath());
-            FileWriter writer = new FileWriter("update.xml");
+            FileWriter writer = new FileWriter(LOCAL_UPDATE_CONFIG);
             getConfiguration().write(writer);
             writer.flush();
             writer.close();
@@ -237,5 +239,30 @@ public class AutoUpdater {
         } catch (IOException ex) {
             log.error("Exception occurred while checking for update", ex);
         }
+    }
+
+    public static void deleteOldLibs() {
+        try {
+            ArrayList<String> acceptableLibs = new ArrayList<>();
+            Reader reader = new InputStreamReader(new FileInputStream(LOCAL_UPDATE_CONFIG));
+            Configuration configuration = Configuration.read(reader);
+            reader.close();
+            for (FileMetadata file : configuration.getFiles()) {
+                if (file.getPath().startsWith("lib")) {
+                    acceptableLibs.add(file.getPath().getFileName().toString());
+                }
+            }
+            File[] libs = new File("lib").listFiles();
+            if (libs != null) {
+                for (File lib : libs) {
+                    if (!acceptableLibs.contains(lib.getName())) {
+                        lib.deleteOnExit();
+                    }
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 }
