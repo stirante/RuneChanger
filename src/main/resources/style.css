@@ -3,6 +3,10 @@
 }
 
 @font-face {
+    src: url('fonts/Cairo-Bold.ttf');
+}
+
+@font-face {
     src: url('fonts/Roboto-Bold.ttf');
 }
 

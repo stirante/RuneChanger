@@ -151,7 +151,6 @@ public class SimplePreferences {
         save();
         EventBus.publish(ClientEventListener.RunePagesEvent.NAME,
                 new ClientEventListener.RunePagesEvent(ClientEventListener.WebSocketEventType.UPDATE, null));
-//        RuneChanger.getInstance().getRunesModule().handlePageChange(null);
     }
 
     public static void removeRuneBookPage(String key) {
@@ -159,7 +158,6 @@ public class SimplePreferences {
         save();
         EventBus.publish(ClientEventListener.RunePagesEvent.NAME,
                 new ClientEventListener.RunePagesEvent(ClientEventListener.WebSocketEventType.UPDATE, null));
-//        RuneChanger.getInstance().getRunesModule().handlePageChange(null);
     }
 
     public static class SettingsKeys {

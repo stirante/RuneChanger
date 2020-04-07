@@ -5,12 +5,9 @@ import com.stirante.runechanger.util.*;
 import javafx.animation.Animation;
 import javafx.animation.Interpolator;
 import javafx.animation.Transition;
-import javafx.application.Platform;
-import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.control.CheckBox;
+import javafx.geometry.NodeOrientation;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.Pane;
@@ -22,26 +19,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.function.Consumer;
 
 public class SettingsController {
     private static final Logger log = LoggerFactory.getLogger(SettingsController.class);
     private final static int TRANSITION_DURATION = 200;
     private final static double BASE_MODIFIER = 2;
     private final Stage stage;
-    public CheckBox antiAway;
-    public CheckBox autoAccept;
-    public CheckBox quickReplies;
-    public CheckBox autoUpdate;
-    public CheckBox alwaysOnTop;
-    public CheckBox autoStart;
-    public CheckBox forceEnglish;
-    public CheckBox experimental;
-    public CheckBox autoSync;
-    public CheckBox smartDisenchant;
-    public CheckBox championSuggestions;
-    public CheckBox enableAnalytics;
-    public CheckBox enableAnimations;
-    public CheckBox restartOnDodge;
     public Pane container;
     public VBox wrapper;
     public ScrollPane scroll;
@@ -59,60 +43,6 @@ public class SettingsController {
         loadPreferences();
     }
 
-    @FXML
-    void handleCheckboxPressed(ActionEvent e) {
-        CheckBox target = (CheckBox) e.getTarget();
-        if (target == autoStart) {
-            AutoStartUtils.setAutoStart(target.isSelected());
-        }
-        else if (target == autoAccept) {
-            SimplePreferences.putBooleanValue(SimplePreferences.SettingsKeys.AUTO_ACCEPT, target.isSelected());
-        }
-        else if (target == antiAway) {
-            SimplePreferences.putBooleanValue(SimplePreferences.SettingsKeys.ANTI_AWAY, target.isSelected());
-        }
-        else if (target == quickReplies) {
-            SimplePreferences.putBooleanValue(SimplePreferences.SettingsKeys.QUICK_REPLIES, target.isSelected());
-        }
-        else if (target == autoUpdate) {
-            SimplePreferences.putBooleanValue(SimplePreferences.SettingsKeys.AUTO_UPDATE, target.isSelected());
-        }
-        else if (target == smartDisenchant) {
-            SimplePreferences.putBooleanValue(SimplePreferences.SettingsKeys.SMART_DISENCHANT, target.isSelected());
-        }
-        else if (target == enableAnalytics) {
-            AnalyticsUtil.onConsent(target.isSelected());
-            SimplePreferences.putBooleanValue(SimplePreferences.SettingsKeys.ANALYTICS, target.isSelected());
-        }
-        else if (target == experimental) {
-            SimplePreferences.putBooleanValue(SimplePreferences.SettingsKeys.EXPERIMENTAL_CHANNEL, target.isSelected());
-            AutoUpdater.resetCache();
-            AutoUpdater.checkUpdate();
-        }
-        else if (target == championSuggestions) {
-            SimplePreferences.putBooleanValue(SimplePreferences.SettingsKeys.CHAMPION_SUGGESTIONS, target.isSelected());
-        }
-        else if (target == autoSync) {
-            SimplePreferences.putBooleanValue(SimplePreferences.SettingsKeys.AUTO_SYNC, target.isSelected());
-            tryRestart();
-        }
-        else if (target == alwaysOnTop) {
-            SimplePreferences.putBooleanValue(SimplePreferences.SettingsKeys.ALWAYS_ON_TOP, target.isSelected());
-            stage.setAlwaysOnTop(target.isSelected());
-        }
-        else if (target == forceEnglish) {
-            SimplePreferences.putBooleanValue(SimplePreferences.SettingsKeys.FORCE_ENGLISH, target.isSelected());
-            tryRestart();
-        }
-        else if (target == enableAnimations) {
-            SimplePreferences.putBooleanValue(SimplePreferences.SettingsKeys.ENABLE_ANIMATIONS, target.isSelected());
-        }
-        else if (target == restartOnDodge) {
-            SimplePreferences.putBooleanValue(SimplePreferences.SettingsKeys.RESTART_ON_DODGE, target.isSelected());
-        }
-        SimplePreferences.save();
-    }
-
     private void tryRestart() {
         boolean restart = Settings.openYesNoDialog(LangHelper.getLang()
                 .getString("restart_necessary"), LangHelper.getLang()
@@ -123,32 +53,47 @@ public class SettingsController {
     }
 
     private void loadPreferences() {
-        setupPreference(SimplePreferences.SettingsKeys.QUICK_REPLIES, false, quickReplies);
-        setupPreference(SimplePreferences.SettingsKeys.AUTO_ACCEPT, false, autoAccept);
-        setupPreference(SimplePreferences.SettingsKeys.ANTI_AWAY, false, antiAway);
-        setupPreference(SimplePreferences.SettingsKeys.AUTO_UPDATE, true, autoUpdate);
-        setupPreference(SimplePreferences.SettingsKeys.EXPERIMENTAL_CHANNEL, false, experimental);
-        setupPreference(SimplePreferences.SettingsKeys.FORCE_ENGLISH, false, forceEnglish);
-        setupPreference(SimplePreferences.SettingsKeys.ALWAYS_ON_TOP, false, alwaysOnTop);
-        setupPreference(SimplePreferences.SettingsKeys.AUTO_SYNC, false, autoSync);
-        setupPreference(SimplePreferences.SettingsKeys.SMART_DISENCHANT, false, smartDisenchant);
-        setupPreference(SimplePreferences.SettingsKeys.CHAMPION_SUGGESTIONS, true, championSuggestions);
-        setupPreference(SimplePreferences.SettingsKeys.ANALYTICS, true, enableAnalytics);
-        setupPreference(SimplePreferences.SettingsKeys.ENABLE_ANIMATIONS, true, enableAnimations);
-        setupPreference(SimplePreferences.SettingsKeys.RESTART_ON_DODGE, false, restartOnDodge);
+        setupPreference(SimplePreferences.SettingsKeys.QUICK_REPLIES, false, "quick_replies", "quick_replies_message");
+        setupPreference(SimplePreferences.SettingsKeys.AUTO_ACCEPT, false, "auto_queue", "auto_queue_message");
+        setupPreference(SimplePreferences.SettingsKeys.ANTI_AWAY, false, "no_away", "no_away_message");
+        setupPreference(SimplePreferences.SettingsKeys.AUTO_UPDATE, true, "autoupdate_state", "autoupdate_message");
+        setupPreference(SimplePreferences.SettingsKeys.EXPERIMENTAL_CHANNEL, false, "autoupdate_experimental", "autoupdate_experimental_message", selected -> {
+            AutoUpdater.resetCache();
+            AutoUpdater.checkUpdate();
+        });
+        setupPreference(SimplePreferences.SettingsKeys.FORCE_ENGLISH, false, "force_english", "force_english_message", selected -> tryRestart());
+        setupPreference(SimplePreferences.SettingsKeys.ALWAYS_ON_TOP, false, "always_on_top", "always_on_top_message", stage::setAlwaysOnTop);
+        setupPreference(SimplePreferences.SettingsKeys.AUTO_SYNC, false, "auto_sync_pages", "auto_sync_pages_message", seelcted -> tryRestart());
+        setupPreference(SimplePreferences.SettingsKeys.SMART_DISENCHANT, false, "smart_disenchant", "smart_disenchant_message");
+        setupPreference(SimplePreferences.SettingsKeys.CHAMPION_SUGGESTIONS, true, "champion_suggestions", "champion_suggestions_message");
+        setupPreference(SimplePreferences.SettingsKeys.ANALYTICS, true, "enable_analytics", "enable_analytics_message", AnalyticsUtil::onConsent);
+        setupPreference(SimplePreferences.SettingsKeys.ENABLE_ANIMATIONS, true, "enable_animations", "enable_animations_message");
+        setupPreference(SimplePreferences.SettingsKeys.RESTART_ON_DODGE, false, "restart_on_dodge", "restart_on_dodge_message");
 
-        if (AutoStartUtils.isAutoStartEnabled()) {
-            autoStart.setSelected(true);
-        }
+        wrapper.getChildren().add(new SettingsItemController(
+                AutoStartUtils.isAutoStartEnabled(),
+                AutoStartUtils::setAutoStart,
+                LangHelper.getLang().getString("autostart"),
+                LangHelper.getLang().getString("autostart_message")
+        ).getRoot());
     }
 
-    private void setupPreference(String key, boolean defaultValue, CheckBox checkbox) {
+    private void setupPreference(String key, boolean defaultValue, String titleKey, String descKey) {
+        setupPreference(key, defaultValue, titleKey, descKey, null);
+    }
+
+    private void setupPreference(String key, boolean defaultValue, String titleKey, String descKey, Consumer<Boolean> additionalAction) {
         if (!SimplePreferences.containsKey(key)) {
             SimplePreferences.putBooleanValue(key, defaultValue);
         }
-        if (SimplePreferences.getBooleanValue(key, defaultValue)) {
-            Platform.runLater(() -> checkbox.setSelected(true));
-        }
+        boolean val = SimplePreferences.getBooleanValue(key, defaultValue);
+        wrapper.getChildren().add(new SettingsItemController(val, selected -> {
+            SimplePreferences.putBooleanValue(key, selected);
+            if (additionalAction != null) {
+                additionalAction.accept(selected);
+            }
+            SimplePreferences.save();
+        }, LangHelper.getLang().getString(titleKey), LangHelper.getLang().getString(descKey)).getRoot());
     }
 
     private void restartProgram() {

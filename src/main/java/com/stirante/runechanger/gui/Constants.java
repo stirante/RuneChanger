@@ -1,6 +1,7 @@
 package com.stirante.runechanger.gui;
 
 import com.stirante.runechanger.model.app.Version;
+import com.stirante.runechanger.util.LangHelper;
 import javafx.scene.text.Font;
 
 public class Constants {
@@ -25,7 +26,8 @@ public class Constants {
     public static final float CHAMPION_SUGGESTION_WIDTH = 0.1388889f;
 
     //fonts
-    public static final Font BUTTON_FONT =
+    public static final Font BUTTON_FONT = LangHelper.getLocale().getLanguage().equalsIgnoreCase("ar") ?
+            Font.loadFont(Constants.class.getResource("/fonts/Cairo-Regular.ttf").toExternalForm(), 14) :
             Font.loadFont(Constants.class.getResource("/fonts/Roboto-Regular.ttf").toExternalForm(), 12);
 
     //font spacing

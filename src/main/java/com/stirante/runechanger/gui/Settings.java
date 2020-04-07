@@ -14,6 +14,7 @@ import generated.LolGameflowGameflowPhase;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.event.EventHandler;
+import javafx.geometry.NodeOrientation;
 import javafx.scene.Scene;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ProgressBar;
@@ -167,12 +168,12 @@ public class Settings extends Application {
 
         home = new HomeController();
         setClientConnected(runeChanger.getApi() != null && runeChanger.getApi().isConnected());
-        runeChanger.getRunesModule().addOnPageChangeListener(this::updateRunes);
         controller.setContent(home.container);
 
         Scene scene = new Scene(controller.container, 600, 500);
         scene.getStylesheets().add(getClass().getResource("/style.css").toExternalForm());
         scene.setFill(null);
+        scene.setNodeOrientation(LangHelper.isTextRTL() ? NodeOrientation.RIGHT_TO_LEFT : NodeOrientation.LEFT_TO_RIGHT);
         mainStage.setScene(scene);
 
         mainStage.addEventHandler(KeyEvent.KEY_PRESSED, keyPress);
@@ -324,7 +325,11 @@ public class Settings extends Application {
         }
     }
 
-    @Subscribe(value = ClientEventListener.RunePagesEvent.NAME, priority = EventPriority.LOWEST)
+    @Subscribe(value = ClientEventListener.RunePagesEvent.NAME, priority = EventPriority.LOWEST, eventExecutor = UiEventExecutor.class)
+    public static void onRunePagesChange() {
+        instance.updateRunes();
+    }
+
     public void updateRunes() {
         if (home == null) {
             return;

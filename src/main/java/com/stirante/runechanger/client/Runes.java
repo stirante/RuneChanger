@@ -4,7 +4,6 @@ import com.stirante.eventbus.EventBus;
 import com.stirante.eventbus.Subscribe;
 import com.stirante.lolclient.ClientApi;
 import com.stirante.runechanger.model.client.RunePage;
-import com.stirante.runechanger.util.FxUtils;
 import com.stirante.runechanger.util.SimplePreferences;
 import generated.LolPerksPerkPageResource;
 import generated.LolPerksPlayerInventory;
@@ -14,14 +13,11 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 
 public class Runes extends ClientModule {
     private static final Logger log = LoggerFactory.getLogger(Runes.class);
-
-    private final HashSet<Runnable> onPageChange = new HashSet<>();
 
     public Runes(ClientApi api) {
         super(api);
@@ -109,47 +105,6 @@ public class Runes extends ClientModule {
         if (SimplePreferences.getBooleanValue(SimplePreferences.SettingsKeys.AUTO_SYNC, false)) {
             syncRunePages();
         }
-
-        for (Runnable runnable : onPageChange) {
-            if (runnable != null) {
-                try {
-                    FxUtils.doOnFxThread(runnable);
-                } catch (Throwable t) {
-                    log.error("Exception occurred while executing page change listener", t);
-                    if (Countly.isInitialized()) {
-                        Countly.session().addCrashReport(t, false);
-                    }
-                }
-            }
-        }
-    }
-
-//    public void handlePageChange(LolPerksPerkPageResource[] pages) {
-//        // Auto sync rune pages to RuneChanger
-//        if (SimplePreferences.getBooleanValue(SimplePreferences.SettingsKeys.AUTO_SYNC, false)) {
-//            syncRunePages();
-//        }
-//
-//        for (Runnable runnable : onPageChange) {
-//            if (runnable != null) {
-//                try {
-//                    FxUtils.doOnFxThread(runnable);
-//                } catch (Throwable t) {
-//                    log.error("Exception occurred while executing page change listener", t);
-//                    if (Countly.isInitialized()) {
-//                        Countly.session().addCrashReport(t, false);
-//                    }
-//                }
-//            }
-//        }
-//    }
-
-    public void addOnPageChangeListener(Runnable runnable) {
-        onPageChange.add(runnable);
-    }
-
-    public void removeOnPageChangeListener(Runnable runnable) {
-        onPageChange.remove(runnable);
     }
 
     public void deletePage(RunePage page) {

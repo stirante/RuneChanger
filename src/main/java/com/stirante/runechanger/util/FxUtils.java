@@ -1,9 +1,11 @@
 package com.stirante.runechanger.util;
 
 import javafx.application.Platform;
+import javafx.geometry.VPos;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
+import javafx.scene.text.TextAlignment;
 import javafx.util.Pair;
 
 import java.util.ArrayList;
@@ -62,6 +64,15 @@ public class FxUtils {
      * @return Pair of doubles, where key is width and value is height
      */
     public static Pair<Double, Double> measureTextSize(Font font, String text, double spacing) {
+        if (LangHelper.isTextRTL()) {
+            Text t = new Text(text);
+            t.setFont(font);
+            t.setWrappingWidth(0);
+            t.setLineSpacing(0);
+            t.prefWidth(-1);
+            t.prefHeight(-1);
+            return new Pair<>(t.getLayoutBounds().getWidth(), t.getLayoutBounds().getHeight());
+        }
         Pair<Double, List<Double>> textSizes = getTextSizes(font, text);
         return measureTextSize(textSizes, text, spacing);
     }
@@ -74,6 +85,12 @@ public class FxUtils {
      * @param spacing spacing between letters (kerning)
      */
     public static void fillNiceCenteredText(GraphicsContext g, String text, double x, double y, double spacing) {
+        if (LangHelper.isTextRTL()) {
+            g.setTextAlign(TextAlignment.CENTER);
+            g.setTextBaseline(VPos.CENTER);
+            g.fillText(text, x, y);
+            return;
+        }
         Pair<Double, List<Double>> textSizes = getTextSizes(g.getFont(), text);
         List<Double> widths = textSizes.getValue();
         Pair<Double, Double> size = measureTextSize(textSizes, text, spacing);

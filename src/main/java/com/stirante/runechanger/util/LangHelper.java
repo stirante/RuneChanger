@@ -2,10 +2,14 @@ package com.stirante.runechanger.util;
 
 import com.stirante.runechanger.DebugConsts;
 
-import java.util.Locale;
-import java.util.ResourceBundle;
+import java.util.*;
 
 public class LangHelper {
+    private static final Set<String> RTL;
+
+    static {
+        RTL = Set.of("ar", "dv", "fa", "ha", "he", "iw", "ji", "ps", "sd", "ug", "ur", "yi");
+    }
 
     private static ResourceBundle resourceBundle;
 
@@ -14,22 +18,28 @@ public class LangHelper {
      *
      * @return default resource bundle
      */
-    @SuppressWarnings("ConstantConditions")
     public static ResourceBundle getLang() {
         if (resourceBundle == null) {
-            if (DebugConsts.OVERRIDE_LANGUAGE != null) {
-                resourceBundle =
-                        ResourceBundle.getBundle("lang.messages", Locale.forLanguageTag(DebugConsts.OVERRIDE_LANGUAGE));
-            }
-            else if (SimplePreferences.getBooleanValue(SimplePreferences.SettingsKeys.FORCE_ENGLISH, false)) {
-                resourceBundle =
-                        ResourceBundle.getBundle("lang.messages", Locale.ROOT);
-            }
-            else {
-                resourceBundle = ResourceBundle.getBundle("lang.messages");
-            }
+            resourceBundle = ResourceBundle.getBundle("lang.messages", getLocale());
         }
         return resourceBundle;
+    }
+
+    public static boolean isTextRTL() {
+        return RTL.contains(getLang().getLocale().getLanguage());
+    }
+
+    @SuppressWarnings("ConstantConditions")
+    public static Locale getLocale() {
+        if (DebugConsts.OVERRIDE_LANGUAGE != null) {
+            return Locale.forLanguageTag(DebugConsts.OVERRIDE_LANGUAGE);
+        }
+        else if (SimplePreferences.getBooleanValue(SimplePreferences.SettingsKeys.FORCE_ENGLISH, false)) {
+            return Locale.ROOT;
+        }
+        else {
+            return Locale.getDefault();
+        }
     }
 
 }
