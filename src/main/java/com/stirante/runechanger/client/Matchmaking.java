@@ -32,19 +32,15 @@ public class Matchmaking extends ClientModule {
                 log.debug("in queue: " + data.isCurrentlyInQueue);
                 try {
                     log.debug("restart matchmaking");
-                    LolLobbyLobby lobby = getApi().executeGet("/lol-lobby/v1/lobby", LolLobbyLobby.class);
-                    log.debug("canStartMatchmaking: " + lobby.canStartMatchmaking);
-                    if (lobby.canStartMatchmaking) {
-                        getApi().executeDelete("/lol-lobby/v2/lobby/matchmaking/search");
-                        RuneChanger.EXECUTOR_SERVICE.submit(() -> {
-                            try {
-                                Thread.sleep(1000);
-                                getApi().executePost("/lol-lobby/v2/lobby/matchmaking/search");
-                            } catch (IOException | InterruptedException e) {
-                                e.printStackTrace();
-                            }
-                        });
-                    }
+                    getApi().executeDelete("/lol-lobby/v2/lobby/matchmaking/search");
+                    RuneChanger.EXECUTOR_SERVICE.submit(() -> {
+                        try {
+                            Thread.sleep(1000);
+                            getApi().executePost("/lol-lobby/v2/lobby/matchmaking/search");
+                        } catch (IOException | InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    });
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -65,12 +61,14 @@ public class Matchmaking extends ClientModule {
                 try {
                     LolMatchmakingMatchmakingReadyCheckResource state =
                             getApi().executeGet("/lol-matchmaking/v1/ready-check", LolMatchmakingMatchmakingReadyCheckResource.class);
-                    if (state.state == LolMatchmakingMatchmakingReadyCheckState.INPROGRESS) {
+                    if (state.state == LolMatchmakingMatchmakingReadyCheckState.INPROGRESS
+                            && state.playerResponse != LolMatchmakingMatchmakingReadyCheckResponse.DECLINED &&
+                            state.playerResponse != LolMatchmakingMatchmakingReadyCheckResponse.ACCEPTED) {
                         log.info("Accepting queue");
                         getApi().executePost("/lol-matchmaking/v1/ready-check/accept");
                     }
                     else {
-                        log.info("Not accepting queue, because it's already accepted");
+                        log.info("Not accepting queue, because player already " + state.playerResponse.name().toLowerCase());
                     }
                 } catch (IOException e) {
                     log.error("Exception occurred while autoaccepting", e);
