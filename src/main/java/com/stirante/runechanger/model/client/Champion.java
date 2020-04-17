@@ -3,6 +3,7 @@ package com.stirante.runechanger.model.client;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.LoadingCache;
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.stirante.eventbus.EventBus;
 import com.stirante.runechanger.RuneChanger;
 import com.stirante.runechanger.runestore.ChampionGGSource;
@@ -304,17 +305,31 @@ public class Champion {
 
         @Override
         public void run() {
+            Gson gson = new Gson();
+            Map<String, Long> splashes = new HashMap<>();
+            try (InputStream in = new URL("https://runechanger.stirante.com/splashes.json").openStream()) {
+                splashes = gson.fromJson(new InputStreamReader(in), new TypeToken<Map<String, Long>>() {
+                }.getType());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
             for (Champion champion : values) {
                 // Checking and downloading portrait
                 File f = new File(portraitsDir, champion.id + ".jpg");
+                boolean force = splashes.containsKey(String.valueOf(champion.getId())) &&
+                        f.exists() &&
+                        splashes.get(String.valueOf(champion.getId())) > f.lastModified();
                 checkAndDownload(f,
                         champion.url + "/tile",
-                        "v1/champion-tiles/" + champion.getId() + "/" + champion.getId() + "000.jpg");
+                        "v1/champion-tiles/" + champion.getId() + "/" + champion.getId() + "000.jpg", force);
                 // Checking and downloading splash art
                 f = new File(portraitsDir, champion.id + "_full.jpg");
+                force = splashes.containsKey(String.valueOf(champion.getId())) &&
+                        f.exists() &&
+                        splashes.get(String.valueOf(champion.getId())) > f.lastModified();
                 checkAndDownload(f,
                         champion.url + "/splash-art/centered",
-                        "v1/champion-splashes/" + champion.getId() + "/" + champion.getId() + "000.jpg");
+                        "v1/champion-splashes/" + champion.getId() + "/" + champion.getId() + "000.jpg", force);
                 // Getting pick quote for champion
                 if (champion.pickQuote.isEmpty()) {
                     getQuoteForChampion(champion);
@@ -326,7 +341,6 @@ public class Champion {
             }
 
             try {
-                Gson gson = new Gson();
                 File cache = new File(portraitsDir, "champions.json");
                 //Save json with champions to file for faster initialization next time (this time with pick quotes)
                 try (PrintStream out = new PrintStream(new FileOutputStream(cache))) {
@@ -403,8 +417,11 @@ public class Champion {
             }
         }
 
-        private void checkAndDownload(File f, String url, String lcuPath) {
-            if (!f.exists()) {
+        private void checkAndDownload(File f, String url, String lcuPath, boolean force) {
+            if (!f.exists() || force) {
+                if (force) {
+                    log.info("Forcing download, because champion splash art changed");
+                }
                 try {
                     BufferedInputStream in;
                     if (RuneChanger.getInstance() == null || RuneChanger.getInstance().getApi() == null ||
