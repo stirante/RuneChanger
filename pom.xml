@@ -22,6 +22,10 @@
             <id>countly</id>
             <url>https://dl.bintray.com/countly/maven</url>
         </repository>
+        <repository>
+            <id>stirante</id>
+            <url>https://nexus.stirante.com/repository/maven-releases/</url>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -99,7 +103,7 @@
         <dependency>
             <groupId>org.controlsfx</groupId>
             <artifactId>controlsfx</artifactId>
-            <version>11.0.0</version>
+            <version>11.0.2</version>
         </dependency>
         <dependency>
             <groupId>com.github.vatbub</groupId>
