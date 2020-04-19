@@ -32,6 +32,7 @@ public class ChampionGGSource implements RuneSource {
 
     private void extractRunePage(Document webPage, Champion champion, String role, ObservableList<RunePage> pages) {
         RunePage page = new RunePage();
+        page.setSourceName(getSourceName());
         Elements elements = webPage.select("div.o-wrap");
         elements = elements.select("div.RuneBuilder__PathBody-dchrMz.bKqgWU");
         Element mainSide;
@@ -180,7 +181,7 @@ public class ChampionGGSource implements RuneSource {
     }
 
     @Override
-    public void getForChampion(Champion champion, ObservableList<RunePage> pages) {
+    public void getRunesForChampion(Champion champion, ObservableList<RunePage> pages) {
         extractRunes(champion, pages);
     }
 }

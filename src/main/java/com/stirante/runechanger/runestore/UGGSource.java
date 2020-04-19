@@ -39,7 +39,7 @@ public class UGGSource implements RuneSource {
         DebugConsts.enableDebugMode();
         Champion.init();
         ObservableList<RunePage> pages = FXCollections.observableArrayList();
-        new UGGSource().getForChampion(Champion.getByName("blitzcrank"), pages);
+        new UGGSource().getRunesForChampion(Champion.getByName("blitzcrank"), pages);
         for (RunePage page : pages) {
             System.out.println(page);
         }
@@ -77,6 +77,7 @@ public class UGGSource implements RuneSource {
         int games = arr.get(OverviewElement.RUNE_PAGES.getKey()).getAsJsonArray().get(Page.GAMES.getKey()).getAsInt();
         log.debug("Games count for " + champion.getName() + " on " + position.name() + ": " + games);
         RunePage page = new RunePage();
+        page.setSourceName(getSourceName());
         page.setMainStyle(Style.getById(arr.get(OverviewElement.RUNE_PAGES.getKey())
                 .getAsJsonArray()
                 .get(Page.MAIN_STYLE.getKey())
@@ -114,7 +115,7 @@ public class UGGSource implements RuneSource {
     }
 
     @Override
-    public void getForChampion(Champion champion, ObservableList<RunePage> pages) {
+    public void getRunesForChampion(Champion champion, ObservableList<RunePage> pages) {
         try {
             JsonObject root = getRootObject(champion);
             for (Position position : Position.values()) {

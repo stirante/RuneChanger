@@ -4,7 +4,7 @@ import com.stirante.runechanger.model.client.Champion;
 import com.stirante.runechanger.model.client.RunePage;
 import javafx.collections.ObservableList;
 
-public interface RuneSource {
+public interface RuneSource extends Source {
 
     /**
      * Gets list of rune pages for champion
@@ -12,10 +12,5 @@ public interface RuneSource {
      * @param champion champion
      * @param pages    list of pages, which will be filled with pages
      */
-    void getForChampion(Champion champion, ObservableList<RunePage> pages);
-
-    /**
-     * Returns friendly name of the source
-     */
-    String getSourceName();
+    void getRunesForChampion(Champion champion, ObservableList<RunePage> pages);
 }

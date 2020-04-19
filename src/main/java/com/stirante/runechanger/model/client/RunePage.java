@@ -14,9 +14,11 @@ import java.util.Objects;
 
 public class RunePage {
     private static final Logger log = LoggerFactory.getLogger(RunePage.class);
+    public static final int VERSION = 0x2;
     private final List<Rune> runes = new ArrayList<>(6);
     private final List<Modifier> modifiers = new ArrayList<>(3);
     private String source;
+    private String sourceName;
     private Champion champion;
     private boolean fromClient;
     private boolean synced;
@@ -234,7 +236,7 @@ public class RunePage {
      */
     public void serialize(DataOutputStream out) throws IOException {
         // version mark
-        out.writeByte(0x2);
+        out.writeByte(VERSION);
 
         // basic data
         out.writeUTF(name);
@@ -290,7 +292,7 @@ public class RunePage {
                 log.warn("Champion " + id + " not found!");
             }
         }
-        else {
+        if (version < 0 || version > VERSION) {
             log.warn("Unknown rune page version " + version);
         }
     }
@@ -334,6 +336,14 @@ public class RunePage {
         modifiers.forEach(modifier -> runepageList.add(modifier.getId()));
 
         return runepageList.toString();
+    }
+
+    public String getSourceName() {
+        return sourceName;
+    }
+
+    public void setSourceName(String sourceName) {
+        this.sourceName = sourceName;
     }
 
     public boolean isFromClient() {

@@ -124,13 +124,7 @@ public class RuneMenu extends OverlayLayer {
             }
             g2d.setColor(TEXT_COLOR);
             g2d.drawImage(page.getRunes().get(0).getImage(), menuX, itemTop, itemHeight, itemHeight, null);
-            String runeSource;
-            try {
-                runeSource = new URL(page.getSource()).getHost();
-            } catch (MalformedURLException e) {
-                runeSource = LangHelper.getLang().getString("local_source");
-            }
-            drawRuneText(g2d, menuX + itemHeight, itemBottom, page.getName(), runeSource);
+            drawRuneText(g2d, menuX + itemHeight, itemBottom, page.getName(), page.getSourceName());
             //draw dividers, except at the bottom
             if (i != pages.size() - 1) {
                 g2d.setColor(DIVIDER_COLOR);

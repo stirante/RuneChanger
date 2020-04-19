@@ -51,6 +51,7 @@ public class RuneforgeSource implements RuneSource {
             Document parse = Jsoup.parse(new URL(url), TIMEOUT);
             RunePage r = new RunePage();
             r.setSource(url);
+            r.setSourceName(getSourceName());
             //get rune page name
             r.setName(StringUtils.fixString(parse.select("h2.loadout-title").text()));
             Element style = parse.getElementsByClass("rune-path--primary").first();
@@ -96,7 +97,7 @@ public class RuneforgeSource implements RuneSource {
      * @param champion champion
      * @return list of rune pages
      */
-    public void getForChampion(Champion champion, ObservableList<RunePage> pages) {
+    public void getRunesForChampion(Champion champion, ObservableList<RunePage> pages) {
         if (pagesCache.containsKey(champion)) {
             FxUtils.doOnFxThread(() -> pages.addAll(pagesCache.get(champion)));
             return;

@@ -28,7 +28,7 @@ public class RuneStore {
      */
     public static void getRunes(Champion champion, ObservableList<RunePage> pages) {
         for (RuneSource source : sources) {
-            RuneChanger.EXECUTOR_SERVICE.submit(() -> source.getForChampion(champion, pages));
+            RuneChanger.EXECUTOR_SERVICE.submit(() -> source.getRunesForChampion(champion, pages));
         }
     }
 
@@ -43,7 +43,7 @@ public class RuneStore {
             if (source instanceof LocalSource) {
                 continue;
             }
-            RuneChanger.EXECUTOR_SERVICE.submit(() -> source.getForChampion(champion, pages));
+            RuneChanger.EXECUTOR_SERVICE.submit(() -> source.getRunesForChampion(champion, pages));
         }
     }
 
