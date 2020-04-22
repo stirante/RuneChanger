@@ -12,7 +12,8 @@ import com.stirante.runechanger.gui.overlay.ClientOverlay;
 import com.stirante.runechanger.gui.overlay.RuneMenu;
 import com.stirante.runechanger.model.client.Champion;
 import com.stirante.runechanger.model.client.RunePage;
-import com.stirante.runechanger.runestore.RuneStore;
+import com.stirante.runechanger.sourcestore.SourceStore;
+import com.stirante.runechanger.util.AnalyticsUtil;
 import com.stirante.runechanger.util.LangHelper;
 import com.stirante.runechanger.util.NativeUtils;
 import com.stirante.runechanger.util.PerformanceMonitor;
@@ -22,7 +23,6 @@ import com.sun.jna.platform.win32.WinDef;
 import javafx.beans.InvalidationListener;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import ly.count.sdk.java.Countly;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -250,9 +250,7 @@ public class GuiHandler {
             systemTray.add(trayIcon);
         } catch (Exception e) {
             log.error("Exception occurred while initializing gui", e);
-            if (Countly.isInitialized()) {
-                Countly.session().addCrashReport(e, true);
-            }
+            AnalyticsUtil.addCrashReport(e, "Exception occurred while initializing gui", true);
             System.exit(0);
         }
         EventBus.register(this);
@@ -268,6 +266,7 @@ public class GuiHandler {
         RuneChanger.EXECUTOR_SERVICE.submit(() -> {
             threadRunning.set(true);
             while (windowOpen.get()) {
+                long start = System.currentTimeMillis();
                 //if window is open set it's position or hide if client is not active window
                 lock.lock();
                 WinDef.HWND top = User32.INSTANCE.GetForegroundWindow();
@@ -313,9 +312,7 @@ public class GuiHandler {
                         }
                     } catch (Throwable t) {
                         log.error("Exception occurred while updating window", t);
-                        if (Countly.isInitialized()) {
-                            Countly.session().addCrashReport(t, false);
-                        }
+                        AnalyticsUtil.addCrashReport(t, "Exception occurred while updating window", false);
                     }
                 }
                 else {
@@ -326,7 +323,7 @@ public class GuiHandler {
                 lock.unlock();
                 try {
                     //60FPS master race
-                    Thread.sleep(16);
+                    Thread.sleep(Math.min(1, 16 - (System.currentTimeMillis() - start)));
                 } catch (InterruptedException ignored) {
                 }
             }
@@ -406,11 +403,13 @@ public class GuiHandler {
         pages.addListener((InvalidationListener) observable -> setRunes(pages));
         if (event.getChampion() != null) {
             log.info("Downloading runes for champion: " + event.getChampion().getName());
-            RuneStore.getRunes(event.getChampion(), pages);
+            SourceStore.getRunes(event.getChampion(), RuneChanger.getInstance()
+                    .getChampionSelectionModule()
+                    .getGameMode(), pages);
         }
         else {
             log.info("Showing local runes");
-            RuneStore.getLocalRunes(pages);
+            SourceStore.getLocalRunes(pages);
         }
     }
 

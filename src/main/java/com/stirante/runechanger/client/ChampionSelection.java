@@ -8,6 +8,7 @@ import com.stirante.runechanger.DebugConsts;
 import com.stirante.runechanger.model.client.Champion;
 import com.stirante.runechanger.model.client.GameMap;
 import com.stirante.runechanger.model.client.GameMode;
+import com.stirante.runechanger.util.AnalyticsUtil;
 import generated.*;
 import ly.count.sdk.java.Countly;
 import org.slf4j.Logger;
@@ -161,7 +162,7 @@ public class ChampionSelection extends ClientModule {
                 log.error("Exception thrown when updating the gamemode! GameMode.java might not be updated. " +
                         e.getMessage());
                 if (Countly.isInitialized()) {
-                    Countly.session().addCrashReport(e, false);
+                    AnalyticsUtil.addCrashReport(e, "Exception thrown when updating the gamemode! GameMode.java might not be updated.", false);
                 }
                 positionSelector = false;
                 gameMode = GameMode.CLASSIC;

@@ -3,7 +3,6 @@ package com.stirante.runechanger.util;
 import com.stirante.runechanger.DebugConsts;
 import com.stirante.runechanger.gui.Constants;
 import com.sun.jna.platform.win32.Advapi32Util;
-import ly.count.sdk.java.Countly;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,9 +35,7 @@ public class AutoStartUtils {
                     prepareScript();
                 } catch (IOException e) {
                     log.error("Exception occurred while checking auto start path", e);
-                    if (Countly.isInitialized()) {
-                        Countly.session().addCrashReport(e, false);
-                    }
+                    AnalyticsUtil.addCrashReport(e, "Exception occurred while checking auto start path", false);
                 }
             }
         }
@@ -54,9 +51,7 @@ public class AutoStartUtils {
                 prepareScript();
             } catch (IOException e) {
                 log.error("Exception occurred while setting auto start", e);
-                if (Countly.isInitialized()) {
-                    Countly.session().addCrashReport(e, false);
-                }
+                AnalyticsUtil.addCrashReport(e, "Exception occurred while setting auto start", false);
             }
             Advapi32Util.registryCreateKey(HKEY_CURRENT_USER, REGISTRY_AUTOSTART_KEY);
             Advapi32Util.registrySetStringValue(HKEY_CURRENT_USER, REGISTRY_AUTOSTART_KEY, Constants.APP_NAME, getStartCommand());

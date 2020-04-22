@@ -59,12 +59,11 @@ public class RuneChanger implements Launcher {
     private ClientWebSocket socket;
 
     public static void main(String[] args) {
+        SimplePreferences.load();
         Thread.setDefaultUncaughtExceptionHandler((thread, throwable) -> {
-            log.error(
-                    "An unhandled exception occurred in thread " + thread.getName(), throwable);
-            if (Countly.isInitialized()) {
-                Countly.session().addCrashReport(throwable, true);
-            }
+            log.error("An unhandled exception occurred in thread " + thread.getName(), throwable);
+            AnalyticsUtil.addCrashReport(throwable,
+                    "An unhandled exception occurred in thread " + thread.getName(), true);
         });
         checkAndCreateLockfile();
         changeWorkingDir();
@@ -77,14 +76,11 @@ public class RuneChanger implements Launcher {
             Champion.init();
         } catch (IOException e) {
             log.error("Exception occurred while initializing champions", e);
-            if (Countly.isInitialized()) {
-                Countly.session().addCrashReport(e, true);
-            }
+            AnalyticsUtil.addCrashReport(e, "Exception occurred while initializing champions", true);
             JOptionPane.showMessageDialog(null, LangHelper.getLang().getString("init_data_error"), Constants.APP_NAME,
                     JOptionPane.ERROR_MESSAGE);
             System.exit(0);
         }
-        SimplePreferences.load();
         ch.qos.logback.classic.Logger logger =
                 (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
         if (Arrays.asList(args).contains("-nologs")) {
@@ -100,9 +96,7 @@ public class RuneChanger implements Launcher {
             AutoStartUtils.checkAutoStartPath();
         } catch (Exception e) {
             log.error("Exception occurred while checking autostart path", e);
-            if (Countly.isInitialized()) {
-                Countly.session().addCrashReport(e, false);
-            }
+            AnalyticsUtil.addCrashReport(e, "Exception occurred while checking autostart path", false);
         }
         if (!SimplePreferences.getBooleanValue(SimplePreferences.FlagKeys.CREATED_SHORTCUTS, false) ||
                 !SimplePreferences.getBooleanValue(SimplePreferences.FlagKeys.UPDATED_LOGO, false)) {
@@ -113,9 +107,7 @@ public class RuneChanger implements Launcher {
                 SimplePreferences.putBooleanValue(SimplePreferences.FlagKeys.UPDATED_LOGO, true);
             } catch (Exception e) {
                 log.error("Exception occurred while creating shortcuts", e);
-                if (Countly.isInitialized()) {
-                    Countly.session().addCrashReport(e, false);
-                }
+                AnalyticsUtil.addCrashReport(e, "Exception occurred while creating shortcuts", false);
             }
         }
         instance = new RuneChanger();
@@ -146,9 +138,7 @@ public class RuneChanger implements Launcher {
             }
         } catch (Exception e) {
             log.error("Exception occurred while changing current directory", e);
-            if (Countly.isInitialized()) {
-                Countly.session().addCrashReport(e, false);
-            }
+            AnalyticsUtil.addCrashReport(e, "Exception occurred while changing current directory", false);
         }
     }
 
@@ -175,10 +165,8 @@ public class RuneChanger implements Launcher {
                 System.exit(1);
             }
         } catch (IOException e) {
-            log.error("Error creating lockfile" + e);
-            if (Countly.isInitialized()) {
-                Countly.session().addCrashReport(e, true);
-            }
+            log.error("Error creating lockfile", e);
+            AnalyticsUtil.addCrashReport(e, "Error creating lockfile", true);
             System.exit(1);
         }
     }
@@ -239,9 +227,7 @@ public class RuneChanger implements Launcher {
                 api = new ClientApi(clientPath);
             } catch (IllegalStateException e) {
                 log.error("Exception occurred while creating client api", e);
-                if (Countly.isInitialized()) {
-                    Countly.session().addCrashReport(e, true);
-                }
+                AnalyticsUtil.addCrashReport(e, "Exception occurred while creating client api", true);
                 JOptionPane.showMessageDialog(null, LangHelper.getLang()
                         .getString("client_error"), Constants.APP_NAME, JOptionPane.ERROR_MESSAGE);
                 System.exit(0);
@@ -321,7 +307,7 @@ public class RuneChanger implements Launcher {
                                 }
                                 else {
                                     log.error("Exception occurred while opening socket", e);
-                                    Countly.session().addCrashReport(e, false);
+                                    AnalyticsUtil.addCrashReport(e, "Exception occurred while opening socket", false);
                                 }
                             }
                             return;
@@ -414,9 +400,7 @@ public class RuneChanger implements Launcher {
             System.exit(0);
         } catch (IOException e) {
             log.error("Exception occurred while executing command", e);
-            if (Countly.isInitialized()) {
-                Countly.session().addCrashReport(e, false);
-            }
+            AnalyticsUtil.addCrashReport(e, "Exception occurred while executing command", false);
         }
     }
 

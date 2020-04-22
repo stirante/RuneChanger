@@ -1,6 +1,6 @@
 package com.stirante.runechanger.model.client;
 
-import ly.count.sdk.java.Countly;
+import com.stirante.runechanger.util.AnalyticsUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -9,7 +9,7 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 
 public enum Rune {
-    //Generated on Friday, December 6, 2019 at 2:50:05 PM Central European Standard Time
+    //Generated on Tuesday, April 21, 2020 at 5:44:58 PM Central European Summer Time
     RUNE_8005(8005, 8000, 0, "Press the Attack"),
     RUNE_8008(8008, 8000, 0, "Lethal Tempo"),
     RUNE_8009(8009, 8000, 1, "Presence of Mind"),
@@ -170,10 +170,8 @@ public enum Rune {
             try {
                 image = ImageIO.read(getClass().getResourceAsStream("/runes/" + getId() + ".png"));
             } catch (IOException e) {
-                log.error("Exception occurred while reading a rune icon", e);
-                if (Countly.isInitialized()) {
-                    Countly.session().addCrashReport(e, false);
-                }
+                log.error("Exception occurred while reading rune icon", e);
+                AnalyticsUtil.addCrashReport(e, "Exception occurred while reading a rune icon", false);
             }
         }
         return image;

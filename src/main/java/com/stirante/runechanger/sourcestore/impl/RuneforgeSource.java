@@ -1,7 +1,8 @@
-package com.stirante.runechanger.runestore;
+package com.stirante.runechanger.sourcestore.impl;
 
 import com.google.gson.Gson;
 import com.stirante.runechanger.model.client.*;
+import com.stirante.runechanger.sourcestore.RuneSource;
 import com.stirante.runechanger.util.FxUtils;
 import com.stirante.runechanger.util.StringUtils;
 import javafx.collections.ObservableList;
@@ -97,7 +98,7 @@ public class RuneforgeSource implements RuneSource {
      * @param champion champion
      * @return list of rune pages
      */
-    public void getRunesForChampion(Champion champion, ObservableList<RunePage> pages) {
+    public void getRunesForChampion(Champion champion, GameMode mode, ObservableList<RunePage> pages) {
         if (pagesCache.containsKey(champion)) {
             FxUtils.doOnFxThread(() -> pages.addAll(pagesCache.get(champion)));
             return;

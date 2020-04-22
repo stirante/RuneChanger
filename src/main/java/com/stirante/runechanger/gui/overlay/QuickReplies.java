@@ -4,8 +4,8 @@ import com.stirante.runechanger.RuneChanger;
 import com.stirante.runechanger.gui.Constants;
 import com.stirante.runechanger.gui.SceneType;
 import com.stirante.runechanger.model.client.GameMap;
+import com.stirante.runechanger.util.AnalyticsUtil;
 import com.stirante.runechanger.util.SimplePreferences;
-import ly.count.sdk.java.Countly;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,9 +31,7 @@ public class QuickReplies extends OverlayLayer {
             icons[4] = ImageIO.read(getClass().getResourceAsStream("/images/icon-position-top.png"));
         } catch (IOException e) {
             log.error("Exception occurred while loading position icons", e);
-            if (Countly.isInitialized()) {
-                Countly.session().addCrashReport(e, false);
-            }
+            AnalyticsUtil.addCrashReport(e, "Exception occurred while loading position icons", false);
         }
         for (int i = 0; i < rectangles.length; i++) {
             rectangles[i] = new Rectangle(0, 0, 0, 0);

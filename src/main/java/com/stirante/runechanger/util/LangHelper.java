@@ -2,7 +2,9 @@ package com.stirante.runechanger.util;
 
 import com.stirante.runechanger.DebugConsts;
 
-import java.util.*;
+import java.util.Locale;
+import java.util.ResourceBundle;
+import java.util.Set;
 
 public class LangHelper {
     private static final Set<String> RTL;

@@ -1,5 +1,10 @@
 package com.stirante.runechanger.util;
 
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.Appender;
+import ch.qos.logback.core.FileAppender;
 import com.stirante.eventbus.EventBus;
 import com.stirante.eventbus.Subscribe;
 import com.stirante.runechanger.DebugConsts;
@@ -10,35 +15,82 @@ import com.stirante.runechanger.model.app.Version;
 import ly.count.sdk.ConfigCore;
 import ly.count.sdk.internal.CtxCore;
 import ly.count.sdk.internal.DeviceCore;
+import ly.count.sdk.internal.ModuleCrash;
 import ly.count.sdk.internal.Params;
 import ly.count.sdk.java.Config;
 import ly.count.sdk.java.Countly;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Field;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class AnalyticsUtil {
+    private static final org.slf4j.Logger log = LoggerFactory.getLogger(AnalyticsUtil.class);
     public static final String APP_KEY = "555ef1b803f476d2169f8bf18fed9ac41ce6bd91";
+    public static final String DEV_APP_KEY = "962c6753cb1af60b13344f5100d9a30488f794ea";
     public static final String SERVER_URL = "https://stats.stirante.com";
     public static final String ANALYTICS_DIR = "analytics";
+
+    private static final ReentrantLock initLock = new ReentrantLock();
 
     public static void main(String[] args) {
         SimplePreferences.load();
         init(true);
+        onConsent(true);
+        log.info("init done");
         try {
-            Thread.sleep(20000);
+            Thread.sleep(5000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+        log.info("causing crash");
+        addCrashReport(new RuntimeException("test"), "An error occurred while testing", true);
         Countly.session().end();
         try {
             Thread.sleep(5000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+        log.info("stop");
         Countly.stop(false);
+    }
+
+    public static void addCrashReport(Throwable t, String comment, boolean fatal) {
+        if (!Countly.isInitialized()) {
+            init(false);
+        }
+        RuneChanger.EXECUTOR_SERVICE.submit(() -> {
+            initLock.lock();
+            String logs = "";
+            LoggerContext context = (LoggerContext) LoggerFactory.getILoggerFactory();
+            for (Logger logger : context.getLoggerList()) {
+                for (Iterator<Appender<ILoggingEvent>> index = logger.iteratorForAppenders(); index.hasNext(); ) {
+                    Appender<ILoggingEvent> appender = index.next();
+                    if (appender instanceof FileAppender) {
+                        try {
+                            byte[] encoded =
+                                    Files.readAllBytes(Paths.get(((FileAppender<ILoggingEvent>) appender).getFile()));
+                            logs = new String(encoded);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            }
+            Map<String, String> segments = new HashMap<>();
+            segments.put("CPU", CustomDevice.dev.getCpu());
+            segments.put("GPU", CustomDevice.dev.getGpu());
+            segments.put("RAM", String.valueOf(CustomDevice.dev.getRam()));
+            Countly.session().addCrashReport(t, fatal, comment + ": " + t.getMessage(), segments, logs);
+            initLock.unlock();
+        });
     }
 
     @Subscribe(ClientEventListener.ChampionSelectionEvent.NAME)
@@ -67,13 +119,15 @@ public class AnalyticsUtil {
     }
 
     private static void initNoData() {
-        if (DebugConsts.isRunningFromIDE()) {
+        if (!DebugConsts.ENABLE_ANALYTICS_DEBUG && DebugConsts.isRunningFromIDE()) {
             return;
         }
         if (!Countly.isInitialized()) {
-            Config config = (Config) new Config(SERVER_URL, APP_KEY)
+            Config config = (Config) new Config(SERVER_URL, DebugConsts.ENABLE_ANALYTICS_DEBUG ? DEV_APP_KEY : APP_KEY)
                     .enableFeatures(Config.Feature.Events, Config.Feature.Sessions, Config.Feature.CrashReporting, Config.Feature.UserProfiles)
                     .setDeviceIdStrategy(Config.DeviceIdStrategy.UUID)
+                    .setRequiresConsent(true)
+                    .overrideModule(Config.Feature.CrashReporting, ModuleCrash.class)
                     .setApplicationVersion(Version.INSTANCE.version);
 
             if (DebugConsts.ENABLE_ANALYTICS_DEBUG) {
@@ -82,14 +136,17 @@ public class AnalyticsUtil {
                         .enableTestMode();
             }
 
-            if (!SimplePreferences.getBooleanValue(SimplePreferences.SettingsKeys.ANALYTICS, true)) {
-                config.disableFeatures(Config.Feature.values());
-            }
-
             File targetFolder = new File(PathUtils.getWorkingDirectory() + File.separator + ANALYTICS_DIR);
             targetFolder.mkdir();
 
             Countly.init(targetFolder, config);
+
+            if (SimplePreferences.getBooleanValue(SimplePreferences.SettingsKeys.ANALYTICS, false)) {
+                Countly.onConsent(Config.Feature.values());
+            }
+            else {
+                Countly.onConsentRemoval(Config.Feature.values());
+            }
 
             EventBus.register(AnalyticsUtil.class);
         }
@@ -97,6 +154,7 @@ public class AnalyticsUtil {
 
     public static void init(boolean begin) {
         RuneChanger.EXECUTOR_SERVICE.submit(() -> {
+            initLock.lock();
             Hardware.HardwareInfo info = Hardware.getAllHardwareInfo();
 
             CustomDevice device = new CustomDevice();
@@ -123,6 +181,7 @@ public class AnalyticsUtil {
             if (begin && Countly.isInitialized()) {
                 Countly.session().begin();
             }
+            initLock.unlock();
         });
     }
 

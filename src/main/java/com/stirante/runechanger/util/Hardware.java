@@ -1,6 +1,5 @@
 package com.stirante.runechanger.util;
 
-import ly.count.sdk.java.Countly;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,9 +63,7 @@ public class Hardware {
             }
         } catch (Exception e) {
             log.error("Exception occurred while getting cpu info", e);
-            if (Countly.isInitialized()) {
-                Countly.session().addCrashReport(e, false);
-            }
+            AnalyticsUtil.addCrashReport(e, "Exception occurred while getting cpu info", false);
         } finally {
             if (in != null) {
                 try {

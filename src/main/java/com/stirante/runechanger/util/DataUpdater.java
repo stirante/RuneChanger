@@ -23,6 +23,7 @@ public class DataUpdater {
 
     private static final String RUNE_ENUM_PREFIX = "package com.stirante.runechanger.model.client;\n" +
             "\n" +
+            "import com.stirante.runechanger.util.AnalyticsUtil;\n" +
             "import org.slf4j.Logger;\n" +
             "import org.slf4j.LoggerFactory;\n" +
             "\n" +
@@ -129,6 +130,7 @@ public class DataUpdater {
             "                image = ImageIO.read(getClass().getResourceAsStream(\"/runes/\" + getId() + \".png\"));\n" +
             "            } catch (IOException e) {\n" +
             "                log.error(\"Exception occurred while reading rune icon\", e);\n" +
+            "                AnalyticsUtil.addCrashReport(e, \"Exception occurred while reading a rune icon\", false);\n" +
             "            }\n" +
             "        }\n" +
             "        return image;\n" +

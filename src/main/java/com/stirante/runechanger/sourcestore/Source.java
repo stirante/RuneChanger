@@ -1,4 +1,4 @@
-package com.stirante.runechanger.runestore;
+package com.stirante.runechanger.sourcestore;
 
 public interface Source {
 

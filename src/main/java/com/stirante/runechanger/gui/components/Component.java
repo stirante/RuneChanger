@@ -1,7 +1,6 @@
 package com.stirante.runechanger.gui.components;
 
 import com.stirante.runechanger.util.FxUtils;
-import javafx.application.Platform;
 import javafx.beans.Observable;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;

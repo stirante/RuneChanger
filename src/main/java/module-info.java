@@ -36,7 +36,8 @@ module RuneChanger {
     exports com.stirante.runechanger.gui.components;
     exports com.stirante.runechanger.util;
     exports com.stirante.runechanger.gui.overlay;
-    opens com.stirante.runechanger.runestore;
+    opens com.stirante.runechanger.sourcestore;
+    opens com.stirante.runechanger.sourcestore.impl;
     opens com.stirante.runechanger.model.client;
     opens com.stirante.runechanger.model.app;
     opens com.stirante.runechanger.model.log;

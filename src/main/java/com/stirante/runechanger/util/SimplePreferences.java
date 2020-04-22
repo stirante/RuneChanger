@@ -3,7 +3,6 @@ package com.stirante.runechanger.util;
 import com.stirante.eventbus.EventBus;
 import com.stirante.runechanger.client.ClientEventListener;
 import com.stirante.runechanger.model.client.RunePage;
-import ly.count.sdk.java.Countly;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,9 +38,7 @@ public class SimplePreferences {
         } catch (IOException e) {
             if (!(e instanceof FileNotFoundException)) {
                 log.error("Exception occurred while loading settings file", e);
-                if (Countly.isInitialized()) {
-                    Countly.session().addCrashReport(e, false);
-                }
+                AnalyticsUtil.addCrashReport(e, "Exception occurred while loading settings file", false);
             }
         }
         if (settingsValues == null) {
@@ -59,9 +56,7 @@ public class SimplePreferences {
         } catch (IOException e) {
             if (!(e instanceof FileNotFoundException)) {
                 log.error("Exception occurred while loading rune book file", e);
-                if (Countly.isInitialized()) {
-                    Countly.session().addCrashReport(e, false);
-                }
+                AnalyticsUtil.addCrashReport(e, "Exception occurred while loading rune book file", false);
             }
         }
         if (runeBookValues == null) {
@@ -87,9 +82,7 @@ public class SimplePreferences {
             dataOutputStream.flush();
         } catch (IOException e) {
             log.error("Exception occurred while saving settings file", e);
-            if (Countly.isInitialized()) {
-                Countly.session().addCrashReport(e, false);
-            }
+            AnalyticsUtil.addCrashReport(e, "Exception occurred while saving settings file", false);
         }
 
 
@@ -109,9 +102,7 @@ public class SimplePreferences {
             dataOutputStream.flush();
         } catch (IOException e) {
             log.error("Exception occurred while saving rune book file", e);
-            if (Countly.isInitialized()) {
-                Countly.session().addCrashReport(e, false);
-            }
+            AnalyticsUtil.addCrashReport(e, "Exception occurred while saving rune book file", false);
         }
 
     }
@@ -174,10 +165,6 @@ public class SimplePreferences {
         public static final String ANALYTICS = "analytics";
         public static final String ENABLE_ANIMATIONS = "enableAnimations";
         public static final String RESTART_ON_DODGE = "restartOnDodge";
-    }
-
-    public static class AnalyticsKeys {
-        public static final String USER_ID = "userId";
     }
 
     public static class InternalKeys {

@@ -7,14 +7,12 @@ import javafx.animation.Interpolator;
 import javafx.animation.Transition;
 import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
-import javafx.geometry.NodeOrientation;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.util.Duration;
-import ly.count.sdk.java.Countly;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -102,9 +100,7 @@ public class SettingsController {
             Runtime.getRuntime().exec("wscript silent.vbs open.bat");
         } catch (Exception ex) {
             log.error("Exception occurred while executing a restart command", ex);
-            if (Countly.isInitialized()) {
-                Countly.session().addCrashReport(ex, false);
-            }
+            AnalyticsUtil.addCrashReport(ex, "Exception occurred while executing a restart command", false);
         }
         System.exit(0);
     }

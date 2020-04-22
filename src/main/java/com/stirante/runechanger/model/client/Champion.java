@@ -6,13 +6,13 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.stirante.eventbus.EventBus;
 import com.stirante.runechanger.RuneChanger;
-import com.stirante.runechanger.runestore.ChampionGGSource;
-import com.stirante.runechanger.runestore.RuneStore;
+import com.stirante.runechanger.sourcestore.SourceStore;
+import com.stirante.runechanger.sourcestore.impl.ChampionGGSource;
+import com.stirante.runechanger.util.AnalyticsUtil;
 import com.stirante.runechanger.util.PathUtils;
 import com.stirante.runechanger.util.PerformanceMonitor;
 import com.stirante.runechanger.util.StringUtils;
 import generated.Position;
-import ly.count.sdk.java.Countly;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -334,7 +334,7 @@ public class Champion {
                 if (champion.pickQuote.isEmpty()) {
                     getQuoteForChampion(champion);
                 }
-                ChampionGGSource source = RuneStore.getSource(ChampionGGSource.class);
+                ChampionGGSource source = SourceStore.getSource(ChampionGGSource.class);
                 if (source != null) {
                     champion.position = source.getPositionForChampion(champion);
                 }
@@ -349,9 +349,7 @@ public class Champion {
                 }
             } catch (IOException e) {
                 log.error("Exception occurred while saving champions cache", e);
-                if (Countly.isInitialized()) {
-                    Countly.session().addCrashReport(e, false);
-                }
+                AnalyticsUtil.addCrashReport(e, "Exception occurred while saving champions cache", false);
             }
 
             log.info("Champions initialized");
@@ -365,9 +363,7 @@ public class Champion {
                 EventBus.publish(IMAGES_READY_EVENT);
             } catch (Throwable t) {
                 log.error("Exception occurred while publishing images ready event", t);
-                if (Countly.isInitialized()) {
-                    Countly.session().addCrashReport(t, false);
-                }
+                AnalyticsUtil.addCrashReport(t, "Exception occurred while publishing images ready event", false);
             }
         }
 
@@ -411,9 +407,8 @@ public class Champion {
                 }
             } catch (IOException e) {
                 log.error("Exception occurred while getting quote for champion " + champion.name, e);
-                if (Countly.isInitialized()) {
-                    Countly.session().addCrashReport(e, false);
-                }
+                AnalyticsUtil.addCrashReport(e,
+                        "Exception occurred while getting quote for champion " + champion.name, false);
             }
         }
 

@@ -9,6 +9,7 @@ import com.google.gson.Gson;
 import com.stirante.runechanger.gui.Settings;
 import com.stirante.runechanger.model.client.Champion;
 import com.stirante.runechanger.model.log.LogRequest;
+import com.stirante.runechanger.util.AnalyticsUtil;
 import com.stirante.runechanger.util.AsyncTask;
 import com.stirante.runechanger.util.Hardware;
 import com.stirante.runechanger.util.LangHelper;
@@ -25,7 +26,6 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 import javafx.util.Duration;
-import ly.count.sdk.java.Countly;
 import me.xdrop.fuzzywuzzy.FuzzySearch;
 import org.controlsfx.control.textfield.AutoCompletionBinding;
 import org.controlsfx.control.textfield.TextFields;
@@ -123,9 +123,7 @@ public class MainController {
                                         new Gson().toJson(Hardware.getAllHardwareInfo())).submit();
                             } catch (IOException e) {
                                 log.error("Exception occurred while sending a debug log (so ironic)", e);
-                                if (Countly.isInitialized()) {
-                                    Countly.session().addCrashReport(e, false);
-                                }
+                                AnalyticsUtil.addCrashReport(e, "Exception occurred while sending a debug log (so ironic)", false);
                             }
                         }
                     }

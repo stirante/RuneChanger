@@ -191,7 +191,7 @@ public class RunePage {
             return name;
         }
         if (champion != null && !name.startsWith(this.champion.getName() + ":")) {
-            name = this.champion.getName() + ":" + this.name;
+            name = this.champion.getName() + ":" + name;
         }
         // limit name to 25 characters (client limit)
         return name.substring(0, Math.min(25, name.length()));

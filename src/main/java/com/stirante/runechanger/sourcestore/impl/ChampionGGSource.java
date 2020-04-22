@@ -1,10 +1,10 @@
-package com.stirante.runechanger.runestore;
+package com.stirante.runechanger.sourcestore.impl;
 
 import com.stirante.runechanger.model.client.*;
+import com.stirante.runechanger.sourcestore.RuneSource;
 import com.stirante.runechanger.util.FxUtils;
 import generated.Position;
 import javafx.collections.ObservableList;
-import ly.count.sdk.java.Countly;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -181,7 +181,7 @@ public class ChampionGGSource implements RuneSource {
     }
 
     @Override
-    public void getRunesForChampion(Champion champion, ObservableList<RunePage> pages) {
+    public void getRunesForChampion(Champion champion, GameMode mode, ObservableList<RunePage> pages) {
         extractRunes(champion, pages);
     }
 }

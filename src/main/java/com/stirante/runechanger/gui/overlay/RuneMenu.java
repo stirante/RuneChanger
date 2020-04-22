@@ -3,8 +3,7 @@ package com.stirante.runechanger.gui.overlay;
 import com.stirante.runechanger.gui.Constants;
 import com.stirante.runechanger.gui.SceneType;
 import com.stirante.runechanger.model.client.RunePage;
-import com.stirante.runechanger.util.LangHelper;
-import ly.count.sdk.java.Countly;
+import com.stirante.runechanger.util.AnalyticsUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,8 +13,6 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
@@ -38,9 +35,7 @@ public class RuneMenu extends OverlayLayer {
             grayscaleIcon = ImageIO.read(getClass().getResourceAsStream("/images/28grayscale.png"));
         } catch (IOException e) {
             log.error("Exception occurred while loading rune button icons", e);
-            if (Countly.isInitialized()) {
-                Countly.session().addCrashReport(e, false);
-            }
+            AnalyticsUtil.addCrashReport(e, "Exception occurred while loading rune button icons", false);
         }
     }
 

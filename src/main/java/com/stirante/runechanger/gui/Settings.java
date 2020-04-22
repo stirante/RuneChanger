@@ -8,7 +8,7 @@ import com.stirante.runechanger.client.ClientEventListener;
 import com.stirante.runechanger.gui.controllers.*;
 import com.stirante.runechanger.model.client.Champion;
 import com.stirante.runechanger.model.client.RunePage;
-import com.stirante.runechanger.runestore.RuneStore;
+import com.stirante.runechanger.sourcestore.SourceStore;
 import com.stirante.runechanger.util.*;
 import generated.LolGameflowGameflowPhase;
 import javafx.application.Application;
@@ -23,7 +23,6 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-import ly.count.sdk.java.Countly;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -162,7 +161,7 @@ public class Settings extends Application {
 
         controller.setOnChampionSearch(champion -> {
             runebook.setChampion(champion);
-            RuneStore.getRemoteRunes(champion, runebook.newRunes);
+            SourceStore.getRemoteRunes(champion, runebook.newRunes);
             controller.setFullContent(runebook.container);
         });
 
@@ -314,9 +313,7 @@ public class Settings extends Application {
                     Desktop.getDesktop().browse(new URI("https://www.paypal.me/stirante"));
                 } catch (IOException | URISyntaxException e) {
                     log.error("Exception occurred while navigating to donate page", e);
-                    if (Countly.isInitialized()) {
-                        Countly.session().addCrashReport(e, false);
-                    }
+                    AnalyticsUtil.addCrashReport(e, "Exception occurred while navigating to donate page", false);
                 }
             }
         }
