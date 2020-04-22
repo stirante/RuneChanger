@@ -205,10 +205,15 @@ public class ChampionSelection extends ClientModule {
             return;
         }
         try {
-            action.put("championId", champion.getId());
-            action.put("completed", false);
-            getApi().executePatch("/lol-champ-select/v1/session/actions/" +
-                    ((Double) action.get("id")).intValue(), action);
+            if (getGameMode() == GameMode.ONEFORALL) {
+                getApi().executePost("/lol-champ-select/v1/current-champion", champion.getId());
+            }
+            else {
+                action.put("championId", champion.getId());
+                action.put("completed", false);
+                getApi().executePatch("/lol-champ-select/v1/session/actions/" +
+                        ((Double) action.get("id")).intValue(), action);
+            }
         } catch (IOException e) {
             log.error("Exception occurred while soft picking champion", e);
         }

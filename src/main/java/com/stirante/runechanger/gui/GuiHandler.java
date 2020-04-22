@@ -323,7 +323,7 @@ public class GuiHandler {
                 lock.unlock();
                 try {
                     //60FPS master race
-                    Thread.sleep(Math.min(1, 16 - (System.currentTimeMillis() - start)));
+                    Thread.sleep(Math.max(1, 16 - (System.currentTimeMillis() - start)));
                 } catch (InterruptedException ignored) {
                 }
             }
