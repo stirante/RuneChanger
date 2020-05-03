@@ -63,7 +63,7 @@ public class ScreenPointChecker {
         int g2 = (c2 >> 8) & 0xff;
         int b2 = c2 & 0xff;
         double distance = Math.pow(r1 - r2, 2) + Math.pow(g1 - g2, 2) + Math.pow(b1 - b2, 2);
-        return distance < 400;
+        return distance < 10;
     }
 
     public static void main(String[] args) throws InterruptedException {
