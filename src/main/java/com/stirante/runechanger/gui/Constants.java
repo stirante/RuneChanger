@@ -24,6 +24,8 @@ public class Constants {
     public static final float FONT_SIZE = 0.0178333f;
     public static final float CHAMPION_TILE_SIZE = 0.097222224f;
     public static final float CHAMPION_SUGGESTION_WIDTH = 0.1388889f;
+    public static final float WARNING_X = 0.4984375f;
+    public static final float WARNING_Y = 0.10972222f;
 
     //fonts
     public static final Font BUTTON_FONT = LangHelper.getLocale().getLanguage().equalsIgnoreCase("ar") ?

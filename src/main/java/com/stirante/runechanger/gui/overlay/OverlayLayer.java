@@ -13,6 +13,8 @@ public abstract class OverlayLayer implements MouseMotionListener, MouseListener
     protected static final Color TEXT_COLOR = new Color(0xc8aa6e);
     protected static final Color DARKER_TEXT_COLOR = new Color(0x785928);
     protected static final Color BACKGROUND_COLOR = new Color(0x010a13);
+    protected static final Color GRADIENT_COLOR_1 = new Color(0x60491F);
+    protected static final Color GRADIENT_COLOR_2 = new Color(0x463714);
     protected static final Color LIGHTEN_COLOR = new Color(1f, 1f, 1f, 0.2f);
     protected static final Color DIVIDER_COLOR = new Color(0x1e2328);
     protected static final Color DARKEN_COLOR = new Color(0f, 0f, 0f, 0.01f);

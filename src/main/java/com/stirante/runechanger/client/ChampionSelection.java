@@ -29,6 +29,8 @@ public class ChampionSelection extends ClientModule {
     private boolean positionSelector;
     private ArrayList<Champion> banned = new ArrayList<>();
     private GameMap map;
+    private String currentPhase = "";
+    private long phaseEnd = 0L;
 
     public ChampionSelection(ClientApi api) {
         super(api);
@@ -181,13 +183,18 @@ public class ChampionSelection extends ClientModule {
     public void onSession(ClientEventListener.ChampionSelectionEvent event) {
         if (event.getEventType() == ClientEventListener.WebSocketEventType.DELETE) {
             clearSession();
+            EventBus.publish(ChampionSelectionEndEvent.NAME, new ChampionSelectionEndEvent());
         }
         else {
             Champion oldChampion = champion;
             findCurrentAction(event.getData());
             findSelectedChampion(event.getData());
-//        String currentPhase = session.timer.phase;
-//        System.out.println(currentPhase);
+            LolChampSelectChampSelectTimer timer = event.getData().timer;
+            if (timer != null) {
+                log.debug(currentPhase + ": " + timer.adjustedTimeLeftInPhaseInSec);
+                currentPhase = timer.phase;
+                phaseEnd = timer.internalNowInEpochMs + timer.adjustedTimeLeftInPhase;
+            }
             updateGameMode();
             if (event.getEventType() == ClientEventListener.WebSocketEventType.CREATE || oldChampion != champion) {
                 EventBus.publish(ChampionChangedEvent.NAME, new ChampionChangedEvent(champion));
@@ -286,6 +293,14 @@ public class ChampionSelection extends ClientModule {
         public Champion getChampion() {
             return champion;
         }
+    }
+
+    public static class ChampionSelectionEndEvent implements BusEvent {
+        public static final String NAME = "ChampionSelectionEndEvent";
+
+        public ChampionSelectionEndEvent() {
+        }
+
     }
 
 }

@@ -1,5 +1,8 @@
 package com.stirante.runechanger.gui.overlay;
 
+import com.stirante.eventbus.EventBus;
+import com.stirante.eventbus.Subscribe;
+import com.stirante.runechanger.client.ChampionSelection;
 import com.stirante.runechanger.gui.Constants;
 import com.stirante.runechanger.gui.SceneType;
 import com.stirante.runechanger.model.client.RunePage;
@@ -11,6 +14,7 @@ import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
+import java.awt.font.LineMetrics;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -25,6 +29,12 @@ public class RuneMenu extends OverlayLayer {
     private int selectedRunePageIndex = -1;
     private BufferedImage icon;
     private BufferedImage grayscaleIcon;
+    //    private BufferedImage tooltipCaret;
+    private Image warnIcon;
+    private Image closeIcon;
+    private Rectangle warningCloseButton = new Rectangle(0, 0, 0, 0);
+    private boolean warningVisible = true;
+    private boolean warningClosed = false;
     private float currentRuneMenuPosition = 0f;
     private float scroll = 0f;
 
@@ -33,14 +43,27 @@ public class RuneMenu extends OverlayLayer {
         try {
             icon = ImageIO.read(getClass().getResourceAsStream("/images/28.png"));
             grayscaleIcon = ImageIO.read(getClass().getResourceAsStream("/images/28grayscale.png"));
+//            tooltipCaret = ImageIO.read(getClass().getResourceAsStream("/images/tooltipCaret.png"));
+            warnIcon = ImageIO.read(getClass().getResourceAsStream("/images/info-yellow.png"))
+                    .getScaledInstance(32, 32, java.awt.Image.SCALE_SMOOTH);
+            closeIcon = ImageIO.read(getClass().getResourceAsStream("/images/close.png"))
+                    .getScaledInstance(16, 16, java.awt.Image.SCALE_SMOOTH);
         } catch (IOException e) {
             log.error("Exception occurred while loading rune button icons", e);
             AnalyticsUtil.addCrashReport(e, "Exception occurred while loading rune button icons", false);
         }
+        EventBus.register(this);
+    }
+
+    @Subscribe(ChampionSelection.ChampionSelectionEndEvent.NAME)
+    public void onChampionSelectionEnd(ChampionSelection.ChampionSelectionEndEvent e) {
+        warningClosed = false;
+        warningVisible = false;
     }
 
     @Override
     protected void draw(Graphics g) {
+//        drawWarning((Graphics2D) g);
         if (getSceneType() == SceneType.CHAMPION_SELECT) {
             drawRuneButton((Graphics2D) g);
             drawRuneMenu((Graphics2D) g);
@@ -68,6 +91,98 @@ public class RuneMenu extends OverlayLayer {
             opened = false;
         }
     }
+
+    private void drawWarning(Graphics2D g2d) {
+        if (!warningVisible) {
+            return;
+        }
+        Font oldFont = g2d.getFont();
+        g2d.setFont(oldFont.deriveFont(15f));
+
+        String text = "Did you forget to change the rune page?";
+        LineMetrics metrics = g2d.getFontMetrics().getLineMetrics(text, g2d);
+        int border = 2;
+        int margin = 5;
+        int height = 50;
+        int width = (2 * border) + (4 * margin) + warnIcon.getWidth(null) + g2d.getFontMetrics().stringWidth(text) +
+                closeIcon.getWidth(null);
+        int x = (int) ((getClientWidth() * Constants.WARNING_X) - (width / 2));
+        int y = (int) (getHeight() * Constants.WARNING_Y);
+
+        g2d.setPaint(new GradientPaint(0, y, GRADIENT_COLOR_1, 0, y + height, GRADIENT_COLOR_2));
+        g2d.fillRect(x, y, width, height);
+        g2d.setPaint(BACKGROUND_COLOR);
+        g2d.fillRect(x + border, y + border, width - (2 * border), height - (2 * border));
+        g2d.setPaint(TEXT_COLOR);
+        g2d.drawImage(
+                closeIcon,
+                (x + width - (border * 2)) - closeIcon.getWidth(null),
+                y + border,
+                null
+        );
+        warningCloseButton.setLocation((x + width - (border * 2)) - closeIcon.getWidth(null), y + border);
+        warningCloseButton.setSize(closeIcon.getWidth(null), closeIcon.getHeight(null));
+        g2d.drawImage(
+                warnIcon,
+                x + border + margin,
+                y + (height / 2) - (warnIcon.getHeight(null) / 2),
+                null
+        );
+        g2d.drawString(
+                text,
+                x + border + (margin * 2) + warnIcon.getWidth(null),
+                y + (height / 2) + (int) (metrics.getAscent() / 4)
+        );
+
+        g2d.setFont(oldFont);
+    }
+
+//    private void drawWarning(Graphics2D g2d) {
+//        Font oldFont = g2d.getFont();
+//        g2d.setFont(oldFont.deriveFont(15f));
+//
+//        String text = "Did you forget to change the rune page?";
+//        LineMetrics metrics = g2d.getFontMetrics().getLineMetrics(text, g2d);
+//        int border = 2;
+//        int margin = 5;
+//        int height = 50;
+//        int width = (2 * border) + (4 * margin) + warnIcon.getWidth(null) + g2d.getFontMetrics().stringWidth(text) +
+//                closeIcon.getWidth(null);
+//        int x = (int) ((getClientWidth() * Constants.RUNE_MENU_X) - (width / 2)) + (int) (getClientWidth() *
+//                Constants.RUNE_ITEM_WIDTH / 2);
+//        int y = (int) (((getHeight() * Constants.RUNE_MENU_Y) - height) - tooltipCaret.getHeight()) - margin;
+//
+//        g2d.setPaint(new GradientPaint(0, y, GRADIENT_COLOR_1, 0, y + height, GRADIENT_COLOR_2));
+//        g2d.fillRect(x, y, width, height);
+//        g2d.setPaint(BACKGROUND_COLOR);
+//        g2d.fillRect(x + border, y + border, width - (2 * border), height - (2 * border));
+//        g2d.setPaint(TEXT_COLOR);
+//        g2d.drawImage(
+//                closeIcon,
+//                (x + width - (border * 2)) - closeIcon.getWidth(null),
+//                y + border,
+//                null
+//        );
+//        g2d.drawImage(
+//                warnIcon,
+//                x + border + margin,
+//                y + (height / 2) - (warnIcon.getHeight(null) / 2),
+//                null
+//        );
+//        g2d.drawString(
+//                text,
+//                x + border + (margin * 2) + warnIcon.getWidth(null),
+//                y + (height / 2) + (int) (metrics.getAscent() / 4)
+//        );
+//        g2d.drawImage(
+//                tooltipCaret,
+//                x + (width / 2) - (tooltipCaret.getWidth() / 2),
+//                y + height,
+//                null
+//        );
+//
+//        g2d.setFont(oldFont);
+//    }
 
     private void drawRuneMenu(Graphics2D g2d) {
         //open/close animations
@@ -168,7 +283,12 @@ public class RuneMenu extends OverlayLayer {
     }
 
     public void mouseReleased(MouseEvent e) {
-        if (pages.size() > 0 && e.getX() > ((getClientWidth()) * Constants.RUNE_BUTTON_POSITION_X) &&
+        if (warningVisible && warningCloseButton.getSize().height > 0 &&
+                warningCloseButton.contains(e.getX(), e.getY())) {
+            warningVisible = false;
+            warningClosed = true;
+        }
+        else if (pages.size() > 0 && e.getX() > ((getClientWidth()) * Constants.RUNE_BUTTON_POSITION_X) &&
                 e.getX() < ((getClientWidth()) * Constants.RUNE_BUTTON_POSITION_X) + icon.getWidth() &&
                 e.getY() > (getHeight() * Constants.RUNE_BUTTON_POSITION_Y) &&
                 e.getY() < (getHeight() * Constants.RUNE_BUTTON_POSITION_Y) + icon.getHeight()) {
@@ -194,6 +314,11 @@ public class RuneMenu extends OverlayLayer {
 
     public void mouseMoved(MouseEvent e) {
         int runePageIndex;
+        if (warningVisible && warningCloseButton.getSize().height > 0 &&
+                warningCloseButton.contains(e.getX(), e.getY())) {
+            getClientOverlay().setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+            return;
+        }
         if (pages.size() > 0 && e.getX() > ((getClientWidth()) * Constants.RUNE_BUTTON_POSITION_X) &&
                 e.getX() < ((getClientWidth()) * Constants.RUNE_BUTTON_POSITION_X) + icon.getWidth() &&
                 e.getY() > (getHeight() * Constants.RUNE_BUTTON_POSITION_Y) &&
