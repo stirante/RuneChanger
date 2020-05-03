@@ -18,6 +18,7 @@ import com.stirante.runechanger.gui.Settings;
 import com.stirante.runechanger.model.app.Version;
 import com.stirante.runechanger.model.client.Champion;
 import com.stirante.runechanger.util.*;
+import com.sun.jna.platform.win32.*;
 import generated.LolChampSelectChampSelectPlayerSelection;
 import generated.LolChampSelectChampSelectSession;
 import generated.LolSummonerSummoner;
@@ -67,6 +68,19 @@ public class RuneChanger implements Launcher {
         });
         checkAndCreateLockfile();
         changeWorkingDir();
+        if (!isAdmin()) {
+            log.info("Not running as admin, elevating...");
+            ShellAPI.SHELLEXECUTEINFO execInfo = new ShellAPI.SHELLEXECUTEINFO();
+            execInfo.lpDirectory = PathUtils.getWorkingDirectory();
+            execInfo.lpParameters = "-cp \"" + PathUtils.getJarName() + ";lib/*\" --add-exports=javafx.base/com.sun.javafx.reflect=ALL-UNNAMED --add-exports=javafx.graphics/com.sun.javafx.scene.layout=ALL-UNNAMED com.stirante.runechanger.RuneChanger";
+            execInfo.lpFile = "image\\bin\\javaw.exe";
+            execInfo.lpVerb = "runas";
+            if (Shell32.INSTANCE.ShellExecuteEx(execInfo)) {
+                System.exit(0);
+            } else {
+                log.error("Failed to elevate: " + Kernel32Util.getLastErrorMessage());
+            }
+        }
         cleanupLogs();
         // This flag is only meant for development. It disables whole client communication
         if (!Arrays.asList(args).contains("-osx")) {
@@ -117,6 +131,10 @@ public class RuneChanger implements Launcher {
 
     public static RuneChanger getInstance() {
         return instance;
+    }
+
+    private static boolean isAdmin() {
+        return Advapi32Util.accessCheck(new File("C:/Windows"), Advapi32Util.AccessCheckPermission.WRITE);
     }
 
     private static void changeWorkingDir() {
@@ -220,11 +238,13 @@ public class RuneChanger implements Launcher {
         if (!Arrays.asList(programArguments).contains("-osx")) {
             ClientApi.setDisableEndpointWarnings(true);
             try {
-                String clientPath = SimplePreferences.getStringValue(SimplePreferences.InternalKeys.CLIENT_PATH, null);
-                if (clientPath != null && !new File(clientPath).exists()) {
-                    clientPath = null;
-                }
-                api = new ClientApi(clientPath);
+                // Disabled due to problems with switching between different LoL installations (PBE and release)
+//                String clientPath = SimplePreferences.getStringValue(SimplePreferences.InternalKeys.CLIENT_PATH, null);
+//                if (clientPath != null && !new File(clientPath).exists()) {
+//                    clientPath = null;
+//                }
+//                api = new ClientApi(clientPath);
+                api = new ClientApi();
             } catch (IllegalStateException e) {
                 log.error("Exception occurred while creating client api", e);
                 AnalyticsUtil.addCrashReport(e, "Exception occurred while creating client api", true);

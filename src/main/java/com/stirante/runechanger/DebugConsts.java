@@ -17,6 +17,7 @@ public class DebugConsts {
 
     //logs every event (except for voice) to System.out
     public static final boolean PRINT_EVENTS = false;
+    public static final boolean PRINT_EVENTS_DATA = false;
 
     //set to lang code for overriding language
     public static final String OVERRIDE_LANGUAGE = null;

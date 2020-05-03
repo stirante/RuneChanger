@@ -22,6 +22,15 @@ public class PathUtils {
         }
     }
 
+    public static String getJarName() {
+        try {
+            return new File(PathUtils.class.getProtectionDomain().getCodeSource().getLocation()
+                    .toURI()).getName();
+        } catch (URISyntaxException e) {
+            throw new RuntimeException("Failed to get the jar location!", e);
+        }
+    }
+
     public static File getAssetsDir() {
         return new File(getWorkingDirectory(), "assets");
     }

@@ -1,5 +1,6 @@
 package com.stirante.runechanger.client;
 
+import com.google.gson.Gson;
 import com.stirante.eventbus.BusEvent;
 import com.stirante.eventbus.EventBus;
 import com.stirante.lolclient.ClientWebSocket;
@@ -16,7 +17,9 @@ public class ClientEventListener implements ClientWebSocket.SocketListener {
         //printing every event except voice for experimenting
         if (DebugConsts.PRINT_EVENTS && !event.getUri().toLowerCase().contains("voice")) {
             log.info("Event: " + event);
-//                    System.out.println(new Gson().toJson(event.getData()));
+            if (DebugConsts.PRINT_EVENTS_DATA) {
+                System.out.println(new Gson().toJson(event.getData()));
+            }
         }
         if (event.getUri().equalsIgnoreCase("/lol-gameflow/v1/gameflow-phase")) {
             EventBus.publish(GamePhaseEvent.NAME, new GamePhaseEvent(event));
