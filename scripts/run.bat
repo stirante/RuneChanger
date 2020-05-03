@@ -1,2 +1,2 @@
 @echo off
-"image/bin/java.exe" -cp "${project.artifactId}.jar;lib/*" --add-exports=javafx.base/com.sun.javafx.reflect=ALL-UNNAMED --add-exports=javafx.graphics/com.sun.javafx.scene.layout=ALL-UNNAMED com.stirante.runechanger.RuneChanger
+"image/bin/java.exe" -cp "${project.artifactId}.jar;lib/*" -Djdk.tls.client.protocols="TLSv1,TLSv1.1,TLSv1.2" --add-exports=javafx.base/com.sun.javafx.reflect=ALL-UNNAMED --add-exports=javafx.graphics/com.sun.javafx.scene.layout=ALL-UNNAMED com.stirante.runechanger.RuneChanger
