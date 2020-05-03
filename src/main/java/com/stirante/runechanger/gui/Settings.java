@@ -33,10 +33,8 @@ import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class Settings extends Application {
@@ -361,7 +359,7 @@ public class Settings extends Application {
                             runeChanger.getRunesModule().getOwnedPageCount());
                     // Split list into runepages, that are both in runebook and in client and those, that are only in runebook
                     Map<Boolean, List<RunePage>> results =
-                            SimplePreferences.getRuneBookValues()
+                            Collections.unmodifiableList(SimplePreferences.getRuneBookValues())
                                     .stream()
                                     .collect(Collectors.partitioningBy(runePage -> result
                                             .stream().noneMatch(runePage1 -> runePage1.equals(runePage))));

@@ -21,8 +21,8 @@ public class Button extends Component {
     private static final int STATE_DISABLED = 3;
     private static final Color GOLD_COLOR = new Color(0xC8 / 255D, 0xAA / 255D, 0x6E / 255D, 1D);
 
-    private StringProperty textProperty = new SimpleStringProperty();
-    private ObjectProperty<EventHandler<ActionEvent>> onAction = new ObjectPropertyBase<>() {
+    private final StringProperty textProperty = new SimpleStringProperty();
+    private final ObjectProperty<EventHandler<ActionEvent>> onAction = new ObjectPropertyBase<>() {
         @Override
         protected void invalidated() {
             setEventHandler(ActionEvent.ACTION, get());
@@ -41,8 +41,8 @@ public class Button extends Component {
 
     // --- tooltip
     private ObjectProperty<Tooltip> tooltip;
-    private Image[] side = new Image[4];
-    private Image[] center = new Image[4];
+    private final Image[] side = new Image[4];
+    private final Image[] center = new Image[4];
 
     public Button() {
         super();
