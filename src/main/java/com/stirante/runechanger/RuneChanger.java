@@ -68,7 +68,7 @@ public class RuneChanger implements Launcher {
         });
         checkAndCreateLockfile();
         changeWorkingDir();
-        if (!isAdmin()) {
+        if (SimplePreferences.getBooleanValue(SimplePreferences.SettingsKeys.RUN_AS_ADMIN, false) && !isAdmin()) {
             log.info("Not running as admin, elevating...");
             ShellAPI.SHELLEXECUTEINFO execInfo = new ShellAPI.SHELLEXECUTEINFO();
             execInfo.lpDirectory = PathUtils.getWorkingDirectory();

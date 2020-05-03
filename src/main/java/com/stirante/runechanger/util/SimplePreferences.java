@@ -165,6 +165,7 @@ public class SimplePreferences {
         public static final String ANALYTICS = "analytics";
         public static final String ENABLE_ANIMATIONS = "enableAnimations";
         public static final String RESTART_ON_DODGE = "restartOnDodge";
+        public static final String RUN_AS_ADMIN = "runAsAdmin";
     }
 
     public static class InternalKeys {

@@ -53,7 +53,11 @@ public class SettingsController {
     private void loadPreferences() {
         setupPreference(SimplePreferences.SettingsKeys.QUICK_REPLIES, false, "quick_replies", "quick_replies_message");
         setupPreference(SimplePreferences.SettingsKeys.AUTO_ACCEPT, false, "auto_queue", "auto_queue_message");
+        setupPreference(SimplePreferences.SettingsKeys.RESTART_ON_DODGE, false, "restart_on_dodge", "restart_on_dodge_message");
         setupPreference(SimplePreferences.SettingsKeys.ANTI_AWAY, false, "no_away", "no_away_message");
+        setupPreference(SimplePreferences.SettingsKeys.AUTO_SYNC, false, "auto_sync_pages", "auto_sync_pages_message", seelcted -> tryRestart());
+        setupPreference(SimplePreferences.SettingsKeys.SMART_DISENCHANT, false, "smart_disenchant", "smart_disenchant_message");
+        setupPreference(SimplePreferences.SettingsKeys.CHAMPION_SUGGESTIONS, true, "champion_suggestions", "champion_suggestions_message");
         setupPreference(SimplePreferences.SettingsKeys.AUTO_UPDATE, true, "autoupdate_state", "autoupdate_message");
         setupPreference(SimplePreferences.SettingsKeys.EXPERIMENTAL_CHANNEL, false, "autoupdate_experimental", "autoupdate_experimental_message", selected -> {
             AutoUpdater.resetCache();
@@ -61,12 +65,9 @@ public class SettingsController {
         });
         setupPreference(SimplePreferences.SettingsKeys.FORCE_ENGLISH, false, "force_english", "force_english_message", selected -> tryRestart());
         setupPreference(SimplePreferences.SettingsKeys.ALWAYS_ON_TOP, false, "always_on_top", "always_on_top_message", stage::setAlwaysOnTop);
-        setupPreference(SimplePreferences.SettingsKeys.AUTO_SYNC, false, "auto_sync_pages", "auto_sync_pages_message", seelcted -> tryRestart());
-        setupPreference(SimplePreferences.SettingsKeys.SMART_DISENCHANT, false, "smart_disenchant", "smart_disenchant_message");
-        setupPreference(SimplePreferences.SettingsKeys.CHAMPION_SUGGESTIONS, true, "champion_suggestions", "champion_suggestions_message");
         setupPreference(SimplePreferences.SettingsKeys.ANALYTICS, true, "enable_analytics", "enable_analytics_message", AnalyticsUtil::onConsent);
         setupPreference(SimplePreferences.SettingsKeys.ENABLE_ANIMATIONS, true, "enable_animations", "enable_animations_message");
-        setupPreference(SimplePreferences.SettingsKeys.RESTART_ON_DODGE, false, "restart_on_dodge", "restart_on_dodge_message");
+        setupPreference(SimplePreferences.SettingsKeys.RUN_AS_ADMIN, false, "run_as_admin", "run_as_admin_message", selected -> tryRestart());
 
         wrapper.getChildren().add(new SettingsItemController(
                 AutoStartUtils.isAutoStartEnabled(),
