@@ -178,11 +178,17 @@ public class AnalyticsUtil {
             DeviceCore.dev = device;
 
             initNoData();
-            if (begin && Countly.isInitialized()) {
-                Countly.session().begin();
+            if (begin) {
+                beginSession();
             }
             initLock.unlock();
         });
+    }
+
+    public static void beginSession() {
+        if (Countly.isInitialized()) {
+            Countly.session().begin();
+        }
     }
 
     public static class CustomDevice extends DeviceCore {

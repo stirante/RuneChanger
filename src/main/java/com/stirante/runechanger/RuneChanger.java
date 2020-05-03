@@ -260,9 +260,7 @@ public class RuneChanger implements Launcher {
             api.addClientConnectionListener(new ClientConnectionListener() {
                 @Override
                 public void onClientConnected() {
-                    if (Countly.isInitialized()) {
-                        Countly.session().begin();
-                    }
+                    AnalyticsUtil.beginSession();
                     if (!api.getClientPath()
                             .equalsIgnoreCase(SimplePreferences.getStringValue(SimplePreferences.InternalKeys.CLIENT_PATH, null))) {
                         log.info("Saving client path to \"" + api.getClientPath() + "\"");
@@ -354,11 +352,15 @@ public class RuneChanger implements Launcher {
             if (socket != null) {
                 socket.close();
             }
+            log.info("Socket closed");
             if (Countly.isInitialized() && Countly.session().isActive()) {
                 Countly.session().end();
             }
+            log.info("Countly closed");
             Countly.stop(false);
+            log.info("Countly stopped");
             PerformanceMonitor.stop();
+            log.info("Perfmon stopped");
         }));
         FxUtils.doOnFxThread(AutoUpdater::checkUpdate);
         if (!SimplePreferences.getBooleanValue(SimplePreferences.InternalKeys.ASKED_ANALYTICS, false)) {

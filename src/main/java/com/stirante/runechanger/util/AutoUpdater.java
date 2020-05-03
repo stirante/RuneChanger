@@ -12,7 +12,8 @@ import java.io.*;
 import java.net.URL;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -238,23 +239,25 @@ public class AutoUpdater {
 
     public static void deleteOldLibs() {
         try {
-            ArrayList<String> acceptableLibs = new ArrayList<>();
             Reader reader = new InputStreamReader(new FileInputStream(LOCAL_UPDATE_CONFIG));
             Configuration configuration = Configuration.read(reader);
             reader.close();
-            for (FileMetadata file : configuration.getFiles()) {
-                if (file.getPath().startsWith("lib")) {
-                    acceptableLibs.add(file.getPath().getFileName().toString());
-                }
-            }
-            File[] libs = new File("lib").listFiles();
-            if (libs != null) {
-                for (File lib : libs) {
-                    if (!acceptableLibs.contains(lib.getName())) {
-                        lib.deleteOnExit();
-                    }
-                }
-            }
+            List<String> acceptableFiles = configuration.getFiles().stream()
+                    .map(FileMetadata::getPath)
+                    .map(Path::toString)
+                    .collect(Collectors.toList());
+            Files.walk(new File("lib").getAbsoluteFile().getParentFile().toPath())
+                    .filter(path -> Files.isRegularFile(path))
+                    .filter(path -> {
+                        String relative = path.toString().replace(PathUtils.getWorkingDirectory(), "");
+                        return relative.startsWith(File.separator + "image") ||
+                                relative.startsWith(File.separator + "lib");
+                    })
+                    .filter(path -> acceptableFiles.stream()
+                            .noneMatch(s -> path.toString().contains(s) || s.contains(path.toString())))
+                    .map(Path::toFile)
+                    .peek(file -> System.out.println("Deleting " + file.toString()))
+                    .forEach(File::deleteOnExit);
         } catch (IOException e) {
             e.printStackTrace();
         }
