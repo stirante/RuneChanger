@@ -23,13 +23,10 @@ public class Matchmaking extends ClientModule {
     @Subscribe(ClientEventListener.MatchmakingSearchEvent.NAME)
     public void onMatchmakingSearch(ClientEventListener.MatchmakingSearchEvent event) {
         if (SimplePreferences.getBooleanValue(SimplePreferences.SettingsKeys.RESTART_ON_DODGE, false)) {
-            log.debug("matchmaking update");
             LolMatchmakingMatchmakingSearchResource data = event.getData();
             if (data != null && data.dodgeData != null &&
                     data.dodgeData.state == LolMatchmakingMatchmakingDodgeState.STRANGERDODGED &&
                     data.isCurrentlyInQueue) {
-                log.debug(String.valueOf(data.dodgeData.state));
-                log.debug("in queue: " + data.isCurrentlyInQueue);
                 try {
                     log.debug("restart matchmaking");
                     getApi().executeDelete("/lol-lobby/v2/lobby/matchmaking/search");

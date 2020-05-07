@@ -18,7 +18,10 @@ import com.stirante.runechanger.gui.Settings;
 import com.stirante.runechanger.model.app.Version;
 import com.stirante.runechanger.model.client.Champion;
 import com.stirante.runechanger.util.*;
-import com.sun.jna.platform.win32.*;
+import com.sun.jna.platform.win32.Advapi32Util;
+import com.sun.jna.platform.win32.Kernel32Util;
+import com.sun.jna.platform.win32.Shell32;
+import com.sun.jna.platform.win32.ShellAPI;
 import generated.LolChampSelectChampSelectPlayerSelection;
 import generated.LolChampSelectChampSelectSession;
 import generated.LolSummonerSummoner;
@@ -72,12 +75,14 @@ public class RuneChanger implements Launcher {
             log.info("Not running as admin, elevating...");
             ShellAPI.SHELLEXECUTEINFO execInfo = new ShellAPI.SHELLEXECUTEINFO();
             execInfo.lpDirectory = PathUtils.getWorkingDirectory();
-            execInfo.lpParameters = "-cp \"" + PathUtils.getJarName() + ";lib/*\" --add-exports=javafx.base/com.sun.javafx.reflect=ALL-UNNAMED --add-exports=javafx.graphics/com.sun.javafx.scene.layout=ALL-UNNAMED com.stirante.runechanger.RuneChanger";
+            execInfo.lpParameters = "-cp \"" + PathUtils.getJarName() +
+                    ";lib/*\" --add-exports=javafx.base/com.sun.javafx.reflect=ALL-UNNAMED --add-exports=javafx.graphics/com.sun.javafx.scene.layout=ALL-UNNAMED com.stirante.runechanger.RuneChanger";
             execInfo.lpFile = "image\\bin\\javaw.exe";
             execInfo.lpVerb = "runas";
             if (Shell32.INSTANCE.ShellExecuteEx(execInfo)) {
                 System.exit(0);
-            } else {
+            }
+            else {
                 log.error("Failed to elevate: " + Kernel32Util.getLastErrorMessage());
             }
         }
@@ -254,6 +259,7 @@ public class RuneChanger implements Launcher {
             }
         }
         initModules();
+        LolHelper.init();
         Settings.initialize();
         gui = new GuiHandler(this);
         if (!Arrays.asList(programArguments).contains("-osx")) {
@@ -349,6 +355,7 @@ public class RuneChanger implements Launcher {
             });
         }
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            LolHelper.stop();
             if (socket != null) {
                 socket.close();
             }
