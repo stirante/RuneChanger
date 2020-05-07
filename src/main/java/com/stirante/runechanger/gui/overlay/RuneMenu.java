@@ -7,6 +7,9 @@ import com.stirante.runechanger.gui.Constants;
 import com.stirante.runechanger.gui.SceneType;
 import com.stirante.runechanger.model.client.RunePage;
 import com.stirante.runechanger.util.AnalyticsUtil;
+import com.stirante.runechanger.util.FxUtils;
+import javafx.beans.InvalidationListener;
+import javafx.collections.ObservableList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,16 +26,15 @@ import java.util.function.Consumer;
 
 public class RuneMenu extends OverlayLayer {
     private static final Logger log = LoggerFactory.getLogger(RuneMenu.class);
-    private final List<RunePage> pages = new ArrayList<>();
+    private List<RunePage> pages = new ArrayList<>();
     private Consumer<RunePage> runeSelectedListener;
     private boolean opened = false;
     private int selectedRunePageIndex = -1;
     private BufferedImage icon;
     private BufferedImage grayscaleIcon;
-    //    private BufferedImage tooltipCaret;
     private Image warnIcon;
     private Image closeIcon;
-    private Rectangle warningCloseButton = new Rectangle(0, 0, 0, 0);
+    private final Rectangle warningCloseButton = new Rectangle(0, 0, 0, 0);
     private boolean warningVisible = true;
     private boolean warningClosed = false;
     private float currentRuneMenuPosition = 0f;
@@ -43,7 +45,6 @@ public class RuneMenu extends OverlayLayer {
         try {
             icon = ImageIO.read(getClass().getResourceAsStream("/images/28.png"));
             grayscaleIcon = ImageIO.read(getClass().getResourceAsStream("/images/28grayscale.png"));
-//            tooltipCaret = ImageIO.read(getClass().getResourceAsStream("/images/tooltipCaret.png"));
             warnIcon = ImageIO.read(getClass().getResourceAsStream("/images/info-yellow.png"))
                     .getScaledInstance(32, 32, java.awt.Image.SCALE_SMOOTH);
             closeIcon = ImageIO.read(getClass().getResourceAsStream("/images/close.png"))
@@ -70,11 +71,11 @@ public class RuneMenu extends OverlayLayer {
         }
     }
 
-    public void setRuneData(List<RunePage> pages, Consumer<RunePage> runeSelectedListener) {
+    public void setRuneData(ObservableList<RunePage> pages, Consumer<RunePage> runeSelectedListener) {
         this.runeSelectedListener = runeSelectedListener;
-        this.pages.clear();
-        this.pages.addAll(pages);
+        this.pages = pages;
         repaintNow();
+        pages.addListener((InvalidationListener) observable -> FxUtils.doOnFxThread(this::repaintNow));
     }
 
     private void drawRuneButton(Graphics2D g2d) {

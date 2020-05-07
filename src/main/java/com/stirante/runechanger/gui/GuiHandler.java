@@ -46,7 +46,7 @@ public class GuiHandler {
     public static final String REGISTRY_APPLIED_DPI = "AppliedDPI";
     private final AtomicBoolean threadRunning = new AtomicBoolean(false);
     private final AtomicBoolean windowOpen = new AtomicBoolean(false);
-    private final List<RunePage> runes = Collections.synchronizedList(new ArrayList<>());
+    private ObservableList<RunePage> runes = FXCollections.observableArrayList();
     private final ResourceBundle resourceBundle = LangHelper.getLang();
     private final RuneChanger runeChanger;
     private final ReentrantLock lock = new ReentrantLock();
@@ -129,20 +129,11 @@ public class GuiHandler {
         }
     }
 
-    public void setRunes(List<RunePage> runeList, Consumer<RunePage> onClickListener) {
-        runes.clear();
-        runes.addAll(runeList);
+    public void setRunes(ObservableList<RunePage> runeList, Consumer<RunePage> onClickListener) {
+        runes = runeList;
         runeSelectedListener = onClickListener;
         if (clientOverlay != null) {
             clientOverlay.getLayer(RuneMenu.class).setRuneData(runes, onClickListener);
-        }
-    }
-
-    public void setRunes(List<RunePage> runeList) {
-        runes.clear();
-        runes.addAll(runeList);
-        if (clientOverlay != null) {
-            clientOverlay.getLayer(RuneMenu.class).setRuneData(runes, runeSelectedListener);
         }
     }
 
@@ -400,7 +391,6 @@ public class GuiHandler {
         setRunes(pages, (page) -> RuneChanger.EXECUTOR_SERVICE.submit(() -> RuneChanger.getInstance()
                 .getRunesModule()
                 .setCurrentRunePage(page)));
-        pages.addListener((InvalidationListener) observable -> setRunes(pages));
         if (event.getChampion() != null) {
             log.info("Downloading runes for champion: " + event.getChampion().getName());
             SourceStore.getRunes(event.getChampion(), RuneChanger.getInstance()
