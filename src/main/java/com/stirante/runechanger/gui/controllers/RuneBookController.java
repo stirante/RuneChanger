@@ -1,5 +1,6 @@
 package com.stirante.runechanger.gui.controllers;
 
+import com.stirante.runechanger.gui.Content;
 import com.stirante.runechanger.model.client.Champion;
 import com.stirante.runechanger.model.client.RunePage;
 import com.stirante.runechanger.util.LangHelper;
@@ -11,16 +12,18 @@ import javafx.collections.transformation.FilteredList;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
 
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.Comparator;
 
-public class RuneBookController {
+public class RuneBookController implements Content {
     public ImageView background;
     public ImageView position;
     public Label championName;
@@ -110,8 +113,10 @@ public class RuneBookController {
 
     public void setChampion(Champion champion) {
         newRunes.clear();
-        if (champion.getSplashArt() != null) {
-            background.setImage(SwingFXUtils.toFXImage(champion.getSplashArt(), null));
+        BufferedImage splashArt = champion.getSplashArt();
+        if (splashArt != null) {
+            background.setImage(SwingFXUtils.toFXImage(splashArt, null));
+            splashArt.flush();
         }
         else {
             background.setImage(null);
@@ -139,5 +144,14 @@ public class RuneBookController {
                 localRunesList.setPrefWidth(272);
             }
         });
+    }
+
+    public void onDetach() {
+        background.setImage(null);
+    }
+
+    @Override
+    public Node getNode() {
+        return container;
     }
 }

@@ -1,5 +1,6 @@
 package com.stirante.runechanger.gui.controllers;
 
+import com.stirante.runechanger.gui.Content;
 import com.stirante.runechanger.gui.Settings;
 import com.stirante.runechanger.util.*;
 import javafx.animation.Animation;
@@ -7,6 +8,7 @@ import javafx.animation.Interpolator;
 import javafx.animation.Transition;
 import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.Pane;
@@ -19,7 +21,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.function.Consumer;
 
-public class SettingsController {
+public class SettingsController implements Content {
     private static final Logger log = LoggerFactory.getLogger(SettingsController.class);
     private final static int TRANSITION_DURATION = 200;
     private final static double BASE_MODIFIER = 2;
@@ -143,10 +145,20 @@ public class SettingsController {
     /**
      * @param d1 Value 1
      * @param d2 Value 2.
-     * @return {@code true} if values signes are matching.
+     * @return {@code true} if value signs are matching.
      */
     private static boolean sameSign(double d1, double d2) {
         return (d1 > 0 && d2 > 0) || (d1 < 0 && d2 < 0);
+    }
+
+    @Override
+    public void onDetach() {
+
+    }
+
+    @Override
+    public Node getNode() {
+        return container;
     }
 
     /**
@@ -154,7 +166,7 @@ public class SettingsController {
      *
      * @author Matt
      */
-    abstract class SmoothishTransition extends Transition {
+    abstract static class SmoothishTransition extends Transition {
         private final double mod;
         private final double delta;
 

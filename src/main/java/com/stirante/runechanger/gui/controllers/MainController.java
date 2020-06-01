@@ -6,6 +6,7 @@ import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.Appender;
 import ch.qos.logback.core.FileAppender;
 import com.google.gson.Gson;
+import com.stirante.runechanger.gui.Content;
 import com.stirante.runechanger.gui.Settings;
 import com.stirante.runechanger.model.client.Champion;
 import com.stirante.runechanger.model.log.LogRequest;
@@ -58,6 +59,8 @@ public class MainController {
     private double xOffset;
     private double yOffset;
 
+    private Content content;
+
     public MainController(Stage stage) {
         this.stage = stage;
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/fxml/Main.fxml"), LangHelper.getLang());
@@ -84,18 +87,26 @@ public class MainController {
         report.getTooltip().setShowDelay(Duration.ZERO);
     }
 
-    public void setFullContent(Node node) {
+    public void setFullContent(Content content) {
+        if (this.content != null) {
+            this.content.onDetach();
+        }
+        this.content = content;
         fullContentPane.getChildren().clear();
-        fullContentPane.getChildren().add(node);
+        fullContentPane.getChildren().add(content.getNode());
         fullContentPane.setVisible(true);
         contentPane.setVisible(false);
         report.setVisible(false);
         back.setVisible(true);
     }
 
-    public void setContent(Node node) {
+    public void setContent(Content content) {
+        if (this.content != null) {
+            this.content.onDetach();
+        }
+        this.content = content;
         contentPane.getChildren().clear();
-        contentPane.getChildren().add(node);
+        contentPane.getChildren().add(content.getNode());
         contentPane.setVisible(true);
         fullContentPane.setVisible(false);
         report.setVisible(true);
@@ -156,7 +167,7 @@ public class MainController {
 
     @FXML
     public void onSettings(MouseEvent event) {
-        setFullContent(new SettingsController(stage).container);
+        setFullContent(new SettingsController(stage));
     }
 
     @FXML
@@ -195,6 +206,10 @@ public class MainController {
 
     @FXML
     public void onBack(MouseEvent mouseEvent) {
+        if (content != null) {
+            content.onDetach();
+            content = null;
+        }
         fullContentPane.getChildren().clear();
         contentPane.setVisible(true);
         fullContentPane.setVisible(false);

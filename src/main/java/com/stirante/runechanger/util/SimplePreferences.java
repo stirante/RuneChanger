@@ -24,27 +24,8 @@ public class SimplePreferences {
         return runeBookValues;
     }
 
-    public static void load() {
-        File settingsValuesFile = new File(SETTINGS_FILENAME);
+    public static void loadRuneBook() {
         File runeBookValuesFile = new File(RUNEBOOK_FILENAME);
-        try (DataInputStream ois = new DataInputStream(new FileInputStream(settingsValuesFile))) {
-            settingsValues = new HashMap<>();
-            int size = ois.readInt();
-            for (int i = 0; i < size; i++) {
-                String key = ois.readUTF();
-                String value = ois.readUTF();
-                settingsValues.put(key, value);
-            }
-        } catch (IOException e) {
-            if (!(e instanceof FileNotFoundException)) {
-                log.error("Exception occurred while loading settings file", e);
-                AnalyticsUtil.addCrashReport(e, "Exception occurred while loading settings file", false);
-            }
-        }
-        if (settingsValues == null) {
-            settingsValues = new HashMap<>();
-        }
-
         try (DataInputStream ois = new DataInputStream(new FileInputStream(runeBookValuesFile))) {
             runeBookValues = new ArrayList<>();
             int size = ois.readInt();
@@ -61,6 +42,27 @@ public class SimplePreferences {
         }
         if (runeBookValues == null) {
             runeBookValues = new ArrayList<>();
+        }
+    }
+
+    public static void load() {
+        File settingsValuesFile = new File(SETTINGS_FILENAME);
+        try (DataInputStream ois = new DataInputStream(new FileInputStream(settingsValuesFile))) {
+            settingsValues = new HashMap<>();
+            int size = ois.readInt();
+            for (int i = 0; i < size; i++) {
+                String key = ois.readUTF();
+                String value = ois.readUTF();
+                settingsValues.put(key, value);
+            }
+        } catch (IOException e) {
+            if (!(e instanceof FileNotFoundException)) {
+                log.error("Exception occurred while loading settings file", e);
+                AnalyticsUtil.addCrashReport(e, "Exception occurred while loading settings file", false);
+            }
+        }
+        if (settingsValues == null) {
+            settingsValues = new HashMap<>();
         }
     }
 

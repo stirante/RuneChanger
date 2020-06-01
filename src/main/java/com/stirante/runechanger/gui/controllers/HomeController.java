@@ -2,6 +2,7 @@ package com.stirante.runechanger.gui.controllers;
 
 import com.stirante.runechanger.RuneChanger;
 import com.stirante.runechanger.client.Loot;
+import com.stirante.runechanger.gui.Content;
 import com.stirante.runechanger.gui.components.Button;
 import com.stirante.runechanger.model.client.RunePage;
 import com.stirante.runechanger.util.LangHelper;
@@ -14,6 +15,7 @@ import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.image.ImageView;
@@ -30,7 +32,7 @@ import java.io.IOException;
 import java.util.Comparator;
 import java.util.Objects;
 
-public class HomeController {
+public class HomeController implements Content {
     private static final Logger log = LoggerFactory.getLogger(HomeController.class);
 
     public Pane container;
@@ -114,4 +116,13 @@ public class HomeController {
         RuneChanger.getInstance().getRunesModule().syncRunePages();
     }
 
+    @Override
+    public void onDetach() {
+
+    }
+
+    @Override
+    public Node getNode() {
+        return container;
+    }
 }

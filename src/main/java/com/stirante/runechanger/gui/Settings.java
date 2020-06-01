@@ -160,12 +160,12 @@ public class Settings extends Application {
         controller.setOnChampionSearch(champion -> {
             runebook.setChampion(champion);
             SourceStore.getRemoteRunes(champion, runebook.newRunes);
-            controller.setFullContent(runebook.container);
+            controller.setFullContent(runebook);
         });
 
         home = new HomeController();
         setClientConnected(runeChanger.getApi() != null && runeChanger.getApi().isConnected());
-        controller.setContent(home.container);
+        controller.setContent(home);
 
         Scene scene = new Scene(controller.container, 600, 500);
         scene.getStylesheets().add(getClass().getResource("/style.css").toExternalForm());

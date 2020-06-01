@@ -129,6 +129,7 @@ public class RuneChanger implements Launcher {
                 AnalyticsUtil.addCrashReport(e, "Exception occurred while creating shortcuts", false);
             }
         }
+        SimplePreferences.loadRuneBook();
         instance = new RuneChanger();
         instance.programArguments = args;
         instance.init();

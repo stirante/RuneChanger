@@ -38,13 +38,21 @@ public class Champion {
     private static final Logger log = LoggerFactory.getLogger(Champion.class);
     private static final List<Champion> values = new ArrayList<>(256);
     private static final AtomicBoolean IMAGES_READY = new AtomicBoolean(false);
-    private static File portraitsDir = new File(PathUtils.getAssetsDir(), "champions");
-    private static LoadingCache<Champion, java.awt.Image> portraitCache = Caffeine.newBuilder()
-            .maximumSize(10_000)
-            .expireAfterWrite(5, TimeUnit.MINUTES)
-            .refreshAfterWrite(1, TimeUnit.MINUTES)
-            .build(key -> ImageIO.read(new File(portraitsDir, key.getId() + ".jpg"))
-                    .getScaledInstance(70, 70, java.awt.Image.SCALE_SMOOTH));
+    private static final File portraitsDir = new File(PathUtils.getAssetsDir(), "champions");
+    private static final LoadingCache<Champion, java.awt.Image> portraitCache = Caffeine.newBuilder()
+            .maximumSize(10)
+            .expireAfterAccess(1, TimeUnit.MINUTES)
+            .removalListener((key, value, removalCause) -> {
+                if (value != null) {
+                    ((java.awt.Image) value).flush();
+                }
+            })
+            .build(key -> {
+                BufferedImage img = ImageIO.read(new File(portraitsDir, key.getId() + ".jpg"));
+                java.awt.Image scaledInstance = img.getScaledInstance(70, 70, java.awt.Image.SCALE_SMOOTH);
+                img.flush();
+                return scaledInstance;
+            });
 
     static {
         portraitsDir.mkdirs();
