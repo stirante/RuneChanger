@@ -162,7 +162,7 @@ public class PerformanceMonitor {
         });
     }
 
-    private static void mainLoop() {
+    private static boolean mainLoop() {
         while (running.get()) {
             pushEvent(EventType.RESOURCE_USAGE, new UsageBean());
             try {
@@ -200,6 +200,7 @@ public class PerformanceMonitor {
         events.clear();
         System.gc();
         eventLock.unlock();
+        return true;
     }
 
     private static boolean isFirstCheck() {
