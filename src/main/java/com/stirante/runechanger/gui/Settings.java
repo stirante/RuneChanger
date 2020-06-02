@@ -13,6 +13,7 @@ import com.stirante.runechanger.util.*;
 import generated.LolGameflowGameflowPhase;
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
 import javafx.geometry.NodeOrientation;
 import javafx.scene.Scene;
@@ -349,6 +350,13 @@ public class Settings extends Application {
                     return;
                 }
                 home.localRunes.clear();
+
+                // This bit of code is added, because clear causes change in filtered list, which
+                // causes IndexOutOfBoundsException in ListView
+                // At the end, we set the same list again to ListView
+                ObservableList<RunePage> oldList = runebook.localRunesList.getItems();
+                runebook.localRunesList.setItems(null);
+
                 runebook.localRunes.clear();
                 String title;
                 ArrayList<RunePage> runeBookValues;
@@ -381,6 +389,7 @@ public class Settings extends Application {
                 runebook.localRunesTitle.setText(title);
                 home.localRunes.addAll(runeBookValues);
                 runebook.localRunes.addAll(runeBookValues);
+                runebook.localRunesList.setItems(oldList);
             }
         }.execute();
     }

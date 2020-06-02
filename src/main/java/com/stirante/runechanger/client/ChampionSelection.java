@@ -195,7 +195,6 @@ public class ChampionSelection extends ClientModule {
             findSelectedChampion(event.getData());
             LolChampSelectChampSelectTimer timer = event.getData().timer;
             if (timer != null) {
-                log.debug(currentPhase + ": " + timer.adjustedTimeLeftInPhaseInSec);
                 currentPhase = timer.phase;
                 phaseEnd = timer.internalNowInEpochMs + timer.adjustedTimeLeftInPhase;
             }

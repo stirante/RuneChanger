@@ -117,6 +117,7 @@ public class RuneChanger implements Launcher {
             log.error("Exception occurred while checking autostart path", e);
             AnalyticsUtil.addCrashReport(e, "Exception occurred while checking autostart path", false);
         }
+        SimplePreferences.loadRuneBook();
         if (!SimplePreferences.getBooleanValue(SimplePreferences.FlagKeys.CREATED_SHORTCUTS, false) ||
                 !SimplePreferences.getBooleanValue(SimplePreferences.FlagKeys.UPDATED_LOGO, false)) {
             try {
@@ -129,7 +130,6 @@ public class RuneChanger implements Launcher {
                 AnalyticsUtil.addCrashReport(e, "Exception occurred while creating shortcuts", false);
             }
         }
-        SimplePreferences.loadRuneBook();
         instance = new RuneChanger();
         instance.programArguments = args;
         instance.init();

@@ -33,8 +33,8 @@ public class RuneBookController implements Content {
     public ListView<RunePage> newRunesList;
     public Pane container;
 
-    public ObservableList<RunePage> localRunes = FXCollections.observableArrayList();
-    public ObservableList<RunePage> newRunes = FXCollections.observableArrayList();
+    public final ObservableList<RunePage> localRunes = FXCollections.observableArrayList();
+    public final ObservableList<RunePage> newRunes = FXCollections.observableArrayList();
 
     public RuneBookController() {
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/fxml/RuneBook.fxml"), LangHelper.getLang());
