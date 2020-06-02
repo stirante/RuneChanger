@@ -24,14 +24,21 @@ public enum GameMode {
     TUTORIAL_MODULE_1("Tutorial Part 1", false),
     TUTORIAL_MODULE_2("Tutorial Part 2", false),
     TUTORIAL_MODULE_3("Tutorial Part 3", false),
+    TFT("Team Fight Tactics", false, true),
     PRACTICETOOL("Practice tool", true);
 
     private final String name;
     private final boolean championSelection;
+    private final boolean disabled;
 
     GameMode(String name, boolean championSelection) {
+        this(name, championSelection, false);
+    }
+
+    GameMode(String name, boolean championSelection, boolean disabled) {
         this.name = name;
         this.championSelection = championSelection;
+        this.disabled = disabled;
     }
 
     public String getName() {
@@ -40,5 +47,9 @@ public enum GameMode {
 
     public boolean hasChampionSelection() {
         return championSelection;
+    }
+
+    public boolean isDisabled() {
+        return disabled;
     }
 }

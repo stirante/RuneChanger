@@ -187,6 +187,10 @@ public class ChampionSelection extends ClientModule {
         }
         else {
             Champion oldChampion = champion;
+            updateGameMode();
+            if (gameMode.isDisabled()) {
+                return;
+            }
             findCurrentAction(event.getData());
             findSelectedChampion(event.getData());
             LolChampSelectChampSelectTimer timer = event.getData().timer;
@@ -195,7 +199,6 @@ public class ChampionSelection extends ClientModule {
                 currentPhase = timer.phase;
                 phaseEnd = timer.internalNowInEpochMs + timer.adjustedTimeLeftInPhase;
             }
-            updateGameMode();
             if (event.getEventType() == ClientEventListener.WebSocketEventType.CREATE || oldChampion != champion) {
                 EventBus.publish(ChampionChangedEvent.NAME, new ChampionChangedEvent(champion));
             }
