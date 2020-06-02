@@ -415,8 +415,6 @@ public class Champion {
                 }
             } catch (IOException e) {
                 log.error("Exception occurred while getting quote for champion " + champion.name, e);
-                AnalyticsUtil.addCrashReport(e,
-                        "Exception occurred while getting quote for champion " + champion.name, false);
             }
         }
 

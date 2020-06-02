@@ -35,7 +35,7 @@ public class RuneforgeSource implements RuneSource {
             conn.connect();
             cache = new Gson().fromJson(new InputStreamReader(conn.getInputStream()), Loadout[].class);
             conn.getInputStream().close();
-        } catch (IOException e) {
+        } catch (Exception e) {
             log.error("Exception occurred while getting RuneForge source data", e);
         }
     }
@@ -86,9 +86,7 @@ public class RuneforgeSource implements RuneSource {
             return r;
         } catch (IOException e) {
             log.error(e.getMessage());
-            RunePage runePage = new RunePage();
-            runePage.setSource(url);
-            return runePage;
+            return null;
         }
     }
 

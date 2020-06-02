@@ -344,7 +344,8 @@ public class RuneMenu extends OverlayLayer {
             getClientOverlay().setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         }
         if (runePageIndex != selectedRunePageIndex) {
-            selectedRunePageIndex = runePageIndex;
+            // Prevent getting nonexistent rune page
+            selectedRunePageIndex = runePageIndex >= pages.size() ? -1 : runePageIndex;
             repaintNow();
         }
     }

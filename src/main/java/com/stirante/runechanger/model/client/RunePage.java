@@ -15,8 +15,8 @@ import java.util.Objects;
 public class RunePage {
     private static final Logger log = LoggerFactory.getLogger(RunePage.class);
     public static final int VERSION = 0x2;
-    private final List<Rune> runes = new ArrayList<>(6);
-    private final List<Modifier> modifiers = new ArrayList<>(3);
+    private final ArrayList<Rune> runes = new ArrayList<>(6);
+    private final ArrayList<Modifier> modifiers = new ArrayList<>(3);
     private String source;
     private String sourceName;
     private Champion champion;
@@ -234,7 +234,12 @@ public class RunePage {
      *
      * @param out output stream
      */
+    @SuppressWarnings("unchecked")
     public void serialize(DataOutputStream out) throws IOException {
+        // Copy arrays, so we won't have ConcurrentModificationException
+        ArrayList<Rune> runes = (ArrayList<Rune>) this.runes.clone();
+        ArrayList<Modifier> modifiers = (ArrayList<Modifier>) this.modifiers.clone();
+
         // version mark
         out.writeByte(VERSION);
 
