@@ -326,7 +326,7 @@ public class Settings extends Application {
     }
 
     public void updateRunes() {
-        if (home == null) {
+        if (home == null || runebook == null) {
             return;
         }
         new AsyncTask<Void, Void, List<RunePage>>() {
@@ -344,6 +344,10 @@ public class Settings extends Application {
 
             @Override
             public void onPostExecute(List<RunePage> result) {
+                // During request, destroyScene might have happened, so we need to check it again
+                if (home == null || runebook == null) {
+                    return;
+                }
                 home.localRunes.clear();
                 runebook.localRunes.clear();
                 String title;
