@@ -5,6 +5,7 @@ import com.stirante.runechanger.gui.Constants;
 import com.stirante.runechanger.gui.SceneType;
 import com.stirante.runechanger.model.client.GameMap;
 import com.stirante.runechanger.util.AnalyticsUtil;
+import com.stirante.runechanger.util.LangHelper;
 import com.stirante.runechanger.util.SimplePreferences;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,9 +18,15 @@ import java.io.IOException;
 
 public class QuickReplies extends OverlayLayer {
     private static final Logger log = LoggerFactory.getLogger(QuickReplies.class);
-    private BufferedImage[] icons = new BufferedImage[5];
-    private String[] messages = new String[]{"bot", "support", "jungle", "mid", "top"};
-    private Rectangle[] rectangles = new Rectangle[5];
+    private final BufferedImage[] icons = new BufferedImage[5];
+    private final String[] messages = new String[]{
+            LangHelper.getLang().getString("bot_msg"),
+            LangHelper.getLang().getString("supp_msg"),
+            LangHelper.getLang().getString("jungle_msg"),
+            LangHelper.getLang().getString("mid_msg"),
+            LangHelper.getLang().getString("top_msg")
+    };
+    private final Rectangle[] rectangles = new Rectangle[5];
 
     public QuickReplies(ClientOverlay overlay) {
         super(overlay);
