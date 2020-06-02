@@ -358,8 +358,8 @@ public class Settings extends Application {
                             result.size(),
                             runeChanger.getRunesModule().getOwnedPageCount());
                     // Split list into runepages, that are both in runebook and in client and those, that are only in runebook
-                    Map<Boolean, List<RunePage>> results =
-                            Collections.unmodifiableList(SimplePreferences.getRuneBookValues())
+                    @SuppressWarnings("unchecked") Map<Boolean, List<RunePage>> results =
+                            ((List<RunePage>)SimplePreferences.getRuneBookValues().clone())
                                     .stream()
                                     .collect(Collectors.partitioningBy(runePage -> result
                                             .stream().noneMatch(runePage1 -> runePage1.equals(runePage))));
