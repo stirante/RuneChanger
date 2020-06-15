@@ -399,8 +399,9 @@ public class RunePage {
             return false;
         }
         RunePage runePage = (RunePage) o;
-        return runes.equals(runePage.runes) &&
-                modifiers.equals(runePage.modifiers) &&
+        // Copy arrays, so we won't have ConcurrentModificationException
+        return runes.clone().equals(runePage.runes.clone()) &&
+                modifiers.clone().equals(runePage.modifiers.clone()) &&
                 (champion == runePage.champion || isFromClient() != runePage.isFromClient()) &&
                 name.equals(runePage.name) &&
                 mainStyle == runePage.mainStyle &&
