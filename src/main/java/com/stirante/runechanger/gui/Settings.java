@@ -360,7 +360,7 @@ public class Settings extends Application {
                 runebook.localRunes.clear();
                 String title;
                 ArrayList<RunePage> runeBookValues;
-                if (result == null) {
+                if (result == null || !RuneChanger.getInstance().getApi().isConnected()) {
                     title = LangHelper.getLang().getString("local_runes_no_connection");
                     runeBookValues = SimplePreferences.getRuneBookValues();
                 }
