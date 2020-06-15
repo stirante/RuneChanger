@@ -160,7 +160,11 @@ public class ChampionSelection extends ClientModule {
                 map = GameMap.getById(lolLobbyLobbyDto.gameConfig.mapId);
                 positionSelector = lolLobbyLobbyDto.gameConfig.showPositionSelector;
                 gameMode = GameMode.valueOf(lolLobbyLobbyDto.gameConfig.gameMode);
-            } catch (IOException | IllegalArgumentException e) {
+            } catch (IOException e) {
+                positionSelector = false;
+                gameMode = GameMode.CLASSIC;
+                map = GameMap.MAP_11;
+            } catch (IllegalArgumentException e) {
                 log.error("Exception thrown when updating the gamemode! GameMode.java might not be updated. " +
                         e.getMessage());
                 if (Countly.isInitialized()) {
