@@ -35,7 +35,7 @@ public class Loot extends ClientModule {
     public int craftKeys() {
         try {
             LolLootPlayerLoot keyFragments = getApi()
-                    .executeGet("/lol-loot/v1/player-loot/MATERIAL_key_fragment", LolLootPlayerLoot.class);
+                    .executeGet("/lol-loot/v1/player-loot/MATERIAL_key_fragment", LolLootPlayerLoot.class).getResponseObject();
             if (keyFragments.count >= 3) {
                 getApi().executePost("/lol-loot/v1/recipes/MATERIAL_key_fragment_forge/craft?repeat=" +
                         keyFragments.count / 3, new String[]{"MATERIAL_key_fragment"});
@@ -50,7 +50,7 @@ public class Loot extends ClientModule {
     public void disenchantChampions() {
         try {
             LolLootPlayerLoot[] loot =
-                    getApi().executeGet("/lol-loot/v1/player-loot", LolLootPlayerLoot[].class);
+                    getApi().executeGet("/lol-loot/v1/player-loot", LolLootPlayerLoot[].class).getResponseObject();
             for (LolLootPlayerLoot item : loot) {
                 if (item.lootId.startsWith("CHAMPION_RENTAL_")) {
                     for (int i = 0; i < item.count; i++) {
@@ -72,12 +72,12 @@ public class Loot extends ClientModule {
     public void smartDisenchantChampions() {
         try {
             LolChampionsCollectionsChampionMinimal[] champions =
-                    getApi().executeGet("/lol-champions/v1/owned-champions-minimal", LolChampionsCollectionsChampionMinimal[].class);
+                    getApi().executeGet("/lol-champions/v1/owned-champions-minimal", LolChampionsCollectionsChampionMinimal[].class).getResponseObject();
             LolCollectionsCollectionsChampionMastery[] masteries =
                     getApi().executeGet("/lol-collections/v1/inventories/" + getCurrentSummoner().summonerId +
-                            "/champion-mastery", LolCollectionsCollectionsChampionMastery[].class);
+                            "/champion-mastery", LolCollectionsCollectionsChampionMastery[].class).getResponseObject();
             LolLootPlayerLoot[] loot =
-                    getApi().executeGet("/lol-loot/v1/player-loot", LolLootPlayerLoot[].class);
+                    getApi().executeGet("/lol-loot/v1/player-loot", LolLootPlayerLoot[].class).getResponseObject();
 
             // Loop through all loot items
             for (LolLootPlayerLoot item : loot) {

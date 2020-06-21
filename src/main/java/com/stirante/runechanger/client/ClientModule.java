@@ -24,7 +24,7 @@ public abstract class ClientModule {
     public LolSummonerSummoner getCurrentSummoner() {
         try {
             if (currentSummoner == null) {
-                currentSummoner = api.executeGet("/lol-summoner/v1/current-summoner", LolSummonerSummoner.class);
+                currentSummoner = api.executeGet("/lol-summoner/v1/current-summoner", LolSummonerSummoner.class).getResponseObject();
             }
         } catch (IOException e) {
             log.error("Exception occurred while getting current summoner", e);

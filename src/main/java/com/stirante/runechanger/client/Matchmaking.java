@@ -57,7 +57,7 @@ public class Matchmaking extends ClientModule {
                 }
                 try {
                     LolMatchmakingMatchmakingReadyCheckResource state =
-                            getApi().executeGet("/lol-matchmaking/v1/ready-check", LolMatchmakingMatchmakingReadyCheckResource.class);
+                            getApi().executeGet("/lol-matchmaking/v1/ready-check", LolMatchmakingMatchmakingReadyCheckResource.class).getResponseObject();
                     if (state.state == LolMatchmakingMatchmakingReadyCheckState.INPROGRESS
                             && state.playerResponse != LolMatchmakingMatchmakingReadyCheckResponse.DECLINED &&
                             state.playerResponse != LolMatchmakingMatchmakingReadyCheckResponse.ACCEPTED) {

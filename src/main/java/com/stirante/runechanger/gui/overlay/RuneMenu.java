@@ -2,6 +2,7 @@ package com.stirante.runechanger.gui.overlay;
 
 import com.stirante.eventbus.EventBus;
 import com.stirante.eventbus.Subscribe;
+import com.stirante.runechanger.RuneChanger;
 import com.stirante.runechanger.client.ChampionSelection;
 import com.stirante.runechanger.gui.Constants;
 import com.stirante.runechanger.gui.SceneType;
@@ -295,8 +296,8 @@ public class RuneMenu extends OverlayLayer {
                 e.getY() < (getHeight() * Constants.RUNE_BUTTON_POSITION_Y) + icon.getHeight()) {
             opened = !opened;
         }
-        else if (selectedRunePageIndex != -1 && runeSelectedListener != null) {
-            runeSelectedListener.accept(pages.get(selectedRunePageIndex));
+        else if (selectedRunePageIndex != -1) {
+            RuneChanger.getInstance().getRunesModule().setCurrentRunePage(pages.get(selectedRunePageIndex));
             opened = !opened;
         }
     }

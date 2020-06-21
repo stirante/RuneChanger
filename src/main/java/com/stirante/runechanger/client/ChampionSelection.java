@@ -3,6 +3,7 @@ package com.stirante.runechanger.client;
 import com.stirante.eventbus.BusEvent;
 import com.stirante.eventbus.EventBus;
 import com.stirante.eventbus.Subscribe;
+import com.stirante.lolclient.ApiResponse;
 import com.stirante.lolclient.ClientApi;
 import com.stirante.runechanger.DebugConsts;
 import com.stirante.runechanger.model.client.Champion;
@@ -37,24 +38,33 @@ public class ChampionSelection extends ClientModule {
         EventBus.register(this);
     }
 
+    public LolChampSelectChampSelectSession getSession() throws IOException {
+        ApiResponse<LolChampSelectChampSelectSession> session =
+                getApi().executeGet("/lol-champ-select/v1/session", LolChampSelectChampSelectSession.class);
+        if (session.isOk()) {
+            return session.getResponseObject();
+        }
+        return null;
+    }
+
     public ArrayList<Champion> getLastChampions() {
         try {
             ArrayList<Champion> lastChampions = new ArrayList<>();
-            LolMatchHistoryMatchHistoryList historyList =
+            ApiResponse<LolMatchHistoryMatchHistoryList> historyList =
                     getApi().executeGet("/lol-match-history/v2/matchlist",
                             LolMatchHistoryMatchHistoryList.class,
                             "begIndex", "0",
                             "endIndex", "20");
-            if (historyList == null || historyList.games == null) {
+            if (!historyList.isOk() || historyList.getResponseObject().games == null) {
                 return null;
             }
-            List<LolMatchHistoryMatchHistoryGame> games = historyList.games.games;
+            List<LolMatchHistoryMatchHistoryGame> games = historyList.getResponseObject().games.games;
             historyList =
                     getApi().executeGet("/lol-match-history/v2/matchlist",
                             LolMatchHistoryMatchHistoryList.class,
                             "begIndex", "20",
                             "endIndex", "40");
-            games.addAll(historyList.games.games);
+            games.addAll(historyList.getResponseObject().games.games);
             games.sort((o1, o2) -> o2.gameCreation.compareTo(o1.gameCreation));
             for (LolMatchHistoryMatchHistoryGame game : games) {
                 LolMatchHistoryMatchHistoryParticipant p = game.participants.stream()
@@ -156,10 +166,13 @@ public class ChampionSelection extends ClientModule {
     private void updateGameMode() {
         if (!DebugConsts.MOCK_SESSION) {
             try {
-                LolLobbyLobbyDto lolLobbyLobbyDto = getApi().executeGet("/lol-lobby/v2/lobby", LolLobbyLobbyDto.class);
-                map = GameMap.getById(lolLobbyLobbyDto.gameConfig.mapId);
-                positionSelector = lolLobbyLobbyDto.gameConfig.showPositionSelector;
-                gameMode = GameMode.valueOf(lolLobbyLobbyDto.gameConfig.gameMode);
+                ApiResponse<LolLobbyLobbyDto> lolLobbyLobbyDto =
+                        getApi().executeGet("/lol-lobby/v2/lobby", LolLobbyLobbyDto.class);
+                if (lolLobbyLobbyDto.isOk()) {
+                    map = GameMap.getById(lolLobbyLobbyDto.getResponseObject().gameConfig.mapId);
+                    positionSelector = lolLobbyLobbyDto.getResponseObject().gameConfig.showPositionSelector;
+                    gameMode = GameMode.valueOf(lolLobbyLobbyDto.getResponseObject().gameConfig.gameMode);
+                }
             } catch (IOException e) {
                 positionSelector = false;
                 gameMode = GameMode.CLASSIC;
@@ -234,12 +247,12 @@ public class ChampionSelection extends ClientModule {
 
     public void sendMessageToChampSelect(String msg) {
         try {
-            LolChampSelectChampSelectSession session = getApi()
+            ApiResponse<LolChampSelectChampSelectSession> session = getApi()
                     .executeGet("/lol-champ-select/v1/session", LolChampSelectChampSelectSession.class);
-            if (session == null) {
+            if (!session.isOk()) {
                 return;
             }
-            String name = session.chatDetails.chatRoomName;
+            String name = session.getResponseObject().chatDetails.chatRoomName;
             if (name == null) {
                 return;
             }
@@ -275,12 +288,15 @@ public class ChampionSelection extends ClientModule {
 
     public String getLastGrade() {
         try {
-            LolMatchHistoryMatchHistoryPlayerDelta delta =
+            ApiResponse<LolMatchHistoryMatchHistoryPlayerDelta> delta =
                     getApi().executeGet("/lol-match-history/v1/delta", LolMatchHistoryMatchHistoryPlayerDelta.class);
-            if (delta == null) {
+            if (!delta.isOk()) {
                 return null;
             }
-            return delta.deltas.stream().map(gameDelta -> gameDelta.champMastery.grade).findFirst().orElse(null);
+            return delta.getResponseObject().deltas.stream()
+                    .map(gameDelta -> gameDelta.champMastery.grade)
+                    .findFirst()
+                    .orElse(null);
         } catch (IOException e) {
             log.error("Exception occurred while getting last grade", e);
             return null;

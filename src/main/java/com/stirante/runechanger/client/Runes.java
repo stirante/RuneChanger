@@ -2,6 +2,7 @@ package com.stirante.runechanger.client;
 
 import com.stirante.eventbus.EventBus;
 import com.stirante.eventbus.Subscribe;
+import com.stirante.lolclient.ApiResponse;
 import com.stirante.lolclient.ClientApi;
 import com.stirante.runechanger.model.client.RunePage;
 import com.stirante.runechanger.util.SimplePreferences;
@@ -39,7 +40,7 @@ public class Runes extends ClientModule {
         try {
             //get all rune pages
             LolPerksPerkPageResource[] pages =
-                    getApi().executeGet("/lol-perks/v1/pages", LolPerksPerkPageResource[].class);
+                    getApi().executeGet("/lol-perks/v1/pages", LolPerksPerkPageResource[].class).getResponseObject();
             //find available pages
             ArrayList<LolPerksPerkPageResource> availablePages = new ArrayList<>();
             for (LolPerksPerkPageResource p : pages) {
@@ -49,7 +50,7 @@ public class Runes extends ClientModule {
             }
             //change pages
             LolPerksPerkPageResource page1 =
-                    getApi().executeGet("/lol-perks/v1/currentpage", LolPerksPerkPageResource.class);
+                    getApi().executeGet("/lol-perks/v1/currentpage", LolPerksPerkPageResource.class).getResponseObject();
             if (!page1.isEditable || !page1.isActive) {
                 if (availablePages.size() > 0) {
                     page1 = availablePages.get(0);
@@ -63,7 +64,11 @@ public class Runes extends ClientModule {
             if (page1.id != null) {
                 getApi().executeDelete("/lol-perks/v1/pages/" + page1.id);
             }
-            getApi().executePost("/lol-perks/v1/pages/", page1);
+            ApiResponse<Void> response = getApi().executePost("/lol-perks/v1/pages/", page1);
+            if (!response.isOk()) {
+                log.warn("Failed to add rune page! 'POST /lol-perks/v1/pages/' returned status code " + response.getStatusCode());
+                log.warn("Raw response: " + response.getRawResponse());
+            }
         } catch (IOException ex) {
             log.error("Exception occurred while setting current rune page", ex);
         }
@@ -74,7 +79,7 @@ public class Runes extends ClientModule {
         try {
             //get all rune pages
             LolPerksPerkPageResource[] pages =
-                    getApi().executeGet("/lol-perks/v1/pages", LolPerksPerkPageResource[].class);
+                    getApi().executeGet("/lol-perks/v1/pages", LolPerksPerkPageResource[].class).getResponseObject();
             //find available pages
             for (LolPerksPerkPageResource p : pages) {
                 if (p.isEditable) {
@@ -92,7 +97,7 @@ public class Runes extends ClientModule {
 
     public int getOwnedPageCount() {
         try {
-            return getApi().executeGet("/lol-perks/v1/inventory", LolPerksPlayerInventory.class).ownedPageCount;
+            return getApi().executeGet("/lol-perks/v1/inventory", LolPerksPlayerInventory.class).getResponseObject().ownedPageCount;
         } catch (IOException e) {
             log.error("Exception occurred while getting owned rune page count", e);
         }

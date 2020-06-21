@@ -6,6 +6,7 @@ import ch.qos.logback.core.Appender;
 import ch.qos.logback.core.FileAppender;
 import com.stirante.eventbus.EventBus;
 import com.stirante.eventbus.Subscribe;
+import com.stirante.lolclient.ApiResponse;
 import com.stirante.lolclient.ClientApi;
 import com.stirante.lolclient.ClientConnectionListener;
 import com.stirante.lolclient.ClientWebSocket;
@@ -242,7 +243,6 @@ public class RuneChanger implements Launcher {
                 SimpleDateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT)
                         .format(Version.INSTANCE.buildTime) + ")");
         if (!Arrays.asList(programArguments).contains("-osx")) {
-            ClientApi.setDisableEndpointWarnings(true);
             try {
                 // Disabled due to problems with switching between different LoL installations (PBE and release)
 //                String clientPath = SimplePreferences.getStringValue(SimplePreferences.InternalKeys.CLIENT_PATH, null);
@@ -292,17 +292,14 @@ public class RuneChanger implements Launcher {
                             session.myTeam.add(e);
                             EventBus.publish(ClientEventListener.ChampionSelectionEvent.NAME,
                                     new ClientEventListener.ChampionSelectionEvent(ClientEventListener.WebSocketEventType.CREATE, session));
-//                            handleSession(session);
                         }
                     });
                     // Check if session is active after starting RuneChanger, since we might not get event right away
                     try {
-                        LolChampSelectChampSelectSession session =
-                                api.executeGet("/lol-champ-select/v1/session", LolChampSelectChampSelectSession.class);
+                        LolChampSelectChampSelectSession session = champSelectModule.getSession();
                         if (session != null) {
                             EventBus.publish(ClientEventListener.ChampionSelectionEvent.NAME,
                                     new ClientEventListener.ChampionSelectionEvent(ClientEventListener.WebSocketEventType.CREATE, session));
-//                            handleSession(session);
                         }
                     } catch (Exception ignored) {
                     }
