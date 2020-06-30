@@ -173,10 +173,13 @@ public class ChampionSelection extends ClientModule {
                     positionSelector = lolLobbyLobbyDto.getResponseObject().gameConfig.showPositionSelector;
                     gameMode = GameMode.valueOf(lolLobbyLobbyDto.getResponseObject().gameConfig.gameMode);
                 }
+                else {
+                    clearSession();
+                    EventBus.publish(ChampionSelectionEndEvent.NAME, new ChampionSelectionEndEvent());
+                }
             } catch (IOException e) {
-                positionSelector = false;
-                gameMode = GameMode.CLASSIC;
-                map = GameMap.MAP_11;
+                clearSession();
+                EventBus.publish(ChampionSelectionEndEvent.NAME, new ChampionSelectionEndEvent());
             } catch (IllegalArgumentException e) {
                 log.error("Exception thrown when updating the gamemode! GameMode.java might not be updated. " +
                         e.getMessage());
