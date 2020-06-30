@@ -25,6 +25,7 @@ public enum GameMode {
     TUTORIAL_MODULE_2("Tutorial Part 2", false),
     TUTORIAL_MODULE_3("Tutorial Part 3", false),
     TFT("Team Fight Tactics", false, true),
+    NEXUSBLITZ("Nexus Blitz", true, false),
     PRACTICETOOL("Practice tool", true);
 
     private final String name;
