@@ -85,6 +85,8 @@ public class AnalyticsUtil {
                 }
             }
             Map<String, String> segments = new HashMap<>();
+            segments.put("commit", Version.INSTANCE.commitIdAbbrev);
+            segments.put("experimental", String.valueOf(SimplePreferences.getBooleanValue(SimplePreferences.SettingsKeys.EXPERIMENTAL_CHANNEL, false)));
             segments.put("CPU", CustomDevice.dev.getCpu());
             segments.put("GPU", CustomDevice.dev.getGpu());
             segments.put("RAM", String.valueOf(CustomDevice.dev.getRam()));
