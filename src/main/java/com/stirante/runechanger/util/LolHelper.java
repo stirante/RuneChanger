@@ -107,10 +107,6 @@ public class LolHelper {
         log.info("Killing the game");
         try {
             Runtime.getRuntime().exec("taskkill /F /IM \"League of Legends.exe\" /T");
-            String path = SimplePreferences.getStringValue(SimplePreferences.InternalKeys.CLIENT_PATH, null);
-            if (path != null) {
-                new File(path, "lockfile").delete();
-            }
         } catch (IOException e) {
             log.warn("Execption occurred while killing League of Legends", e);
         }

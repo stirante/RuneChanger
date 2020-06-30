@@ -14,8 +14,10 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class Runes extends ClientModule {
     private static final Logger log = LoggerFactory.getLogger(Runes.class);
@@ -31,27 +33,26 @@ public class Runes extends ClientModule {
     }
 
     public void setCurrentRunePage(RunePage page) {
+        if (page == null) {
+            log.warn("Tried to set null rune page!");
+            return;
+        }
         if (Countly.isInitialized()) {
             Countly.session()
                     .event("rune_page_selection")
-                    .addSegment("remote", String.valueOf(page.getSource().startsWith("http")))
+                    .addSegment("remote", String.valueOf(page.getSource() == null || page.getSource().startsWith("http")))
                     .record();
         }
         try {
-            //get all rune pages
-            LolPerksPerkPageResource[] pages =
-                    getApi().executeGet("/lol-perks/v1/pages", LolPerksPerkPageResource[].class).getResponseObject();
-            //find available pages
-            ArrayList<LolPerksPerkPageResource> availablePages = new ArrayList<>();
-            for (LolPerksPerkPageResource p : pages) {
-                if (p.isEditable) {
-                    availablePages.add(p);
-                }
-            }
             //change pages
             LolPerksPerkPageResource page1 =
                     getApi().executeGet("/lol-perks/v1/currentpage", LolPerksPerkPageResource.class).getResponseObject();
             if (!page1.isEditable || !page1.isActive) {
+                //get all rune pages
+                LolPerksPerkPageResource[] pages =
+                        getApi().executeGet("/lol-perks/v1/pages", LolPerksPerkPageResource[].class).getResponseObject();
+                //find available pages
+                List<LolPerksPerkPageResource> availablePages = Arrays.stream(pages).filter(p -> p.isEditable).collect(Collectors.toList());
                 if (availablePages.size() > 0) {
                     page1 = availablePages.get(0);
                 }
