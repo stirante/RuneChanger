@@ -3,6 +3,7 @@ package com.stirante.runechanger.gui;
 import com.stirante.eventbus.EventBus;
 import com.stirante.eventbus.EventPriority;
 import com.stirante.eventbus.Subscribe;
+import com.stirante.lolclient.ClientApi;
 import com.stirante.runechanger.RuneChanger;
 import com.stirante.runechanger.client.ClientEventListener;
 import com.stirante.runechanger.gui.controllers.*;
@@ -31,7 +32,10 @@ import java.awt.*;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.UnsupportedFlavorException;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
@@ -223,6 +227,36 @@ public class Settings extends Application {
                     PerformanceMonitor.start();
                     RuneChanger.getInstance().getGuiHandler().showInfoMessage("Performance monitor started");
                 }
+            } else if (event.isControlDown() && event.getCode() == KeyCode.L) {
+                ProgressDialogController progressDialog = new ProgressDialogController();
+                progressDialog.setTitle("Debugging LoL client connection");
+                progressDialog.setProgress(ProgressBar.INDETERMINATE_PROGRESS);
+                progressDialog.show();
+                new AsyncTask<Void, Void, String>() {
+                    @Override
+                    public String doInBackground(Void[] params) {
+                        return ClientApi.generateDebugLog();
+                    }
+
+                    @Override
+                    public void onPostExecute(String result) {
+                        File file = new File("logs/lcu.txt");
+                        try (FileOutputStream fos = new FileOutputStream(file)) {
+                            PrintWriter pw = new PrintWriter(fos);
+                            pw.write(result);
+                            pw.flush();
+                        } catch (IOException e) {
+                            log.error("Exception occurred while saving logs", e);
+                            RuneChanger.getInstance().getGuiHandler().showErrorMessage("Error, while saving log: " + e.getMessage());
+                        }
+                        progressDialog.close();
+                        try {
+                            Runtime.getRuntime().exec("notepad.exe lcu.txt", null, file.getParentFile());
+                        } catch (IOException e) {
+                            log.error("Exception occurred while showing logs", e);
+                        }
+                    }
+                }.execute();
             }
         });
 
