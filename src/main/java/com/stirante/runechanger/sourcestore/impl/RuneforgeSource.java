@@ -40,6 +40,11 @@ public class RuneforgeSource implements RuneSource {
         }
     }
 
+    @Override
+    public String getSourceKey() {
+        return "runeforge.gg";
+    }
+
     /**
      * Gets rune page from specified url
      *

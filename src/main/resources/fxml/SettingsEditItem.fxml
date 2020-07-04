@@ -13,7 +13,7 @@
         <Label fx:id="title" maxHeight="20.0" minHeight="20.0" prefHeight="20.0" styleClass="checkbox-label"
                text="%no_away"/>
         <Label fx:id="description" maxHeight="20.0" minHeight="20.0" prefHeight="20.0"
-               styleClass="checkbox-edit-desc" text="%no_away_message" HBox.hgrow="ALWAYS"/>
+               styleClass="checkbox-edit-desc" HBox.hgrow="ALWAYS"/>
     </HBox>
     <CheckBox fx:id="checkbox" layoutX="495.5" mnemonicParsing="false"/>
     <Line endX="530.0" layoutX="1.0" layoutY="98.0" stroke="#c7a96d42" strokeWidth="3.0"/>

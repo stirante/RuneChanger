@@ -21,6 +21,7 @@ public class FxUtils {
 
     /**
      * Executes runnable on FX thread or runs it, if it's already FX thread
+     *
      * @param runnable runnable to execute
      */
     public static void doOnFxThread(Runnable runnable) {
@@ -30,6 +31,22 @@ public class FxUtils {
         else {
             Platform.runLater(runnable);
         }
+    }
+
+    /**
+     * Executes runnable on FX thread after a delay
+     *
+     * @param runnable runnable to execute
+     * @param delay delay in milliseconds
+     */
+    public static void runLater(Runnable runnable, long delay) {
+        Timer timer = new Timer();
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                Platform.runLater(runnable);
+            }
+        }, delay);
     }
 
     private static Pair<Double, List<Double>> getTextSizes(Font font, String text) {
@@ -120,9 +137,10 @@ public class FxUtils {
 
     /**
      * Creates ChangeListener, that fires original only after no change has been made for specified time
+     *
      * @param onChange ChangeListener to fire
-     * @param delay specified time in milliseconds, after which the listener will be fired
-     * @param <T> type
+     * @param delay    specified time in milliseconds, after which the listener will be fired
+     * @param <T>      type
      * @return ChangeListener, that will be delayed
      */
     public static <T> ChangeListener<T> delayedChangedListener(ChangeListener<T> onChange, long delay) {
@@ -160,8 +178,9 @@ public class FxUtils {
 
     /**
      * Creates ChangeListener, that fires original only after no change has been made for one second
+     *
      * @param onChange ChangeListener to fire
-     * @param <T> type
+     * @param <T>      type
      * @return ChangeListener, that will be delayed
      */
     public static <T> ChangeListener<T> delayedChangedListener(ChangeListener<T> onChange) {

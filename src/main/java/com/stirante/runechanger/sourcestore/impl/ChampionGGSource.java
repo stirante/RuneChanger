@@ -184,4 +184,9 @@ public class ChampionGGSource implements RuneSource {
     public void getRunesForChampion(Champion champion, GameMode mode, ObservableList<RunePage> pages) {
         extractRunes(champion, pages);
     }
+
+    @Override
+    public String getSourceKey() {
+        return "champion.gg";
+    }
 }

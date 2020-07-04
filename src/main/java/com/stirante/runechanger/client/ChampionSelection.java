@@ -10,16 +10,14 @@ import com.stirante.runechanger.model.client.Champion;
 import com.stirante.runechanger.model.client.GameMap;
 import com.stirante.runechanger.model.client.GameMode;
 import com.stirante.runechanger.util.AnalyticsUtil;
+import com.stirante.runechanger.util.SimplePreferences;
 import generated.*;
 import ly.count.sdk.java.Countly;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 public class ChampionSelection extends ClientModule {
     private static final Logger log = LoggerFactory.getLogger(ChampionSelection.class);
@@ -220,6 +218,26 @@ public class ChampionSelection extends ClientModule {
             }
             if (event.getEventType() == ClientEventListener.WebSocketEventType.CREATE || oldChampion != champion) {
                 EventBus.publish(ChampionChangedEvent.NAME, new ChampionChangedEvent(champion));
+            }
+            if (event.getEventType() == ClientEventListener.WebSocketEventType.CREATE &&
+                    SimplePreferences.getBooleanValue(SimplePreferences.SettingsKeys.AUTO_MESSAGE, false)) {
+                String message = SimplePreferences.getStringValue(SimplePreferences.SettingsKeys.AUTO_MESSAGE_TEXT, "");
+                if (message != null && !message.isEmpty()) {
+                    Timer t = new Timer();
+                    t.schedule(new TimerTask() {
+                        @Override
+                        public void run() {
+                            try {
+                                LolChampSelectChampSelectSession session = getSession();
+                                if (session != null) {
+                                    sendMessageToChampSelect(message);
+                                }
+                            } catch (IOException e) {
+                                log.error("Exception occurred while sending automatic message", e);
+                            }
+                        }
+                    }, 3000);
+                }
             }
         }
     }

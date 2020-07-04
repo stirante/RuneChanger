@@ -53,6 +53,11 @@ public class UGGSource implements RuneSource, CounterSource {
         System.out.println(new UGGSource().getCounterData(Champion.getByName("Janna")));
     }
 
+    @Override
+    public String getSourceKey() {
+        return "u.gg";
+    }
+
     public RunePage getForChampion(Champion champion, Tier tier, Position position, Server server, QueueType queue) throws IOException {
         if (queue == QueueType.ARAM) {
             position = Position.NONE;

@@ -6,16 +6,12 @@ import com.stirante.runechanger.util.*;
 import javafx.animation.Animation;
 import javafx.animation.Interpolator;
 import javafx.animation.Transition;
-import javafx.application.Platform;
-import javafx.beans.property.Property;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.input.ScrollEvent;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
@@ -24,16 +20,28 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 
 public class SettingsController implements Content {
     private static final Logger log = LoggerFactory.getLogger(SettingsController.class);
     private final static int TRANSITION_DURATION = 200;
     private final static double BASE_MODIFIER = 2;
+
+    private static final String CLIENT_CATEGORY = "client";
+    private static final String APP_CATEGORY = "app";
+    private static final String MESSAGES_CATEGORY = "messages";
+    private static final String SOURCES_CATEGORY = "sources";
+
+    private final List<SettingsCategoryController> categoryControllers = new ArrayList<>();
+    private final Map<String, List<Node>> categoryContents = new HashMap<>();
     private final Stage stage;
+
     public Pane container;
+    public HBox categoryBar;
     public VBox wrapper;
     public ScrollPane scroll;
 
@@ -60,65 +68,150 @@ public class SettingsController implements Content {
     }
 
     private void loadPreferences() {
-        setupPreference(SimplePreferences.SettingsKeys.QUICK_REPLIES, false, "quick_replies", "quick_replies_message");
-        setupPreference(SimplePreferences.SettingsKeys.AUTO_ACCEPT, false, "auto_queue", "auto_queue_message");
-        setupPreference(SimplePreferences.SettingsKeys.RESTART_ON_DODGE, false, "restart_on_dodge", "restart_on_dodge_message");
-        setupPreference(SimplePreferences.SettingsKeys.ANTI_AWAY, false, "no_away", "no_away_message");
-        setupPreference(SimplePreferences.SettingsKeys.AUTO_SYNC, false, "auto_sync_pages", "auto_sync_pages_message", selected -> tryRestart());
-        setupPreference(SimplePreferences.SettingsKeys.SMART_DISENCHANT, false, "smart_disenchant", "smart_disenchant_message");
-        setupPreference(SimplePreferences.SettingsKeys.CHAMPION_SUGGESTIONS, true, "champion_suggestions", "champion_suggestions_message");
-        setupPreference(SimplePreferences.SettingsKeys.AUTO_UPDATE, true, "autoupdate_state", "autoupdate_message");
-        setupPreference(SimplePreferences.SettingsKeys.EXPERIMENTAL_CHANNEL, false, "autoupdate_experimental", "autoupdate_experimental_message", selected -> {
+        // Setup categories
+        setupCategory(CLIENT_CATEGORY, "client_category");
+        setupCategory(MESSAGES_CATEGORY, "messages_category");
+        setupCategory(SOURCES_CATEGORY, "sources_category");
+        setupCategory(APP_CATEGORY, "app_category");
+
+        // Setup preferences
+        setupSimplePreference(MESSAGES_CATEGORY, SimplePreferences.SettingsKeys.QUICK_REPLIES, false, "quick_replies", "quick_replies_message");
+        setupTextPreference(MESSAGES_CATEGORY,
+                SimplePreferences.SettingsKeys.AUTO_MESSAGE, false,
+                SimplePreferences.SettingsKeys.AUTO_MESSAGE_TEXT, "",
+                "auto_message", "auto_message_desc");
+//        setupTextPreference(MESSAGES_CATEGORY,
+//                SimplePreferences.SettingsKeys.CUSTOM_MESSAGE, false,
+//                SimplePreferences.SettingsKeys.CUSTOM_MESSAGE_TEXT, "",
+//                "custom_message", "custom_message_desc");
+        setupTextPreference(MESSAGES_CATEGORY,
+                SimplePreferences.SettingsKeys.ADC_MESSAGE, "bot",
+                "custom_adc_message", null);
+        setupTextPreference(MESSAGES_CATEGORY,
+                SimplePreferences.SettingsKeys.SUPP_MESSAGE, "supp",
+                "custom_supp_message", null);
+        setupTextPreference(MESSAGES_CATEGORY,
+                SimplePreferences.SettingsKeys.MID_MESSAGE, "mid",
+                "custom_mid_message", null);
+        setupTextPreference(MESSAGES_CATEGORY,
+                SimplePreferences.SettingsKeys.JUNGLE_MESSAGE, "jungle",
+                "custom_jungle_message", null);
+        setupTextPreference(MESSAGES_CATEGORY,
+                SimplePreferences.SettingsKeys.TOP_MESSAGE, "top",
+                "custom_top_message", null);
+
+        setupSimplePreference(CLIENT_CATEGORY, SimplePreferences.SettingsKeys.AUTO_ACCEPT, false, "auto_queue", "auto_queue_message");
+        setupSimplePreference(CLIENT_CATEGORY, SimplePreferences.SettingsKeys.RESTART_ON_DODGE, false, "restart_on_dodge", "restart_on_dodge_message");
+        setupSimplePreference(CLIENT_CATEGORY, SimplePreferences.SettingsKeys.ANTI_AWAY, false, "no_away", "no_away_message");
+        setupSimplePreference(CLIENT_CATEGORY, SimplePreferences.SettingsKeys.AUTO_SYNC, false, "auto_sync_pages", "auto_sync_pages_message", selected -> tryRestart());
+        setupSimplePreference(CLIENT_CATEGORY, SimplePreferences.SettingsKeys.SMART_DISENCHANT, false, "smart_disenchant", "smart_disenchant_message");
+        setupSimplePreference(CLIENT_CATEGORY, SimplePreferences.SettingsKeys.CHAMPION_SUGGESTIONS, true, "champion_suggestions", "champion_suggestions_message");
+
+        setupSimplePreference(APP_CATEGORY, SimplePreferences.SettingsKeys.AUTO_UPDATE, true, "autoupdate_state", "autoupdate_message");
+        setupSimplePreference(APP_CATEGORY, SimplePreferences.SettingsKeys.EXPERIMENTAL_CHANNEL, false, "autoupdate_experimental", "autoupdate_experimental_message", selected -> {
             AutoUpdater.resetCache();
             AutoUpdater.checkUpdate();
         });
-        setupPreference(SimplePreferences.SettingsKeys.FORCE_ENGLISH, false, "force_english", "force_english_message", selected -> tryRestart());
-        setupPreference(SimplePreferences.SettingsKeys.ALWAYS_ON_TOP, false, "always_on_top", "always_on_top_message", stage::setAlwaysOnTop);
-        setupPreference(SimplePreferences.SettingsKeys.ANALYTICS, true, "enable_analytics", "enable_analytics_message", AnalyticsUtil::onConsent);
-        setupPreference(SimplePreferences.SettingsKeys.ENABLE_ANIMATIONS, true, "enable_animations", "enable_animations_message");
-        setupPreference(SimplePreferences.SettingsKeys.RUN_AS_ADMIN, false, "run_as_admin", "run_as_admin_message", selected -> tryRestart());
-
-        wrapper.getChildren().add(new SettingsItemController(
+        setupSimplePreference(APP_CATEGORY, SimplePreferences.SettingsKeys.FORCE_ENGLISH, false, "force_english", "force_english_message", selected -> tryRestart());
+        setupSimplePreference(APP_CATEGORY, SimplePreferences.SettingsKeys.ALWAYS_ON_TOP, false, "always_on_top", "always_on_top_message", stage::setAlwaysOnTop);
+        setupSimplePreference(APP_CATEGORY, SimplePreferences.SettingsKeys.ANALYTICS, true, "enable_analytics", "enable_analytics_message", AnalyticsUtil::onConsent);
+        setupSimplePreference(APP_CATEGORY, SimplePreferences.SettingsKeys.ENABLE_ANIMATIONS, true, "enable_animations", "enable_animations_message");
+        setupSimplePreference(APP_CATEGORY, SimplePreferences.SettingsKeys.RUN_AS_ADMIN, false, "run_as_admin", "run_as_admin_message", selected -> tryRestart());
+        setupPreference(APP_CATEGORY, new SettingsItemController(
                 AutoStartUtils.isAutoStartEnabled(),
                 AutoStartUtils::setAutoStart,
                 LangHelper.getLang().getString("autostart"),
                 LangHelper.getLang().getString("autostart_message")
         ).getRoot());
 
-//        wrapper.getChildren().add(new SettingsEditItemController(
-//                FxUtils.prop("Initial text", (observable, oldValue, newValue) -> {
-//                    System.out.println("Text changed to " + newValue);
-//                }),
-//                null,
-//                "Test text value",
-//                "Without checkbox"
-//        ).getRoot());
-//        wrapper.getChildren().add(new SettingsEditItemController(
-//                FxUtils.prop("Initial text", FxUtils.delayedChangedListener(
-//                        (observable, oldValue, newValue) -> System.out.println("Text changed to " + newValue)
-//                )),
-//                FxUtils.prop(false, (observable, oldValue, newValue) -> System.out.println("Checked: " + newValue)),
-//                "Test text value",
-//                "With checkbox"
-//        ).getRoot());
+        setupSourcePreference("localSource", LangHelper.getLang().getString("local_source"));
+        setupSourcePreference("u.gg", "u.gg");
+        setupSourcePreference("champion.gg", "champion.gg");
+        setupSourcePreference("runeforge.gg", "runeforge.gg");
+
+        // Finally display first category
+        displayCategory(categoryControllers.get(0).getCategoryId());
     }
 
-    private void setupPreference(String key, boolean defaultValue, String titleKey, String descKey) {
-        setupPreference(key, defaultValue, titleKey, descKey, null);
+    private void setupCategory(String id, String titleKey) {
+        categoryContents.put(id, new ArrayList<>());
+        SettingsCategoryController controller = new SettingsCategoryController(id, LangHelper.getLang().getString(titleKey), () -> {
+            displayCategory(id);
+        });
+        categoryControllers.add(controller);
+        categoryBar.getChildren().add(controller.getRoot());
     }
 
-    private void setupPreference(String key, boolean defaultValue, String titleKey, String descKey, Consumer<Boolean> additionalAction) {
+    private void setupSimplePreference(String category, String key, boolean defaultValue, String titleKey, String descKey) {
+        setupSimplePreference(category, key, defaultValue, titleKey, descKey, null);
+    }
+
+    private void setupSimplePreference(String category, String key, boolean defaultValue, String titleKey, String descKey, Consumer<Boolean> additionalAction) {
         if (!SimplePreferences.containsKey(key)) {
             SimplePreferences.putBooleanValue(key, defaultValue);
         }
         boolean val = SimplePreferences.getBooleanValue(key, defaultValue);
-        wrapper.getChildren().add(new SettingsItemController(val, selected -> {
+        setupPreference(category, new SettingsItemController(val, selected -> {
             SimplePreferences.putBooleanValue(key, selected);
             if (additionalAction != null) {
                 additionalAction.accept(selected);
             }
             SimplePreferences.save();
         }, LangHelper.getLang().getString(titleKey), LangHelper.getLang().getString(descKey)).getRoot());
+    }
+
+    private void setupSourcePreference(String key, String title) {
+        if (!SimplePreferences.containsKey(key)) {
+            SimplePreferences.putBooleanValue(key, true);
+        }
+        boolean val = SimplePreferences.getBooleanValue(key, true);
+        setupPreference(SOURCES_CATEGORY, new SettingsItemController(val, selected -> {
+            SimplePreferences.putBooleanValue(key, selected);
+            SimplePreferences.save();
+        }, title, LangHelper.getLang().getString("source_msg")).getRoot());
+    }
+
+    private void setupTextPreference(String category, String checkKey, boolean defaultCheck, String textKey, String defaultText, String titleKey, String descKey) {
+        boolean check = SimplePreferences.getBooleanValue(checkKey, defaultCheck);
+        String text = SimplePreferences.getStringValue(textKey, defaultText);
+        setupPreference(category, new SettingsEditItemController(
+                FxUtils.prop(text, FxUtils.delayedChangedListener(
+                        (observable, oldValue, newValue) -> SimplePreferences.putStringValue(textKey, newValue)
+                )),
+                FxUtils.prop(check, (observable, oldValue, newValue) -> SimplePreferences.putBooleanValue(checkKey, newValue)),
+                LangHelper.getLang().getString(titleKey),
+                descKey != null ? LangHelper.getLang().getString(descKey) : null
+        ).getRoot());
+    }
+
+    private void setupTextPreference(String category, String textKey, String defaultText, String titleKey, String descKey) {
+        String text = SimplePreferences.getStringValue(textKey, defaultText);
+        setupPreference(category, new SettingsEditItemController(
+                FxUtils.prop(text, FxUtils.delayedChangedListener(
+                        (observable, oldValue, newValue) -> SimplePreferences.putStringValue(textKey, newValue)
+                )),
+                null,
+                LangHelper.getLang().getString(titleKey),
+                descKey != null ? LangHelper.getLang().getString(descKey) : null
+        ).getRoot());
+    }
+
+    private void setupPreference(String category, Node node) {
+        if (category == null) {
+            throw new IllegalArgumentException("Category is null!");
+        }
+        if (!categoryContents.containsKey(category)) {
+            throw new IllegalStateException("Category '" + category + "' is not initialized!");
+        }
+        categoryContents.get(category).add(node);
+    }
+
+    private void displayCategory(String category) {
+        for (SettingsCategoryController controller : categoryControllers) {
+            controller.setSelected(controller.getCategoryId().equals(category));
+        }
+        wrapper.getChildren().clear();
+        wrapper.getChildren().addAll(categoryContents.get(category));
     }
 
     private void restartProgram() {

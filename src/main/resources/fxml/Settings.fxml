@@ -1,10 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
-<Pane fx:id="container" prefHeight="500.0" prefWidth="600.0" style="/*-fx-background-color: #172635;*/"
-      xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1">
-    <Label layoutX="35.0" layoutY="70.0" styleClass="header" text="%settings"/>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Line?>
+
+<Pane fx:id="container" prefHeight="500.0" prefWidth="600.0" style="/*-fx-background-color: #172635;*/" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
+   <HBox fx:id="categoryBar" layoutX="1.0" layoutY="70.0" maxHeight="30.0" maxWidth="598.0" minHeight="30.0" minWidth="598.0" prefHeight="30.0" prefWidth="598.0" spacing="10.0">
+      <padding>
+         <Insets left="10.0" right="10.0" />
+      </padding>
+   </HBox>
+    <Line endX="598.0" layoutX="1.0" layoutY="98.0" stroke="#c7a96d42" strokeWidth="3.0" />
     <ScrollPane fx:id="scroll" layoutX="31.0" layoutY="110.0" prefHeight="376.0" prefWidth="561.0">
         <VBox fx:id="wrapper">
         </VBox>

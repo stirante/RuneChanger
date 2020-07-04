@@ -156,18 +156,30 @@ public class SimplePreferences {
     public static class SettingsKeys {
         public static final String ANTI_AWAY = "antiAway";
         public static final String AUTO_ACCEPT = "autoAccept";
-        public static final String QUICK_REPLIES = "quickReplies";
+        public static final String AUTO_SYNC = "autoSync";
+        public static final String SMART_DISENCHANT = "smartDisenchant";
+        public static final String CHAMPION_SUGGESTIONS = "championSuggestions";
+        public static final String RESTART_ON_DODGE = "restartOnDodge";
+
         public static final String FORCE_ENGLISH = "forceEnglish";
         public static final String AUTO_UPDATE = "autoUpdate";
         public static final String EXPERIMENTAL_CHANNEL = "devChannel";
         public static final String ALWAYS_ON_TOP = "alwaysOnTop";
-        public static final String AUTO_SYNC = "autoSync";
-        public static final String SMART_DISENCHANT = "smartDisenchant";
-        public static final String CHAMPION_SUGGESTIONS = "championSuggestions";
         public static final String ANALYTICS = "analytics";
         public static final String ENABLE_ANIMATIONS = "enableAnimations";
-        public static final String RESTART_ON_DODGE = "restartOnDodge";
         public static final String RUN_AS_ADMIN = "runAsAdmin";
+
+        public static final String AUTO_MESSAGE = "autoMessage";
+        public static final String AUTO_MESSAGE_TEXT = "autoMessageText";
+        public static final String CUSTOM_MESSAGE = "customMessage";
+        public static final String CUSTOM_MESSAGE_TEXT = "customMessageText";
+
+        public static final String QUICK_REPLIES = "quickReplies";
+        public static final String ADC_MESSAGE = "adcMsg";
+        public static final String SUPP_MESSAGE = "suppMsg";
+        public static final String MID_MESSAGE = "midMsg";
+        public static final String JUNGLE_MESSAGE = "jungleMsg";
+        public static final String TOP_MESSAGE = "topMsg";
     }
 
     public static class InternalKeys {

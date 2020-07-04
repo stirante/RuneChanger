@@ -36,7 +36,8 @@ public class SourceStore {
      */
     public static void getRunes(Champion champion, GameMode mode, ObservableList<RunePage> pages) {
         sources.stream()
-                .filter(source -> source instanceof RuneSource)
+                .filter(source -> source instanceof RuneSource &&
+                        SimplePreferences.getBooleanValue(source.getSourceKey(), true))
                 .map(source -> (RuneSource) source)
                 .forEach(runeSource ->
                         RuneChanger.EXECUTOR_SERVICE.submit(() -> runeSource.getRunesForChampion(champion, mode, pages))
@@ -51,7 +52,8 @@ public class SourceStore {
     public static Future<CounterData> getCounterData(Champion champion) {
         CompletableFuture<CounterData> result = new CompletableFuture<>();
         CounterSource counterSource = sources.stream()
-                .filter(source -> source instanceof CounterSource)
+                .filter(source -> source instanceof CounterSource &&
+                        SimplePreferences.getBooleanValue(source.getSourceKey(), true))
                 .map(source -> (CounterSource) source)
                 .findFirst().orElse(null);
         if (counterSource != null) {
@@ -70,7 +72,8 @@ public class SourceStore {
      */
     public static void getRemoteRunes(Champion champion, ObservableList<RunePage> pages) {
         sources.stream()
-                .filter(source -> source instanceof RuneSource && !(source instanceof LocalSource))
+                .filter(source -> source instanceof RuneSource && !(source instanceof LocalSource) &&
+                        SimplePreferences.getBooleanValue(source.getSourceKey(), true))
                 .map(source -> (RuneSource) source)
                 .forEach(runeSource -> {
                             if (runeSource.hasGameModeSpecific()) {

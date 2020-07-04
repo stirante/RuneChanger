@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.Cursor?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.shape.Line?>
+
+<Pane maxWidth="130.0" minWidth="130.0" onMouseClicked="#handleMouseClicked" prefWidth="130.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
+    <Label fx:id="name" maxWidth="130.0" minWidth="130.0" prefWidth="130.0" styleClass="header" text="%settings" />
+    <Line fx:id="line" endX="130.0" layoutY="27.5" stroke="#c6a96d" strokeWidth="3.0" />
+   <cursor>
+      <Cursor fx:constant="HAND" />
+   </cursor>
+</Pane>

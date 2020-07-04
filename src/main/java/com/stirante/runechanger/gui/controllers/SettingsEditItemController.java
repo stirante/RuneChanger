@@ -48,7 +48,9 @@ public class SettingsEditItemController {
         this.text.textProperty().setValue(text.getValue());
         this.text.textProperty().addListener((observable, oldValue, newValue) -> text.setValue(newValue));
         this.title.setText(title);
-        this.description.setText("(" + description + ")");
+        if (description != null && !description.isEmpty()) {
+            this.description.setText("(" + description + ")");
+        }
     }
 
     public Pane getRoot() {

@@ -26,4 +26,9 @@ public class LocalSource implements RuneSource {
     public String getSourceName() {
         return LangHelper.getLang().getString("local_source");
     }
+
+    @Override
+    public String getSourceKey() {
+        return "localSource";
+    }
 }
