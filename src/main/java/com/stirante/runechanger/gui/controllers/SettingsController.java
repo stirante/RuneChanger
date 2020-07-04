@@ -6,6 +6,11 @@ import com.stirante.runechanger.util.*;
 import javafx.animation.Animation;
 import javafx.animation.Interpolator;
 import javafx.animation.Transition;
+import javafx.application.Platform;
+import javafx.beans.property.Property;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -19,6 +24,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.function.Consumer;
 
 public class SettingsController implements Content {
@@ -57,7 +64,7 @@ public class SettingsController implements Content {
         setupPreference(SimplePreferences.SettingsKeys.AUTO_ACCEPT, false, "auto_queue", "auto_queue_message");
         setupPreference(SimplePreferences.SettingsKeys.RESTART_ON_DODGE, false, "restart_on_dodge", "restart_on_dodge_message");
         setupPreference(SimplePreferences.SettingsKeys.ANTI_AWAY, false, "no_away", "no_away_message");
-        setupPreference(SimplePreferences.SettingsKeys.AUTO_SYNC, false, "auto_sync_pages", "auto_sync_pages_message", seelcted -> tryRestart());
+        setupPreference(SimplePreferences.SettingsKeys.AUTO_SYNC, false, "auto_sync_pages", "auto_sync_pages_message", selected -> tryRestart());
         setupPreference(SimplePreferences.SettingsKeys.SMART_DISENCHANT, false, "smart_disenchant", "smart_disenchant_message");
         setupPreference(SimplePreferences.SettingsKeys.CHAMPION_SUGGESTIONS, true, "champion_suggestions", "champion_suggestions_message");
         setupPreference(SimplePreferences.SettingsKeys.AUTO_UPDATE, true, "autoupdate_state", "autoupdate_message");
@@ -77,6 +84,23 @@ public class SettingsController implements Content {
                 LangHelper.getLang().getString("autostart"),
                 LangHelper.getLang().getString("autostart_message")
         ).getRoot());
+
+//        wrapper.getChildren().add(new SettingsEditItemController(
+//                FxUtils.prop("Initial text", (observable, oldValue, newValue) -> {
+//                    System.out.println("Text changed to " + newValue);
+//                }),
+//                null,
+//                "Test text value",
+//                "Without checkbox"
+//        ).getRoot());
+//        wrapper.getChildren().add(new SettingsEditItemController(
+//                FxUtils.prop("Initial text", FxUtils.delayedChangedListener(
+//                        (observable, oldValue, newValue) -> System.out.println("Text changed to " + newValue)
+//                )),
+//                FxUtils.prop(false, (observable, oldValue, newValue) -> System.out.println("Checked: " + newValue)),
+//                "Test text value",
+//                "With checkbox"
+//        ).getRoot());
     }
 
     private void setupPreference(String key, boolean defaultValue, String titleKey, String descKey) {

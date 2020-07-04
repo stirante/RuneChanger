@@ -1,6 +1,10 @@
 package com.stirante.runechanger.util;
 
 import javafx.application.Platform;
+import javafx.beans.property.Property;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.geometry.VPos;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.text.Font;
@@ -10,9 +14,15 @@ import javafx.util.Pair;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class FxUtils {
 
+    /**
+     * Executes runnable on FX thread or runs it, if it's already FX thread
+     * @param runnable runnable to execute
+     */
     public static void doOnFxThread(Runnable runnable) {
         if (Platform.isFxApplicationThread()) {
             runnable.run();
@@ -106,6 +116,63 @@ public class FxUtils {
             }
             x += widths.get(i);
         }
+    }
+
+    /**
+     * Creates ChangeListener, that fires original only after no change has been made for specified time
+     * @param onChange ChangeListener to fire
+     * @param delay specified time in milliseconds, after which the listener will be fired
+     * @param <T> type
+     * @return ChangeListener, that will be delayed
+     */
+    public static <T> ChangeListener<T> delayedChangedListener(ChangeListener<T> onChange, long delay) {
+        return new ChangeListener<T>() {
+            private Timer timer;
+            private T oValue;
+            private T nValue;
+            private ObservableValue<? extends T> observableValue;
+
+            @Override
+            public void changed(ObservableValue<? extends T> observable, T oldValue, T newValue) {
+                nValue = newValue;
+                if (oValue == null) {
+                    oValue = oldValue;
+                    observableValue = observable;
+                }
+                if (timer != null) {
+                    timer.cancel();
+                }
+                timer = new Timer();
+                timer.schedule(new TimerTask() {
+                    @Override
+                    public void run() {
+                        doOnFxThread(() -> {
+                            onChange.changed(observableValue, oValue, nValue);
+                            observableValue = null;
+                            oValue = null;
+                        });
+                    }
+                }, delay);
+            }
+
+        };
+    }
+
+    /**
+     * Creates ChangeListener, that fires original only after no change has been made for one second
+     * @param onChange ChangeListener to fire
+     * @param <T> type
+     * @return ChangeListener, that will be delayed
+     */
+    public static <T> ChangeListener<T> delayedChangedListener(ChangeListener<T> onChange) {
+        return delayedChangedListener(onChange, 1000);
+    }
+
+
+    public static <T> Property<T> prop(T initialValue, ChangeListener<T> onChange) {
+        SimpleObjectProperty<T> prop = new SimpleObjectProperty<>(initialValue);
+        prop.addListener(onChange);
+        return prop;
     }
 
 }
