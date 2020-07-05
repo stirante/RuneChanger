@@ -80,10 +80,10 @@ public class SettingsController implements Content {
                 SimplePreferences.SettingsKeys.AUTO_MESSAGE, false,
                 SimplePreferences.SettingsKeys.AUTO_MESSAGE_TEXT, "",
                 "auto_message", "auto_message_desc");
-//        setupTextPreference(MESSAGES_CATEGORY,
-//                SimplePreferences.SettingsKeys.CUSTOM_MESSAGE, false,
-//                SimplePreferences.SettingsKeys.CUSTOM_MESSAGE_TEXT, "",
-//                "custom_message", "custom_message_desc");
+        setupTextPreference(MESSAGES_CATEGORY,
+                SimplePreferences.SettingsKeys.CUSTOM_MESSAGE, false,
+                SimplePreferences.SettingsKeys.CUSTOM_MESSAGE_TEXT, "",
+                "custom_message", "custom_message_desc");
         setupTextPreference(MESSAGES_CATEGORY,
                 SimplePreferences.SettingsKeys.ADC_MESSAGE, "bot",
                 "custom_adc_message", null);

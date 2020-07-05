@@ -5,7 +5,6 @@ import com.stirante.runechanger.gui.Constants;
 import com.stirante.runechanger.gui.SceneType;
 import com.stirante.runechanger.model.client.GameMap;
 import com.stirante.runechanger.util.AnalyticsUtil;
-import com.stirante.runechanger.util.LangHelper;
 import com.stirante.runechanger.util.SimplePreferences;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,9 +23,9 @@ public class QuickReplies extends OverlayLayer {
             "supp",
             "jungle",
             "mid",
-            "top"//,
-            //TODO: custom message
-//            ""
+            "top",
+            //Must be empty, it's placeholder for custom message
+            ""
     };
     private final String[] messageKeys = new String[]{
             SimplePreferences.SettingsKeys.ADC_MESSAGE,
@@ -36,7 +35,7 @@ public class QuickReplies extends OverlayLayer {
             SimplePreferences.SettingsKeys.TOP_MESSAGE,
             SimplePreferences.SettingsKeys.CUSTOM_MESSAGE_TEXT
     };
-    private final Rectangle[] rectangles = new Rectangle[5];
+    private final Rectangle[] rectangles = new Rectangle[6];
 
     public QuickReplies(ClientOverlay overlay) {
         super(overlay);
@@ -46,8 +45,7 @@ public class QuickReplies extends OverlayLayer {
             icons[2] = ImageIO.read(getClass().getResourceAsStream("/images/icon-position-jungle.png"));
             icons[3] = ImageIO.read(getClass().getResourceAsStream("/images/icon-position-middle.png"));
             icons[4] = ImageIO.read(getClass().getResourceAsStream("/images/icon-position-top.png"));
-            //TODO: custom message
-            icons[5] = ImageIO.read(getClass().getResourceAsStream("/images/icon-position-top.png"));
+            icons[5] = ImageIO.read(getClass().getResourceAsStream("/images/send.png"));
         } catch (IOException e) {
             log.error("Exception occurred while loading position icons", e);
             AnalyticsUtil.addCrashReport(e, "Exception occurred while loading position icons", false);
@@ -59,33 +57,65 @@ public class QuickReplies extends OverlayLayer {
 
     @Override
     protected void draw(Graphics g) {
-        //TODO: custom message
-        if (getSceneType() == SceneType.CHAMPION_SELECT &&
-                SimplePreferences.getBooleanValue(SimplePreferences.SettingsKeys.QUICK_REPLIES, false)) {
-            if (getRuneChanger().getChampionSelectionModule().isPositionSelector() ||
-                    getRuneChanger().getChampionSelectionModule().getMap() != GameMap.MAP_11) {
-                return;
-            }
-            Graphics2D g2d = (Graphics2D) g;
-            int chatY = (int) (Constants.QUICK_CHAT_Y * getHeight());
-            int chatX = (int) (Constants.QUICK_CHAT_X * getClientWidth());
-            for (int i = 0; i < messages.length; i++) {
-                rectangles[i].x = chatX;
-                rectangles[i].y = chatY;
-                rectangles[i].width = 15;
-                rectangles[i].height = 15;
-                //we give it a background, since otherwise it wouldn't be clickable everywhere
-                g2d.setPaint(DARKEN_COLOR);
-                g2d.fillRect(chatX, chatY, 15, 15);
-                g2d.drawImage(icons[i], chatX, chatY, 15, 15, null);
-                chatX += 25;
+        //TODO: This needs MAJOR refactoring, please someone do this for me
+        if (getSceneType() == SceneType.CHAMPION_SELECT) {
+            String customMessage =
+                    SimplePreferences.getStringValue(SimplePreferences.SettingsKeys.CUSTOM_MESSAGE_TEXT, "");
+            boolean isQuickReplies =
+                    SimplePreferences.getBooleanValue(SimplePreferences.SettingsKeys.QUICK_REPLIES, false);
+            boolean isCustomMessage =
+                    SimplePreferences.getBooleanValue(SimplePreferences.SettingsKeys.CUSTOM_MESSAGE, false) &&
+                            customMessage != null && !customMessage.isEmpty();
+            if (isQuickReplies || isCustomMessage) {
+                boolean onlyCustomMessage = isCustomMessage && !isQuickReplies;
+                if ((getRuneChanger().getChampionSelectionModule().isPositionSelector() ||
+                        getRuneChanger().getChampionSelectionModule().getMap() != GameMap.MAP_11)) {
+                    if (isCustomMessage) {
+                        onlyCustomMessage = true;
+                    }
+                    else {
+                        return;
+                    }
+                }
+                Graphics2D g2d = (Graphics2D) g;
+                int chatY = (int) (Constants.QUICK_CHAT_Y * getHeight());
+                int chatX = (int) (Constants.QUICK_CHAT_X * getClientWidth());
+                for (int i = onlyCustomMessage ? 5 : 0; i < (isCustomMessage ? messages.length : messages.length - 1); i++) {
+                    rectangles[i].x = chatX;
+                    rectangles[i].y = chatY;
+                    rectangles[i].width = 15;
+                    rectangles[i].height = 15;
+                    //we give it a background, since otherwise it wouldn't be clickable everywhere
+                    g2d.setPaint(DARKEN_COLOR);
+                    g2d.fillRect(chatX, chatY, 15, 15);
+                    g2d.drawImage(icons[i], chatX, chatY, 15, 15, null);
+                    chatX += 25;
+                }
             }
         }
     }
 
     public void mouseReleased(MouseEvent e) {
+        //TODO: This needs MAJOR refactoring, please someone do this for me
         RuneChanger.EXECUTOR_SERVICE.submit(() -> {
-            for (int i = 0; i < rectangles.length; i++) {
+            String customMessage =
+                    SimplePreferences.getStringValue(SimplePreferences.SettingsKeys.CUSTOM_MESSAGE_TEXT, "");
+            boolean isQuickReplies =
+                    SimplePreferences.getBooleanValue(SimplePreferences.SettingsKeys.QUICK_REPLIES, false);
+            boolean isCustomMessage =
+                    SimplePreferences.getBooleanValue(SimplePreferences.SettingsKeys.CUSTOM_MESSAGE, false) &&
+                            customMessage != null && !customMessage.isEmpty();
+            boolean onlyCustomMessage = isCustomMessage && !isQuickReplies;
+            if ((getRuneChanger().getChampionSelectionModule().isPositionSelector() ||
+                    getRuneChanger().getChampionSelectionModule().getMap() != GameMap.MAP_11)) {
+                if (isCustomMessage) {
+                    onlyCustomMessage = true;
+                }
+                else {
+                    return;
+                }
+            }
+            for (int i = onlyCustomMessage ? 5 : 0; i < (isCustomMessage ? rectangles.length : rectangles.length - 1); i++) {
                 Rectangle rectangle = rectangles[i];
                 if (rectangle.contains(e.getX(), e.getY())) {
                     String message = SimplePreferences.getStringValue(messageKeys[i], messages[i]);
