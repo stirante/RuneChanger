@@ -20,11 +20,12 @@ public class QuickReplies extends OverlayLayer {
     private static final Logger log = LoggerFactory.getLogger(QuickReplies.class);
     private final BufferedImage[] icons = new BufferedImage[6];
     private final String[] messages = new String[]{
-            LangHelper.getLang().getString("bot_msg"),
-            LangHelper.getLang().getString("supp_msg"),
-            LangHelper.getLang().getString("jungle_msg"),
-            LangHelper.getLang().getString("mid_msg"),
-            LangHelper.getLang().getString("top_msg")//,
+            "bot",
+            "supp",
+            "jungle",
+            "mid",
+            "top"//,
+            //TODO: custom message
 //            ""
     };
     private final String[] messageKeys = new String[]{
@@ -45,6 +46,7 @@ public class QuickReplies extends OverlayLayer {
             icons[2] = ImageIO.read(getClass().getResourceAsStream("/images/icon-position-jungle.png"));
             icons[3] = ImageIO.read(getClass().getResourceAsStream("/images/icon-position-middle.png"));
             icons[4] = ImageIO.read(getClass().getResourceAsStream("/images/icon-position-top.png"));
+            //TODO: custom message
             icons[5] = ImageIO.read(getClass().getResourceAsStream("/images/icon-position-top.png"));
         } catch (IOException e) {
             log.error("Exception occurred while loading position icons", e);
@@ -57,6 +59,7 @@ public class QuickReplies extends OverlayLayer {
 
     @Override
     protected void draw(Graphics g) {
+        //TODO: custom message
         if (getSceneType() == SceneType.CHAMPION_SELECT &&
                 SimplePreferences.getBooleanValue(SimplePreferences.SettingsKeys.QUICK_REPLIES, false)) {
             if (getRuneChanger().getChampionSelectionModule().isPositionSelector() ||
