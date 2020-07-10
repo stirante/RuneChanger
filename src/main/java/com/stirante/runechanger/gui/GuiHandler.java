@@ -13,14 +13,10 @@ import com.stirante.runechanger.gui.overlay.RuneMenu;
 import com.stirante.runechanger.model.client.Champion;
 import com.stirante.runechanger.model.client.RunePage;
 import com.stirante.runechanger.sourcestore.SourceStore;
-import com.stirante.runechanger.util.AnalyticsUtil;
-import com.stirante.runechanger.util.LangHelper;
-import com.stirante.runechanger.util.NativeUtils;
-import com.stirante.runechanger.util.PerformanceMonitor;
+import com.stirante.runechanger.util.*;
 import com.sun.jna.platform.win32.Advapi32Util;
 import com.sun.jna.platform.win32.User32;
 import com.sun.jna.platform.win32.WinDef;
-import javafx.beans.InvalidationListener;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import org.slf4j.Logger;
@@ -29,9 +25,9 @@ import org.slf4j.LoggerFactory;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import java.util.ResourceBundle;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantLock;
@@ -227,6 +223,29 @@ public class GuiHandler {
             MenuItem settings = new MenuItem(resourceBundle.getString("show_gui"));
             settings.addActionListener(e -> Settings.show());
             trayPopupMenu.add(settings);
+
+            MenuItem launchLol = new MenuItem(resourceBundle.getString("launch_lol"));
+            String clientPath = SimplePreferences.getStringValue(SimplePreferences.InternalKeys.CLIENT_PATH, "");
+            File file = new File(clientPath);
+            if (!clientPath.isEmpty() && file.exists() && new File(file.getParentFile(), "Riot Client").exists()) {
+                launchLol.addActionListener(e -> {
+                    try {
+                        File riotPath = new File(file.getParentFile(), "Riot Client");
+                        new ProcessBuilder(new File(riotPath, "RiotClientServices.exe").getAbsolutePath(),
+                                "--launch-product=league_of_legends",
+                                "--launch-patchline=live")
+                                .directory(riotPath)
+                                .start();
+                    } catch (IOException ioException) {
+                        log.error("Exception occurred while launching LoL", ioException);
+                        showErrorMessage(LangHelper.getLang().getString("failed_launch_lol"));
+                    }
+                });
+            }
+            else {
+                launchLol.setEnabled(false);
+            }
+            trayPopupMenu.add(launchLol);
 
             MenuItem close = new MenuItem(resourceBundle.getString("exit"));
             close.addActionListener(e -> {
