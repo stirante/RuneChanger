@@ -342,13 +342,17 @@ public class RuneChanger implements Launcher {
                     if (Countly.isInitialized()) {
                         Countly.session().end();
                     }
-                    resetModules();
-                    gui.setSceneType(SceneType.NONE);
-                    if (gui.isWindowOpen()) {
-                        gui.closeWindow();
+                    if (SimplePreferences.getBooleanValue(SimplePreferences.SettingsKeys.AUTO_EXIT, false)) {
+                        System.exit(0);
+                    } else {
+                        resetModules();
+                        gui.setSceneType(SceneType.NONE);
+                        if (gui.isWindowOpen()) {
+                            gui.closeWindow();
+                        }
+                        gui.showInfoMessage(LangHelper.getLang().getString("client_disconnected"));
+                        Settings.setClientConnected(false);
                     }
-                    gui.showInfoMessage(LangHelper.getLang().getString("client_disconnected"));
-                    Settings.setClientConnected(false);
                 }
             });
         }

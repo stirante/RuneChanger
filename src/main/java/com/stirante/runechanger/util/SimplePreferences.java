@@ -168,6 +168,7 @@ public class SimplePreferences {
         public static final String ANALYTICS = "analytics";
         public static final String ENABLE_ANIMATIONS = "enableAnimations";
         public static final String RUN_AS_ADMIN = "runAsAdmin";
+        public static final String AUTO_EXIT = "autoExit";
 
         public static final String AUTO_MESSAGE = "autoMessage";
         public static final String AUTO_MESSAGE_TEXT = "autoMessageText";

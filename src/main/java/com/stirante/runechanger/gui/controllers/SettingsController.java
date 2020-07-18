@@ -117,6 +117,7 @@ public class SettingsController implements Content {
         setupSimplePreference(APP_CATEGORY, SimplePreferences.SettingsKeys.ANALYTICS, true, "enable_analytics", "enable_analytics_message", AnalyticsUtil::onConsent);
         setupSimplePreference(APP_CATEGORY, SimplePreferences.SettingsKeys.ENABLE_ANIMATIONS, true, "enable_animations", "enable_animations_message");
         setupSimplePreference(APP_CATEGORY, SimplePreferences.SettingsKeys.RUN_AS_ADMIN, false, "run_as_admin", "run_as_admin_message", selected -> tryRestart());
+        setupSimplePreference(APP_CATEGORY, SimplePreferences.SettingsKeys.AUTO_EXIT, false, "exit_rune_changer_with_client", "exit_rune_changer_with_client_message");
         setupPreference(APP_CATEGORY, new SettingsItemController(
                 AutoStartUtils.isAutoStartEnabled(),
                 AutoStartUtils::setAutoStart,
