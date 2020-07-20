@@ -296,7 +296,7 @@ public class RuneMenu extends OverlayLayer {
                 e.getY() < (getHeight() * Constants.RUNE_BUTTON_POSITION_Y) + icon.getHeight()) {
             opened = !opened;
         }
-        else if (selectedRunePageIndex != -1) {
+        else if (selectedRunePageIndex > -1) {
             RuneChanger.getInstance().getRunesModule().setCurrentRunePage(pages.get(selectedRunePageIndex));
             opened = !opened;
         }
@@ -346,7 +346,7 @@ public class RuneMenu extends OverlayLayer {
         }
         if (runePageIndex != selectedRunePageIndex) {
             // Prevent getting nonexistent rune page
-            selectedRunePageIndex = runePageIndex >= pages.size() ? -1 : runePageIndex;
+            selectedRunePageIndex = runePageIndex >= pages.size() || runePageIndex < 0 ? -1 : runePageIndex;
             repaintNow();
         }
     }
