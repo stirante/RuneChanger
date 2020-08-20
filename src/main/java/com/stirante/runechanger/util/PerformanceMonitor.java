@@ -48,10 +48,11 @@ public class PerformanceMonitor {
 
     private static String perfmonHtml;
 
-    private static AtomicBoolean running = new AtomicBoolean(false);
-    private static LinkedList<PerformanceEvent> events = new LinkedList<>();
-    private static ReentrantLock eventLock = new ReentrantLock();
+    private static final AtomicBoolean running = new AtomicBoolean(false);
+    private static final LinkedList<PerformanceEvent> events = new LinkedList<>();
+    private static final ReentrantLock eventLock = new ReentrantLock();
     private static Future<?> future;
+    private static final Timer timer = new Timer();
 
     private static long prevKernelSystemTime = -1L;
     private static long prevUserSystemTime = -1L;
@@ -113,7 +114,46 @@ public class PerformanceMonitor {
             }
         }
         EventBus.register(PerformanceMonitor.class);
-        future = RuneChanger.EXECUTOR_SERVICE.submit(PerformanceMonitor::mainLoop);
+        timer.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                if (running.get()) {
+                    pushEvent(EventType.RESOURCE_USAGE, new UsageBean());
+                } else {
+                    eventLock.lock();
+                    Map<String, Object> outData = new HashMap<>();
+                    outData.put("hardware", Hardware.getAllHardwareInfo());
+                    outData.put("startTime", monitorStart);
+                    outData.put("version", Version.INSTANCE.version);
+                    outData.put("commit", Version.INSTANCE.commitId);
+                    outData.put("branch", Version.INSTANCE.branch);
+                    outData.put("events", new ArrayList<>(events));
+                    String s = new Gson().toJson(outData);
+                    new File("performance").mkdir();
+                    File file = new File(
+                            "performance/" + new SimpleDateFormat("yyyy-MM-dd HH-mm-ss").format(new Date(monitorStart)) + ".html");
+                    try {
+                        Files.writeString(file.getAbsoluteFile().toPath(), perfmonHtml.replace("{{data}}", s));
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    log.info("Saving performance monitor output in " + file.getAbsolutePath());
+                    running.set(false);
+                    prevKernelSystemTime = -1L;
+                    prevUserSystemTime = -1L;
+                    prevKernelProcessTime = -1L;
+                    prevUserProcessTime = -1L;
+                    cpuUsage = 0;
+                    lastCheck = -1L;
+                    monitorStart = -1L;
+                    events.clear();
+                    System.gc();
+                    eventLock.unlock();
+                    timer.cancel();
+                    timer.purge();
+                }
+            }
+        }, 0, 1000);
         running.set(true);
         monitorStart = System.currentTimeMillis();
     }
@@ -160,47 +200,6 @@ public class PerformanceMonitor {
             events.add(new PerformanceEvent(type, additionalInfo));
             eventLock.unlock();
         });
-    }
-
-    private static boolean mainLoop() {
-        while (running.get()) {
-            pushEvent(EventType.RESOURCE_USAGE, new UsageBean());
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-        eventLock.lock();
-        Map<String, Object> outData = new HashMap<>();
-        outData.put("hardware", Hardware.getAllHardwareInfo());
-        outData.put("startTime", monitorStart);
-        outData.put("version", Version.INSTANCE.version);
-        outData.put("commit", Version.INSTANCE.commitId);
-        outData.put("branch", Version.INSTANCE.branch);
-        outData.put("events", new ArrayList<>(events));
-        String s = new Gson().toJson(outData);
-        new File("performance").mkdir();
-        File file = new File(
-                "performance/" + new SimpleDateFormat("yyyy-MM-dd HH-mm-ss").format(new Date(monitorStart)) + ".html");
-        try {
-            Files.writeString(file.getAbsoluteFile().toPath(), perfmonHtml.replace("{{data}}", s));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        log.info("Saving performance monitor output in " + file.getAbsolutePath());
-        running.set(false);
-        prevKernelSystemTime = -1L;
-        prevUserSystemTime = -1L;
-        prevKernelProcessTime = -1L;
-        prevUserProcessTime = -1L;
-        cpuUsage = 0;
-        lastCheck = -1L;
-        monitorStart = -1L;
-        events.clear();
-        System.gc();
-        eventLock.unlock();
-        return true;
     }
 
     private static boolean isFirstCheck() {
