@@ -1,26 +1,11 @@
 package com.stirante.runechanger.gui.controllers;
 
-import ch.qos.logback.classic.Logger;
-import ch.qos.logback.classic.LoggerContext;
-import ch.qos.logback.classic.spi.ILoggingEvent;
-import ch.qos.logback.core.Appender;
-import ch.qos.logback.core.FileAppender;
-import com.google.gson.Gson;
 import com.stirante.runechanger.gui.Content;
-import com.stirante.runechanger.gui.Settings;
 import com.stirante.runechanger.model.client.Champion;
-import com.stirante.runechanger.model.log.LogRequest;
-import com.stirante.runechanger.util.AnalyticsUtil;
-import com.stirante.runechanger.util.AsyncTask;
-import com.stirante.runechanger.util.Hardware;
 import com.stirante.runechanger.util.LangHelper;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
 import javafx.scene.control.Button;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.ProgressBar;
 import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
@@ -32,14 +17,8 @@ import org.controlsfx.control.textfield.AutoCompletionBinding;
 import org.controlsfx.control.textfield.TextFields;
 import org.slf4j.LoggerFactory;
 
-import java.awt.*;
-import java.awt.datatransfer.Clipboard;
-import java.awt.datatransfer.StringSelection;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -49,7 +28,7 @@ public class MainController {
 
     public TextField search;
     public ImageView back;
-    public Button report;
+//    public Button report;
     public Pane fullContentPane;
     public Pane contentPane;
     public Pane container;
@@ -84,7 +63,7 @@ public class MainController {
         autoCompletion.setOnAutoCompleted(this::onSearch);
         autoCompletion.prefWidthProperty().bind(search.widthProperty());
         back.setVisible(false);
-        report.getTooltip().setShowDelay(Duration.ZERO);
+//        report.getTooltip().setShowDelay(Duration.ZERO);
     }
 
     public void setFullContent(Content content) {
@@ -96,7 +75,7 @@ public class MainController {
         fullContentPane.getChildren().add(content.getNode());
         fullContentPane.setVisible(true);
         contentPane.setVisible(false);
-        report.setVisible(false);
+//        report.setVisible(false);
         back.setVisible(true);
     }
 
@@ -109,60 +88,8 @@ public class MainController {
         contentPane.getChildren().add(content.getNode());
         contentPane.setVisible(true);
         fullContentPane.setVisible(false);
-        report.setVisible(true);
+//        report.setVisible(true);
         back.setVisible(false);
-    }
-
-    @FXML
-    public void onBugReport(ActionEvent actionEvent) {
-        ProgressDialogController progressDialog = new ProgressDialogController();
-        progressDialog.setTitle(LangHelper.getLang().getString("logs_progress"));
-        progressDialog.setProgress(ProgressBar.INDETERMINATE_PROGRESS);
-        progressDialog.show();
-        new AsyncTask<Void, Void, String>() {
-            @Override
-            public String doInBackground(Void[] params) {
-                LoggerContext context = (LoggerContext) LoggerFactory.getILoggerFactory();
-                for (Logger logger : context.getLoggerList()) {
-                    for (Iterator<Appender<ILoggingEvent>> index = logger.iteratorForAppenders(); index.hasNext(); ) {
-                        Appender<ILoggingEvent> appender = index.next();
-                        if (appender instanceof FileAppender) {
-                            try {
-                                byte[] encoded =
-                                        Files.readAllBytes(Paths.get(((FileAppender<ILoggingEvent>) appender).getFile()));
-                                return new LogRequest(new String(encoded) + "\n" +
-                                        new Gson().toJson(Hardware.getAllHardwareInfo())).submit();
-                            } catch (IOException e) {
-                                log.error("Exception occurred while sending a debug log (so ironic)", e);
-                                AnalyticsUtil.addCrashReport(e, "Exception occurred while sending a debug log (so ironic)", false);
-                            }
-                        }
-                    }
-                }
-                return null;
-            }
-
-            @Override
-            public void onPostExecute(String code) {
-                progressDialog.close();
-                if (code != null) {
-                    ButtonType copyBtn = new ButtonType(LangHelper.getLang().getString("copy_code"));
-                    ButtonType result = Settings.openDialog(LangHelper.getLang().getString("logs_sent"),
-                            String.format(LangHelper.getLang().getString("logs_sent_msg"), code),
-                            copyBtn, ButtonType.OK);
-                    if (result == copyBtn) {
-                        StringSelection stringSelection = new StringSelection(code);
-                        Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-                        clipboard.setContents(stringSelection, null);
-                    }
-                }
-                else {
-                    Settings.openDialog(LangHelper.getLang().getString("logs_failed"),
-                            LangHelper.getLang().getString("logs_failed"),
-                            ButtonType.OK);
-                }
-            }
-        }.execute();
     }
 
     @FXML
@@ -213,7 +140,7 @@ public class MainController {
         fullContentPane.getChildren().clear();
         contentPane.setVisible(true);
         fullContentPane.setVisible(false);
-        report.setVisible(true);
+//        report.setVisible(true);
         back.setVisible(false);
     }
 }

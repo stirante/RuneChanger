@@ -51,7 +51,7 @@ public class Settings extends Application {
     private MainController controller;
     private RuneBookController runebook;
     private HomeController home;
-    private EventHandler<KeyEvent> keyPress = this::handleKeyPress;
+    private final EventHandler<KeyEvent> keyPress = this::handleKeyPress;
     private boolean donateDontAsk = false;
 
     public static void initialize() {

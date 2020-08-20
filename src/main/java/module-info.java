@@ -40,7 +40,6 @@ module RuneChanger {
     opens com.stirante.runechanger.sourcestore.impl;
     opens com.stirante.runechanger.model.client;
     opens com.stirante.runechanger.model.app;
-    opens com.stirante.runechanger.model.log;
     opens com.stirante.runechanger.gui.components;
     opens com.stirante.runechanger.gui.controllers;
     opens com.stirante.runechanger.util;
