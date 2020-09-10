@@ -129,6 +129,7 @@ public class SettingsController implements Content {
         setupSourcePreference("u.gg", "u.gg");
         setupSourcePreference("champion.gg", "champion.gg");
         setupSourcePreference("runeforge.gg", "runeforge.gg");
+        setupSourcePreference("lolalytics.com", "Lolalytics");
 
         // Finally display first category
         displayCategory(categoryControllers.get(0).getCategoryId());
