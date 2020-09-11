@@ -8,9 +8,7 @@ import javafx.collections.ObservableList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.io.InputStreamReader;
-import java.lang.reflect.Field;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.HashMap;
@@ -22,10 +20,6 @@ public class LolalyticsSource implements RuneSource {
     private final static String CHAMPION_URL = "https://api.op.lol/champion/3/?patch=%PATCH%tier=platinum_plus&queue=420&region=all&cid=%CHAMPIONID%&lane=%LANE%";
     private static final int TIMEOUT = 10000;
     private Map<Rune, int[]> runeMap;
-
-    public static void main(String[] args) {
-
-    }
 
     private void downloadRunes(Champion champion, ObservableList<RunePage> pages) {
         final String[] lanes = {"Top", "Jungle", "Middle", "Bottom", "Support"};
