@@ -172,12 +172,14 @@ public class ChampionSelection extends ClientModule {
                     gameMode = GameMode.valueOf(lolLobbyLobbyDto.getResponseObject().gameConfig.gameMode);
                 }
                 else {
-                    clearSession();
-                    EventBus.publish(ChampionSelectionEndEvent.NAME, new ChampionSelectionEndEvent());
+                    positionSelector = false;
+                    gameMode = GameMode.CLASSIC;
+                    map = GameMap.MAP_11;
                 }
             } catch (IOException e) {
-                clearSession();
-                EventBus.publish(ChampionSelectionEndEvent.NAME, new ChampionSelectionEndEvent());
+                positionSelector = false;
+                gameMode = GameMode.CLASSIC;
+                map = GameMap.MAP_11;
             } catch (IllegalArgumentException e) {
                 log.error("Exception thrown when updating the gamemode! GameMode.java might not be updated. " +
                         e.getMessage());
