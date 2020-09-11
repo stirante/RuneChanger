@@ -34,15 +34,17 @@ public class LolalyticsSource implements RuneSource {
                 conn.connect();
                 LolalyticsResult jsonData = new Gson().fromJson(new InputStreamReader(conn.getInputStream()), LolalyticsResult.class);
                 conn.getInputStream().close();
-                ConvertedDataPair convertedDataPair = convertRunes(jsonData.display);
+                ConvertedDataPair convertedDataPair = new ConvertedDataPair(jsonData.display);
                 RunePage runePage = calculateRunes(convertedDataPair, RunePageType.MOST_COMMON);
-                if(runePage != null) {
-                    runePage.setChampion(champion);
-                    runePage.setName(lane);
-                    runePage.setSourceName(this.getSourceName());
-                    runePage.setSource("https://lolalytics.com/");
-                    FxUtils.doOnFxThread(() -> pages.add(runePage));
+                if (!runePage.verify()) {
+                    log.error("Runepage has failed verification. Mode: " + RunePageType.MOST_COMMON.name());
+                    return;
                 }
+                runePage.setChampion(champion);
+                runePage.setName(lane);
+                runePage.setSourceName(this.getSourceName());
+                runePage.setSource("https://lolalytics.com/lol/runes/" + champion.getName().replace("'", "").toLowerCase() + "?lane=" + lane + "&patch=" + Patch.getLatest(1).get(0).toString());
+                FxUtils.doOnFxThread(() -> pages.add(runePage));
             }
 
         } catch (Exception e) {
@@ -50,21 +52,6 @@ public class LolalyticsSource implements RuneSource {
         }
     }
 
-    private ConvertedDataPair convertRunes(Display display) {
-        Map<String, Map<Rune, int[]>> runeDataConverted = new HashMap<>();
-        Map<String, Map<Modifier, int[]>> modifierDataConverted = new HashMap<>();
-        runeDataConverted.put("rune1", display.rune1.entrySet().stream().collect(Collectors.toMap(e -> Rune.getById(Integer.parseInt(e.getKey())),
-                Map.Entry::getValue)));
-        runeDataConverted.put("rune2", display.rune2.entrySet().stream().collect(Collectors.toMap(e -> Rune.getById(Integer.parseInt(e.getKey())),
-                Map.Entry::getValue)));
-        modifierDataConverted.put("rune3", display.rune3.entrySet().stream().collect(Collectors.toMap(e -> Modifier.getById(Integer.parseInt(e.getKey())),
-                Map.Entry::getValue)));
-        modifierDataConverted.put("rune4", display.rune4.entrySet().stream().collect(Collectors.toMap(e -> Modifier.getById(Integer.parseInt(e.getKey())),
-                Map.Entry::getValue)));
-        modifierDataConverted.put("rune5", display.rune5.entrySet().stream().collect(Collectors.toMap(e -> Modifier.getById(Integer.parseInt(e.getKey())),
-                Map.Entry::getValue)));
-        return new ConvertedDataPair(runeDataConverted, modifierDataConverted);
-    }
 
     private RunePage calculateRunes(ConvertedDataPair convertedDataPair, RunePageType mode) {
         //Modes: 0 - most common, 1 - most wins
@@ -143,11 +130,6 @@ public class LolalyticsSource implements RuneSource {
             }
             r.getModifiers().add(Objects.requireNonNull(biggestValModifier).getKey());
         }
-
-        if (!r.verify()) {
-            log.error("Failed to verify the runepage.");
-            return null;
-        }
         return r;
 
     }
@@ -170,7 +152,7 @@ public class LolalyticsSource implements RuneSource {
     }
 
     private static class LolalyticsResult {
-        private Display display;
+        private Map<String, Map<String, int[]>> display;
     }
 
     private static class Display {
@@ -184,7 +166,23 @@ public class LolalyticsSource implements RuneSource {
     private class ConvertedDataPair {
         Map<String, Map<Rune, int[]>> runeDataConverted;
         Map<String, Map<Modifier, int[]>> modifierDataConverted;
-        private ConvertedDataPair(Map<String, Map<Rune, int[]>> runeDataConverted, Map<String, Map<Modifier, int[]>> modifierDataConverted) {
+
+        private ConvertedDataPair(Map<String, Map<String, int[]>> rawData) {
+            Map<String, Map<Rune, int[]>> runeDataConverted = new HashMap<>();
+            Map<String, Map<Modifier, int[]>> modifierDataConverted = new HashMap<>();
+
+            //converting runes
+            for(int i = 0; i < 2; i++) {
+                int n = i + 1;
+                runeDataConverted.put("rune" + n, rawData.get("rune" + n).entrySet().stream().collect(Collectors.toMap(e -> Rune.getById(Integer.parseInt(e.getKey())), Map.Entry::getValue)));
+            }
+
+            //converting modifiers
+            for(int i = 2; i < 5; i++) {
+                int n = i + 1;
+                modifierDataConverted.put("rune" + n, rawData.get("rune" + n).entrySet().stream().collect(Collectors.toMap(e -> Modifier.getById(Integer.parseInt(e.getKey())), Map.Entry::getValue)));
+            }
+
             this.runeDataConverted = runeDataConverted;
             this.modifierDataConverted = modifierDataConverted;
         }
