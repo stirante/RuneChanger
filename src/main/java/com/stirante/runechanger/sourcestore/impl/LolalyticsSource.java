@@ -19,25 +19,28 @@ import java.util.stream.Collectors;
 
 public class LolalyticsSource implements RuneSource {
     private static final Logger log = LoggerFactory.getLogger(ChampionGGSource.class);
-    private final static String CHAMPION_URL = "https://api.op.lol/champion/3/?patch=10.18tier=platinum_plus&queue=420&region=all";
+    private final static String CHAMPION_URL = "https://api.op.lol/champion/3/?patch=%PATCH%tier=platinum_plus&queue=420&region=all&cid=%CHAMPIONID%&lane=%LANE%";
     private static final int TIMEOUT = 10000;
     private Map<Rune, int[]> runeMap;
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
 
     }
 
     private void downloadRunes(Champion champion, ObservableList<RunePage> pages) {
-        final String URL = CHAMPION_URL + "&cid=" + champion.getId() + "&lane=";
         final String[] lanes = {"Top", "Jungle", "Middle", "Bottom", "Support"};
         try {
             for (String lane : lanes) {
-                HttpURLConnection conn = (HttpURLConnection) new URL(URL + lane.toLowerCase()).openConnection();
+                final URL url = new URL(CHAMPION_URL
+                        .replace("%PATCH", Patch.getLatest(1).get(0).toString())
+                        .replace("%CHAMPIONID%", Integer.toString(champion.getId()))
+                        .replace("%LANE%", lane.toLowerCase()));
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                 conn.connect();
                 LolalyticsResult jsonData = new Gson().fromJson(new InputStreamReader(conn.getInputStream()), LolalyticsResult.class);
                 conn.getInputStream().close();
-                DisplayConverted displayConverted = convertRunes(jsonData.display);
-                RunePage runePage = calculateRunes(displayConverted, 0);
+                ConvertedDataPair convertedDataPair = convertRunes(jsonData.display);
+                RunePage runePage = calculateRunes(convertedDataPair, 0);
                 runePage.setChampion(champion);
                 runePage.setName(lane);
                 runePage.setSourceName(this.getSourceName());
@@ -50,9 +53,9 @@ public class LolalyticsSource implements RuneSource {
         }
     }
 
-    private DisplayConverted convertRunes(Display display) {
+    private ConvertedDataPair convertRunes(Display display) {
         // Converting all of the results to use the Rune class
-        DisplayConverted displayConverted = new DisplayConverted();
+        /*DisplayConverted displayConverted = new DisplayConverted();
         displayConverted.rune1 = display.rune1.entrySet().stream().collect(Collectors.toMap(e -> Rune.getById(Integer.parseInt(e.getKey())),
                 Map.Entry::getValue));
         displayConverted.rune2 = display.rune2.entrySet().stream().collect(Collectors.toMap(e -> Rune.getById(Integer.parseInt(e.getKey())),
@@ -62,15 +65,27 @@ public class LolalyticsSource implements RuneSource {
         displayConverted.rune4 = display.rune4.entrySet().stream().collect(Collectors.toMap(e -> Modifier.getById(Integer.parseInt(e.getKey())),
                 Map.Entry::getValue));
         displayConverted.rune5 = display.rune5.entrySet().stream().collect(Collectors.toMap(e -> Modifier.getById(Integer.parseInt(e.getKey())),
-                Map.Entry::getValue));
-        return displayConverted;
+                Map.Entry::getValue));*/
+        Map<String, Map<Rune, int[]>> runeDataConverted = new HashMap<>();
+        Map<String, Map<Modifier, int[]>> modifierDataConverted = new HashMap<>();
+        runeDataConverted.put("rune1", display.rune1.entrySet().stream().collect(Collectors.toMap(e -> Rune.getById(Integer.parseInt(e.getKey())),
+                Map.Entry::getValue)));
+        runeDataConverted.put("rune2", display.rune2.entrySet().stream().collect(Collectors.toMap(e -> Rune.getById(Integer.parseInt(e.getKey())),
+                Map.Entry::getValue)));
+        modifierDataConverted.put("rune3", display.rune3.entrySet().stream().collect(Collectors.toMap(e -> Modifier.getById(Integer.parseInt(e.getKey())),
+                Map.Entry::getValue)));
+        modifierDataConverted.put("rune4", display.rune4.entrySet().stream().collect(Collectors.toMap(e -> Modifier.getById(Integer.parseInt(e.getKey())),
+                Map.Entry::getValue)));
+        modifierDataConverted.put("rune5", display.rune5.entrySet().stream().collect(Collectors.toMap(e -> Modifier.getById(Integer.parseInt(e.getKey())),
+                Map.Entry::getValue)));
+        return new ConvertedDataPair(runeDataConverted, modifierDataConverted);
     }
 
-    private RunePage calculateRunes(DisplayConverted displayConverted, int mode) {
+    private RunePage calculateRunes(ConvertedDataPair convertedDataPair, int mode) {
         //Modes: 0 - most common, 1 - most wins
         RunePage r = new RunePage();
         // PRIMARY RUNES
-        Map<Rune, int[]> keystones = displayConverted.rune1.entrySet().stream()
+        Map<Rune, int[]> keystones = convertedDataPair.getRuneDataConverted().get("rune1").entrySet().stream()
                 .filter(map -> map.getKey().getSlot() == 0)
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
@@ -86,7 +101,7 @@ public class LolalyticsSource implements RuneSource {
         r.getRunes().add(biggestValKeystone.getKey());
 
         //Checking which runes are we still able to use
-        Map<Rune, int[]> availablePrimaryRunes = displayConverted.rune1.entrySet().stream()
+        Map<Rune, int[]> availablePrimaryRunes = convertedDataPair.getRuneDataConverted().get("rune1").entrySet().stream()
                 .filter(map -> map.getKey().getStyle() == primaryStyle)
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
         //Checking for a highest scoring rune for each slot
@@ -106,7 +121,7 @@ public class LolalyticsSource implements RuneSource {
         // SECONDARY RUNES
 
         Map.Entry<Rune, int[]> biggestValSecondaryRune = null;
-        for (Map.Entry<Rune, int[]> entry : displayConverted.rune2.entrySet()) {
+        for (Map.Entry<Rune, int[]> entry : convertedDataPair.getRuneDataConverted().get("rune2").entrySet()) {
             if (biggestValSecondaryRune == null || entry.getValue()[mode] > biggestValSecondaryRune.getValue()[mode]) {
                 biggestValSecondaryRune = entry;
             }
@@ -116,7 +131,7 @@ public class LolalyticsSource implements RuneSource {
         r.setSubStyle(secondaryStyle);
         r.getRunes().add(biggestValSecondaryRune.getKey());
 
-        Map<Rune, int[]> remainingSecondaryRunes = displayConverted.rune2.entrySet().stream()
+        Map<Rune, int[]> remainingSecondaryRunes = convertedDataPair.getRuneDataConverted().get("rune2").entrySet().stream()
                 .filter(map -> map.getKey().getStyle() == secondaryStyle && map.getKey().getSlot() != secondaryUsedSlot)
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
@@ -134,20 +149,14 @@ public class LolalyticsSource implements RuneSource {
 
 
         for (int i = 3; i < 6; i++) {
-            try {
-                Field listField = DisplayConverted.class.getDeclaredField("rune" + i);
-                listField.setAccessible(true);
-                Map<Modifier, int[]> modifierList = (Map<Modifier, int[]>) listField.get(displayConverted);
-                Map.Entry<Modifier, int[]> biggestValModifier = null;
-                for (Map.Entry<Modifier, int[]> entry : modifierList.entrySet()) {
-                    if (biggestValModifier == null || entry.getValue()[mode] > biggestRemainingSecondaryRune.getValue()[mode]) {
-                        biggestValModifier = entry;
-                    }
+            Map<Modifier, int[]> modifierList = convertedDataPair.getModifierDataConverted().get("rune" + i);
+            Map.Entry<Modifier, int[]> biggestValModifier = null;
+            for (Map.Entry<Modifier, int[]> entry : modifierList.entrySet()) {
+                if (biggestValModifier == null || entry.getValue()[mode] > biggestRemainingSecondaryRune.getValue()[mode]) {
+                    biggestValModifier = entry;
                 }
-                r.getModifiers().add(biggestValModifier.getKey());
-            } catch (NoSuchFieldException | IllegalAccessException e) {
-                e.printStackTrace();
             }
+            r.getModifiers().add(biggestValModifier.getKey());
         }
 
         if (!r.verify()) {
@@ -193,5 +202,20 @@ public class LolalyticsSource implements RuneSource {
         private Map<Modifier, int[]> rune5;
     }
 
+    private class ConvertedDataPair {
+        Map<String, Map<Rune, int[]>> runeDataConverted;
+        Map<String, Map<Modifier, int[]>> modifierDataConverted;
+        private ConvertedDataPair(Map<String, Map<Rune, int[]>> runeDataConverted, Map<String, Map<Modifier, int[]>> modifierDataConverted) {
+            this.runeDataConverted = runeDataConverted;
+            this.modifierDataConverted = modifierDataConverted;
+        }
+
+        public Map<String, Map<Rune, int[]>> getRuneDataConverted() {
+            return this.runeDataConverted;
+        }
+        public Map<String, Map<Modifier, int[]>> getModifierDataConverted() {
+            return this.modifierDataConverted;
+        }
+    }
 
 }
