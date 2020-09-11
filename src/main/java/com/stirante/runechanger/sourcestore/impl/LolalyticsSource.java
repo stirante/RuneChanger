@@ -51,18 +51,6 @@ public class LolalyticsSource implements RuneSource {
     }
 
     private ConvertedDataPair convertRunes(Display display) {
-        // Converting all of the results to use the Rune class
-        /*DisplayConverted displayConverted = new DisplayConverted();
-        displayConverted.rune1 = display.rune1.entrySet().stream().collect(Collectors.toMap(e -> Rune.getById(Integer.parseInt(e.getKey())),
-                Map.Entry::getValue));
-        displayConverted.rune2 = display.rune2.entrySet().stream().collect(Collectors.toMap(e -> Rune.getById(Integer.parseInt(e.getKey())),
-                Map.Entry::getValue));
-        displayConverted.rune3 = display.rune3.entrySet().stream().collect(Collectors.toMap(e -> Modifier.getById(Integer.parseInt(e.getKey())),
-                Map.Entry::getValue));
-        displayConverted.rune4 = display.rune4.entrySet().stream().collect(Collectors.toMap(e -> Modifier.getById(Integer.parseInt(e.getKey())),
-                Map.Entry::getValue));
-        displayConverted.rune5 = display.rune5.entrySet().stream().collect(Collectors.toMap(e -> Modifier.getById(Integer.parseInt(e.getKey())),
-                Map.Entry::getValue));*/
         Map<String, Map<Rune, int[]>> runeDataConverted = new HashMap<>();
         Map<String, Map<Modifier, int[]>> modifierDataConverted = new HashMap<>();
         runeDataConverted.put("rune1", display.rune1.entrySet().stream().collect(Collectors.toMap(e -> Rune.getById(Integer.parseInt(e.getKey())),
@@ -191,14 +179,6 @@ public class LolalyticsSource implements RuneSource {
         private HashMap<String, int[]> rune3;
         private HashMap<String, int[]> rune4;
         private HashMap<String, int[]> rune5;
-    }
-
-    private static class DisplayConverted {
-        private Map<Rune, int[]> rune1;
-        private Map<Rune, int[]> rune2;
-        private Map<Modifier, int[]> rune3;
-        private Map<Modifier, int[]> rune4;
-        private Map<Modifier, int[]> rune5;
     }
 
     private class ConvertedDataPair {
