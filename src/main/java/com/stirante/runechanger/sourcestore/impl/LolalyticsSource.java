@@ -13,6 +13,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class LolalyticsSource implements RuneSource {
@@ -35,11 +36,13 @@ public class LolalyticsSource implements RuneSource {
                 conn.getInputStream().close();
                 ConvertedDataPair convertedDataPair = convertRunes(jsonData.display);
                 RunePage runePage = calculateRunes(convertedDataPair, 0);
-                runePage.setChampion(champion);
-                runePage.setName(lane);
-                runePage.setSourceName(this.getSourceName());
-                runePage.setSource("https://lolalytics.com/");
-                FxUtils.doOnFxThread(() -> pages.add(runePage));
+                if(runePage != null) {
+                    runePage.setChampion(champion);
+                    runePage.setName(lane);
+                    runePage.setSourceName(this.getSourceName());
+                    runePage.setSource("https://lolalytics.com/");
+                    FxUtils.doOnFxThread(() -> pages.add(runePage));
+                }
             }
 
         } catch (Exception e) {
@@ -90,7 +93,7 @@ public class LolalyticsSource implements RuneSource {
                 biggestValKeystone = entry;
             }
         }
-        final Style primaryStyle = biggestValKeystone.getKey().getStyle();
+        final Style primaryStyle = Objects.requireNonNull(biggestValKeystone).getKey().getStyle();
         r.setMainStyle(primaryStyle);
         r.getRunes().add(biggestValKeystone.getKey());
 
@@ -110,7 +113,7 @@ public class LolalyticsSource implements RuneSource {
                     biggestValRune = entry;
                 }
             }
-            r.getRunes().add(biggestValRune.getKey());
+            r.getRunes().add(Objects.requireNonNull(biggestValRune).getKey());
         }
         // SECONDARY RUNES
 
@@ -120,7 +123,7 @@ public class LolalyticsSource implements RuneSource {
                 biggestValSecondaryRune = entry;
             }
         }
-        final Style secondaryStyle = biggestValSecondaryRune.getKey().getStyle();
+        final Style secondaryStyle = Objects.requireNonNull(biggestValSecondaryRune).getKey().getStyle();
         final int secondaryUsedSlot = biggestValSecondaryRune.getKey().getSlot();
         r.setSubStyle(secondaryStyle);
         r.getRunes().add(biggestValSecondaryRune.getKey());
@@ -137,7 +140,7 @@ public class LolalyticsSource implements RuneSource {
         }
 
 
-        r.getRunes().add(biggestRemainingSecondaryRune.getKey());
+        r.getRunes().add(Objects.requireNonNull(biggestRemainingSecondaryRune).getKey());
 
         //MODIFIERS
 
@@ -150,7 +153,7 @@ public class LolalyticsSource implements RuneSource {
                     biggestValModifier = entry;
                 }
             }
-            r.getModifiers().add(biggestValModifier.getKey());
+            r.getModifiers().add(Objects.requireNonNull(biggestValModifier).getKey());
         }
 
         if (!r.verify()) {
@@ -163,7 +166,9 @@ public class LolalyticsSource implements RuneSource {
 
     @Override
     public void getRunesForChampion(Champion champion, GameMode mode, ObservableList<RunePage> pages) {
-        downloadRunes(champion, pages);
+        if(champion != null) {
+            downloadRunes(champion, pages);
+        }
     }
 
     @Override
