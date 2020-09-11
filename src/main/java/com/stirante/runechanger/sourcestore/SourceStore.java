@@ -5,10 +5,7 @@ import com.stirante.runechanger.model.app.CounterData;
 import com.stirante.runechanger.model.client.Champion;
 import com.stirante.runechanger.model.client.GameMode;
 import com.stirante.runechanger.model.client.RunePage;
-import com.stirante.runechanger.sourcestore.impl.ChampionGGSource;
-import com.stirante.runechanger.sourcestore.impl.LocalSource;
-import com.stirante.runechanger.sourcestore.impl.RuneforgeSource;
-import com.stirante.runechanger.sourcestore.impl.UGGSource;
+import com.stirante.runechanger.sourcestore.impl.*;
 import com.stirante.runechanger.util.SimplePreferences;
 import javafx.collections.ObservableList;
 
@@ -25,6 +22,7 @@ public class SourceStore {
         sources.add(new UGGSource());
         sources.add(new RuneforgeSource());
         sources.add(new ChampionGGSource());
+        sources.add(new LolalyticsSource());
         sources.add(new LocalSource());
     }
 
