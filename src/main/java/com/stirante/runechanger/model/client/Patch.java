@@ -31,7 +31,7 @@ public class Patch {
             conn.connect();
             String[] jsonData = new Gson().fromJson(new InputStreamReader(conn.getInputStream()), String[].class);
             conn.getInputStream().close();
-            patchCache = new ArrayList<Patch>();
+            patchCache = new ArrayList<>();
             for(String patchString : jsonData) {
                 Patch p = Patch.fromString(patchString);
                 if(p != null) {
@@ -43,9 +43,16 @@ public class Patch {
         }
     }
 
-    public static Patch getLatest() {
+    public static List<Patch> getLatest(int n) {
         initPatchCache();
-        return patchCache.get(0);
+        List<Patch> patches = new ArrayList<>();
+        for(int i = 0; i < n; i++) {
+            if(i+1 > patchCache.size()) {
+                break;
+            }
+            patches.add(patchCache.get(i));
+        }
+        return patches;
     }
 
     public static Patch fromString(String patchString) {
@@ -65,11 +72,11 @@ public class Patch {
     }
 
     public String toString() {
-        return Integer.toString(this.patchNumbers[0]) + "." + Integer.toString(this.patchNumbers[1]);
+        return this.patchNumbers[0] + "." + this.patchNumbers[1];
     }
 
     public String toFullString() {
-        return Integer.toString(this.patchNumbers[0]) + "." + Integer.toString(this.patchNumbers[1]) + "." + Integer.toString(this.patchNumbers[2]);
+        return this.patchNumbers[0] + "." + this.patchNumbers[1] + "." + this.patchNumbers[2];
     }
 }
 
