@@ -51,7 +51,6 @@ public class PerformanceMonitor {
     private static final AtomicBoolean running = new AtomicBoolean(false);
     private static final LinkedList<PerformanceEvent> events = new LinkedList<>();
     private static final ReentrantLock eventLock = new ReentrantLock();
-    private static Future<?> future;
     private static final Timer timer = new Timer();
 
     private static long prevKernelSystemTime = -1L;
@@ -161,13 +160,6 @@ public class PerformanceMonitor {
     public static void stop() {
         running.set(false);
         EventBus.unregister(PerformanceMonitor.class);
-        try {
-            if (future != null) {
-                future.get();
-            }
-        } catch (InterruptedException | ExecutionException e) {
-            e.printStackTrace();
-        }
     }
 
     @Subscribe(ClientEventListener.GamePhaseEvent.NAME)
