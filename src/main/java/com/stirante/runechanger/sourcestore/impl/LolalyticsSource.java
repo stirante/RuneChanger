@@ -155,14 +155,6 @@ public class LolalyticsSource implements RuneSource {
         private Map<String, Map<String, int[]>> display;
     }
 
-    private static class Display {
-        private HashMap<String, int[]> rune1;
-        private HashMap<String, int[]> rune2;
-        private HashMap<String, int[]> rune3;
-        private HashMap<String, int[]> rune4;
-        private HashMap<String, int[]> rune5;
-    }
-
     private class ConvertedDataPair {
         Map<String, Map<Rune, int[]>> runeDataConverted;
         Map<String, Map<Modifier, int[]>> modifierDataConverted;
