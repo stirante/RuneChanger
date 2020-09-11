@@ -35,7 +35,7 @@ public class LolalyticsSource implements RuneSource {
                 LolalyticsResult jsonData = new Gson().fromJson(new InputStreamReader(conn.getInputStream()), LolalyticsResult.class);
                 conn.getInputStream().close();
                 ConvertedDataPair convertedDataPair = convertRunes(jsonData.display);
-                RunePage runePage = calculateRunes(convertedDataPair, 0);
+                RunePage runePage = calculateRunes(convertedDataPair, RunePageType.MOST_COMMON);
                 if(runePage != null) {
                     runePage.setChampion(champion);
                     runePage.setName(lane);
@@ -66,7 +66,7 @@ public class LolalyticsSource implements RuneSource {
         return new ConvertedDataPair(runeDataConverted, modifierDataConverted);
     }
 
-    private RunePage calculateRunes(ConvertedDataPair convertedDataPair, int mode) {
+    private RunePage calculateRunes(ConvertedDataPair convertedDataPair, RunePageType mode) {
         //Modes: 0 - most common, 1 - most wins
         RunePage r = new RunePage();
         // PRIMARY RUNES
@@ -77,7 +77,7 @@ public class LolalyticsSource implements RuneSource {
         Map.Entry<Rune, int[]> biggestValKeystone = null;
         //Checking which keystone has the biggest number of plays/wins (depending on mode)
         for (Map.Entry<Rune, int[]> entry : keystones.entrySet()) {
-            if (biggestValKeystone == null || entry.getValue()[mode] > biggestValKeystone.getValue()[mode]) {
+            if (biggestValKeystone == null || entry.getValue()[mode.getIndex()] > biggestValKeystone.getValue()[mode.getIndex()]) {
                 biggestValKeystone = entry;
             }
         }
@@ -97,7 +97,7 @@ public class LolalyticsSource implements RuneSource {
                     .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
             Map.Entry<Rune, int[]> biggestValRune = null;
             for (Map.Entry<Rune, int[]> entry : slotRunes.entrySet()) {
-                if (biggestValRune == null || entry.getValue()[mode] > biggestValRune.getValue()[mode]) {
+                if (biggestValRune == null || entry.getValue()[mode.getIndex()] > biggestValRune.getValue()[mode.getIndex()]) {
                     biggestValRune = entry;
                 }
             }
@@ -107,7 +107,7 @@ public class LolalyticsSource implements RuneSource {
 
         Map.Entry<Rune, int[]> biggestValSecondaryRune = null;
         for (Map.Entry<Rune, int[]> entry : convertedDataPair.getRuneDataConverted().get("rune2").entrySet()) {
-            if (biggestValSecondaryRune == null || entry.getValue()[mode] > biggestValSecondaryRune.getValue()[mode]) {
+            if (biggestValSecondaryRune == null || entry.getValue()[mode.getIndex()] > biggestValSecondaryRune.getValue()[mode.getIndex()]) {
                 biggestValSecondaryRune = entry;
             }
         }
@@ -122,7 +122,7 @@ public class LolalyticsSource implements RuneSource {
 
         Map.Entry<Rune, int[]> biggestRemainingSecondaryRune = null;
         for (Map.Entry<Rune, int[]> entry : remainingSecondaryRunes.entrySet()) {
-            if (biggestRemainingSecondaryRune == null || entry.getValue()[mode] > biggestRemainingSecondaryRune.getValue()[mode]) {
+            if (biggestRemainingSecondaryRune == null || entry.getValue()[mode.getIndex()] > biggestRemainingSecondaryRune.getValue()[mode.getIndex()]) {
                 biggestRemainingSecondaryRune = entry;
             }
         }
@@ -137,7 +137,7 @@ public class LolalyticsSource implements RuneSource {
             Map<Modifier, int[]> modifierList = convertedDataPair.getModifierDataConverted().get("rune" + i);
             Map.Entry<Modifier, int[]> biggestValModifier = null;
             for (Map.Entry<Modifier, int[]> entry : modifierList.entrySet()) {
-                if (biggestValModifier == null || entry.getValue()[mode] > biggestRemainingSecondaryRune.getValue()[mode]) {
+                if (biggestValModifier == null || entry.getValue()[mode.getIndex()] > biggestRemainingSecondaryRune.getValue()[mode.getIndex()]) {
                     biggestValModifier = entry;
                 }
             }
@@ -194,6 +194,19 @@ public class LolalyticsSource implements RuneSource {
         }
         public Map<String, Map<Modifier, int[]>> getModifierDataConverted() {
             return this.modifierDataConverted;
+        }
+    }
+
+    public enum RunePageType {
+        MOST_COMMON(0),
+        MOST_WINS(1);
+        private final int index;
+
+        RunePageType(int index) {
+            this.index = index;
+        }
+        public int getIndex() {
+            return index;
         }
     }
 
