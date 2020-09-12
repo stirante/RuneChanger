@@ -8,6 +8,7 @@ import com.stirante.runechanger.RuneChanger;
 import com.stirante.runechanger.client.ClientEventListener;
 import com.stirante.runechanger.gui.controllers.*;
 import com.stirante.runechanger.model.client.Champion;
+import com.stirante.runechanger.model.client.GameData;
 import com.stirante.runechanger.model.client.RunePage;
 import com.stirante.runechanger.sourcestore.SourceStore;
 import com.stirante.runechanger.util.*;

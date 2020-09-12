@@ -9,9 +9,8 @@ import com.stirante.runechanger.model.app.CounterData;
 import com.stirante.runechanger.model.client.*;
 import com.stirante.runechanger.sourcestore.CounterSource;
 import com.stirante.runechanger.sourcestore.RuneSource;
-import com.stirante.runechanger.util.FxUtils;
+import com.stirante.runechanger.util.SyncingListWrapper;
 import com.stirante.runechanger.util.StringUtils;
-import javafx.collections.ObservableList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,6 +21,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -35,7 +35,6 @@ public class UGGSource implements RuneSource, CounterSource {
     private static final String COUNTERS_PATH = "counters";
     private static final String BASE_URL =
             "https://stats2.u.gg/lol/" + UGG_VERSION + "/%path%/%patch%/%queue%/%championId%/%version%.json";
-    private static final String VERSIONS_URL = "https://ddragon.leagueoflegends.com/api/versions.json";
     private static final String PUBLIC_URL = "https://u.gg/lol/champions/%championName%/build";
     private static final Tier DEFAULT_TIER = Tier.PLATINUM_PLUS;
     private static final Server DEFAULT_SERVER = Server.WORLD;
@@ -45,11 +44,11 @@ public class UGGSource implements RuneSource, CounterSource {
     public static void main(String[] args) throws IOException {
         DebugConsts.enableDebugMode();
         Champion.init();
-//        ObservableList<RunePage> pages = FXCollections.observableArrayList();
-//        new UGGSource().getRunesForChampion(Champion.getByName("blitzcrank"), pages);
-//        for (RunePage page : pages) {
-//            System.out.println(page);
-//        }
+        SyncingListWrapper<RunePage> pages = new SyncingListWrapper<>();
+        new UGGSource().getRunesForGame(GameData.of(Champion.getByName("blitzcrank"), GameMode.CLASSIC), pages);
+        for (RunePage page : pages.getBackingList()) {
+            System.out.println(page);
+        }
         System.out.println(new UGGSource().getCounterData(Champion.getByName("Janna")));
     }
 
@@ -58,13 +57,13 @@ public class UGGSource implements RuneSource, CounterSource {
         return "u.gg";
     }
 
-    public RunePage getForChampion(Champion champion, Tier tier, Position position, Server server, QueueType queue) throws IOException {
-        if (queue == QueueType.ARAM) {
-            position = Position.NONE;
-            tier = Tier.OVERALL;
-        }
-        return getForChampion(getRootObject(champion, OVERVIEW_PATH, OVERVIEW_VERSION, queue), champion, tier, position, server);
-    }
+//    public RunePage getForChampion(Champion champion, Tier tier, Position position, Server server, QueueType queue) throws IOException {
+//        if (queue == QueueType.ARAM) {
+//            position = Position.NONE;
+//            tier = Tier.OVERALL;
+//        }
+//        return getForChampion(getRootObject(champion, OVERVIEW_PATH, OVERVIEW_VERSION, queue), champion, tier, position, server);
+//    }
 
     private JsonObject getRootObject(Champion champion, String path, String version, QueueType queue) throws IOException {
         if (patchString == null) {
@@ -135,52 +134,41 @@ public class UGGSource implements RuneSource, CounterSource {
     }
 
     @Override
-    public void getRunesForChampion(Champion champion, GameMode mode, ObservableList<RunePage> pages) {
+    public void getRunesForGame(GameData data, SyncingListWrapper<RunePage> pages) {
         try {
-            JsonObject root = getRootObject(champion, OVERVIEW_PATH, OVERVIEW_VERSION,
-                    mode == GameMode.ARAM ? QueueType.ARAM : QueueType.RANKED_SOLO);
-            if (mode == GameMode.ARAM) {
-                RunePage page = getForChampion(root, champion, Tier.OVERALL, Position.NONE, DEFAULT_SERVER);
+            JsonObject root = getRootObject(data.getChampion(), OVERVIEW_PATH, OVERVIEW_VERSION,
+                    data.getGameMode() == GameMode.ARAM ? QueueType.ARAM : QueueType.RANKED_SOLO);
+            if (data.getGameMode() == GameMode.ARAM) {
+                RunePage page = getForChampion(root, data.getChampion(), Tier.OVERALL, Position.NONE, DEFAULT_SERVER);
                 if (page == null) {
                     return;
                 }
                 page.setName("ARAM");
-                FxUtils.doOnFxThread(() -> pages.add(page));
+                pages.add(page);
             }
             else {
                 for (Position position : Position.values()) {
-                    RunePage page = getForChampion(root, champion, DEFAULT_TIER, position, DEFAULT_SERVER);
+                    RunePage page = getForChampion(root, data.getChampion(), DEFAULT_TIER, position, DEFAULT_SERVER);
                     if (page == null) {
                         continue;
                     }
-                    FxUtils.doOnFxThread(() -> pages.add(page));
+                    pages.add(page);
                 }
             }
         } catch (IOException e) {
-            log.error("Exception occurred while getting UGG rune page for champion " + champion.getName(), e);
+            log.error("Exception occurred while getting UGG rune page for champion " + data.getChampion().getName(), e);
         }
     }
 
     private void initPatchString() {
-        try {
-            URL url = new URL(VERSIONS_URL);
-            HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
-            InputStream in = urlConnection.getInputStream();
-            JsonArray strings = JsonParser.parseReader(new InputStreamReader(in)).getAsJsonArray();
-            int i = 0;
-            while (patchString == null) {
-                String[] patch = strings.get(i).getAsString().split("\\.");
-                patchString = patch[0] + "_" + patch[1];
-                try {
-                    getRootObject(Champion.getByName("annie"), OVERVIEW_PATH, OVERVIEW_VERSION, QueueType.RANKED_SOLO);
-                } catch (IOException e) {
-                    i++;
-                    patchString = null;
-                }
+        List<Patch> latest = Patch.getLatest(5);
+        for (Patch value : latest) {
+            patchString = value.format("%d_%d");
+            try {
+                getRootObject(Champion.getByName("annie"), OVERVIEW_PATH, OVERVIEW_VERSION, QueueType.RANKED_SOLO);
+                break;
+            } catch (IOException ignored) {
             }
-            in.close();
-        } catch (IOException e) {
-            log.error("Exception occurred while initializing patch string", e);
         }
     }
 
@@ -274,15 +262,15 @@ public class UGGSource implements RuneSource, CounterSource {
     }
 
     @Override
-    public boolean hasGameModeSpecific() {
-        return true;
+    public GameMode[] getSupportedGameModes() {
+        return new GameMode[]{GameMode.CLASSIC, GameMode.ARAM};
     }
 
     private static class CounterChampion implements Comparable<CounterChampion> {
-        private Champion champion;
-        private Position position;
-        private int wins;
-        private int games;
+        private final Champion champion;
+        private final Position position;
+        private final int wins;
+        private final int games;
 
         public CounterChampion(Champion champion, Position position, int wins, int games) {
             this.champion = champion;

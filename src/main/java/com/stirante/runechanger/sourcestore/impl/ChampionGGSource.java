@@ -2,9 +2,8 @@ package com.stirante.runechanger.sourcestore.impl;
 
 import com.stirante.runechanger.model.client.*;
 import com.stirante.runechanger.sourcestore.RuneSource;
-import com.stirante.runechanger.util.FxUtils;
+import com.stirante.runechanger.util.SyncingListWrapper;
 import generated.Position;
-import javafx.collections.ObservableList;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -30,7 +29,7 @@ public class ChampionGGSource implements RuneSource {
     private final static HashMap<Champion, List<String>> pageCache = new HashMap<>();
     private static boolean initialized = false;
 
-    private void extractRunePage(Document webPage, Champion champion, String role, ObservableList<RunePage> pages) {
+    private void extractRunePage(Document webPage, Champion champion, String role, SyncingListWrapper<RunePage> pages) {
         RunePage page = new RunePage();
         page.setSourceName(getSourceName());
         Elements elements = webPage.select("div.o-wrap");
@@ -76,11 +75,11 @@ public class ChampionGGSource implements RuneSource {
         page.setSource(webPage.baseUri());
         page.setChampion(champion);
         if (page.verify() && !pages.contains(page)) {
-            FxUtils.doOnFxThread(() -> pages.add(page));
+            pages.add(page);
         }
     }
 
-    private void extractRunes(Champion champion, ObservableList<RunePage> pages) {
+    private void extractRunes(Champion champion, SyncingListWrapper<RunePage> pages) {
         if (!pageCache.containsKey(champion)) {
             return;
         }
@@ -181,8 +180,8 @@ public class ChampionGGSource implements RuneSource {
     }
 
     @Override
-    public void getRunesForChampion(Champion champion, GameMode mode, ObservableList<RunePage> pages) {
-        extractRunes(champion, pages);
+    public void getRunesForGame(GameData data, SyncingListWrapper<RunePage> pages) {
+        extractRunes(data.getChampion(), pages);
     }
 
     @Override
