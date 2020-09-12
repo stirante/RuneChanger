@@ -31,7 +31,13 @@ public class LolalyticsSource implements RuneSource {
                 LolalyticsResult jsonData =
                         new Gson().fromJson(new InputStreamReader(conn.getInputStream()), LolalyticsResult.class);
                 conn.getInputStream().close();
-                ConvertedDataPair convertedDataPair = new ConvertedDataPair(jsonData.display);
+                ConvertedDataPair convertedDataPair = new ConvertedDataPair(Map.ofEntries(
+                        Map.entry("rune1", jsonData.display.rune1),
+                        Map.entry("rune2", jsonData.display.rune2),
+                        Map.entry("rune3", jsonData.display.rune3),
+                        Map.entry("rune4", jsonData.display.rune4),
+                        Map.entry("rune5", jsonData.display.rune5)
+                ));
                 RunePage runePage = calculateRunes(convertedDataPair, RunePageType.MOST_COMMON);
                 if (!runePage.verify()) {
                     log.error("Runepage has failed verification. Mode: " + RunePageType.MOST_COMMON.name());
@@ -129,6 +135,14 @@ public class LolalyticsSource implements RuneSource {
 
     private static class LolalyticsResult {
         public DisplayRuneRawData display;
+    }
+
+    private static class DisplayRuneRawData {
+        public Map<String, int[]> rune1;
+        public Map<String, int[]> rune2;
+        public Map<String, int[]> rune3;
+        public Map<String, int[]> rune4;
+        public Map<String, int[]> rune5;
     }
 
     private static class ConvertedDataPair {
