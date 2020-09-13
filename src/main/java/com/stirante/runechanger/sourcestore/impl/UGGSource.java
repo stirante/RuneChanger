@@ -6,11 +6,12 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.stirante.runechanger.DebugConsts;
 import com.stirante.runechanger.model.app.CounterData;
+import com.stirante.runechanger.model.app.SettingsConfiguration;
 import com.stirante.runechanger.model.client.*;
 import com.stirante.runechanger.sourcestore.CounterSource;
 import com.stirante.runechanger.sourcestore.RuneSource;
-import com.stirante.runechanger.util.SyncingListWrapper;
 import com.stirante.runechanger.util.StringUtils;
+import com.stirante.runechanger.util.SyncingListWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,10 +20,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class UGGSource implements RuneSource, CounterSource {
@@ -259,6 +257,30 @@ public class UGGSource implements RuneSource, CounterSource {
             e.printStackTrace();
             return new CounterData();
         }
+    }
+
+    @Override
+    public void onSettingsUpdate(Map<String, Object> settings) {
+        System.out.println(settings);
+    }
+
+    @Override
+    public void setupSettings(SettingsConfiguration config) {
+        config
+                .textField("min_threshold")
+                .defaultValue("0")
+                .validation(s -> {
+                    try {
+                        return Integer.parseInt(s) >= 0;
+                    } catch (NumberFormatException e) {
+                        return false;
+                    }
+                })
+                .add()
+
+                .checkbox("aram")
+                .defaultValue(true)
+                .add();
     }
 
     @Override

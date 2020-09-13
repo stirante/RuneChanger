@@ -5,6 +5,7 @@ import javafx.beans.property.Property;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.beans.value.WritableValue;
 import javafx.geometry.VPos;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.text.Font;
@@ -37,7 +38,7 @@ public class FxUtils {
      * Executes runnable on FX thread after a delay
      *
      * @param runnable runnable to execute
-     * @param delay delay in milliseconds
+     * @param delay    delay in milliseconds
      */
     public static void runLater(Runnable runnable, long delay) {
         Timer timer = new Timer();
@@ -143,34 +144,49 @@ public class FxUtils {
      * @param <T>      type
      * @return ChangeListener, that will be delayed
      */
-    public static <T> ChangeListener<T> delayedChangedListener(ChangeListener<T> onChange, long delay) {
+    public static <T> ChangeListener<T> delayedChangedListener(CancellableChangeListener<T> onChange, long delay) {
         return new ChangeListener<T>() {
             private Timer timer;
             private T oValue;
             private T nValue;
             private ObservableValue<? extends T> observableValue;
+            private boolean canceling = false;
 
             @Override
             public void changed(ObservableValue<? extends T> observable, T oldValue, T newValue) {
-                nValue = newValue;
-                if (oValue == null) {
-                    oValue = oldValue;
-                    observableValue = observable;
-                }
-                if (timer != null) {
-                    timer.cancel();
-                }
-                timer = new Timer();
-                timer.schedule(new TimerTask() {
-                    @Override
-                    public void run() {
-                        doOnFxThread(() -> {
-                            onChange.changed(observableValue, oValue, nValue);
-                            observableValue = null;
-                            oValue = null;
-                        });
+                if (!canceling) {
+                    nValue = newValue;
+                    if (oValue == null) {
+                        oValue = oldValue;
+                        observableValue = observable;
                     }
-                }, delay);
+                    if (timer != null) {
+                        timer.cancel();
+                    }
+                    timer = new Timer();
+                    timer.schedule(new TimerTask() {
+                        @Override
+                        public void run() {
+                            doOnFxThread(() -> {
+                                if (!onChange.changed(observableValue, oValue, nValue)) {
+                                    canceling = true;
+                                    Platform.runLater(() -> {
+                                        if (!(observableValue instanceof WritableValue)) {
+                                            throw new IllegalStateException("Can't cancel change in read-only value!");
+                                        }
+                                        //noinspection unchecked
+                                        ((WritableValue<T>) observableValue).setValue(oValue);
+                                        canceling = false;
+                                    });
+                                }
+                                else {
+                                    observableValue = null;
+                                    oValue = null;
+                                }
+                            });
+                        }
+                    }, delay);
+                }
             }
 
         };
@@ -183,7 +199,7 @@ public class FxUtils {
      * @param <T>      type
      * @return ChangeListener, that will be delayed
      */
-    public static <T> ChangeListener<T> delayedChangedListener(ChangeListener<T> onChange) {
+    public static <T> ChangeListener<T> delayedChangedListener(CancellableChangeListener<T> onChange) {
         return delayedChangedListener(onChange, 1000);
     }
 
@@ -192,6 +208,24 @@ public class FxUtils {
         SimpleObjectProperty<T> prop = new SimpleObjectProperty<>(initialValue);
         prop.addListener(onChange);
         return prop;
+    }
+
+    @FunctionalInterface
+    public interface CancellableChangeListener<T> {
+
+        /**
+         * This method needs to be provided by an implementation of
+         * {@code ChangeListener}. It is called if the value of an
+         * {@link ObservableValue} changes.
+         * <p>
+         * In general, it is considered bad practice to modify the observed value in
+         * this method.
+         *
+         * @param observable The {@code ObservableValue} which value changed
+         * @param oldValue   The old value
+         * @param newValue   The new value
+         */
+        boolean changed(ObservableValue<? extends T> observable, T oldValue, T newValue);
     }
 
 }

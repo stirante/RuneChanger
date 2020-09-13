@@ -17,6 +17,7 @@ import com.stirante.runechanger.gui.SceneType;
 import com.stirante.runechanger.gui.Settings;
 import com.stirante.runechanger.model.app.Version;
 import com.stirante.runechanger.model.client.Champion;
+import com.stirante.runechanger.sourcestore.SourceStore;
 import com.stirante.runechanger.util.*;
 import com.sun.jna.platform.win32.Advapi32Util;
 import com.sun.jna.platform.win32.Kernel32Util;
@@ -267,6 +268,7 @@ public class RuneChanger implements Launcher {
         initModules();
         LolHelper.init();
         Settings.initialize();
+        SourceStore.init();
         gui = new GuiHandler(this);
         if (!Arrays.asList(programArguments).contains("-osx")) {
             api.addClientConnectionListener(new ClientConnectionListener() {

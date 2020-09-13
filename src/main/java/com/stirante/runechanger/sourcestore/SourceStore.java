@@ -1,7 +1,9 @@
 package com.stirante.runechanger.sourcestore;
 
 import com.stirante.runechanger.RuneChanger;
+import com.stirante.runechanger.gui.controllers.SettingsCategoryController;
 import com.stirante.runechanger.model.app.CounterData;
+import com.stirante.runechanger.model.app.SettingsConfiguration;
 import com.stirante.runechanger.model.client.Champion;
 import com.stirante.runechanger.model.client.GameData;
 import com.stirante.runechanger.model.client.GameMode;
@@ -10,8 +12,7 @@ import com.stirante.runechanger.sourcestore.impl.*;
 import com.stirante.runechanger.util.SimplePreferences;
 import com.stirante.runechanger.util.SyncingListWrapper;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 
@@ -25,6 +26,29 @@ public class SourceStore {
         sources.add(new ChampionGGSource());
         sources.add(new LolalyticsSource());
         sources.add(new LocalSource());
+    }
+
+    public static void init() {
+        for (Source source : sources) {
+            updateSourceSettings(source);
+        }
+    }
+
+    public static void updateSourceSettings(Source source) {
+        SettingsConfiguration config = new SettingsConfiguration();
+        source.setupSettings(config);
+        Map<String, Object> data = new HashMap<>();
+        for (SettingsConfiguration.FieldConfiguration<?> field : config.getFields()) {
+            Object val = field.getDefaultValue();
+            if (field.getType() == Boolean.class) {
+                val = SimplePreferences.getBooleanValue(field.getPrefKey(source.getSourceKey()), (boolean) field.getDefaultValue());
+            }
+            else if (field.getType() == String.class) {
+                val = SimplePreferences.getStringValue(field.getPrefKey(source.getSourceKey()), (String) field.getDefaultValue());
+            }
+            data.put(field.getKey(), val);
+        }
+        source.onSettingsUpdate(data);
     }
 
     /**
@@ -101,4 +125,7 @@ public class SourceStore {
         return null;
     }
 
+    public static List<Source> getSources() {
+        return Collections.unmodifiableList(sources);
+    }
 }
