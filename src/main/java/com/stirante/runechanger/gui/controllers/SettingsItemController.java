@@ -8,6 +8,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.layout.Pane;
+import javafx.scene.shape.Line;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,7 +19,6 @@ import java.util.function.Predicate;
 public class SettingsItemController {
     private static final Logger log = LoggerFactory.getLogger(SettingsItemController.class);
 
-    private final Predicate<Boolean> onChange;
     private final Pane root;
     private boolean canceling = false;
 
@@ -28,8 +28,10 @@ public class SettingsItemController {
     private Label title;
     @FXML
     private Label description;
+    @FXML
+    private Line separator;
 
-    public SettingsItemController(boolean selected, Predicate<Boolean> onChange, String title, String description) {
+    public SettingsItemController(boolean selected, Predicate<Boolean> onChange, String title, String description, boolean hideSeparator) {
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/fxml/SettingsItem.fxml"), LangHelper.getLang());
         fxmlLoader.setController(this);
         try {
@@ -40,7 +42,6 @@ public class SettingsItemController {
         checkbox.setSelected(selected);
         this.title.setText(title);
         this.description.setText(description);
-        this.onChange = onChange;
         checkbox.selectedProperty().addListener((observable, oldValue, newValue) -> {
             if (!canceling && !onChange.test(checkbox.isSelected())) {
                 canceling = true;
@@ -50,6 +51,7 @@ public class SettingsItemController {
                 });
             }
         });
+        separator.setVisible(!hideSeparator);
     }
 
     public Pane getRoot() {

@@ -38,6 +38,7 @@ public class UGGSource implements RuneSource, CounterSource {
     private static final Server DEFAULT_SERVER = Server.WORLD;
 
     private static String patchString = null;
+    private int minThreshold = 0;
 
     public static void main(String[] args) throws IOException {
         DebugConsts.enableDebugMode();
@@ -92,6 +93,9 @@ public class UGGSource implements RuneSource, CounterSource {
                 .getAsJsonArray(position.toString())
                 .get(0).getAsJsonArray();
         int games = arr.get(OverviewElement.RUNE_PAGES.getKey()).getAsJsonArray().get(Page.GAMES.getKey()).getAsInt();
+        if (games < minThreshold) {
+            return null;
+        }
         log.debug("Games count for " + champion.getName() + " on " + position.name() + ": " + games);
         RunePage page = new RunePage();
         page.setSourceName(getSourceName());
@@ -261,7 +265,9 @@ public class UGGSource implements RuneSource, CounterSource {
 
     @Override
     public void onSettingsUpdate(Map<String, Object> settings) {
-        System.out.println(settings);
+        if (settings.containsKey("min_threshold")) {
+            minThreshold = Integer.parseInt((String) settings.get("min_threshold"));
+        }
     }
 
     @Override
@@ -276,10 +282,6 @@ public class UGGSource implements RuneSource, CounterSource {
                         return false;
                     }
                 })
-                .add()
-
-                .checkbox("aram")
-                .defaultValue(true)
                 .add();
     }
 

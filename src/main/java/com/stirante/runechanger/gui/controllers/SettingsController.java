@@ -130,15 +130,18 @@ public class SettingsController implements Content {
                 AutoStartUtils.isAutoStartEnabled(),
                 toTruePredicate(AutoStartUtils::setAutoStart),
                 LangHelper.getLang().getString("autostart"),
-                LangHelper.getLang().getString("autostart_message")
+                LangHelper.getLang().getString("autostart_message"),
+                false
         ).getRoot());
 
-        setupSourcePreference("localSource", LangHelper.getLang().getString("local_source"));
+        setupSourcePreference("localSource", LangHelper.getLang().getString("local_source"), false);
         for (Source source : SourceStore.getSources()) {
-            setupSourcePreference(source.getSourceKey(), source.getSourceName());
             SettingsConfiguration config = new SettingsConfiguration();
             source.setupSettings(config);
-            for (SettingsConfiguration.FieldConfiguration<?> field : config.getFields()) {
+            setupSourcePreference(source.getSourceKey(), source.getSourceName(), config.getFields().size() > 0);
+            List<SettingsConfiguration.FieldConfiguration<?>> fields = config.getFields();
+            for (int i = 0; i < fields.size(); i++) {
+                SettingsConfiguration.FieldConfiguration<?> field = fields.get(i);
                 if (field.getType() == Boolean.class) {
                     setupSimplePreference(
                             SOURCES_CATEGORY,
@@ -153,10 +156,12 @@ public class SettingsController implements Content {
                                         SourceStore.updateSourceSettings(source);
                                     });
                                     return true;
-                                } else {
+                                }
+                                else {
                                     return false;
                                 }
-                            }
+                            },
+                            i < fields.size() - 1
                     );
                 }
                 else if (field.getType() == String.class) {
@@ -173,10 +178,12 @@ public class SettingsController implements Content {
                                         SourceStore.updateSourceSettings(source);
                                     });
                                     return true;
-                                } else {
+                                }
+                                else {
                                     return false;
                                 }
-                            }
+                            },
+                            i < fields.size() - 1
                     );
                 }
                 else {
@@ -204,10 +211,14 @@ public class SettingsController implements Content {
     }
 
     private void setupSimplePreference(String category, String key, boolean defaultValue, String titleKey, String descKey) {
-        setupSimplePreference(category, key, defaultValue, titleKey, descKey, null);
+        setupSimplePreference(category, key, defaultValue, titleKey, descKey, null, false);
     }
 
     private void setupSimplePreference(String category, String key, boolean defaultValue, String titleKey, String descKey, Predicate<Boolean> onChange) {
+        setupSimplePreference(category, key, defaultValue, titleKey, descKey, onChange, false);
+    }
+
+    private void setupSimplePreference(String category, String key, boolean defaultValue, String titleKey, String descKey, Predicate<Boolean> onChange, boolean hideSeparator) {
         if (!SimplePreferences.containsKey(key)) {
             SimplePreferences.putBooleanValue(key, defaultValue);
         }
@@ -219,26 +230,27 @@ public class SettingsController implements Content {
             SimplePreferences.putBooleanValue(key, selected);
             SimplePreferences.save();
             return true;
-        }, LangHelper.getLang().getString(titleKey), LangHelper.getLang().getString(descKey)).getRoot());
+        }, LangHelper.getLang().getString(titleKey), LangHelper.getLang().getString(descKey), hideSeparator).getRoot());
     }
 
-    private void setupSourcePreference(String key, String title) {
+    private void setupSourcePreference(String key, String title, boolean hideSeparator) {
         if (!SimplePreferences.containsKey(key)) {
             SimplePreferences.putBooleanValue(key, true);
         }
         boolean val = SimplePreferences.getBooleanValue(key, true);
-        setupPreference(SOURCES_CATEGORY, new SettingsItemController(val, selected -> {
+        SettingsItemController controller = new SettingsItemController(val, selected -> {
             SimplePreferences.putBooleanValue(key, selected);
             SimplePreferences.save();
             return true;
-        }, title, LangHelper.getLang().getString("source_msg")).getRoot());
+        }, title, LangHelper.getLang().getString("source_msg"), hideSeparator);
+        setupPreference(SOURCES_CATEGORY, controller.getRoot());
     }
 
     private void setupTextPreference(String category, String checkKey, boolean defaultCheck, String textKey, String defaultText, String titleKey, String descKey) {
-        setupTextPreference(category, checkKey, defaultCheck, textKey, defaultText, titleKey, descKey, null);
+        setupTextPreference(category, checkKey, defaultCheck, textKey, defaultText, titleKey, descKey, null, false);
     }
 
-    private void setupTextPreference(String category, String checkKey, boolean defaultCheck, String textKey, String defaultText, String titleKey, String descKey, Predicate<String> onChange) {
+    private void setupTextPreference(String category, String checkKey, boolean defaultCheck, String textKey, String defaultText, String titleKey, String descKey, Predicate<String> onChange, boolean hideSeparator) {
         boolean check = SimplePreferences.getBooleanValue(checkKey, defaultCheck);
         String text = SimplePreferences.getStringValue(textKey, defaultText);
         setupPreference(category, new SettingsEditItemController(
@@ -253,15 +265,15 @@ public class SettingsController implements Content {
                     SimplePreferences.putStringValue(textKey, s);
                     SimplePreferences.save();
                     return true;
-                }
+                }, hideSeparator
         ).getRoot());
     }
 
     private void setupTextPreference(String category, String textKey, String defaultText, String titleKey, String descKey) {
-        setupTextPreference(category, textKey, defaultText, titleKey, descKey, null);
+        setupTextPreference(category, textKey, defaultText, titleKey, descKey, null, false);
     }
 
-    private void setupTextPreference(String category, String textKey, String defaultText, String titleKey, String descKey, Predicate<String> onChange) {
+    private void setupTextPreference(String category, String textKey, String defaultText, String titleKey, String descKey, Predicate<String> onChange, boolean hideSeparator) {
         String text = SimplePreferences.getStringValue(textKey, defaultText);
         setupPreference(category, new SettingsEditItemController(
                 text,
@@ -275,7 +287,7 @@ public class SettingsController implements Content {
                     SimplePreferences.putStringValue(textKey, s);
                     SimplePreferences.save();
                     return true;
-                }
+                }, hideSeparator
         ).getRoot());
     }
 

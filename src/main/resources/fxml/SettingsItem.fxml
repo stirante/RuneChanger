@@ -7,7 +7,7 @@
 <Pane xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" prefWidth="533" prefHeight="50">
     <Label fx:id="title" layoutX="10.5" layoutY="5.0" styleClass="checkbox-label" text="%no_away"/>
     <CheckBox fx:id="checkbox" layoutX="495.5" mnemonicParsing="false"/>
-    <Line endX="530.0" layoutY="48.5" stroke="#c7a96d42" strokeWidth="3.0"/>
+    <Line endX="530.0" layoutY="48.5" stroke="#c7a96d42" strokeWidth="3.0" fx:id="separator"/>
     <Label fx:id="description" layoutX="10.5" layoutY="24.0" maxHeight="20.0" maxWidth="430.0" prefHeight="20.0"
            prefWidth="430.0" styleClass="checkbox-desc" text="%no_away_message"/>
 </Pane>

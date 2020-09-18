@@ -9,6 +9,7 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.Pane;
+import javafx.scene.shape.Line;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,8 +29,10 @@ public class SettingsEditItemController {
     private Label title;
     @FXML
     private Label description;
+    @FXML
+    private Line separator;
 
-    public SettingsEditItemController(String text, Property<Boolean> selected, String title, String description, Predicate<String> onChange) {
+    public SettingsEditItemController(String text, Property<Boolean> selected, String title, String description, Predicate<String> onChange, boolean hideSeparator) {
         FXMLLoader fxmlLoader =
                 new FXMLLoader(getClass().getResource("/fxml/SettingsEditItem.fxml"), LangHelper.getLang());
         fxmlLoader.setController(this);
@@ -54,6 +57,7 @@ public class SettingsEditItemController {
         if (description != null && !description.isEmpty()) {
             this.description.setText("(" + description + ")");
         }
+        separator.setVisible(!hideSeparator);
     }
 
     public Pane getRoot() {
