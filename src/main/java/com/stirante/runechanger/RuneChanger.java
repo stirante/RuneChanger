@@ -6,7 +6,6 @@ import ch.qos.logback.core.Appender;
 import ch.qos.logback.core.FileAppender;
 import com.stirante.eventbus.EventBus;
 import com.stirante.eventbus.Subscribe;
-import com.stirante.lolclient.ApiResponse;
 import com.stirante.lolclient.ClientApi;
 import com.stirante.lolclient.ClientConnectionListener;
 import com.stirante.lolclient.ClientWebSocket;
@@ -18,6 +17,7 @@ import com.stirante.runechanger.gui.SceneType;
 import com.stirante.runechanger.gui.Settings;
 import com.stirante.runechanger.model.app.Version;
 import com.stirante.runechanger.model.client.Champion;
+import com.stirante.runechanger.sourcestore.SourceStore;
 import com.stirante.runechanger.util.*;
 import com.sun.jna.platform.win32.Advapi32Util;
 import com.sun.jna.platform.win32.Kernel32Util;
@@ -47,7 +47,8 @@ import java.util.concurrent.Executors;
 
 public class RuneChanger implements Launcher {
 
-    public static final ExecutorService EXECUTOR_SERVICE = Executors.newCachedThreadPool();
+    public static final ExecutorService EXECUTOR_SERVICE = Executors.newFixedThreadPool(Runtime.getRuntime()
+            .availableProcessors());
 
     private static final Logger log = LoggerFactory.getLogger(RuneChanger.class);
     private static RuneChanger instance;
@@ -66,6 +67,11 @@ public class RuneChanger implements Launcher {
     public static void main(String[] args) {
         SimplePreferences.load();
         Thread.setDefaultUncaughtExceptionHandler((thread, throwable) -> {
+            // Ignore bug JDK-8089615
+            if (throwable instanceof NullPointerException &&
+                    throwable.getStackTrace()[0].getMethodName().equals("isSupported")) {
+                return;
+            }
             log.error("An unhandled exception occurred in thread " + thread.getName(), throwable);
             AnalyticsUtil.addCrashReport(throwable,
                     "An unhandled exception occurred in thread " + thread.getName(), true);
@@ -262,6 +268,7 @@ public class RuneChanger implements Launcher {
         initModules();
         LolHelper.init();
         Settings.initialize();
+        SourceStore.init();
         gui = new GuiHandler(this);
         if (!Arrays.asList(programArguments).contains("-osx")) {
             api.addClientConnectionListener(new ClientConnectionListener() {
@@ -344,7 +351,8 @@ public class RuneChanger implements Launcher {
                     }
                     if (SimplePreferences.getBooleanValue(SimplePreferences.SettingsKeys.AUTO_EXIT, false)) {
                         System.exit(0);
-                    } else {
+                    }
+                    else {
                         resetModules();
                         gui.setSceneType(SceneType.NONE);
                         if (gui.isWindowOpen()) {

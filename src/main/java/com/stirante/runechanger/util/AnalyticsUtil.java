@@ -130,7 +130,7 @@ public class AnalyticsUtil {
                     .setDeviceIdStrategy(Config.DeviceIdStrategy.UUID)
                     .setRequiresConsent(true)
                     .overrideModule(Config.Feature.CrashReporting, ModuleCrash.class)
-                    .setApplicationVersion(Version.INSTANCE.version);
+                    .setApplicationVersion(Version.INSTANCE.version + "@" + Version.INSTANCE.commitIdAbbrev);
 
             if (DebugConsts.ENABLE_ANALYTICS_DEBUG) {
                 config

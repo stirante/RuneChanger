@@ -16,25 +16,28 @@ import java.util.regex.Pattern;
 public class Patch {
     private static final Logger log = LoggerFactory.getLogger(UGGSource.class);
     private static List<Patch> patchCache = null;
-    private int[] patchNumbers = new int[3];
+    private final int[] patchNumbers = new int[3];
+
     private Patch(int[] patchNumbers) {
         this.patchNumbers[0] = patchNumbers[0];
         this.patchNumbers[1] = patchNumbers[1];
         this.patchNumbers[2] = patchNumbers[2];
     }
+
     private static void initPatchCache() {
         if (patchCache != null) {
             return;
         }
         try {
-            HttpURLConnection conn = (HttpURLConnection) new URL("https://ddragon.leagueoflegends.com/api/versions.json").openConnection();
+            HttpURLConnection conn =
+                    (HttpURLConnection) new URL("https://ddragon.leagueoflegends.com/api/versions.json").openConnection();
             conn.connect();
             String[] jsonData = new Gson().fromJson(new InputStreamReader(conn.getInputStream()), String[].class);
             conn.getInputStream().close();
             patchCache = new ArrayList<>();
-            for(String patchString : jsonData) {
+            for (String patchString : jsonData) {
                 Patch p = Patch.fromString(patchString);
-                if(p != null) {
+                if (p != null) {
                     patchCache.add(p);
                 }
             }
@@ -46,8 +49,8 @@ public class Patch {
     public static List<Patch> getLatest(int n) {
         initPatchCache();
         List<Patch> patches = new ArrayList<>();
-        for(int i = 0; i < n; i++) {
-            if(i+1 > patchCache.size()) {
+        for (int i = 0; i < n; i++) {
+            if (i + 1 > patchCache.size()) {
                 break;
             }
             patches.add(patchCache.get(i));
@@ -56,27 +59,39 @@ public class Patch {
     }
 
     public static Patch fromString(String patchString) {
-        String[] patchStringSplitted = patchString.split(Pattern.quote("."), 3);
-        if(patchStringSplitted.length != 3) {
+        String[] patchStringSplit = patchString.split(Pattern.quote("."), 3);
+        if (patchStringSplit.length != 3) {
             return null;
         }
         try {
             int[] patchNumbers = new int[3];
-            for(int i = 0; i < 3; i++) {
-                patchNumbers[i] = Integer.parseInt(patchStringSplitted[i]);
+            for (int i = 0; i < 3; i++) {
+                patchNumbers[i] = Integer.parseInt(patchStringSplit[i]);
             }
             return new Patch(patchNumbers);
-        } catch(NumberFormatException e) {
+        } catch (NumberFormatException e) {
             return null;
         }
     }
 
     public String toString() {
-        return this.patchNumbers[0] + "." + this.patchNumbers[1];
+        return toShortString();
+    }
+
+    public String format(String format) {
+        return String.format(format, patchNumbers[0], patchNumbers[1] ,patchNumbers[2]);
+    }
+
+    public int[] getPatchNumbers() {
+        return patchNumbers.clone();
     }
 
     public String toFullString() {
-        return this.patchNumbers[0] + "." + this.patchNumbers[1] + "." + this.patchNumbers[2];
+        return format("%d.%d.%d");
+    }
+
+    public String toShortString() {
+        return format("%d.%d");
     }
 }
 

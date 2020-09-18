@@ -1,16 +1,18 @@
 package com.stirante.runechanger.sourcestore;
 
 import com.stirante.runechanger.RuneChanger;
+import com.stirante.runechanger.gui.controllers.SettingsCategoryController;
 import com.stirante.runechanger.model.app.CounterData;
+import com.stirante.runechanger.model.app.SettingsConfiguration;
 import com.stirante.runechanger.model.client.Champion;
+import com.stirante.runechanger.model.client.GameData;
 import com.stirante.runechanger.model.client.GameMode;
 import com.stirante.runechanger.model.client.RunePage;
 import com.stirante.runechanger.sourcestore.impl.*;
 import com.stirante.runechanger.util.SimplePreferences;
-import javafx.collections.ObservableList;
+import com.stirante.runechanger.util.SyncingListWrapper;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 
@@ -26,19 +28,42 @@ public class SourceStore {
         sources.add(new LocalSource());
     }
 
+    public static void init() {
+        for (Source source : sources) {
+            updateSourceSettings(source);
+        }
+    }
+
+    public static void updateSourceSettings(Source source) {
+        SettingsConfiguration config = new SettingsConfiguration();
+        source.setupSettings(config);
+        Map<String, Object> data = new HashMap<>();
+        for (SettingsConfiguration.FieldConfiguration<?> field : config.getFields()) {
+            Object val = field.getDefaultValue();
+            if (field.getType() == Boolean.class) {
+                val = SimplePreferences.getBooleanValue(field.getPrefKey(source.getSourceKey()), (boolean) field.getDefaultValue());
+            }
+            else if (field.getType() == String.class) {
+                val = SimplePreferences.getStringValue(field.getPrefKey(source.getSourceKey()), (String) field.getDefaultValue());
+            }
+            data.put(field.getKey(), val);
+        }
+        source.onSettingsUpdate(data);
+    }
+
     /**
      * Get list of rune pages for champion
      *
-     * @param champion champion
-     * @param pages    list of pages, which will be filled with pages
+     * @param data  game data
+     * @param pages list of pages, which will be filled with pages
      */
-    public static void getRunes(Champion champion, GameMode mode, ObservableList<RunePage> pages) {
+    public static void getRunes(GameData data, SyncingListWrapper<RunePage> pages) {
         sources.stream()
                 .filter(source -> source instanceof RuneSource &&
                         SimplePreferences.getBooleanValue(source.getSourceKey(), true))
                 .map(source -> (RuneSource) source)
                 .forEach(runeSource ->
-                        RuneChanger.EXECUTOR_SERVICE.submit(() -> runeSource.getRunesForChampion(champion, mode, pages))
+                        RuneChanger.EXECUTOR_SERVICE.submit(() -> runeSource.getRunesForGame(data, pages))
                 );
     }
 
@@ -49,16 +74,14 @@ public class SourceStore {
      */
     public static Future<CounterData> getCounterData(Champion champion) {
         CompletableFuture<CounterData> result = new CompletableFuture<>();
-        CounterSource counterSource = sources.stream()
+        sources.stream()
                 .filter(source -> source instanceof CounterSource &&
                         SimplePreferences.getBooleanValue(source.getSourceKey(), true))
                 .map(source -> (CounterSource) source)
-                .findFirst().orElse(null);
-        if (counterSource != null) {
-            RuneChanger.EXECUTOR_SERVICE.submit(() -> {
-                result.complete(counterSource.getCounterData(champion));
-            });
-        }
+                .findFirst().ifPresent(counterSource ->
+                RuneChanger.EXECUTOR_SERVICE.submit(() -> {
+                    result.complete(counterSource.getCounterData(champion));
+                }));
         return result;
     }
 
@@ -68,18 +91,19 @@ public class SourceStore {
      * @param champion champion
      * @param pages    list of pages, which will be filled with pages
      */
-    public static void getRemoteRunes(Champion champion, ObservableList<RunePage> pages) {
-        sources.stream()
-                .filter(source -> source instanceof RuneSource && !(source instanceof LocalSource) &&
-                        SimplePreferences.getBooleanValue(source.getSourceKey(), true))
-                .map(source -> (RuneSource) source)
-                .forEach(runeSource -> {
-                            if (runeSource.hasGameModeSpecific()) {
-                                RuneChanger.EXECUTOR_SERVICE.submit(() -> runeSource.getRunesForChampion(champion, GameMode.ARAM, pages));
-                            }
-                            RuneChanger.EXECUTOR_SERVICE.submit(() -> runeSource.getRunesForChampion(champion, GameMode.CLASSIC, pages));
-                        }
-                );
+    public static void getRemoteRunes(Champion champion, SyncingListWrapper<RunePage> pages) {
+        RuneChanger.EXECUTOR_SERVICE.submit(() -> {
+            sources.stream()
+                    .filter(source -> source instanceof RuneSource && !(source instanceof LocalSource) &&
+                            SimplePreferences.getBooleanValue(source.getSourceKey(), true))
+                    .map(source -> (RuneSource) source)
+                    .forEach(runeSource -> RuneChanger.EXECUTOR_SERVICE.submit(() -> {
+                                for (GameMode mode : runeSource.getSupportedGameModes()) {
+                                    runeSource.getRunesForGame(GameData.of(champion, mode), pages);
+                                }
+                            })
+                    );
+        });
     }
 
     /**
@@ -87,7 +111,7 @@ public class SourceStore {
      *
      * @param pages list of pages, which will be filled with pages
      */
-    public static void getLocalRunes(ObservableList<RunePage> pages) {
+    public static void getLocalRunes(SyncingListWrapper<RunePage> pages) {
         pages.addAll(SimplePreferences.getRuneBookValues());
     }
 
@@ -101,4 +125,7 @@ public class SourceStore {
         return null;
     }
 
+    public static List<Source> getSources() {
+        return Collections.unmodifiableList(sources);
+    }
 }

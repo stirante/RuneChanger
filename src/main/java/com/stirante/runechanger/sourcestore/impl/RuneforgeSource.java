@@ -3,9 +3,9 @@ package com.stirante.runechanger.sourcestore.impl;
 import com.google.gson.Gson;
 import com.stirante.runechanger.model.client.*;
 import com.stirante.runechanger.sourcestore.RuneSource;
+import com.stirante.runechanger.util.SyncingListWrapper;
 import com.stirante.runechanger.util.FxUtils;
 import com.stirante.runechanger.util.StringUtils;
-import javafx.collections.ObservableList;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -98,12 +98,12 @@ public class RuneforgeSource implements RuneSource {
     /**
      * Gets list of rune pages for champion
      *
-     * @param champion champion
+     * @param data game data
      * @return list of rune pages
      */
-    public void getRunesForChampion(Champion champion, GameMode mode, ObservableList<RunePage> pages) {
-        if (pagesCache.containsKey(champion)) {
-            FxUtils.doOnFxThread(() -> pages.addAll(pagesCache.get(champion)));
+    public void getRunesForGame(GameData data, SyncingListWrapper<RunePage> pages) {
+        if (pagesCache.containsKey(data.getChampion())) {
+            pages.addAll(pagesCache.get(data.getChampion()));
             return;
         }
         ArrayList<RunePage> result = new ArrayList<>();
@@ -115,19 +115,19 @@ public class RuneforgeSource implements RuneSource {
                 conn.getInputStream().close();
             }
             for (Loadout loadout : cache) {
-                if (loadout.loadout_champion_name.equalsIgnoreCase(champion.getName()) ||
-                        loadout.loadout_champion_name.equalsIgnoreCase(champion.getAlias()) ||
-                        loadout.loadout_champion_name.equalsIgnoreCase(champion.getInternalName())) {
-                    RunePage runes = getRunes(champion, loadout.loadout_url);
+                if (loadout.loadout_champion_name.equalsIgnoreCase(data.getChampion().getName()) ||
+                        loadout.loadout_champion_name.equalsIgnoreCase(data.getChampion().getAlias()) ||
+                        loadout.loadout_champion_name.equalsIgnoreCase(data.getChampion().getInternalName())) {
+                    RunePage runes = getRunes(data.getChampion(), loadout.loadout_url);
                     if (runes != null) {
                         result.add(runes);
                     }
                 }
             }
         } catch (IOException e) {
-            log.error("Exception occurred while getting RuneForge rune page for champion " + champion.getName(), e);
+            log.error("Exception occurred while getting RuneForge rune page for champion " + data.getChampion().getName(), e);
         }
-        pagesCache.put(champion, result);
+        pagesCache.put(data.getChampion(), result);
         FxUtils.doOnFxThread(() -> pages.addAll(result));
     }
 
@@ -137,19 +137,8 @@ public class RuneforgeSource implements RuneSource {
     }
 
     private static class Loadout {
-        private int loadout_id;
-        private String loadout_url;
-        private String loadout_champion_name;
-        private String loadout_position_name;
-        private Object loadout_champion_free;
-        private String loadout_champion_grid;
-        private String loadout_champion_centered;
-        private String loadout_champion_centered_cdn;
-        private String loadout_primary;
-        private String loadout_keystone;
-        private String loadout_playstyle;
-        private Object loadout_player;
-        private Object loadout_player_headshot;
+        public String loadout_url;
+        public String loadout_champion_name;
     }
 
 }
