@@ -2,10 +2,14 @@ package com.stirante.runechanger.gui.controllers;
 
 import com.stirante.runechanger.gui.Content;
 import com.stirante.runechanger.gui.Settings;
+import com.stirante.runechanger.model.app.SettingsConfiguration;
+import com.stirante.runechanger.sourcestore.Source;
+import com.stirante.runechanger.sourcestore.SourceStore;
 import com.stirante.runechanger.util.*;
 import javafx.animation.Animation;
 import javafx.animation.Interpolator;
 import javafx.animation.Transition;
+import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -25,6 +29,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 public class SettingsController implements Content {
     private static final Logger log = LoggerFactory.getLogger(SettingsController.class);
@@ -59,12 +64,14 @@ public class SettingsController implements Content {
     }
 
     private void tryRestart() {
-        boolean restart = Settings.openYesNoDialog(LangHelper.getLang()
-                .getString("restart_necessary"), LangHelper.getLang()
-                .getString("restart_necessary_description"));
-        if (restart) {
-            restartProgram();
-        }
+        Platform.runLater(() -> {
+            boolean restart = Settings.openYesNoDialog(LangHelper.getLang()
+                    .getString("restart_necessary"), LangHelper.getLang()
+                    .getString("restart_necessary_description"));
+            if (restart) {
+                restartProgram();
+            }
+        });
     }
 
     private void loadPreferences() {
@@ -103,7 +110,7 @@ public class SettingsController implements Content {
         setupSimplePreference(CLIENT_CATEGORY, SimplePreferences.SettingsKeys.AUTO_ACCEPT, false, "auto_queue", "auto_queue_message");
         setupSimplePreference(CLIENT_CATEGORY, SimplePreferences.SettingsKeys.RESTART_ON_DODGE, false, "restart_on_dodge", "restart_on_dodge_message");
         setupSimplePreference(CLIENT_CATEGORY, SimplePreferences.SettingsKeys.ANTI_AWAY, false, "no_away", "no_away_message");
-        setupSimplePreference(CLIENT_CATEGORY, SimplePreferences.SettingsKeys.AUTO_SYNC, false, "auto_sync_pages", "auto_sync_pages_message", selected -> tryRestart());
+        setupSimplePreference(CLIENT_CATEGORY, SimplePreferences.SettingsKeys.AUTO_SYNC, false, "auto_sync_pages", "auto_sync_pages_message", toTruePredicate(this::tryRestart));
         setupSimplePreference(CLIENT_CATEGORY, SimplePreferences.SettingsKeys.SMART_DISENCHANT, false, "smart_disenchant", "smart_disenchant_message");
         setupSimplePreference(CLIENT_CATEGORY, SimplePreferences.SettingsKeys.CHAMPION_SUGGESTIONS, true, "champion_suggestions", "champion_suggestions_message");
 
@@ -111,25 +118,83 @@ public class SettingsController implements Content {
         setupSimplePreference(APP_CATEGORY, SimplePreferences.SettingsKeys.EXPERIMENTAL_CHANNEL, false, "autoupdate_experimental", "autoupdate_experimental_message", selected -> {
             AutoUpdater.resetCache();
             AutoUpdater.checkUpdate();
+            return true;
         });
-        setupSimplePreference(APP_CATEGORY, SimplePreferences.SettingsKeys.FORCE_ENGLISH, false, "force_english", "force_english_message", selected -> tryRestart());
-        setupSimplePreference(APP_CATEGORY, SimplePreferences.SettingsKeys.ALWAYS_ON_TOP, false, "always_on_top", "always_on_top_message", stage::setAlwaysOnTop);
-        setupSimplePreference(APP_CATEGORY, SimplePreferences.SettingsKeys.ANALYTICS, true, "enable_analytics", "enable_analytics_message", AnalyticsUtil::onConsent);
+        setupSimplePreference(APP_CATEGORY, SimplePreferences.SettingsKeys.FORCE_ENGLISH, false, "force_english", "force_english_message", toTruePredicate(this::tryRestart));
+        setupSimplePreference(APP_CATEGORY, SimplePreferences.SettingsKeys.ALWAYS_ON_TOP, false, "always_on_top", "always_on_top_message", toTruePredicate(stage::setAlwaysOnTop));
+        setupSimplePreference(APP_CATEGORY, SimplePreferences.SettingsKeys.ANALYTICS, true, "enable_analytics", "enable_analytics_message", toTruePredicate(AnalyticsUtil::onConsent));
         setupSimplePreference(APP_CATEGORY, SimplePreferences.SettingsKeys.ENABLE_ANIMATIONS, true, "enable_animations", "enable_animations_message");
-        setupSimplePreference(APP_CATEGORY, SimplePreferences.SettingsKeys.RUN_AS_ADMIN, false, "run_as_admin", "run_as_admin_message", selected -> tryRestart());
+        setupSimplePreference(APP_CATEGORY, SimplePreferences.SettingsKeys.RUN_AS_ADMIN, false, "run_as_admin", "run_as_admin_message", toTruePredicate(this::tryRestart));
         setupSimplePreference(APP_CATEGORY, SimplePreferences.SettingsKeys.AUTO_EXIT, false, "exit_rune_changer_with_client", "exit_rune_changer_with_client_message");
         setupPreference(APP_CATEGORY, new SettingsItemController(
                 AutoStartUtils.isAutoStartEnabled(),
-                AutoStartUtils::setAutoStart,
+                toTruePredicate(AutoStartUtils::setAutoStart),
                 LangHelper.getLang().getString("autostart"),
-                LangHelper.getLang().getString("autostart_message")
+                LangHelper.getLang().getString("autostart_message"),
+                false
         ).getRoot());
 
-        setupSourcePreference("localSource", LangHelper.getLang().getString("local_source"));
-        setupSourcePreference("u.gg", "u.gg");
-        setupSourcePreference("champion.gg", "champion.gg");
-        setupSourcePreference("runeforge.gg", "runeforge.gg");
-        setupSourcePreference("lolalytics.com", "Lolalytics");
+        setupSourcePreference("localSource", LangHelper.getLang().getString("local_source"), false);
+        for (Source source : SourceStore.getSources()) {
+            SettingsConfiguration config = new SettingsConfiguration();
+            source.setupSettings(config);
+            setupSourcePreference(source.getSourceKey(), source.getSourceName(), config.getFields().size() > 0);
+            List<SettingsConfiguration.FieldConfiguration<?>> fields = config.getFields();
+            for (int i = 0; i < fields.size(); i++) {
+                SettingsConfiguration.FieldConfiguration<?> field = fields.get(i);
+                if (field.getType() == Boolean.class) {
+                    setupSimplePreference(
+                            SOURCES_CATEGORY,
+                            field.getPrefKey(source.getSourceKey()),
+                            field.getDefaultValue() != null && (boolean) field.getDefaultValue(),
+                            field.getTitleKey(source.getSourceKey()),
+                            field.getDescKey(source.getSourceKey()),
+                            s -> {
+                                //noinspection unchecked
+                                if ((((Predicate<Boolean>) field.getValidator()).test(s))) {
+                                    Platform.runLater(() -> {
+                                        SourceStore.updateSourceSettings(source);
+                                    });
+                                    return true;
+                                }
+                                else {
+                                    return false;
+                                }
+                            },
+                            i < fields.size() - 1
+                    );
+                }
+                else if (field.getType() == String.class) {
+                    setupTextPreference(
+                            SOURCES_CATEGORY,
+                            field.getPrefKey(source.getSourceKey()),
+                            field.getDefaultValue() != null ? (String) field.getDefaultValue() : null,
+                            field.getTitleKey(source.getSourceKey()),
+                            field.getDescKey(source.getSourceKey()),
+                            s -> {
+                                //noinspection unchecked
+                                if ((((Predicate<String>) field.getValidator()).test(s))) {
+                                    Platform.runLater(() -> {
+                                        SourceStore.updateSourceSettings(source);
+                                    });
+                                    return true;
+                                }
+                                else {
+                                    return false;
+                                }
+                            },
+                            i < fields.size() - 1
+                    );
+                }
+                else {
+                    throw new IllegalArgumentException("Unexpected setting type " + field.getType().getSimpleName());
+                }
+            }
+        }
+//        setupSourcePreference("u.gg", "u.gg");
+//        setupSourcePreference("champion.gg", "champion.gg");
+//        setupSourcePreference("runeforge.gg", "runeforge.gg");
+//        setupSourcePreference("lolalytics.com", "Lolalytics");
 
         // Finally display first category
         displayCategory(categoryControllers.get(0).getCategoryId());
@@ -137,64 +202,92 @@ public class SettingsController implements Content {
 
     private void setupCategory(String id, String titleKey) {
         categoryContents.put(id, new ArrayList<>());
-        SettingsCategoryController controller = new SettingsCategoryController(id, LangHelper.getLang().getString(titleKey), () -> {
-            displayCategory(id);
-        });
+        SettingsCategoryController controller =
+                new SettingsCategoryController(id, LangHelper.getLang().getString(titleKey), () -> {
+                    displayCategory(id);
+                });
         categoryControllers.add(controller);
         categoryBar.getChildren().add(controller.getRoot());
     }
 
     private void setupSimplePreference(String category, String key, boolean defaultValue, String titleKey, String descKey) {
-        setupSimplePreference(category, key, defaultValue, titleKey, descKey, null);
+        setupSimplePreference(category, key, defaultValue, titleKey, descKey, null, false);
     }
 
-    private void setupSimplePreference(String category, String key, boolean defaultValue, String titleKey, String descKey, Consumer<Boolean> additionalAction) {
+    private void setupSimplePreference(String category, String key, boolean defaultValue, String titleKey, String descKey, Predicate<Boolean> onChange) {
+        setupSimplePreference(category, key, defaultValue, titleKey, descKey, onChange, false);
+    }
+
+    private void setupSimplePreference(String category, String key, boolean defaultValue, String titleKey, String descKey, Predicate<Boolean> onChange, boolean hideSeparator) {
         if (!SimplePreferences.containsKey(key)) {
             SimplePreferences.putBooleanValue(key, defaultValue);
         }
         boolean val = SimplePreferences.getBooleanValue(key, defaultValue);
         setupPreference(category, new SettingsItemController(val, selected -> {
-            SimplePreferences.putBooleanValue(key, selected);
-            if (additionalAction != null) {
-                additionalAction.accept(selected);
+            if (onChange != null && !onChange.test(selected)) {
+                return false;
             }
+            SimplePreferences.putBooleanValue(key, selected);
             SimplePreferences.save();
-        }, LangHelper.getLang().getString(titleKey), LangHelper.getLang().getString(descKey)).getRoot());
+            return true;
+        }, LangHelper.getLang().getString(titleKey), LangHelper.getLang().getString(descKey), hideSeparator).getRoot());
     }
 
-    private void setupSourcePreference(String key, String title) {
+    private void setupSourcePreference(String key, String title, boolean hideSeparator) {
         if (!SimplePreferences.containsKey(key)) {
             SimplePreferences.putBooleanValue(key, true);
         }
         boolean val = SimplePreferences.getBooleanValue(key, true);
-        setupPreference(SOURCES_CATEGORY, new SettingsItemController(val, selected -> {
+        SettingsItemController controller = new SettingsItemController(val, selected -> {
             SimplePreferences.putBooleanValue(key, selected);
             SimplePreferences.save();
-        }, title, LangHelper.getLang().getString("source_msg")).getRoot());
+            return true;
+        }, title, LangHelper.getLang().getString("source_msg"), hideSeparator);
+        setupPreference(SOURCES_CATEGORY, controller.getRoot());
     }
 
     private void setupTextPreference(String category, String checkKey, boolean defaultCheck, String textKey, String defaultText, String titleKey, String descKey) {
+        setupTextPreference(category, checkKey, defaultCheck, textKey, defaultText, titleKey, descKey, null, false);
+    }
+
+    private void setupTextPreference(String category, String checkKey, boolean defaultCheck, String textKey, String defaultText, String titleKey, String descKey, Predicate<String> onChange, boolean hideSeparator) {
         boolean check = SimplePreferences.getBooleanValue(checkKey, defaultCheck);
         String text = SimplePreferences.getStringValue(textKey, defaultText);
         setupPreference(category, new SettingsEditItemController(
-                FxUtils.prop(text, FxUtils.delayedChangedListener(
-                        (observable, oldValue, newValue) -> SimplePreferences.putStringValue(textKey, newValue)
-                )),
+                text,
                 FxUtils.prop(check, (observable, oldValue, newValue) -> SimplePreferences.putBooleanValue(checkKey, newValue)),
                 LangHelper.getLang().getString(titleKey),
-                descKey != null ? LangHelper.getLang().getString(descKey) : null
+                descKey != null ? LangHelper.getLang().getString(descKey) : null,
+                s -> {
+                    if (onChange != null && !onChange.test(s)) {
+                        return false;
+                    }
+                    SimplePreferences.putStringValue(textKey, s);
+                    SimplePreferences.save();
+                    return true;
+                }, hideSeparator
         ).getRoot());
     }
 
     private void setupTextPreference(String category, String textKey, String defaultText, String titleKey, String descKey) {
+        setupTextPreference(category, textKey, defaultText, titleKey, descKey, null, false);
+    }
+
+    private void setupTextPreference(String category, String textKey, String defaultText, String titleKey, String descKey, Predicate<String> onChange, boolean hideSeparator) {
         String text = SimplePreferences.getStringValue(textKey, defaultText);
         setupPreference(category, new SettingsEditItemController(
-                FxUtils.prop(text, FxUtils.delayedChangedListener(
-                        (observable, oldValue, newValue) -> SimplePreferences.putStringValue(textKey, newValue)
-                )),
+                text,
                 null,
                 LangHelper.getLang().getString(titleKey),
-                descKey != null ? LangHelper.getLang().getString(descKey) : null
+                descKey != null ? LangHelper.getLang().getString(descKey) : null,
+                s -> {
+                    if (onChange != null && !onChange.test(s)) {
+                        return false;
+                    }
+                    SimplePreferences.putStringValue(textKey, s);
+                    SimplePreferences.save();
+                    return true;
+                }, hideSeparator
         ).getRoot());
     }
 
@@ -225,6 +318,20 @@ public class SettingsController implements Content {
             AnalyticsUtil.addCrashReport(ex, "Exception occurred while executing a restart command", false);
         }
         System.exit(0);
+    }
+
+    private <T> Predicate<T> toTruePredicate(Consumer<T> consumer) {
+        return t -> {
+            consumer.accept(t);
+            return true;
+        };
+    }
+
+    private <T> Predicate<T> toTruePredicate(Runnable runnable) {
+        return t -> {
+            runnable.run();
+            return true;
+        };
     }
 
     /*

@@ -3,11 +3,10 @@ package com.stirante.runechanger.gui.controllers;
 import com.stirante.runechanger.gui.Content;
 import com.stirante.runechanger.model.client.Champion;
 import com.stirante.runechanger.model.client.RunePage;
+import com.stirante.runechanger.util.SyncingListWrapper;
 import com.stirante.runechanger.util.LangHelper;
 import generated.Position;
-import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
-import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
@@ -33,8 +32,8 @@ public class RuneBookController implements Content {
     public ListView<RunePage> newRunesList;
     public Pane container;
 
-    public final ObservableList<RunePage> localRunes = FXCollections.observableArrayList();
-    public final ObservableList<RunePage> newRunes = FXCollections.observableArrayList();
+    public final SyncingListWrapper<RunePage> localRunes = new SyncingListWrapper<>();
+    public final SyncingListWrapper<RunePage> newRunes = new SyncingListWrapper<>();
 
     public RuneBookController() {
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/fxml/RuneBook.fxml"), LangHelper.getLang());
@@ -44,12 +43,12 @@ public class RuneBookController implements Content {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        localRunesList.setItems(localRunes);
-        newRunesList.setItems(newRunes);
+        localRunesList.setItems(localRunes.getBackingList());
+        newRunesList.setItems(newRunes.getBackingList());
         localRunes.addListener((ListChangeListener<RunePage>) observable -> {
             while (observable.next()) {
                 if (observable.getAddedSize() > 0 || observable.getRemovedSize() > 0) {
-                    FXCollections.sort(localRunes, Comparator.comparing(RunePage::getName));
+                    localRunes.sort(Comparator.comparing(RunePage::getName));
                     return;
                 }
             }
@@ -63,7 +62,7 @@ public class RuneBookController implements Content {
         newRunes.addListener((ListChangeListener<RunePage>) observable -> {
             while (observable.next()) {
                 if (observable.getAddedSize() > 0 || observable.getRemovedSize() > 0) {
-                    FXCollections.sort(newRunes, Comparator.comparing(RunePage::getName));
+                    newRunes.sort(Comparator.comparing(RunePage::getName));
                     return;
                 }
             }
@@ -124,7 +123,7 @@ public class RuneBookController implements Content {
         championName.setText(champion.getName());
         joke.setText(champion.getPickQuote());
         setPosition(champion.getPosition());
-        FilteredList<RunePage> filteredList = new FilteredList<>(localRunes, runePage ->
+        FilteredList<RunePage> filteredList = new FilteredList<>(localRunes.getBackingList(), runePage ->
                 runePage.isFromClient() ||
                         runePage.getChampion() == null ||
                         runePage.getChampion().equals(champion)

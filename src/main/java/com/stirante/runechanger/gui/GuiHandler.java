@@ -11,6 +11,7 @@ import com.stirante.runechanger.gui.overlay.ChampionSuggestions;
 import com.stirante.runechanger.gui.overlay.ClientOverlay;
 import com.stirante.runechanger.gui.overlay.RuneMenu;
 import com.stirante.runechanger.model.client.Champion;
+import com.stirante.runechanger.model.client.GameData;
 import com.stirante.runechanger.model.client.RunePage;
 import com.stirante.runechanger.sourcestore.SourceStore;
 import com.stirante.runechanger.util.*;
@@ -42,7 +43,7 @@ public class GuiHandler {
     public static final String REGISTRY_APPLIED_DPI = "AppliedDPI";
     private final AtomicBoolean threadRunning = new AtomicBoolean(false);
     private final AtomicBoolean windowOpen = new AtomicBoolean(false);
-    private ObservableList<RunePage> runes = FXCollections.observableArrayList();
+    private SyncingListWrapper<RunePage> runes = new SyncingListWrapper<>();
     private final ResourceBundle resourceBundle = LangHelper.getLang();
     private final RuneChanger runeChanger;
     private final ReentrantLock lock = new ReentrantLock();
@@ -120,16 +121,16 @@ public class GuiHandler {
         if (type == SceneType.NONE) {
             runes.clear();
             if (clientOverlay != null) {
-                clientOverlay.getLayer(RuneMenu.class).setRuneData(runes, null);
+                clientOverlay.getLayer(RuneMenu.class).setRuneData(runes.getBackingList(), null);
             }
         }
     }
 
-    public void setRunes(ObservableList<RunePage> runeList, Consumer<RunePage> onClickListener) {
+    public void setRunes(SyncingListWrapper<RunePage> runeList, Consumer<RunePage> onClickListener) {
         runes = runeList;
         runeSelectedListener = onClickListener;
         if (clientOverlay != null) {
-            clientOverlay.getLayer(RuneMenu.class).setRuneData(runes, onClickListener);
+            clientOverlay.getLayer(RuneMenu.class).setRuneData(runes.getBackingList(), onClickListener);
         }
     }
 
@@ -170,7 +171,7 @@ public class GuiHandler {
         }
         win = new JWindow();
         clientOverlay = new ClientOverlay(runeChanger);
-        clientOverlay.getLayer(RuneMenu.class).setRuneData(runes, runeSelectedListener);
+        clientOverlay.getLayer(RuneMenu.class).setRuneData(runes.getBackingList(), runeSelectedListener);
         clientOverlay.getLayer(ChampionSuggestions.class)
                 .setSuggestedChampions(suggestedChampions, bannedChampions, suggestedChampionSelectedListener);
         clientOverlay.setSceneType(type);
@@ -406,15 +407,17 @@ public class GuiHandler {
 
     @Subscribe(ChampionSelection.ChampionChangedEvent.NAME)
     public void onChampionChange(ChampionSelection.ChampionChangedEvent event) {
-        ObservableList<RunePage> pages = FXCollections.observableArrayList();
+        SyncingListWrapper<RunePage> pages = new SyncingListWrapper<>();
         setRunes(pages, (page) -> RuneChanger.EXECUTOR_SERVICE.submit(() -> RuneChanger.getInstance()
                 .getRunesModule()
                 .setCurrentRunePage(page)));
         if (event.getChampion() != null) {
             log.info("Downloading runes for champion: " + event.getChampion().getName());
-            SourceStore.getRunes(event.getChampion(), RuneChanger.getInstance()
-                    .getChampionSelectionModule()
-                    .getGameMode(), pages);
+            SourceStore.getRunes(
+                    GameData.of(
+                            event.getChampion(),
+                            RuneChanger.getInstance().getChampionSelectionModule().getGameMode()
+                    ), pages);
         }
         else {
             log.info("Showing local runes");
