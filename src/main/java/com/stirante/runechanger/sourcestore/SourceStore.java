@@ -25,6 +25,7 @@ public class SourceStore {
         sources.add(new RuneforgeSource());
         sources.add(new ChampionGGSource());
         sources.add(new LolalyticsSource());
+        sources.add(new MetasrcSource());
         sources.add(new LocalSource());
     }
 
