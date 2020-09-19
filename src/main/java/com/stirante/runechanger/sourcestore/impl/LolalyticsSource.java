@@ -3,11 +3,13 @@ package com.stirante.runechanger.sourcestore.impl;
 import com.google.gson.Gson;
 import com.stirante.runechanger.model.client.*;
 import com.stirante.runechanger.sourcestore.RuneSource;
+import com.stirante.runechanger.util.Pipe;
 import com.stirante.runechanger.util.SyncingListWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.InputStreamReader;
+import java.io.StringWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.*;
@@ -28,9 +30,15 @@ public class LolalyticsSource implements RuneSource {
                         .replace("%LANE%", lane.toLowerCase()));
                 HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                 conn.connect();
+                StringWriter json = new StringWriter();
+                Pipe.from(conn.getInputStream()).to(json);
                 LolalyticsResult jsonData =
-                        new Gson().fromJson(new InputStreamReader(conn.getInputStream()), LolalyticsResult.class);
-                conn.getInputStream().close();
+                        new Gson().fromJson(json.toString(), LolalyticsResult.class);
+                if (jsonData == null || jsonData.display == null) {
+                    log.warn("Invalid data received, when getting " + url.toString());
+                    log.debug(json.toString());
+                    continue;
+                }
                 ConvertedDataPair convertedDataPair = new ConvertedDataPair(Map.ofEntries(
                         Map.entry("rune1", jsonData.display.rune1),
                         Map.entry("rune2", jsonData.display.rune2),
