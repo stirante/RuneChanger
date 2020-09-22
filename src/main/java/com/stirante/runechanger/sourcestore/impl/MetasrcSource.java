@@ -37,26 +37,29 @@ public class MetasrcSource implements RuneSource {
     }
 
     public void downloadRunes(GameData data, SyncingListWrapper<RunePage> pages) {
-        ArrayList<String> runeLanes = getAvailableRuneLanes(data.getChampion());
-        for(String lane : Objects.requireNonNull(runeLanes)) {
-            final String requestURL = CHAMPION_URL
-                                        .replace("%MODE%", "5v5")
-                                        .replace("%CHAMPION%", data.getChampion().getInternalName())
-                                        .replace("%LANE%", lane.toLowerCase());
-            try {
-                Document webPage = Jsoup.parse(new URL(requestURL), 10000);
-                RunePage r = extractRunes(webPage);
-                r.setChampion(data.getChampion());
-                r.setName(lane.substring(0, 1) + lane.toLowerCase().substring(1));
-                r.setSource(requestURL);
-                r.setSourceName("Metasrc");
-                pages.add(r);
-            } catch (Exception e) {
-                log.warn("Error occured while getting Metasrc rune data for lane: " + lane);
-                e.printStackTrace();
+        // This makes sure that the runes wont get duplicated when getting them from GUI
+        if(data.getGameMode() == GameMode.CLASSIC || data.getContext() == GameData.Context.CHAMPION_SELECT) {
+            ArrayList<String> runeLanes = getAvailableRuneLanes(data.getChampion());
+            for(String lane : Objects.requireNonNull(runeLanes)) {
+                final String requestURL = CHAMPION_URL
+                        .replace("%MODE%", "5v5")
+                        .replace("%CHAMPION%", data.getChampion().getInternalName())
+                        .replace("%LANE%", lane.toLowerCase());
+                try {
+                    Document webPage = Jsoup.parse(new URL(requestURL), 10000);
+                    RunePage r = extractRunes(webPage);
+                    r.setChampion(data.getChampion());
+                    r.setName(lane.substring(0, 1) + lane.toLowerCase().substring(1));
+                    r.setSource(requestURL);
+                    r.setSourceName("Metasrc");
+                    pages.add(r);
+                } catch (Exception e) {
+                    log.warn("Error occured while getting Metasrc rune data for lane: " + lane);
+                    e.printStackTrace();
+                }
+
+
             }
-
-
         }
 
         String specialGamemodeURL = CHAMPION_URL
@@ -162,5 +165,9 @@ public class MetasrcSource implements RuneSource {
             default:
                 return null;
         }
+    }
+    @Override
+    public GameMode[] getSupportedGameModes() {
+        return new GameMode[]{GameMode.CLASSIC, GameMode.ONEFORALL, GameMode.URF, GameMode.ARAM, GameMode.KINGPORO, GameMode.NEXUSBLITZ};
     }
 }
