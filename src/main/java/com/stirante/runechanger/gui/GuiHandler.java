@@ -417,7 +417,7 @@ public class GuiHandler {
                     GameData.of(
                             event.getChampion(),
                             RuneChanger.getInstance().getChampionSelectionModule().getGameMode()
-                    ), pages);
+                    ).addContext(GameData.Context.CHAMPION_SELECT), pages);
         }
         else {
             log.info("Showing local runes");
