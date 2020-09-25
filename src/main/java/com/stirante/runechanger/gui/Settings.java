@@ -8,24 +8,30 @@ import com.stirante.runechanger.RuneChanger;
 import com.stirante.runechanger.client.ClientEventListener;
 import com.stirante.runechanger.gui.controllers.*;
 import com.stirante.runechanger.model.client.Champion;
-import com.stirante.runechanger.model.client.GameData;
 import com.stirante.runechanger.model.client.RunePage;
 import com.stirante.runechanger.sourcestore.SourceStore;
 import com.stirante.runechanger.util.*;
 import generated.LolGameflowGameflowPhase;
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
+import javafx.geometry.Insets;
 import javafx.geometry.NodeOrientation;
+import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.ProgressBar;
+import javafx.scene.control.Dialog;
+import javafx.scene.control.Label;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import javafx.util.Pair;
+import javafx.util.StringConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -228,7 +234,8 @@ public class Settings extends Application {
                     PerformanceMonitor.start();
                     RuneChanger.getInstance().getGuiHandler().showInfoMessage("Performance monitor started");
                 }
-            } else if (event.isControlDown() && event.getCode() == KeyCode.L) {
+            }
+            else if (event.isControlDown() && event.getCode() == KeyCode.L) {
                 ProgressDialogController progressDialog = new ProgressDialogController();
                 progressDialog.setTitle("Debugging LoL client connection");
                 progressDialog.setProgress(ProgressBar.INDETERMINATE_PROGRESS);
@@ -248,7 +255,9 @@ public class Settings extends Application {
                             pw.flush();
                         } catch (IOException e) {
                             log.error("Exception occurred while saving logs", e);
-                            RuneChanger.getInstance().getGuiHandler().showErrorMessage("Error, while saving log: " + e.getMessage());
+                            RuneChanger.getInstance()
+                                    .getGuiHandler()
+                                    .showErrorMessage("Error, while saving log: " + e.getMessage());
                         }
                         progressDialog.close();
                         try {
@@ -258,6 +267,111 @@ public class Settings extends Application {
                         }
                     }
                 }.execute();
+            }
+            else if (event.isControlDown() && event.getCode() == KeyCode.T) {
+                // I'm sorry, this is very experimental and POC and ugly
+                Dialog<Pair<String, String>> dialog = new Dialog<>();
+                dialog.setTitle("Crafting (suuuper test version)");
+                dialog.setHeaderText(null);
+                dialog.setWidth(500);
+                ButtonType loginButtonType = new ButtonType("Craft", ButtonBar.ButtonData.OK_DONE);
+                dialog.getDialogPane().getButtonTypes().addAll(loginButtonType, ButtonType.CANCEL);
+
+                GridPane grid = new GridPane();
+                grid.setMinWidth(500);
+                grid.setHgap(10);
+                grid.setVgap(10);
+                grid.setPadding(new Insets(10, 10, 10, 10));
+
+                ChoiceBox<Map.Entry<String, Pair<String, Integer>>> tokens = new ChoiceBox<>();
+                tokens.setConverter(new StringConverter<>() {
+                    @Override
+                    public String toString(Map.Entry<String, Pair<String, Integer>> object) {
+                        return object.getValue().getKey();
+                    }
+
+                    @Override
+                    public Map.Entry<String, Pair<String, Integer>> fromString(String string) {
+                        return tokens.getItems()
+                                .stream()
+                                .filter(stringPairEntry -> stringPairEntry.getValue().getKey().equals(string))
+                                .findFirst()
+                                .orElse(null);
+                    }
+                });
+                ChoiceBox<Map.Entry<String, Pair<String, Integer>>> recipes = new ChoiceBox<>();
+                recipes.setDisable(true);
+                recipes.setConverter(new StringConverter<>() {
+                    @Override
+                    public String toString(Map.Entry<String, Pair<String, Integer>> object) {
+                        return object.getValue().getKey();
+                    }
+
+                    @Override
+                    public Map.Entry<String, Pair<String, Integer>> fromString(String string) {
+                        return recipes.getItems()
+                                .stream()
+                                .filter(stringPairEntry -> stringPairEntry.getValue().getKey().equals(string))
+                                .findFirst()
+                                .orElse(null);
+                    }
+                });
+                tokens.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+                    recipes.setDisable(newValue == null);
+                    if (newValue != null) {
+                        recipes.setItems(FXCollections.observableList(new ArrayList<>(RuneChanger.getInstance()
+                                .getLootModule()
+                                .getRecipes(newValue.getKey())
+                                .entrySet())));
+                    }
+                    else {
+                        recipes.getItems().clear();
+                    }
+                });
+                tokens.setItems(FXCollections.observableList(new ArrayList<>(RuneChanger.getInstance()
+                        .getLootModule()
+                        .getEventTokens()
+                        .entrySet())));
+
+                grid.add(new Label("Event token:"), 0, 0);
+                grid.add(tokens, 1, 0);
+                grid.add(new Label("Recipe:"), 0, 1);
+                grid.add(recipes, 1, 1);
+
+                Node craftButton = dialog.getDialogPane().lookupButton(loginButtonType);
+                craftButton.setDisable(true);
+
+                recipes.getSelectionModel().selectedItemProperty()
+                        .addListener((observable, oldValue, newValue) -> craftButton.setDisable(newValue == null));
+
+                dialog.getDialogPane().setContent(grid);
+
+                Platform.runLater(tokens::requestFocus);
+
+                dialog.setResultConverter(dialogButton -> {
+                    if (dialogButton == loginButtonType) {
+                        return new Pair<>(tokens.getSelectionModel()
+                                .getSelectedItem()
+                                .getKey(), recipes.getSelectionModel().getSelectedItem().getKey());
+                    }
+                    return null;
+                });
+
+                Optional<Pair<String, String>> result = dialog.showAndWait();
+
+                result.ifPresent(tokenRecipePair -> {
+                    Map.Entry<String, Pair<String, Integer>> token =
+                            tokens.getSelectionModel().selectedItemProperty().get();
+                    Map.Entry<String, Pair<String, Integer>> recipe =
+                            recipes.getSelectionModel().selectedItemProperty().get();
+                    int repeat = token.getValue().getValue() / recipe.getValue().getValue();
+                    if (repeat == 0) {
+                        runeChanger.getGuiHandler().showWarningMessage("You don't have enough tokens!");
+                    } else {
+                        runeChanger.getGuiHandler().showInfoMessage("Trying to craft the recipe " + repeat + " times");
+                        runeChanger.getLootModule().craftRecipe(recipe.getKey(), token.getKey(), repeat);
+                    }
+                });
             }
         });
 
@@ -406,7 +520,7 @@ public class Settings extends Application {
                             runeChanger.getRunesModule().getOwnedPageCount());
                     // Split list into runepages, that are both in runebook and in client and those, that are only in runebook
                     @SuppressWarnings("unchecked") Map<Boolean, List<RunePage>> results =
-                            ((List<RunePage>)SimplePreferences.getRuneBookValues().clone())
+                            ((List<RunePage>) SimplePreferences.getRuneBookValues().clone())
                                     .stream()
                                     .collect(Collectors.partitioningBy(runePage -> result
                                             .stream().noneMatch(runePage1 -> runePage1.equals(runePage))));

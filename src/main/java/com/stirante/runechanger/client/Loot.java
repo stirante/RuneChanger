@@ -9,6 +9,7 @@ import generated.LolChampionsCollectionsChampionMinimal;
 import generated.LolCollectionsCollectionsChampionMastery;
 import generated.LolLootPlayerLoot;
 import generated.LolLootRecipe;
+import javafx.util.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -134,11 +135,11 @@ public class Loot extends ClientModule {
     }
 
     /**
-     * Returns a map of loot Ids and their count
+     * Returns a map of loot Ids and pair of their name and count
      *
-     * @return map of loot Id -> token count
+     * @return map of loot Id -> pair of loot name and count
      */
-    public Map<String, Integer> getEventTokens() {
+    public Map<String, Pair<String, Integer>> getEventTokens() {
         try {
             ApiResponse<LolLootPlayerLoot[]> loot =
                     getApi().executeGet("/lol-loot/v1/player-loot/", LolLootPlayerLoot[].class);
@@ -148,7 +149,7 @@ public class Loot extends ClientModule {
                                     !IGNORED_MATERIALS.contains(lolLootPlayerLoot.lootId))
                     .collect(Collectors.toMap(
                             lolLootPlayerLoot -> lolLootPlayerLoot.lootId,
-                            lolLootPlayerLoot -> lolLootPlayerLoot.count)
+                            lolLootPlayerLoot -> new Pair<>(lolLootPlayerLoot.localizedName, lolLootPlayerLoot.count))
                     );
         } catch (IOException e) {
             log.error("Exception occurred while getting map of event tokens", e);
@@ -157,24 +158,22 @@ public class Loot extends ClientModule {
     }
 
     /**
-     * Returns a map of token recipe names and their costs
+     * Returns a map of token recipe names and pair of their name and cost
      *
      * @param lootId loot id
-     * @return map of token recipe name -> recipe cost
+     * @return map of token recipe name -> pair of recipe name and cost
      */
-    public Map<String, Integer> getRecipes(String lootId) {
+    public Map<String, Pair<String, Integer>> getRecipes(String lootId) {
         try {
             ApiResponse<LolLootRecipe[]> loot =
                     getApi().executeGet("/lol-loot/v1/recipes/initial-item/" + lootId, LolLootRecipe[].class);
             return Arrays.stream(loot.getResponseObject())
-                    .filter(lolLootRecipe -> lolLootRecipe.slots.stream()
-                            .anyMatch(lolLootRecipeSlot -> lolLootRecipeSlot.lootIds.contains(lootId)))
+                    .filter(lolLootRecipe -> lolLootRecipe.slots.size() == 1 &&
+                            lolLootRecipe.slots.get(0).lootIds.size() == 1 &&
+                            lolLootRecipe.slots.get(0).lootIds.get(0).equalsIgnoreCase(lootId))
                     .collect(Collectors.toMap(
                             lolLootPlayerLoot -> lolLootPlayerLoot.recipeName,
-                            lolLootPlayerLoot -> lolLootPlayerLoot.slots.stream()
-                                    .filter(lolLootRecipeSlot -> lolLootRecipeSlot.lootIds.contains(lootId))
-                                    .findFirst()
-                                    .orElseThrow().quantity)
+                            lolLootPlayerLoot -> new Pair<>(lolLootPlayerLoot.description, lolLootPlayerLoot.slots.get(0).quantity))
                     );
         } catch (IOException e) {
             log.error("Exception occurred while getting map of recipes", e);
@@ -184,9 +183,10 @@ public class Loot extends ClientModule {
 
     /**
      * Crafts a recipe
+     *
      * @param recipeName recipe name
-     * @param lootId material Id to be consumed
-     * @param repeat how many times it should be crafted
+     * @param lootId     material Id to be consumed
+     * @param repeat     how many times it should be crafted
      * @return whether the crafting was successful
      */
     public boolean craftRecipe(String recipeName, String lootId, int repeat) {
