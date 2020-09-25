@@ -8,10 +8,7 @@ import com.stirante.eventbus.EventBus;
 import com.stirante.runechanger.RuneChanger;
 import com.stirante.runechanger.sourcestore.SourceStore;
 import com.stirante.runechanger.sourcestore.impl.ChampionGGSource;
-import com.stirante.runechanger.util.AnalyticsUtil;
-import com.stirante.runechanger.util.PathUtils;
-import com.stirante.runechanger.util.PerformanceMonitor;
-import com.stirante.runechanger.util.StringUtils;
+import com.stirante.runechanger.util.*;
 import generated.Position;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -21,12 +18,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.imageio.ImageIO;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -49,9 +48,9 @@ public class Champion {
             })
             .build(key -> {
                 BufferedImage img = ImageIO.read(new File(portraitsDir, key.getId() + ".jpg"));
-                java.awt.Image scaledInstance = img.getScaledInstance(70, 70, java.awt.Image.SCALE_SMOOTH);
+                BufferedImage scaledImage = SwingUtils.getScaledImage(70, 70, img);
                 img.flush();
-                return scaledInstance;
+                return scaledImage;
             });
 
     static {

@@ -15,13 +15,16 @@ public class DebugUtils {
             runnable.run();
             return;
         }
+        long memory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
         long start = System.currentTimeMillis();
         long duration;
         try {
             runnable.run();
             duration = System.currentTimeMillis() - start;
+            memory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory() - memory;
         } catch (Throwable t) {
             duration = System.currentTimeMillis() - start;
+            memory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory() - memory;
         }
         StackTraceElement callingStackElement = getCallingStackElement();
         Logger logger = LoggerFactory.getLogger(toClass(callingStackElement));
@@ -33,6 +36,7 @@ public class DebugUtils {
             }
         }
         logger.debug("Execution took " + duration + "ms.");
+        logger.debug("During execution " + memory + " bytes were used");
     }
 
     private static String getLine(StackTraceElement element) {

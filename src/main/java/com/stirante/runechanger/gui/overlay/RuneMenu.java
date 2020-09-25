@@ -9,6 +9,7 @@ import com.stirante.runechanger.gui.SceneType;
 import com.stirante.runechanger.model.client.RunePage;
 import com.stirante.runechanger.util.AnalyticsUtil;
 import com.stirante.runechanger.util.FxUtils;
+import com.stirante.runechanger.util.SwingUtils;
 import javafx.beans.InvalidationListener;
 import javafx.collections.ObservableList;
 import org.slf4j.Logger;
@@ -37,19 +38,21 @@ public class RuneMenu extends OverlayLayer {
     private Image closeIcon;
     private final Rectangle warningCloseButton = new Rectangle(0, 0, 0, 0);
     private boolean warningVisible = true;
-    private boolean warningClosed = false;
     private float currentRuneMenuPosition = 0f;
     private float scroll = 0f;
 
     public RuneMenu(ClientOverlay overlay) {
         super(overlay);
         try {
-            icon = ImageIO.read(getClass().getResourceAsStream("/images/28.png"));
-            grayscaleIcon = ImageIO.read(getClass().getResourceAsStream("/images/28grayscale.png"));
-            warnIcon = ImageIO.read(getClass().getResourceAsStream("/images/info-yellow.png"))
-                    .getScaledInstance(32, 32, java.awt.Image.SCALE_SMOOTH);
-            closeIcon = ImageIO.read(getClass().getResourceAsStream("/images/close.png"))
-                    .getScaledInstance(16, 16, java.awt.Image.SCALE_SMOOTH);
+            int size = (int) (Constants.RUNE_BUTTON_SIZE * getHeight());
+            icon =
+                    SwingUtils.getScaledImage(size, size, ImageIO.read(getClass().getResourceAsStream("/images/28.png")));
+            grayscaleIcon =
+                    SwingUtils.getScaledImage(size, size, ImageIO.read(getClass().getResourceAsStream("/images/28grayscale.png")));
+            warnIcon =
+                    SwingUtils.getScaledImage(32, 32, ImageIO.read(getClass().getResourceAsStream("/images/info-yellow.png")));
+            closeIcon =
+                    SwingUtils.getScaledImage(16, 16, ImageIO.read(getClass().getResourceAsStream("/images/close.png")));
         } catch (IOException e) {
             log.error("Exception occurred while loading rune button icons", e);
             AnalyticsUtil.addCrashReport(e, "Exception occurred while loading rune button icons", false);
@@ -59,7 +62,6 @@ public class RuneMenu extends OverlayLayer {
 
     @Subscribe(ChampionSelection.ChampionSelectionEndEvent.NAME)
     public void onChampionSelectionEnd(ChampionSelection.ChampionSelectionEndEvent e) {
-        warningClosed = false;
         warningVisible = false;
     }
 
@@ -80,16 +82,13 @@ public class RuneMenu extends OverlayLayer {
     }
 
     private void drawRuneButton(Graphics2D g2d) {
+        int x = (int) ((getClientWidth()) * Constants.RUNE_BUTTON_POSITION_X);
+        int y = (int) (getHeight() * Constants.RUNE_BUTTON_POSITION_Y);
         if (pages.size() > 0) {
-            g2d.drawImage(icon, (int) ((getClientWidth()) * Constants.RUNE_BUTTON_POSITION_X), (int) (getHeight() *
-                    Constants.RUNE_BUTTON_POSITION_Y), (int) (Constants.RUNE_BUTTON_SIZE * getHeight()), (int) (
-                    Constants.RUNE_BUTTON_SIZE * getHeight()), null);
+            g2d.drawImage(icon, x, y, icon.getWidth(), icon.getHeight(), null);
         }
         else {
-            g2d.drawImage(grayscaleIcon, (int) ((getClientWidth()) * Constants.RUNE_BUTTON_POSITION_X), (int) (
-                    getHeight() *
-                            Constants.RUNE_BUTTON_POSITION_Y), (int) (Constants.RUNE_BUTTON_SIZE * getHeight()), (int) (
-                    Constants.RUNE_BUTTON_SIZE * getHeight()), null);
+            g2d.drawImage(grayscaleIcon, x, y, grayscaleIcon.getWidth(), grayscaleIcon.getHeight(), null);
             opened = false;
         }
     }
@@ -138,53 +137,6 @@ public class RuneMenu extends OverlayLayer {
 
         g2d.setFont(oldFont);
     }
-
-//    private void drawWarning(Graphics2D g2d) {
-//        Font oldFont = g2d.getFont();
-//        g2d.setFont(oldFont.deriveFont(15f));
-//
-//        String text = "Did you forget to change the rune page?";
-//        LineMetrics metrics = g2d.getFontMetrics().getLineMetrics(text, g2d);
-//        int border = 2;
-//        int margin = 5;
-//        int height = 50;
-//        int width = (2 * border) + (4 * margin) + warnIcon.getWidth(null) + g2d.getFontMetrics().stringWidth(text) +
-//                closeIcon.getWidth(null);
-//        int x = (int) ((getClientWidth() * Constants.RUNE_MENU_X) - (width / 2)) + (int) (getClientWidth() *
-//                Constants.RUNE_ITEM_WIDTH / 2);
-//        int y = (int) (((getHeight() * Constants.RUNE_MENU_Y) - height) - tooltipCaret.getHeight()) - margin;
-//
-//        g2d.setPaint(new GradientPaint(0, y, GRADIENT_COLOR_1, 0, y + height, GRADIENT_COLOR_2));
-//        g2d.fillRect(x, y, width, height);
-//        g2d.setPaint(BACKGROUND_COLOR);
-//        g2d.fillRect(x + border, y + border, width - (2 * border), height - (2 * border));
-//        g2d.setPaint(TEXT_COLOR);
-//        g2d.drawImage(
-//                closeIcon,
-//                (x + width - (border * 2)) - closeIcon.getWidth(null),
-//                y + border,
-//                null
-//        );
-//        g2d.drawImage(
-//                warnIcon,
-//                x + border + margin,
-//                y + (height / 2) - (warnIcon.getHeight(null) / 2),
-//                null
-//        );
-//        g2d.drawString(
-//                text,
-//                x + border + (margin * 2) + warnIcon.getWidth(null),
-//                y + (height / 2) + (int) (metrics.getAscent() / 4)
-//        );
-//        g2d.drawImage(
-//                tooltipCaret,
-//                x + (width / 2) - (tooltipCaret.getWidth() / 2),
-//                y + height,
-//                null
-//        );
-//
-//        g2d.setFont(oldFont);
-//    }
 
     private void drawRuneMenu(Graphics2D g2d) {
         //open/close animations
@@ -288,7 +240,6 @@ public class RuneMenu extends OverlayLayer {
         if (warningVisible && warningCloseButton.getSize().height > 0 &&
                 warningCloseButton.contains(e.getX(), e.getY())) {
             warningVisible = false;
-            warningClosed = true;
         }
         else if (pages.size() > 0 && e.getX() > ((getClientWidth()) * Constants.RUNE_BUTTON_POSITION_X) &&
                 e.getX() < ((getClientWidth()) * Constants.RUNE_BUTTON_POSITION_X) + icon.getWidth() &&

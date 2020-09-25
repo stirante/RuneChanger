@@ -38,11 +38,11 @@ public class ClientOverlay extends JPanel implements MouseMotionListener, MouseL
     /**
      * Timer for rendering overlay
      */
-    private Timer timer;
+    private final Timer timer;
     /**
      * Set of layers
      */
-    private Set<OverlayLayer> layers = new ClassSet<>(Comparator.comparingInt(OverlayLayer::getZIndex));
+    private final Set<OverlayLayer> layers = new ClassSet<>(Comparator.comparingInt(OverlayLayer::getZIndex));
 
     private BufferedImage fake;
     private float lastX = 0f;
