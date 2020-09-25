@@ -40,15 +40,11 @@ public class RuneMenu extends OverlayLayer {
     private boolean warningVisible = true;
     private float currentRuneMenuPosition = 0f;
     private float scroll = 0f;
+    private int size = 0;
 
     public RuneMenu(ClientOverlay overlay) {
         super(overlay);
         try {
-            int size = (int) (Constants.RUNE_BUTTON_SIZE * getHeight());
-            icon =
-                    SwingUtils.getScaledImage(size, size, ImageIO.read(getClass().getResourceAsStream("/images/28.png")));
-            grayscaleIcon =
-                    SwingUtils.getScaledImage(size, size, ImageIO.read(getClass().getResourceAsStream("/images/28grayscale.png")));
             warnIcon =
                     SwingUtils.getScaledImage(32, 32, ImageIO.read(getClass().getResourceAsStream("/images/info-yellow.png")));
             closeIcon =
@@ -82,6 +78,19 @@ public class RuneMenu extends OverlayLayer {
     }
 
     private void drawRuneButton(Graphics2D g2d) {
+        int size = (int) (Constants.RUNE_BUTTON_SIZE * getHeight());
+        if (size != this.size) {
+            this.size = size;
+            try {
+                icon =
+                        SwingUtils.getScaledImage(size, size, ImageIO.read(getClass().getResourceAsStream("/images/28.png")));
+                grayscaleIcon =
+                        SwingUtils.getScaledImage(size, size, ImageIO.read(getClass().getResourceAsStream("/images/28grayscale.png")));
+            } catch (IOException e) {
+                log.error("Exception occurred while loading rune button icons", e);
+                AnalyticsUtil.addCrashReport(e, "Exception occurred while loading rune button icons", false);
+            }
+        }
         int x = (int) ((getClientWidth()) * Constants.RUNE_BUTTON_POSITION_X);
         int y = (int) (getHeight() * Constants.RUNE_BUTTON_POSITION_Y);
         if (pages.size() > 0) {
