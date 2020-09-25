@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Objects;
@@ -36,35 +37,61 @@ public class MetasrcSource implements RuneSource {
     }
 
     public void downloadRunes(GameData data, SyncingListWrapper<RunePage> pages) {
-        ArrayList<String> runeLanes = getAvailableRuneLanes(data.getChampion());
-        for(String lane : Objects.requireNonNull(runeLanes)) {
-            final String requestURL = CHAMPION_URL
-                                        .replace("%MODE%", "5v5")
-                                        .replace("%CHAMPION%", data.getChampion().getInternalName())
-                                        .replace("%LANE%", lane.toLowerCase());
+        // This makes sure that the runes wont get duplicated when getting them from GUI
+        if(data.getGameMode() == GameMode.CLASSIC || data.getContext() == GameData.Context.CHAMPION_SELECT) {
+            ArrayList<String> runeLanes = getAvailableRuneLanes(data.getChampion());
+            for(String lane : Objects.requireNonNull(runeLanes)) {
+                final String requestURL = CHAMPION_URL
+                        .replace("%MODE%", "5v5")
+                        .replace("%CHAMPION%", data.getChampion().getInternalName())
+                        .replace("%LANE%", lane.toLowerCase());
+                try {
+                    Document webPage = Jsoup.parse(new URL(requestURL), 10000);
+                    RunePage r = extractRunes(webPage);
+                    r.setChampion(data.getChampion());
+                    r.setName(lane.substring(0, 1) + lane.toLowerCase().substring(1));
+                    r.setSource(requestURL);
+                    r.setSourceName("Metasrc");
+                    pages.add(r);
+                } catch (Exception e) {
+                    log.warn("Error occured while getting Metasrc rune data for lane: " + lane);
+                    e.printStackTrace();
+                }
+
+
+            }
+        }
+
+        String specialGamemodeURL = CHAMPION_URL
+                .replace("%CHAMPION%", data.getChampion().getInternalName())
+                .replace("%LANE%", "");
+        // GETTING RUNES FOR SPECIAL GAMEMODES
+        String gamemodeKey = getSpecialGamemodeKey(data);
+
+        if(gamemodeKey != null) {
+            final String requestURL = specialGamemodeURL.replace("%MODE%", gamemodeKey);
             try {
                 Document webPage = Jsoup.parse(new URL(requestURL), 10000);
                 RunePage r = extractRunes(webPage);
                 r.setChampion(data.getChampion());
-                r.setName(lane.substring(0, 1) + lane.toLowerCase().substring(1));
+                r.setName(data.getGameMode().getName());
                 r.setSource(requestURL);
                 r.setSourceName("Metasrc");
                 pages.add(r);
             } catch (Exception e) {
-                log.warn("Error occured while getting Metasrc rune data for lane: " + lane);
+                log.warn("Failed to get Metasrc runedata for special gamemode: " + data.getGameMode().getName());
                 e.printStackTrace();
             }
-
-
         }
+
+
     }
 
     private RunePage extractRunes(Document webPage) {
         RunePage r = new RunePage();
-        Elements runes = webPage.select("div._yq1p7n._sjgjkw > div._sfh2p9 > div");
+        Elements runes = webPage.select("div._lop72r:nth-of-type(2) > div._sjgjkw:nth-of-type(2) > div._sfh2p9 > div");
         Elements mainRunes = runes.get(0).select("div._hmag7l > div._xdda66 > div._q8ue62");
         Elements secondaryRunes = runes.get(1).select("div._hmag7l > div._xdda66 > div._q8ue62");
-
         r.setMainStyle(Style.getByName(mainRunes.get(0).text()));
         r.setSubStyle(Style.getByName(secondaryRunes.get(0).text()));
 
@@ -121,5 +148,26 @@ public class MetasrcSource implements RuneSource {
             default:
                 return null;
         }
+    }
+
+    private String getSpecialGamemodeKey(GameData data) {
+        switch(data.getGameMode()) {
+            case ONEFORALL:
+                return "ofa";
+            case URF:
+                return "urf";
+            case ARAM:
+                return "aram";
+            case KINGPORO:
+                return "poro";
+            case NEXUSBLITZ:
+                return "blitz";
+            default:
+                return null;
+        }
+    }
+    @Override
+    public GameMode[] getSupportedGameModes() {
+        return new GameMode[]{GameMode.CLASSIC, GameMode.ONEFORALL, GameMode.URF, GameMode.ARAM, GameMode.KINGPORO, GameMode.NEXUSBLITZ};
     }
 }
