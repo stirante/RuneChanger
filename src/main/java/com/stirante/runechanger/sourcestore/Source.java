@@ -18,7 +18,6 @@ public interface Source {
 
     /**
      * Called when source settings are loaded or updated
-     * @param settings
      */
     default void onSettingsUpdate(Map<String, Object> settings) {
 
@@ -26,7 +25,6 @@ public interface Source {
 
     /**
      * Called when creating settings GUI for source
-     * @param config
      */
     default void setupSettings(SettingsConfiguration config) {
 
