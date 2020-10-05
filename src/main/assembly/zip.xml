@@ -26,6 +26,10 @@
             <source>${project.build.directory}/${project.artifactId}.jar</source>
             <outputDirectory>/</outputDirectory>
         </file>
+        <file>
+            <source>${basedir}/src/main/resources/images/icon.ico</source>
+            <outputDirectory>/</outputDirectory>
+        </file>
     </files>
     <dependencySets>
         <dependencySet>

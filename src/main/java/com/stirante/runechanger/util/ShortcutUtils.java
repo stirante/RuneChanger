@@ -16,14 +16,6 @@ public class ShortcutUtils {
     public static void createShortcut(File directory, String linkName, String fileName) throws IOException {
         String dir = PathUtils.getWorkingDirectory();
         File iconFile = new File(dir + File.separator + "icon.ico");
-        if (iconFile.exists()) {
-            iconFile.delete();
-        }
-        InputStream iconStream =
-                ShortcutUtils.class.getResourceAsStream("/images/256.ico");
-        byte[] bytes = iconStream.readAllBytes();
-        iconStream.close();
-        Files.write(iconFile.toPath(), bytes);
         ShellLink sl = ShellLink.createLink(fileName);
         sl.setIconLocation(iconFile.getAbsolutePath());
         sl.setWorkingDir(dir);
