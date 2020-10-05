@@ -1,7 +1,8 @@
 package com.stirante.runechanger.sourcestore;
 
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import com.stirante.runechanger.RuneChanger;
-import com.stirante.runechanger.gui.controllers.SettingsCategoryController;
 import com.stirante.runechanger.model.app.CounterData;
 import com.stirante.runechanger.model.app.SettingsConfiguration;
 import com.stirante.runechanger.model.client.Champion;
@@ -11,7 +12,9 @@ import com.stirante.runechanger.model.client.RunePage;
 import com.stirante.runechanger.sourcestore.impl.*;
 import com.stirante.runechanger.util.SimplePreferences;
 import com.stirante.runechanger.util.SyncingListWrapper;
+import javafx.collections.ListChangeListener;
 
+import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
@@ -19,6 +22,11 @@ import java.util.concurrent.Future;
 public class SourceStore {
 
     private static final List<Source> sources = new ArrayList<>();
+
+    private static final Cache<GameData, List<RunePage>> GAME_CACHE =
+            Caffeine.newBuilder().expireAfterWrite(Duration.ofHours(4)).build();
+    private static final Cache<Champion, List<RunePage>> GUI_CACHE =
+            Caffeine.newBuilder().expireAfterWrite(Duration.ofMinutes(15)).maximumSize(5).build();
 
     static {
         sources.add(new UGGSource());
@@ -35,6 +43,11 @@ public class SourceStore {
         }
     }
 
+    public static void invalidateCaches() {
+        GUI_CACHE.invalidateAll();
+        GAME_CACHE.invalidateAll();
+    }
+
     public static void updateSourceSettings(Source source) {
         SettingsConfiguration config = new SettingsConfiguration();
         source.setupSettings(config);
@@ -42,10 +55,12 @@ public class SourceStore {
         for (SettingsConfiguration.FieldConfiguration<?> field : config.getFields()) {
             Object val = field.getDefaultValue();
             if (field.getType() == Boolean.class) {
-                val = SimplePreferences.getBooleanValue(field.getPrefKey(source.getSourceKey()), (boolean) field.getDefaultValue());
+                val =
+                        SimplePreferences.getBooleanValue(field.getPrefKey(source.getSourceKey()), (boolean) field.getDefaultValue());
             }
             else if (field.getType() == String.class) {
-                val = SimplePreferences.getStringValue(field.getPrefKey(source.getSourceKey()), (String) field.getDefaultValue());
+                val =
+                        SimplePreferences.getStringValue(field.getPrefKey(source.getSourceKey()), (String) field.getDefaultValue());
             }
             data.put(field.getKey(), val);
         }
@@ -59,6 +74,21 @@ public class SourceStore {
      * @param pages list of pages, which will be filled with pages
      */
     public static void getRunes(GameData data, SyncingListWrapper<RunePage> pages) {
+        List<RunePage> cached = GAME_CACHE.getIfPresent(data);
+        if (cached != null) {
+            pages.addAll(cached);
+            return;
+        }
+        else {
+            GAME_CACHE.put(data, new ArrayList<>());
+            pages.getBackingList().addListener((ListChangeListener.Change<? extends RunePage> c) -> {
+                List<RunePage> list = GAME_CACHE.getIfPresent(data);
+                if (list != null && !c.getList().isEmpty()) {
+                    list.clear();
+                    list.addAll(c.getList());
+                }
+            });
+        }
         sources.stream()
                 .filter(source -> source instanceof RuneSource &&
                         SimplePreferences.getBooleanValue(source.getSourceKey(), true))
@@ -93,6 +123,21 @@ public class SourceStore {
      * @param pages    list of pages, which will be filled with pages
      */
     public static void getRemoteRunes(Champion champion, SyncingListWrapper<RunePage> pages) {
+        List<RunePage> cached = GUI_CACHE.getIfPresent(champion);
+        if (cached != null) {
+            pages.addAll(cached);
+            return;
+        }
+        else {
+            GUI_CACHE.put(champion, new ArrayList<>());
+            pages.getBackingList().addListener((ListChangeListener.Change<? extends RunePage> c) -> {
+                List<RunePage> list = GUI_CACHE.getIfPresent(champion);
+                if (list != null && !c.getList().isEmpty()) {
+                    list.clear();
+                    list.addAll(c.getList());
+                }
+            });
+        }
         RuneChanger.EXECUTOR_SERVICE.submit(() -> {
             sources.stream()
                     .filter(source -> source instanceof RuneSource && !(source instanceof LocalSource) &&

@@ -134,7 +134,6 @@ public class SettingsController implements Content {
                 false
         ).getRoot());
 
-        setupSourcePreference("localSource", LangHelper.getLang().getString("local_source"), false);
         for (Source source : SourceStore.getSources()) {
             SettingsConfiguration config = new SettingsConfiguration();
             source.setupSettings(config);
@@ -241,6 +240,7 @@ public class SettingsController implements Content {
         SettingsItemController controller = new SettingsItemController(val, selected -> {
             SimplePreferences.putBooleanValue(key, selected);
             SimplePreferences.save();
+            SourceStore.invalidateCaches();
             return true;
         }, title, LangHelper.getLang().getString("source_msg"), hideSeparator);
         setupPreference(SOURCES_CATEGORY, controller.getRoot());

@@ -6,12 +6,10 @@ public class GameData {
     private final Champion champion;
     private Context context = Context.UNKNOWN;
 
-
     private GameData(Champion champion, GameMode mode) {
         this.mode = mode;
         this.champion = champion;
     }
-
 
     public static GameData of(Champion champion, GameMode mode) {
         if (champion == null) {
@@ -37,7 +35,37 @@ public class GameData {
         return mode;
     }
 
-    public Context getContext() { return this.context; }
+    public Context getContext() {
+        return this.context;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        GameData gameData = (GameData) o;
+
+        if (mode != gameData.mode) {
+            return false;
+        }
+        if (!champion.equals(gameData.champion)) {
+            return false;
+        }
+        return context == gameData.context;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = mode != null ? mode.hashCode() : 0;
+        result = 31 * result + champion.hashCode();
+        result = 31 * result + context.hashCode();
+        return result;
+    }
 
     public enum Context {
         GUI,
