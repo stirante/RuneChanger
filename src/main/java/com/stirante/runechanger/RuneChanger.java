@@ -95,7 +95,7 @@ public class RuneChanger implements Launcher {
         }
         cleanupLogs();
         // This flag is only meant for development. It disables whole client communication
-        if (!Arrays.asList(args).contains("-osx")) {
+        if (!Arrays.asList(args).contains("-skip-os-check")) {
             checkOperatingSystem();
         }
         try {
@@ -248,7 +248,7 @@ public class RuneChanger implements Launcher {
                 Version.INSTANCE.commitIdAbbrev + " built at " +
                 SimpleDateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT)
                         .format(Version.INSTANCE.buildTime) + ")");
-        if (!Arrays.asList(programArguments).contains("-osx")) {
+        if (!Arrays.asList(programArguments).contains("-no-connection")) {
             try {
                 // Disabled due to problems with switching between different LoL installations (PBE and release)
 //                String clientPath = SimplePreferences.getStringValue(SimplePreferences.InternalKeys.CLIENT_PATH, null);
@@ -270,7 +270,7 @@ public class RuneChanger implements Launcher {
         Settings.initialize();
         SourceStore.init();
         gui = new GuiHandler(this);
-        if (!Arrays.asList(programArguments).contains("-osx")) {
+        if (!Arrays.asList(programArguments).contains("-no-connection")) {
             api.addClientConnectionListener(new ClientConnectionListener() {
                 @Override
                 public void onClientConnected() {
