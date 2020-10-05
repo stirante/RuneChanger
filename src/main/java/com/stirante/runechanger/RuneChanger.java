@@ -195,6 +195,15 @@ public class RuneChanger implements Launcher {
                 log.error("Another instance of runechanger is open. Exiting program now.");
                 System.exit(1);
             }
+            Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+                try {
+                    lock.release();
+                    //noinspection ResultOfMethodCallIgnored
+                    file.delete();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }));
         } catch (IOException e) {
             log.error("Error creating lockfile", e);
             AnalyticsUtil.addCrashReport(e, "Error creating lockfile", true);
