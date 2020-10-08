@@ -23,11 +23,13 @@ import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Priority;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.util.Pair;
@@ -39,10 +41,7 @@ import java.awt.*;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.UnsupportedFlavorException;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
@@ -236,35 +235,56 @@ public class Settings extends Application {
                 }
             }
             else if (event.isControlDown() && event.getCode() == KeyCode.L) {
-                ProgressDialogController progressDialog = new ProgressDialogController();
-                progressDialog.setTitle("Debugging LoL client connection");
-                progressDialog.setProgress(ProgressBar.INDETERMINATE_PROGRESS);
-                progressDialog.show();
-                new AsyncTask<Void, Void, String>() {
+                Alert alert = new Alert(Alert.AlertType.NONE);
+                alert.setTitle("LCU connection debug");
+                alert.setHeaderText("Creating debug log of LCU connection");
+                alert.setContentText(null);
+                alert.setOnCloseRequest(event1 -> alert.close());
+
+
+                TextArea textArea = new TextArea("");
+                textArea.setEditable(false);
+                textArea.setWrapText(true);
+
+                textArea.setMaxWidth(Double.MAX_VALUE);
+                textArea.setMaxHeight(Double.MAX_VALUE);
+                GridPane.setVgrow(textArea, Priority.ALWAYS);
+                GridPane.setHgrow(textArea, Priority.ALWAYS);
+
+                GridPane expContent = new GridPane();
+                expContent.setMaxWidth(Double.MAX_VALUE);
+                expContent.add(textArea, 0, 1);
+
+                alert.getDialogPane().setContent(expContent);
+
+                alert.show();
+                new AsyncTask<Void, String, Void>() {
                     @Override
-                    public String doInBackground(Void[] params) {
-                        return ClientApi.generateDebugLog();
+                    public Void doInBackground(Void[] params) {
+                        ClientApi.generateDebugLog(this::publishProgress);
+                        return null;
                     }
 
                     @Override
-                    public void onPostExecute(String result) {
-                        File file = new File("logs/lcu.txt");
-                        try (FileOutputStream fos = new FileOutputStream(file)) {
-                            PrintWriter pw = new PrintWriter(fos);
-                            pw.write(result);
-                            pw.flush();
-                        } catch (IOException e) {
-                            log.error("Exception occurred while saving logs", e);
-                            RuneChanger.getInstance()
-                                    .getGuiHandler()
-                                    .showErrorMessage("Error, while saving log: " + e.getMessage());
-                        }
-                        progressDialog.close();
-                        try {
-                            Runtime.getRuntime().exec("notepad.exe lcu.txt", null, file.getParentFile());
-                        } catch (IOException e) {
-                            log.error("Exception occurred while showing logs", e);
-                        }
+                    public void onProgress(String progress) {
+                        super.onProgress(progress);
+                        textArea.setText(textArea.getText() + "\n" + progress);
+                        textArea.selectPositionCaret(textArea.getLength());
+                        textArea.deselect();
+                    }
+
+                    @Override
+                    public void onPostExecute(Void result) {
+                        alert.setHeaderText("Done!");
+                        ButtonType copy = new ButtonType("Copy");
+                        alert.getButtonTypes().addAll(copy, ButtonType.OK);
+                        alert.resultProperty().addListener((observable, oldValue, newValue) -> {
+                            if (newValue == copy) {
+                                StringSelection selection = new StringSelection(textArea.getText());
+                                Toolkit.getDefaultToolkit().getSystemClipboard().setContents(selection, selection);
+                            }
+                            alert.close();
+                        });
                     }
                 }.execute();
             }
@@ -367,7 +387,8 @@ public class Settings extends Application {
                     int repeat = token.getValue().getValue() / recipe.getValue().getValue();
                     if (repeat == 0) {
                         runeChanger.getGuiHandler().showWarningMessage("You don't have enough tokens!");
-                    } else {
+                    }
+                    else {
                         runeChanger.getGuiHandler().showInfoMessage("Trying to craft the recipe " + repeat + " times");
                         runeChanger.getLootModule().craftRecipe(recipe.getKey(), token.getKey(), repeat);
                     }
