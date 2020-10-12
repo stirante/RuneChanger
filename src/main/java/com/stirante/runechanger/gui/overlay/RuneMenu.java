@@ -246,6 +246,9 @@ public class RuneMenu extends OverlayLayer {
     }
 
     public void mouseReleased(MouseEvent e) {
+        if (icon == null) {
+            return;
+        }
         if (warningVisible && warningCloseButton.getSize().height > 0 &&
                 warningCloseButton.contains(e.getX(), e.getY())) {
             warningVisible = false;
@@ -275,6 +278,9 @@ public class RuneMenu extends OverlayLayer {
     }
 
     public void mouseMoved(MouseEvent e) {
+        if (icon == null) {
+            return;
+        }
         int runePageIndex;
         if (warningVisible && warningCloseButton.getSize().height > 0 &&
                 warningCloseButton.contains(e.getX(), e.getY())) {
