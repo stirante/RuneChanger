@@ -4,6 +4,7 @@ import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.Appender;
 import ch.qos.logback.core.FileAppender;
+import com.google.gson.Gson;
 import com.stirante.eventbus.EventBus;
 import com.stirante.eventbus.Subscribe;
 import com.stirante.lolclient.ClientApi;
@@ -257,6 +258,7 @@ public class RuneChanger implements Launcher {
                 Version.INSTANCE.commitIdAbbrev + " built at " +
                 SimpleDateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT)
                         .format(Version.INSTANCE.buildTime) + ")");
+        log.debug(new Gson().toJson(Hardware.getAllHardwareInfo()));
         if (!Arrays.asList(programArguments).contains("-no-connection")) {
             try {
                 // Disabled due to problems with switching between different LoL installations (PBE and release)
