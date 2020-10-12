@@ -293,7 +293,7 @@ public class RunePage {
         if (version >= 0x2) {
             int id = in.readInt();
             champion = Champion.getById(id);
-            if (champion == null) {
+            if (champion == null && id != -1) {
                 log.warn("Champion " + id + " not found!");
             }
         }
