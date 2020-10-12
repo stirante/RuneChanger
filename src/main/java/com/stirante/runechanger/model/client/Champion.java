@@ -317,7 +317,7 @@ public class Champion {
             try (InputStream in = new URL("https://runechanger.stirante.com/splashes.json").openStream()) {
                 splashes = gson.fromJson(new InputStreamReader(in), new TypeToken<Map<String, Long>>() {
                 }.getType());
-            } catch (IOException e) {
+            } catch (IOException | IllegalStateException e) {
                 e.printStackTrace();
             }
             for (Champion champion : values) {
