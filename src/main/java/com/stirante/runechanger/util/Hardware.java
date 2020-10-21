@@ -101,17 +101,29 @@ public class Hardware {
             }
             else if (field.getType() == int.class) {
                 if (!s.isEmpty()) {
-                    field.set(model, Integer.parseInt(s));
+                    try {
+                        field.set(model, Integer.parseInt(s));
+                    } catch (NumberFormatException e) {
+                        field.set(model, -1L);
+                    }
                 }
             }
             else if (field.getType() == long.class) {
                 if (!s.isEmpty()) {
-                    field.set(model, Long.parseLong(s));
+                    try {
+                        field.set(model, Long.parseLong(s));
+                    } catch (NumberFormatException e) {
+                        field.set(model, -1L);
+                    }
                 }
             }
             else if (field.getType() == boolean.class) {
                 if (!s.isEmpty()) {
-                    field.set(model, Boolean.parseBoolean(s.toLowerCase()));
+                    try {
+                        field.set(model, Boolean.parseBoolean(s));
+                    } catch (NumberFormatException e) {
+                        field.set(model, false);
+                    }
                 }
             }
         }

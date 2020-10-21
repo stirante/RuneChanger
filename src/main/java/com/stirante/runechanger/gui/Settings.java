@@ -41,7 +41,9 @@ import java.awt.*;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.UnsupportedFlavorException;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
@@ -235,6 +237,19 @@ public class Settings extends Application {
                 }
             }
             else if (event.isControlDown() && event.getCode() == KeyCode.L) {
+//                try {
+//                    PrintWriter out = new PrintWriter("dump.txt");
+//                    for (Map.Entry<Thread, StackTraceElement[]> e : Thread.getAllStackTraces().entrySet()) {
+//                        out.println(e.getKey().getName());
+//                        for (StackTraceElement element : e.getValue()) {
+//                            out.println("\t" + element.toString());
+//                        }
+//                    }
+//                    out.flush();
+//                    out.close();
+//                } catch (FileNotFoundException e) {
+//                    e.printStackTrace();
+//                }
                 Alert alert = new Alert(Alert.AlertType.NONE);
                 alert.setTitle("LCU connection debug");
                 alert.setHeaderText("Creating debug log of LCU connection");

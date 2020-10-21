@@ -48,8 +48,7 @@ import java.util.concurrent.Executors;
 
 public class RuneChanger implements Launcher {
 
-    public static final ExecutorService EXECUTOR_SERVICE = Executors.newFixedThreadPool(Runtime.getRuntime()
-            .availableProcessors());
+    public static final ExecutorService EXECUTOR_SERVICE = Executors.newCachedThreadPool();
 
     private static final Logger log = LoggerFactory.getLogger(RuneChanger.class);
     private static RuneChanger instance;
@@ -258,7 +257,11 @@ public class RuneChanger implements Launcher {
                 Version.INSTANCE.commitIdAbbrev + " built at " +
                 SimpleDateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT)
                         .format(Version.INSTANCE.buildTime) + ")");
-        log.debug(new Gson().toJson(Hardware.getAllHardwareInfo()));
+        try {
+            log.debug(new Gson().toJson(Hardware.getAllHardwareInfo()));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         if (!Arrays.asList(programArguments).contains("-no-connection")) {
             try {
                 // Disabled due to problems with switching between different LoL installations (PBE and release)
