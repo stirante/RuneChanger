@@ -137,7 +137,7 @@ public class ChampionSuggestions extends OverlayLayer {
             championIndex = (int) ((float) e.getY() / (float) (getHeight() / 6));
             getClientOverlay().setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         }
-        if (championIndex > 4) {
+        if (championIndex > 5) {
             championIndex = -1;
         }
         if (championIndex != selectedChampionIndex) {
