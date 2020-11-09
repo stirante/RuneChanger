@@ -27,6 +27,7 @@ public class ChampionSelection extends ClientModule {
     private GameMode gameMode;
     private boolean positionSelector;
     private ArrayList<Champion> banned = new ArrayList<>();
+    private Map<String, Object> banAction;
     private GameMap map;
     private String currentPhase = "";
     private long phaseEnd = 0L;
@@ -90,9 +91,24 @@ public class ChampionSelection extends ClientModule {
         return banned;
     }
 
+    public void banChampion(Champion champion) {
+        if (banAction != null) {
+            //{"actorCellId":0.0,"championId":0.0,"completed":false,"id":0.0,"isAllyAction":false,"isInProgress":true,"type":"ban"}
+            banAction.put("championId", champion.getId());
+            int id = ((Double) banAction.get("id")).intValue();
+            try {
+                getApi().executePatch("/lol-champ-select/v1/session/actions/" + id, banAction);
+                getApi().executePost("/lol-champ-select/v1/session/actions/" + id + "/complete", banAction);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
     @SuppressWarnings("unchecked")
     private void findCurrentAction(LolChampSelectChampSelectSession session) {
         banned.clear();
+        banAction = null;
         //we need to find summoner's cell id
         LolChampSelectChampSelectPlayerSelection self =
                 session.myTeam.stream()
@@ -114,6 +130,8 @@ public class ChampionSelection extends ClientModule {
                         if (championId != 0) {
                             banned.add(Champion.getById(championId));
                         }
+                    } else if (a.get("type").equals("ban") && ((Double) a.get("actorCellId")).intValue() == self.cellId.intValue() && !((Boolean) a.get("completed"))) {
+                        banAction = a;
                     }
                 }
             }

@@ -25,15 +25,20 @@ import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.*;
+import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.util.Pair;
 import javafx.util.StringConverter;
+import me.xdrop.fuzzywuzzy.FuzzySearch;
+import org.controlsfx.control.textfield.AutoCompletionBinding;
+import org.controlsfx.control.textfield.TextFields;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -237,19 +242,6 @@ public class Settings extends Application {
                 }
             }
             else if (event.isControlDown() && event.getCode() == KeyCode.L) {
-//                try {
-//                    PrintWriter out = new PrintWriter("dump.txt");
-//                    for (Map.Entry<Thread, StackTraceElement[]> e : Thread.getAllStackTraces().entrySet()) {
-//                        out.println(e.getKey().getName());
-//                        for (StackTraceElement element : e.getValue()) {
-//                            out.println("\t" + element.toString());
-//                        }
-//                    }
-//                    out.flush();
-//                    out.close();
-//                } catch (FileNotFoundException e) {
-//                    e.printStackTrace();
-//                }
                 Alert alert = new Alert(Alert.AlertType.NONE);
                 alert.setTitle("LCU connection debug");
                 alert.setHeaderText("Creating debug log of LCU connection");
@@ -408,6 +400,40 @@ public class Settings extends Application {
                         runeChanger.getLootModule().craftRecipe(recipe.getKey(), token.getKey(), repeat);
                     }
                 });
+            }
+            else if (event.isControlDown() && event.getCode() == KeyCode.Y) {
+                Dialog<Boolean> dialog = new Dialog<>();
+                dialog.setTitle("Banning (for lagging client)");
+                dialog.setHeaderText(null);
+                dialog.setWidth(500);
+                ButtonType ban = new ButtonType("Ban", ButtonBar.ButtonData.OK_DONE);
+                dialog.getDialogPane().getButtonTypes().addAll(ban, ButtonType.CANCEL);
+                StackPane sp = new StackPane();
+                TextField search = new TextField();
+                AutoCompletionBinding<String> autoCompletion =
+                        TextFields.bindAutoCompletion(search, (AutoCompletionBinding.ISuggestionRequest param) -> {
+                            if (param.getUserText().isEmpty()) {
+                                return new ArrayList<>();
+                            }
+                            return FuzzySearch
+                                    .extractSorted(param.getUserText(), Champion.values(), Champion::getName, 3)
+                                    .stream()
+                                    .map(championBoundExtractedResult -> championBoundExtractedResult.getReferent().getName())
+                                    .collect(Collectors.toList());
+                        });
+                sp.getChildren().add(search);
+                autoCompletion.prefWidthProperty().bind(search.widthProperty());
+                dialog.getDialogPane().setContent(sp);
+                dialog.setResultConverter(dialogButton -> dialogButton == ban);
+                boolean selected = dialog.showAndWait().orElse(false);
+                if (selected) {
+                    Champion champion = Champion.getByName(search.getText());
+                    if (champion == null) {
+                        RuneChanger.getInstance().getGuiHandler().showWarningMessage("Invalid champion name!");
+                    } else {
+                        RuneChanger.getInstance().getChampionSelectionModule().banChampion(champion);
+                    }
+                }
             }
         });
 

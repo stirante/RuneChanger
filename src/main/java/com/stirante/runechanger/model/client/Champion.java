@@ -48,6 +48,9 @@ public class Champion {
             })
             .build(key -> {
                 BufferedImage img = ImageIO.read(new File(portraitsDir, key.getId() + ".jpg"));
+                if (img == null) {
+                    return null;
+                }
                 BufferedImage scaledImage = SwingUtils.getScaledImage(70, 70, img);
                 img.flush();
                 return scaledImage;
