@@ -297,6 +297,10 @@ public class Settings extends Application {
             }
             else if (event.isControlDown() && event.getCode() == KeyCode.T) {
                 // I'm sorry, this is very experimental and POC and ugly
+                if (!RuneChanger.getInstance().getApi().isConnected()) {
+                    RuneChanger.getInstance().getGuiHandler().showWarningMessage("Not connected to client!");
+                    return;
+                }
                 Dialog<Pair<String, String>> dialog = new Dialog<>();
                 dialog.setTitle("Crafting (suuuper test version)");
                 dialog.setHeaderText(null);
