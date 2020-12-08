@@ -1,18 +1,20 @@
 package com.stirante.runechanger.sourcestore.impl;
 
 import com.google.gson.Gson;
+import com.stirante.justpipe.Pipe;
 import com.stirante.runechanger.model.client.*;
 import com.stirante.runechanger.sourcestore.RuneSource;
-import com.stirante.runechanger.util.Pipe;
 import com.stirante.runechanger.util.SyncingListWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.InputStreamReader;
 import java.io.StringWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.*;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class LolalyticsSource implements RuneSource {
@@ -108,10 +110,12 @@ public class LolalyticsSource implements RuneSource {
         r.setSubStyle(secondaryStyle);
         r.getRunes().add(biggestValSecondaryRune.getKey());
 
-        Map.Entry<Rune, int[]> biggestRemainingSecondaryRune = convertedDataPair.getRuneDataConverted().get("rune2").entrySet().stream()
-                .filter(map -> map.getKey().getStyle() == secondaryStyle && map.getKey().getSlot() != secondaryUsedSlot)
-                .max(Comparator.comparingInt(runeEntry -> runeEntry.getValue()[mode.getIndex()]))
-                .orElseThrow();
+        Map.Entry<Rune, int[]> biggestRemainingSecondaryRune =
+                convertedDataPair.getRuneDataConverted().get("rune2").entrySet().stream()
+                        .filter(map -> map.getKey().getStyle() == secondaryStyle &&
+                                map.getKey().getSlot() != secondaryUsedSlot)
+                        .max(Comparator.comparingInt(runeEntry -> runeEntry.getValue()[mode.getIndex()]))
+                        .orElseThrow();
         r.getRunes().add(biggestRemainingSecondaryRune.getKey());
 
         // MODIFIERS

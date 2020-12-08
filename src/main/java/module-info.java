@@ -27,6 +27,7 @@ module RuneChanger {
     requires core;
     requires java;
     requires simple.event.bus;
+    requires just.pipe;
 
     exports com.stirante.runechanger;
     exports com.stirante.runechanger.gui;
