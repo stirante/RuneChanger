@@ -1,116 +1,58 @@
 package com.stirante.runechanger.sourcestore.impl;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.stirante.justpipe.Pipe;
+import com.stirante.runechanger.model.app.SettingsConfiguration;
 import com.stirante.runechanger.model.client.*;
 import com.stirante.runechanger.sourcestore.RuneSource;
+import com.stirante.runechanger.util.StringUtils;
 import com.stirante.runechanger.util.SyncingListWrapper;
 import generated.Position;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
+import java.util.Map;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class ChampionGGSource implements RuneSource {
     private static final Logger log = LoggerFactory.getLogger(ChampionGGSource.class);
     private static final ReentrantLock LOCK = new ReentrantLock();
 
+    private final static String ALL_URL =
+            "https://backend-alt.iesdev.com/api/lolstats/champions?queue=%queue%&rank=%rank%&region=world";
+    private final static String CHAMPION_API_URL =
+            "https://backend-alt.iesdev.com/api/lolstats/champions/%champion%?queue=%queue%&rank=%rank%&region=world";
     private final static String CHAMPION_URL = "https://champion.gg/champion/";
-    private final static String BASE_URL = "https://champion.gg";
-    private static final int TIMEOUT = 10000;
     private final static HashMap<Champion, Position> positionCache = new HashMap<>();
-    private final static HashMap<Champion, List<String>> pageCache = new HashMap<>();
+    private final static HashMap<Champion, Map<Position, RunePage>> pageCache = new HashMap<>();
     private static boolean initialized = false;
+    private static final Tier DEFAULT_TIER = Tier.PLATINUM_PLUS;
+    private static final Queue DEFAULT_QUEUE = Queue.RANKED_SOLO_DUO;
 
-    private void extractRunePage(Document webPage, Champion champion, String role, SyncingListWrapper<RunePage> pages) {
-        RunePage page = new RunePage();
-        page.setSourceName(getSourceName());
-        Elements elements = webPage.select("div.o-wrap");
-        elements = elements.select("div.RuneBuilder__PathBody-dchrMz.bKqgWU");
-        Element mainSide;
-        Element secondarySide;
-        try {
-            mainSide = elements.first().child(0).child(0);
-            secondarySide = elements.first().child(1).child(0);
-        } catch (NullPointerException e) {
-            return;
-        }
-        page.setName(role);
-        page.setMainStyle(Style.getByName(mainSide.child(0).text().substring(2)));
-        page.setSubStyle(Style.getByName(secondarySide.child(0).text().substring(2)));
-        for (Element e : mainSide.children()) {
-            String rune =
-                    e.select(".iSYqxs.Slot__RightSide-bGHpkV > div:nth-of-type(1) > .hGZpqL.Description__Block-bJdjrS > .bJtdXG.Description__Title-jfHpQH")
-                            .text();
-            if (rune.equals("")) {
-                continue;
-            }
-            page.getRunes().add(Rune.getByName(rune));
-        }
+    private int minThreshold = 0;
+    private boolean mostCommon = false;
 
-        Element subRunesParent = secondarySide.child(1);
-        Elements subRunes =
-                subRunesParent.select(".iSYqxs.Slot__RightSide-bGHpkV > .hGZpqL.Description__Block-bJdjrS > .eOLOWg.Description__Title-jfHpQH");
-        for (Element e : subRunes) {
-            if (e.text().equals("")) {
-                continue;
-            }
-            page.getRunes().add(Rune.getByName(e.text()));
-        }
-
-        Element modifierParent = secondarySide.child(2);
-        Elements modifiers =
-                modifierParent.select(".iLoveCSS.iSYqxs.Slot__RightSide-bGHpkV > .statShardsOS.hGZpqL.Description__Block-bJdjrS > .bJtdXG.Description__Title-jfHpQH");
-        for (Element e : modifiers) {
-            page.getModifiers().add(modifierConverter(e.text()));
-        }
-
-        page.setSource(webPage.baseUri());
-        page.setChampion(champion);
-        if (page.verify() && !pages.contains(page)) {
-            pages.add(page);
-        }
-    }
-
-    private void extractRunes(Champion champion, SyncingListWrapper<RunePage> pages) {
-        if (!pageCache.containsKey(champion)) {
-            return;
-        }
-        for (String role : pageCache.get(champion)) {
-            final String URL = CHAMPION_URL + champion.getInternalName() + "/" + role;
-            try {
-                Document webPage = Jsoup.parse(new URL(URL), TIMEOUT);
-                extractRunePage(webPage, champion, role, pages);
-
-            } catch (IOException e) {
-                log.warn("ERROR RETRIEVING CHAMPION FROM Champion.gg! " + e);
-            }
-        }
-    }
-
-    private Modifier modifierConverter(String modifierName) {
-        switch (modifierName.toLowerCase()) {
-            case "attack speed":
-                return Modifier.RUNE_5005;
-            case "adaptive force":
-                return Modifier.RUNE_5008;
-            case "armor":
-                return Modifier.RUNE_5002;
-            case "magic resist":
-                return Modifier.RUNE_5003;
-            case "scaling cooldown reduction":
-                return Modifier.RUNE_5007;
-            case "scaling health":
-                return Modifier.RUNE_5001;
+    private Position toPosition(String s) {
+        switch (s) {
+            case "SUPPORT":
+                return Position.UTILITY;
+            case "MID":
+                return Position.MIDDLE;
+            case "ADC":
+                return Position.BOTTOM;
+            case "TOP":
+                return Position.TOP;
+            case "JUNGLE":
+                return Position.JUNGLE;
             default:
-                return null;
+                log.warn("Unknown position name: " + s);
+                return Position.UNSELECTED;
         }
     }
 
@@ -121,48 +63,110 @@ public class ChampionGGSource implements RuneSource {
             return;
         }
         try {
-            Document webPage = Jsoup.parse(new URL(BASE_URL + "/"), TIMEOUT);
-            Elements select = webPage.select(".champ-index-img a");
-            for (Element element : select) {
-                if (element.children().size() > 0) {
-                    continue;
+            String json = Pipe.from(new URL(ALL_URL
+                    .replaceAll("%queue%", String.valueOf(DEFAULT_QUEUE.getId()))
+                    .replaceAll("%rank%", DEFAULT_TIER.name())
+            ).openStream()).toString();
+            JsonArray data = JsonParser.parseString(json).getAsJsonObject().getAsJsonArray("data");
+            for (JsonElement champion : data) {
+                JsonObject obj = champion.getAsJsonObject();
+                Champion champ = Champion.getById(obj.get("champion_id").getAsInt());
+                Position role = toPosition(obj.get("role").getAsString());
+                if (!positionCache.containsKey(champ)) {
+                    positionCache.put(champ, role);
                 }
-                String championName = element.attr("href").split("/")[2];
-                Position pos = Position.UNSELECTED;
-                switch (element.text()) {
-                    case "Support":
-                        pos = Position.UTILITY;
-                        break;
-                    case "Middle":
-                        pos = Position.MIDDLE;
-                        break;
-                    case "ADC":
-                        pos = Position.BOTTOM;
-                        break;
-                    case "Top":
-                        pos = Position.TOP;
-                        break;
-                    case "Jungle":
-                        pos = Position.JUNGLE;
-                        break;
-                    default:
-                        log.warn("Unknown position name: " + element.text());
-                        break;
+                if (!pageCache.containsKey(champ)) {
+                    pageCache.put(champ, new HashMap<>());
                 }
-                Champion champion = Champion.getByName(championName);
-                if (!positionCache.containsKey(champion)) {
-                    positionCache.put(champion, pos);
-                }
-                if (!pageCache.containsKey(champion)) {
-                    pageCache.put(champion, new ArrayList<>());
-                }
-                pageCache.get(champion).add(element.text());
+                JsonObject stats = obj.getAsJsonObject("stats");
+                pageCache.get(champ)
+                        .put(role, toRunePage(champ, obj.get("role")
+                                .getAsString(), stats));
             }
         } catch (Exception e) {
             log.error("Exception occurred while initializing cache for ChampionGG source", e);
         }
         initialized = true;
         LOCK.unlock();
+    }
+
+    private RunePage toRunePage(Champion champion, String position, JsonObject stats) {
+        JsonObject runes = stats.getAsJsonObject((mostCommon ? "most_common_" : "") + "runes");
+        JsonObject shards = stats.getAsJsonObject((mostCommon ? "most_common_" : "") + "rune_stat_shards");
+        RunePage page = new RunePage();
+
+        int i = 0;
+        for (JsonElement build : runes.getAsJsonArray("build")) {
+            if (i == 0) {
+                page.setMainStyle(Style.getById(build.getAsInt()));
+            }
+            else if (i == 5) {
+                page.setSubStyle(Style.getById(build.getAsInt()));
+            }
+            else {
+                page.getRunes().add(Rune.getById(build.getAsInt()));
+            }
+            i++;
+        }
+
+        for (JsonElement build : shards.getAsJsonArray("build")) {
+            page.getModifiers().add(Modifier.getById(build.getAsInt()));
+        }
+
+        page.setName(StringUtils.fromEnumName(position));
+        page.setChampion(champion);
+        page.setSource(CHAMPION_URL + champion.getName() + "/" + position);
+        page.setSourceName(getSourceName());
+        page.fixOrder();
+        if (!page.verify()) {
+            return null;
+        }
+        return page;
+    }
+
+    @Override
+    public String getSourceName() {
+        return "Champion.gg";
+    }
+
+    @Override
+    public void getRunesForGame(GameData data, SyncingListWrapper<RunePage> pages) {
+        Map<Position, RunePage> cache = pageCache.get(data.getChampion());
+        if (!cache.isEmpty()) {
+            pages.addAll(cache.values());
+        }
+        if (cache.size() < 3) {
+            try {
+                String json =
+                        Pipe.from(new URL(CHAMPION_API_URL
+                                .replaceAll("%champion%", String.valueOf(data.getChampion().getId()))
+                                .replaceAll("%queue%", String.valueOf(DEFAULT_QUEUE.getId()))
+                                .replaceAll("%rank%", DEFAULT_TIER.name())
+                        ).openStream()).toString();
+                JsonArray arr = JsonParser.parseString(json).getAsJsonObject().getAsJsonArray("data");
+                for (JsonElement e : arr) {
+                    JsonObject obj = e.getAsJsonObject();
+                    Position role = toPosition(obj.get("role").getAsString());
+                    if (cache.containsKey(role)) {
+                        continue;
+                    }
+                    JsonObject stats = obj.getAsJsonObject("stats");
+                    if (stats.get("games").getAsInt() > minThreshold) {
+                        RunePage page = toRunePage(data.getChampion(), obj.get("role")
+                                .getAsString(), stats);
+                        pages.add(page);
+                        cache.put(role, page);
+                    }
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    @Override
+    public String getSourceKey() {
+        return "champion.gg";
     }
 
     public Position getPositionForChampion(Champion champion) {
@@ -175,17 +179,65 @@ public class ChampionGGSource implements RuneSource {
     }
 
     @Override
-    public String getSourceName() {
-        return "Champion.gg";
+    public void onSettingsUpdate(Map<String, Object> settings) {
+        if (settings.containsKey("min_threshold")) {
+            minThreshold = Integer.parseInt((String) settings.get("min_threshold"));
+        }
+        if (settings.containsKey("most_common")) {
+            mostCommon = (Boolean) settings.get("most_common");
+        }
     }
 
     @Override
-    public void getRunesForGame(GameData data, SyncingListWrapper<RunePage> pages) {
-        extractRunes(data.getChampion(), pages);
+    public void setupSettings(SettingsConfiguration config) {
+        config
+                .textField("min_threshold")
+                .defaultValue("0")
+                .validation(s -> {
+                    try {
+                        return Integer.parseInt(s) >= 0;
+                    } catch (NumberFormatException e) {
+                        return false;
+                    }
+                })
+                .add()
+                .checkbox("most_common")
+                .defaultValue(false)
+                .add();
     }
 
-    @Override
-    public String getSourceKey() {
-        return "champion.gg";
+    private enum Tier {
+        CHALLENGER,
+        GRANDMASTER,
+        MASTER,
+        DIAMOND,
+        PLATINUM,
+        GOLD,
+        SILVER,
+        BRONZE,
+        IRON,
+        PLATINUM_PLUS
+    }
+
+    private enum Queue {
+        RANKED_SOLO_DUO(420),
+        RANKED_FLEX(440),
+        NORMAL_DRAFT(400),
+        NORMAL_BLIND(430),
+        ARAM(450);
+
+        private final int id;
+
+        public int getId() {
+            return id;
+        }
+
+        Queue(int id) {
+            this.id = id;
+        }
+    }
+
+    public static void main(String[] args) throws IOException {
+        Champion.init();
     }
 }

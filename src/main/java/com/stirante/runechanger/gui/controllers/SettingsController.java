@@ -150,7 +150,7 @@ public class SettingsController implements Content {
                             field.getDescKey(source.getSourceKey()),
                             s -> {
                                 //noinspection unchecked
-                                if ((((Predicate<Boolean>) field.getValidator()).test(s))) {
+                                if (field.getValidator() == null || (((Predicate<Boolean>) field.getValidator()).test(s))) {
                                     Platform.runLater(() -> {
                                         SourceStore.updateSourceSettings(source);
                                     });
@@ -172,7 +172,7 @@ public class SettingsController implements Content {
                             field.getDescKey(source.getSourceKey()),
                             s -> {
                                 //noinspection unchecked
-                                if ((((Predicate<String>) field.getValidator()).test(s))) {
+                                if (field.getValidator() == null || (((Predicate<String>) field.getValidator()).test(s))) {
                                     Platform.runLater(() -> {
                                         SourceStore.updateSourceSettings(source);
                                     });
@@ -190,10 +190,6 @@ public class SettingsController implements Content {
                 }
             }
         }
-//        setupSourcePreference("u.gg", "u.gg");
-//        setupSourcePreference("champion.gg", "champion.gg");
-//        setupSourcePreference("runeforge.gg", "runeforge.gg");
-//        setupSourcePreference("lolalytics.com", "Lolalytics");
 
         // Finally display first category
         displayCategory(categoryControllers.get(0).getCategoryId());
