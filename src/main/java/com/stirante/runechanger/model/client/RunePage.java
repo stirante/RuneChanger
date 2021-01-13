@@ -122,14 +122,20 @@ public class RunePage {
         if (runes.stream().anyMatch(Objects::isNull)) {
             return;
         }
-        for (Rune rune : runes) {
-            if (rune == null) {
-                return;
-            }
-        }
         runes.sort((o1, o2) -> (o1.getStyle() == o2.getStyle()) ?
                 Integer.compare(o1.getSlot(), o2.getSlot()) :
                 (o1.getStyle() == mainStyle ? -1 : 1));
+    }
+
+    public void fixStyle() {
+        if (getRunes().size() != 6) {
+            return;
+        }
+        if (runes.stream().anyMatch(Objects::isNull)) {
+            return;
+        }
+        setMainStyle(getRunes().get(0).getStyle());
+        setSubStyle(getRunes().get(4).getStyle());
     }
 
     /**

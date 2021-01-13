@@ -34,6 +34,7 @@ public class SourceStore {
         sources.add(new ChampionGGSource());
         sources.add(new LolalyticsSource());
         sources.add(new MetasrcSource());
+        sources.add(new LolTheorySource());
         sources.add(new LocalSource());
     }
 
