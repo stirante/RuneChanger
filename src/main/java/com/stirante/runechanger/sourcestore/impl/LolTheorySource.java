@@ -86,6 +86,7 @@ public class LolTheorySource implements RuneSource {
                     p.setName(getPositionName(pos));
                     p.setChampion(data.getChampion());
                     p.setSource(String.format(PUBLIC_URL, data.getChampion().getInternalName().toLowerCase()));
+                    p.setSourceName(getSourceName());
                     p.fixStyle();
                     p.fixOrder();
                     if (!p.verify()) {
