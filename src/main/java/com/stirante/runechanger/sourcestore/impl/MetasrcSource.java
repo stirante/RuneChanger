@@ -1,4 +1,5 @@
 package com.stirante.runechanger.sourcestore.impl;
+
 import com.stirante.runechanger.model.client.*;
 import com.stirante.runechanger.sourcestore.RuneSource;
 import com.stirante.runechanger.util.SyncingListWrapper;
@@ -10,7 +11,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Objects;
@@ -20,6 +20,7 @@ import java.util.Objects;
 public class MetasrcSource implements RuneSource {
     final String CHAMPION_URL = "https://metasrc.com/%MODE%/champion/%CHAMPION%/%LANE%";
     private static final Logger log = LoggerFactory.getLogger(MetasrcSource.class);
+
     @Override
     public String getSourceName() {
         return "Metasrc";
@@ -32,15 +33,14 @@ public class MetasrcSource implements RuneSource {
 
     @Override
     public void getRunesForGame(GameData data, SyncingListWrapper<RunePage> pages) {
-
         downloadRunes(data, pages);
     }
 
     public void downloadRunes(GameData data, SyncingListWrapper<RunePage> pages) {
         // This makes sure that the runes wont get duplicated when getting them from GUI
-        if(data.getGameMode() == GameMode.CLASSIC || data.getContext() == GameData.Context.CHAMPION_SELECT) {
+        if (data.getGameMode() == GameMode.CLASSIC || data.getContext() == GameData.Context.CHAMPION_SELECT) {
             ArrayList<String> runeLanes = getAvailableRuneLanes(data.getChampion());
-            for(String lane : Objects.requireNonNull(runeLanes)) {
+            for (String lane : Objects.requireNonNull(runeLanes)) {
                 final String requestURL = CHAMPION_URL
                         .replace("%MODE%", "5v5")
                         .replace("%CHAMPION%", data.getChampion().getInternalName())
@@ -57,8 +57,6 @@ public class MetasrcSource implements RuneSource {
                     log.warn("Error occured while getting Metasrc rune data for lane: " + lane);
                     e.printStackTrace();
                 }
-
-
             }
         }
 
@@ -68,11 +66,14 @@ public class MetasrcSource implements RuneSource {
         // GETTING RUNES FOR SPECIAL GAMEMODES
         String gamemodeKey = getSpecialGamemodeKey(data);
 
-        if(gamemodeKey != null) {
+        if (gamemodeKey != null) {
             final String requestURL = specialGamemodeURL.replace("%MODE%", gamemodeKey);
             try {
                 Document webPage = Jsoup.parse(new URL(requestURL), 10000);
                 RunePage r = extractRunes(webPage);
+                if (r == null) {
+                    return;
+                }
                 r.setChampion(data.getChampion());
                 r.setName(data.getGameMode().getName());
                 r.setSource(requestURL);
@@ -90,21 +91,24 @@ public class MetasrcSource implements RuneSource {
     private RunePage extractRunes(Document webPage) {
         RunePage r = new RunePage();
         Elements runes = webPage.select("div._lop72r:nth-of-type(2) > div._sjgjkw:nth-of-type(2) > div._sfh2p9 > div");
+        if (runes.size() == 0) {
+            return null;
+        }
         Elements mainRunes = runes.get(0).select("div._hmag7l > div._xdda66 > div._q8ue62");
         Elements secondaryRunes = runes.get(1).select("div._hmag7l > div._xdda66 > div._q8ue62");
         r.setMainStyle(Style.getByName(mainRunes.get(0).text()));
         r.setSubStyle(Style.getByName(secondaryRunes.get(0).text()));
 
 
-        for(int i = 1; i < 5; i++) {
+        for (int i = 1; i < 5; i++) {
             r.getRunes().add(Rune.getByName(mainRunes.get(i).text()));
         }
 
-        for(int i = 1; i < 3; i++) {
+        for (int i = 1; i < 3; i++) {
             r.getRunes().add(Rune.getByName(secondaryRunes.get(i).text()));
         }
 
-        for(int i = 3; i < 6; i++) {
+        for (int i = 3; i < 6; i++) {
             r.getModifiers().add(convertModifier(secondaryRunes.get(i).text()));
         }
 
@@ -114,14 +118,15 @@ public class MetasrcSource implements RuneSource {
 
     private ArrayList<String> getAvailableRuneLanes(Champion champion) {
         final String minimalURL = CHAMPION_URL
-                                    .replace("%MODE%", "5v5")
-                                    .replace("%CHAMPION%", champion.getInternalName())
-                                    .replace("%LANE%", "");
+                .replace("%MODE%", "5v5")
+                .replace("%CHAMPION%", champion.getInternalName())
+                .replace("%LANE%", "");
         ArrayList<String> availableRoles = new ArrayList<>();
         try {
             Document webPage = Jsoup.parse(new URL(minimalURL), 10000);
-            Elements rolesElements = webPage.select("._5bxv5t > div.desktop > div._xtoaop._4pvjjd > a > table > tbody > tr:nth-of-type(1) > td > h1");
-            for(Element role : rolesElements) {
+            Elements rolesElements =
+                    webPage.select("._5bxv5t > div.desktop > div._xtoaop._4pvjjd > a > table > tbody > tr:nth-of-type(1) > td > h1");
+            for (Element role : rolesElements) {
                 availableRoles.add(role.text());
             }
         } catch (IOException e) {
@@ -132,7 +137,7 @@ public class MetasrcSource implements RuneSource {
     }
 
     private Modifier convertModifier(String modifier) {
-        switch(modifier.toLowerCase()) {
+        switch (modifier.toLowerCase()) {
             case "adaptive":
                 return Modifier.RUNE_5008;
             case "armor":
@@ -151,7 +156,7 @@ public class MetasrcSource implements RuneSource {
     }
 
     private String getSpecialGamemodeKey(GameData data) {
-        switch(data.getGameMode()) {
+        switch (data.getGameMode()) {
             case ONEFORALL:
                 return "ofa";
             case URF:
@@ -166,6 +171,7 @@ public class MetasrcSource implements RuneSource {
                 return null;
         }
     }
+
     @Override
     public GameMode[] getSupportedGameModes() {
         return new GameMode[]{GameMode.CLASSIC, GameMode.ONEFORALL, GameMode.URF, GameMode.ARAM, GameMode.KINGPORO, GameMode.NEXUSBLITZ};
