@@ -68,7 +68,7 @@ public class RuneChanger implements Launcher {
         SimplePreferences.load();
         Thread.setDefaultUncaughtExceptionHandler((thread, throwable) -> {
             // Ignore bug JDK-8089615
-            if (throwable instanceof NullPointerException &&
+            if (throwable instanceof NullPointerException && throwable.getStackTrace().length > 0 &&
                     throwable.getStackTrace()[0].getMethodName().equals("isSupported")) {
                 return;
             }

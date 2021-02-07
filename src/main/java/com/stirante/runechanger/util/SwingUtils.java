@@ -14,6 +14,9 @@ public class SwingUtils {
      * @return scaled image
      */
     public static BufferedImage getScaledImage(int width, int height, BufferedImage image) {
+        if (image == null) {
+            return null;
+        }
         int imageWidth = image.getWidth();
         int imageHeight = image.getHeight();
 
