@@ -47,7 +47,12 @@ public class Champion {
                 }
             })
             .build(key -> {
-                BufferedImage img = ImageIO.read(new File(portraitsDir, key.getId() + ".jpg"));
+                BufferedImage img;
+                try {
+                    img = ImageIO.read(new File(portraitsDir, key.getId() + ".jpg"));
+                } catch (Exception e) {
+                    return null;
+                }
                 if (img == null) {
                     return null;
                 }
