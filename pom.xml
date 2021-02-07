@@ -6,7 +6,7 @@
 
     <groupId>com.stirante</groupId>
     <artifactId>RuneChanger</artifactId>
-    <version>1.14.0</version>
+    <version>1.14.1</version>
 
     <properties>
         <java.version>12</java.version>
