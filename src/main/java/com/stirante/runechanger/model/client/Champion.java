@@ -385,9 +385,10 @@ public class Champion {
         private void getQuoteForChampion(Champion champion) {
             try {
                 Document doc = Jsoup.parse(new URL("https://leagueoflegends.fandom.com/wiki/" +
-                        URLEncoder.encode(champion.getName().replaceAll(" ", "_"), StandardCharsets.UTF_8) +
-                        "/Quotes"), 60000);
-                Elements select = doc.select("#mw-content-text").first().children();
+                        // Special case for Nunu...
+                        URLEncoder.encode(champion.getName().replaceAll(" ", "_").replaceAll("&.+", ""), StandardCharsets.UTF_8) +
+                        "/LoL/Audio"), 60000);
+                Elements select = doc.select("#mw-content-text .mw-parser-output").first().children();
                 boolean isPick = false;
                 for (Element element : select) {
                     if (element.tagName().equalsIgnoreCase("dl") && element.text().equalsIgnoreCase("Pick")) {
@@ -416,9 +417,9 @@ public class Champion {
                             }
                         }
                     }
-                    if (!isPick) {
-                        champion.pickQuote = champion.name + " laughs.";
-                    }
+                }
+                if (!isPick || champion.pickQuote == null || champion.pickQuote.isBlank()) {
+                    champion.pickQuote = champion.name + " laughs.";
                 }
             } catch (IOException e) {
                 log.error("Exception occurred while getting quote for champion " + champion.name, e);
