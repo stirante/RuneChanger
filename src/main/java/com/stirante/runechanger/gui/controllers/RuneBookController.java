@@ -45,7 +45,7 @@ public class RuneBookController implements Content {
         }
         localRunesList.setItems(localRunes.getBackingList());
         newRunesList.setItems(newRunes.getBackingList());
-        localRunes.addListener((ListChangeListener<RunePage>) observable -> {
+        localRunes.addListener(observable -> {
             while (observable.next()) {
                 if (observable.getAddedSize() > 0 || observable.getRemovedSize() > 0) {
                     localRunes.sort(Comparator.comparing(RunePage::getName));
@@ -59,7 +59,7 @@ public class RuneBookController implements Content {
                 localRunesList.setPrefWidth(272);
             }
         });
-        newRunes.addListener((ListChangeListener<RunePage>) observable -> {
+        newRunes.addListener(observable -> {
             while (observable.next()) {
                 if (observable.getAddedSize() > 0 || observable.getRemovedSize() > 0) {
                     newRunes.sort(Comparator.comparing(RunePage::getName));

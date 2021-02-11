@@ -66,10 +66,10 @@ public class Champion {
     }
 
     private final int id;
-    private final String internalName;
-    private final String name;
-    private final String alias;
-    private final String url;
+    private String internalName;
+    private String name;
+    private String alias;
+    private String url;
     private String pickQuote = "";
     private Position position;
 
@@ -190,15 +190,23 @@ public class Champion {
         values.sort(Comparator.comparing(o -> o.name));
 
         synchronized (Champion.values) {
-            Champion.values.clear();
             boolean allExist = true;
             for (ChampionDTO champion : values) {
                 Champion c = new Champion(Integer.parseInt(champion.key), champion.id, champion.name,
                         champion.name.replaceAll(" ", ""), "https://cdn.communitydragon.org/" + patch + "/champion" +
                         "/" + champion.key);
-                Champion.values.add(c);
+                if (Champion.values.contains(c)) {
+                    Champion champion1 =
+                            Champion.values.stream().filter(champ -> champ.id == c.id).findFirst().orElseThrow();
+                    champion1.name = c.name;
+                    champion1.internalName = c.internalName;
+                    champion1.alias = c.alias;
+                    champion1.url = c.url;
+                } else {
+                    Champion.values.add(c);
+                }
 
-                File f = new File(portraitsDir, champion.key + ".jpg");
+                File f = new File(portraitsDir, c.id + ".jpg");
                 if (!f.exists()) {
                     allExist = false;
                 }
@@ -386,7 +394,7 @@ public class Champion {
             try {
                 Document doc = Jsoup.parse(new URL("https://leagueoflegends.fandom.com/wiki/" +
                         // Special case for Nunu...
-                        URLEncoder.encode(champion.getName().replaceAll(" ", "_").replaceAll("&.+", ""), StandardCharsets.UTF_8) +
+                        URLEncoder.encode(champion.getName().replaceAll(" ", "_").replaceAll("_&.+", ""), StandardCharsets.UTF_8) +
                         "/LoL/Audio"), 60000);
                 Elements select = doc.select("#mw-content-text .mw-parser-output").first().children();
                 boolean isPick = false;
