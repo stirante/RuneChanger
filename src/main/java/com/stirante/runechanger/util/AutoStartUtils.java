@@ -1,5 +1,6 @@
 package com.stirante.runechanger.util;
 
+import com.stirante.justpipe.Pipe;
 import com.stirante.runechanger.DebugConsts;
 import com.stirante.runechanger.gui.Constants;
 import com.sun.jna.platform.win32.Advapi32Util;
@@ -63,9 +64,7 @@ public class AutoStartUtils {
 
     public static void prepareScript() throws IOException {
         File f = new File("open.bat").getAbsoluteFile();
-        FileInputStream fis = new FileInputStream(f);
-        String s = StringUtils.streamToString(fis);
-        fis.close();
+        String s = Pipe.from(f).toString();
         String[] lines = s.split("\n");
         StringBuilder sb = new StringBuilder(lines[0]);
         sb.append("\ncd /d \"").append(f.getParentFile().getAbsolutePath()).append("\"");

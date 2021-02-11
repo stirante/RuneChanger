@@ -45,20 +45,8 @@ public class StringUtils {
         return str;
     }
 
-    /**
-     * Converts InputStream to String.
-     * From https://stackoverflow.com/a/5445161/6459649
-     *
-     * @param is input stream to be converted
-     * @return string
-     */
-    public static String streamToString(java.io.InputStream is) {
-        java.util.Scanner s = new java.util.Scanner(is).useDelimiter("\\A");
-        return s.hasNext() ? s.next() : "";
-    }
-
     public static String fromEnumName(String enumName) {
-        return enumName.toUpperCase().substring(0, 1) + enumName.toLowerCase().substring(1).replace('_', ' ');
+        return enumName.toUpperCase().charAt(0) + enumName.toLowerCase().substring(1).replace('_', ' ');
     }
 
 }

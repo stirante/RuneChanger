@@ -34,22 +34,6 @@ public class FxUtils {
         }
     }
 
-    /**
-     * Executes runnable on FX thread after a delay
-     *
-     * @param runnable runnable to execute
-     * @param delay    delay in milliseconds
-     */
-    public static void runLater(Runnable runnable, long delay) {
-        Timer timer = new Timer();
-        timer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                Platform.runLater(runnable);
-            }
-        }, delay);
-    }
-
     private static Pair<Double, List<Double>> getTextSizes(Font font, String text) {
         ArrayList<Double> widths = new ArrayList<>(text.length());
         Text t = new Text("");

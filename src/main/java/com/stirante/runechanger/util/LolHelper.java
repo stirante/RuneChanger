@@ -30,8 +30,6 @@ public class LolHelper {
                     boolean isAlt = (info.flags & 32) != 0;
                     boolean isReleased = (info.flags & 128) != 0;
                     boolean consumed = false;
-//                    log.debug("released: " + isReleased + ", alt: " + isAlt + ", vkcode:" + info.vkCode);
-
                     if (isReleased && isAlt && (info.vkCode == 111 || info.vkCode == 110)) {
                         consumed = true;
                         if (System.currentTimeMillis() - lastClick > 500) {

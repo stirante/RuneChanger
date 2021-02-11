@@ -200,7 +200,7 @@ public class AnalyticsUtil {
         private String gpu;
         private Long cpuSpeed;
         private Long ram;
-        private Map<String, String> additional = new HashMap<>();
+        private final Map<String, String> additional = new HashMap<>();
 
         private CustomDevice() {
             dev = this;

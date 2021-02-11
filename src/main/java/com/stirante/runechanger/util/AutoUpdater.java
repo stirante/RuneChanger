@@ -185,7 +185,7 @@ public class AutoUpdater {
         File target = new File("target");
         File[] files = target.listFiles((file, s) -> s.endsWith(".zip"));
         if (files == null || files.length == 0) {
-            System.err.println("Zip file not found inside target folder! Skipping config file generation.");
+            log.error("Zip file not found inside target folder! Skipping config file generation.");
             return;
         }
         File zip = files[0];
@@ -247,7 +247,7 @@ public class AutoUpdater {
                     .map(Path::toString)
                     .collect(Collectors.toList());
             Files.walk(new File("lib").getAbsoluteFile().getParentFile().toPath())
-                    .filter(path -> Files.isRegularFile(path))
+                    .filter(Files::isRegularFile)
                     .filter(path -> {
                         String relative = path.toString().replace(PathUtils.getWorkingDirectory(), "");
                         return relative.startsWith(File.separator + "image") ||

@@ -5,7 +5,7 @@ import java.util.*;
 public class ClassSet<T> extends AbstractSet<T> {
 
     private final Comparator<T> comparator;
-    private List<T> actualList = new ArrayList<>();
+    private final List<T> actualList = new ArrayList<>();
 
     public ClassSet(Comparator<T> comparator) {
         this.comparator = comparator;
