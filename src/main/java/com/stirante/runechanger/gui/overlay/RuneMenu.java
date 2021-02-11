@@ -148,7 +148,7 @@ public class RuneMenu extends OverlayLayer {
     }
 
     private void drawRuneMenu(Graphics2D g2d) {
-        //open/close animations
+        //open animations
         if (opened) {
             currentRuneMenuPosition = ease(currentRuneMenuPosition, 100f);
             if (currentRuneMenuPosition < 99f) {
@@ -159,15 +159,8 @@ public class RuneMenu extends OverlayLayer {
             }
         }
         else {
-            currentRuneMenuPosition = ease(currentRuneMenuPosition, 0f);
-            scroll = ease(scroll, 0f);
-            if (currentRuneMenuPosition > 1f || scroll > 1f) {
-                repaintLater();
-            }
-            else {
-                currentRuneMenuPosition = 0f;
-                scroll = 0f;
-            }
+            currentRuneMenuPosition = 0f;
+            scroll = 0f;
         }
         //positions and dimensions
         int itemWidth = (int) (Constants.RUNE_ITEM_WIDTH * (getClientWidth()));
