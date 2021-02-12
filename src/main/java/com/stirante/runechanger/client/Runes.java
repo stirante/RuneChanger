@@ -41,6 +41,7 @@ public class Runes extends ClientModule {
             Countly.session()
                     .event("rune_page_selection")
                     .addSegment("remote", String.valueOf(page.getSource() == null || page.getSource().startsWith("http")))
+                    .addSegment("source", page.getSourceName())
                     .record();
         }
         try {
