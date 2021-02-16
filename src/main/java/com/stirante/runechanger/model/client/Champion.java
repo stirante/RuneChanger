@@ -178,7 +178,7 @@ public class Champion {
     private static void onlineInit(File cache) throws IOException {
         Gson gson = new Gson();
         ChampionList champions;
-        try (InputStream in = getUrl("http://ddragon.leagueoflegends.com/cdn/" + Patch.getLatest().toShortString() + "/data/en_US/champion.json")) {
+        try (InputStream in = getUrl("http://ddragon.leagueoflegends.com/cdn/" + Patch.getLatest().toFullString() + "/data/en_US/champion.json")) {
             champions = gson.fromJson(new InputStreamReader(in), ChampionList.class);
         }
         List<ChampionDTO> values = new ArrayList<>(champions.data.values());
