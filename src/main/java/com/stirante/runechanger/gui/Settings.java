@@ -21,11 +21,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.NodeOrientation;
 import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.control.Dialog;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextArea;
 import javafx.scene.control.*;
-import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
@@ -42,16 +38,14 @@ import org.controlsfx.control.textfield.TextFields;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.awt.*;
+import java.awt.Desktop;
+import java.awt.Toolkit;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.UnsupportedFlavorException;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.List;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -80,7 +74,7 @@ public class Settings extends Application {
 
     public static void toggle() {
         Platform.runLater(() -> {
-            if (instance.mainStage.isShowing()) {
+            if (instance.mainStage != null && instance.mainStage.isShowing()) {
                 instance.destroyScene();
             }
             else {
@@ -422,7 +416,8 @@ public class Settings extends Application {
                             return FuzzySearch
                                     .extractSorted(param.getUserText(), Champion.values(), Champion::getName, 3)
                                     .stream()
-                                    .map(championBoundExtractedResult -> championBoundExtractedResult.getReferent().getName())
+                                    .map(championBoundExtractedResult -> championBoundExtractedResult.getReferent()
+                                            .getName())
                                     .collect(Collectors.toList());
                         });
                 sp.getChildren().add(search);
@@ -434,7 +429,8 @@ public class Settings extends Application {
                     Champion champion = Champion.getByName(search.getText());
                     if (champion == null) {
                         RuneChanger.getInstance().getGuiHandler().showWarningMessage("Invalid champion name!");
-                    } else {
+                    }
+                    else {
                         RuneChanger.getInstance().getChampionSelectionModule().banChampion(champion);
                     }
                 }
