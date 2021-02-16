@@ -177,13 +177,8 @@ public class Champion {
 
     private static void onlineInit(File cache) throws IOException {
         Gson gson = new Gson();
-        String patch;
-        try (InputStream in = getUrl("https://ddragon.leagueoflegends.com/api/versions.json")) {
-            String[] strings = gson.fromJson(new InputStreamReader(in), String[].class);
-            patch = strings[0];
-        }
         ChampionList champions;
-        try (InputStream in = getUrl("http://ddragon.leagueoflegends.com/cdn/" + patch + "/data/en_US/champion.json")) {
+        try (InputStream in = getUrl("http://ddragon.leagueoflegends.com/cdn/" + Patch.getLatest().toShortString() + "/data/en_US/champion.json")) {
             champions = gson.fromJson(new InputStreamReader(in), ChampionList.class);
         }
         List<ChampionDTO> values = new ArrayList<>(champions.data.values());
@@ -193,7 +188,7 @@ public class Champion {
             boolean allExist = true;
             for (ChampionDTO champion : values) {
                 Champion c = new Champion(Integer.parseInt(champion.key), champion.id, champion.name,
-                        champion.name.replaceAll(" ", ""), "https://cdn.communitydragon.org/" + patch + "/champion" +
+                        champion.name.replaceAll(" ", ""), "https://cdn.communitydragon.org/" + Patch.getLatest().toShortString() + "/champion" +
                         "/" + champion.key);
                 if (Champion.values.contains(c)) {
                     Champion champion1 =

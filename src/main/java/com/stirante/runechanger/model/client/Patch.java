@@ -46,6 +46,11 @@ public class Patch {
         }
     }
 
+    public static Patch getLatest() {
+        initPatchCache();
+        return patchCache.get(0);
+    }
+
     public static List<Patch> getLatest(int n) {
         initPatchCache();
         List<Patch> patches = new ArrayList<>();
