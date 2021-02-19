@@ -30,9 +30,6 @@ public class ClientEventListener implements ClientWebSocket.SocketListener {
         else if (event.getUri().equalsIgnoreCase("/lol-champ-select/v1/session")) {
             EventBus.publish(ChampionSelectionEvent.NAME, new ChampionSelectionEvent(event));
         }
-        else if (event.getUri().equalsIgnoreCase("/lol-lobby/v2/lobby/matchmaking/search-state")) {
-            EventBus.publish(MatchmakingSearchStateEvent.NAME, new MatchmakingSearchStateEvent(event));
-        }
         else if (event.getUri().equalsIgnoreCase("/lol-matchmaking/v1/search")) {
             EventBus.publish(MatchmakingSearchEvent.NAME, new MatchmakingSearchEvent(event));
         }
@@ -117,19 +114,6 @@ public class ClientEventListener implements ClientWebSocket.SocketListener {
         }
 
         public ChampionSelectionEvent(WebSocketEventType eventType, LolChampSelectChampSelectSession data) {
-            super(eventType, data);
-        }
-
-    }
-
-    public static class MatchmakingSearchStateEvent extends WebSocketEvent<LolLobbyLobbyMatchmakingSearchResource> {
-        public static final String NAME = "MatchmakingSearchStateEvent";
-
-        public MatchmakingSearchStateEvent(ClientWebSocket.Event event) {
-            super(event);
-        }
-
-        public MatchmakingSearchStateEvent(WebSocketEventType eventType, LolLobbyLobbyMatchmakingSearchResource data) {
             super(eventType, data);
         }
 

@@ -155,7 +155,6 @@ public class SimplePreferences {
 
     public static class SettingsKeys {
         public static final String ANTI_AWAY = "antiAway";
-        public static final String AUTO_ACCEPT = "autoAccept";
         public static final String AUTO_SYNC = "autoSync";
         public static final String SMART_DISENCHANT = "smartDisenchant";
         public static final String CHAMPION_SUGGESTIONS = "championSuggestions";

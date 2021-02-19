@@ -107,7 +107,6 @@ public class SettingsController implements Content {
                 SimplePreferences.SettingsKeys.TOP_MESSAGE, "top",
                 "custom_top_message", null);
 
-        setupSimplePreference(CLIENT_CATEGORY, SimplePreferences.SettingsKeys.AUTO_ACCEPT, false, "auto_queue", "auto_queue_message");
         setupSimplePreference(CLIENT_CATEGORY, SimplePreferences.SettingsKeys.RESTART_ON_DODGE, false, "restart_on_dodge", "restart_on_dodge_message");
         setupSimplePreference(CLIENT_CATEGORY, SimplePreferences.SettingsKeys.ANTI_AWAY, false, "no_away", "no_away_message");
         setupSimplePreference(CLIENT_CATEGORY, SimplePreferences.SettingsKeys.AUTO_SYNC, false, "auto_sync_pages", "auto_sync_pages_message", toTruePredicate(this::tryRestart));
