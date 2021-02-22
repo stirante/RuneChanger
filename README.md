@@ -6,7 +6,7 @@ RuneChanger is an app that improves and speeds up the use of LoL client.
 
 #### Features
 * Quickly import runes for selected champion in champion selection
-* Quickly send message to champion selection room (BOT/MID/TOP) with one click of a button
+* Quickly send a message to champion selection room (BOT/MID/TOP) with one click of a button
 * Quickly select one of your recently played champions in champion selection
 * Disenchant all your champion shards with one click
 * Disable 'Away' status
@@ -38,7 +38,7 @@ For extra information, use run.bat, which leaves command line with logs.
 Translation is done through [Crowdin](https://crowdin.com/project/runechanger). Feel free to translate this project into your language.
 
 ## How it works
-RuneChanger uses internal LoL client API. If it finds active session it gets rune pages for currently selected champion and displays option to set those runes to active rune page.
+RuneChanger uses internal LoL client API. If it finds an active session it gets rune pages for currently selected champion and displays option to set those runes to active rune page.
 
 All new elements withing client window are actually a completely separate window which tracks client position and size to be exactly where it should be.
 
