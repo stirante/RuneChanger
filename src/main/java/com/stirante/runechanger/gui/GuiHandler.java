@@ -18,11 +18,10 @@ import com.stirante.runechanger.util.*;
 import com.sun.jna.platform.win32.Advapi32Util;
 import com.sun.jna.platform.win32.User32;
 import com.sun.jna.platform.win32.WinDef;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
@@ -53,9 +52,9 @@ public class GuiHandler {
     private Consumer<RunePage> runeSelectedListener;
     private TrayIcon trayIcon;
     private SceneType type = SceneType.NONE;
-    private ArrayList<Champion> suggestedChampions;
+    private List<Champion> suggestedChampions;
     private Consumer<Champion> suggestedChampionSelectedListener;
-    private ArrayList<Champion> bannedChampions;
+    private List<Champion> bannedChampions;
     private int screenCheckCounter = 0;
     private double screenScale = 1d;
 
@@ -394,8 +393,8 @@ public class GuiHandler {
         openWindow();
     }
 
-    public void setSuggestedChampions(ArrayList<Champion> lastChampions,
-                                      ArrayList<Champion> bannedChampions, Consumer<Champion> suggestedChampionSelectedListener) {
+    public void setSuggestedChampions(List<Champion> lastChampions,
+                                      List<Champion> bannedChampions, Consumer<Champion> suggestedChampionSelectedListener) {
         this.suggestedChampions = lastChampions;
         this.suggestedChampionSelectedListener = suggestedChampionSelectedListener;
         this.bannedChampions = bannedChampions;

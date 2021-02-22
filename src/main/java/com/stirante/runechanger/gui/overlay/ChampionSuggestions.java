@@ -8,6 +8,7 @@ import com.stirante.runechanger.model.client.Champion;
 import com.stirante.runechanger.util.SimplePreferences;
 import com.stirante.runechanger.util.UiEventExecutor;
 
+import java.util.List;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
@@ -15,8 +16,8 @@ import java.util.function.Consumer;
 
 public class ChampionSuggestions extends OverlayLayer {
     private int selectedChampionIndex = -1;
-    private ArrayList<Champion> lastChampions;
-    private ArrayList<Champion> bannedChampions;
+    private List<Champion> lastChampions;
+    private List<Champion> bannedChampions;
     private Consumer<Champion> suggestedChampionSelectedListener;
     private float currentChampionsPosition = 0f;
 
@@ -24,8 +25,8 @@ public class ChampionSuggestions extends OverlayLayer {
         super(overlay);
     }
 
-    public void setSuggestedChampions(ArrayList<Champion> lastChampions,
-                                      ArrayList<Champion> bannedChampions, Consumer<Champion> suggestedChampionSelectedListener) {
+    public void setSuggestedChampions(List<Champion> lastChampions,
+                                      List<Champion> bannedChampions, Consumer<Champion> suggestedChampionSelectedListener) {
         this.lastChampions = lastChampions;
         this.bannedChampions = bannedChampions;
         this.suggestedChampionSelectedListener = suggestedChampionSelectedListener;

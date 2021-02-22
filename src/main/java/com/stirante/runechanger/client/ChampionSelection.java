@@ -18,6 +18,9 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.function.BinaryOperator;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class ChampionSelection extends ClientModule {
     private static final Logger log = LoggerFactory.getLogger(ChampionSelection.class);
@@ -46,37 +49,24 @@ public class ChampionSelection extends ClientModule {
         return null;
     }
 
-    public ArrayList<Champion> getLastChampions() {
+    public List<Champion> getLastChampions() {
         try {
-            ArrayList<Champion> lastChampions = new ArrayList<>();
-            ApiResponse<LolMatchHistoryMatchHistoryList> historyList =
-                    getApi().executeGet("/lol-match-history/v2/matchlist",
-                            LolMatchHistoryMatchHistoryList.class,
-                            "begIndex", "0",
-                            "endIndex", "20");
-            if (!historyList.isOk() || historyList.getResponseObject().games == null) {
+            ApiResponse<LolMatchHistoryRecentlyPlayedChampionCollection> recentlyPlayed =
+                    getApi().executeGet("/lol-match-history/v1/recently-played-champions/" + getCurrentSummoner().accountId,
+                            LolMatchHistoryRecentlyPlayedChampionCollection.class,
+                            "force", "true");
+            if (!recentlyPlayed.isOk() || recentlyPlayed.getResponseObject().champions == null || recentlyPlayed.getResponseObject().champions.size() == 0) {
                 return null;
             }
-            List<LolMatchHistoryMatchHistoryGame> games = historyList.getResponseObject().games.games;
-            historyList =
-                    getApi().executeGet("/lol-match-history/v2/matchlist",
-                            LolMatchHistoryMatchHistoryList.class,
-                            "begIndex", "20",
-                            "endIndex", "40");
-            games.addAll(historyList.getResponseObject().games.games);
-            games.sort((o1, o2) -> o2.gameCreation.compareTo(o1.gameCreation));
-            for (LolMatchHistoryMatchHistoryGame game : games) {
-                LolMatchHistoryMatchHistoryParticipant p = game.participants.stream()
-                        .findFirst()
-                        .orElse(null);
-                if (p == null) {
-                    continue;
-                }
-                if (!lastChampions.contains(Champion.getById(p.championId))) {
-                    lastChampions.add(Champion.getById(p.championId));
-                }
-            }
-            return new ArrayList<>(lastChampions);
+            List<LolMatchHistoryRecentlyPlayedChampion> games = recentlyPlayed.getResponseObject().champions;
+            games.sort((o1, o2) -> o2.timestamp.compareTo(o1.timestamp));
+            return games.stream()
+                    .sorted((o1, o2) -> o2.timestamp.compareTo(o1.timestamp))
+                    .collect(Collectors.toMap(c -> c.championId, Function.identity(), BinaryOperator.maxBy(Comparator.comparingLong(o -> o.timestamp))))
+                    .values().stream()
+                    .map(c -> c.championId)
+                    .map(Champion::getById)
+                    .collect(Collectors.toList());
         } catch (Exception e) {
             log.error("Exception occurred while getting last picked champions", e);
             return null;
