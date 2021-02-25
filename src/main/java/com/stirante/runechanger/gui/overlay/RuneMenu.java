@@ -253,9 +253,13 @@ public class RuneMenu extends OverlayLayer {
             opened = !opened;
         }
         else if (selectedRunePageIndex > -1) {
-            RuneChanger.EXECUTOR_SERVICE.submit(() -> RuneChanger.getInstance()
-                    .getRunesModule()
-                    .setCurrentRunePage(pages.get(selectedRunePageIndex)));
+            RuneChanger.EXECUTOR_SERVICE.submit(() -> {
+                if (pages.size() > selectedRunePageIndex) {
+                    RuneChanger.getInstance()
+                            .getRunesModule()
+                            .setCurrentRunePage(pages.get(selectedRunePageIndex));
+                }
+            });
             opened = !opened;
         }
     }
