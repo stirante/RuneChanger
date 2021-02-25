@@ -67,7 +67,7 @@ public class Settings extends Application {
     }
 
     public static void show() {
-        if (!instance.mainStage.isShowing()) {
+        if (instance.mainStage != null && !instance.mainStage.isShowing()) {
             Platform.runLater(() -> instance.createScene());
         }
     }
