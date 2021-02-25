@@ -105,10 +105,10 @@ public class Settings extends Application {
     }
 
     public static void setClientConnected(boolean value) {
-        if (instance.home == null) {
-            return;
-        }
         Platform.runLater(() -> {
+            if (instance.home == null) {
+                return;
+            }
             if (value) {
                 try {
                     instance.home.localRunes.clear();

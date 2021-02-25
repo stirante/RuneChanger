@@ -44,7 +44,7 @@ public class HomeController implements Content {
     public Button syncButton;
     public ListView<RunePage> localRunesList;
 
-    public ObservableList<RunePage> localRunes = FXCollections.observableArrayList();
+    public final ObservableList<RunePage> localRunes = FXCollections.observableArrayList();
     private Loot lootModule;
 
     public HomeController() {
