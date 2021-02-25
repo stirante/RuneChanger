@@ -1,17 +1,21 @@
 package com.stirante.runechanger.util;
 
+import com.sun.jna.platform.win32.Advapi32Util;
 import mslinks.ShellLink;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.swing.filechooser.FileSystemView;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
+import java.nio.file.AccessDeniedException;
+
+import static com.sun.jna.platform.win32.WinReg.HKEY_CURRENT_USER;
 
 public class ShortcutUtils {
     private static final Logger log = LoggerFactory.getLogger(ShortcutUtils.class);
+    private static final String REGISTRY_DESKTOP_PATH =
+            "Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Shell Folders\\";
+    private static final String REGISTRY_DESKTOP_KEY = "Desktop";
 
     public static void createShortcut(File directory, String linkName, String fileName) throws IOException {
         String dir = PathUtils.getWorkingDirectory();
@@ -21,7 +25,11 @@ public class ShortcutUtils {
         sl.setWorkingDir(dir);
         sl.setName(linkName);
         String absolutePath = new File(directory, linkName + ".lnk").getAbsolutePath();
-        sl.saveTo(absolutePath);
+        try {
+            sl.saveTo(absolutePath);
+        } catch (AccessDeniedException e) {
+            log.error("An error occurred while creating a shortcut", e);
+        }
         log.info(String.format("Created shortcut for %s in %s", fileName, absolutePath));
     }
 
@@ -34,7 +42,9 @@ public class ShortcutUtils {
     }
 
     public static void createDesktopShortcut() throws IOException {
-        File folder = FileSystemView.getFileSystemView().getHomeDirectory();
+        String path =
+                Advapi32Util.registryGetStringValue(HKEY_CURRENT_USER, REGISTRY_DESKTOP_PATH, REGISTRY_DESKTOP_KEY);
+        File folder = new File(path);
         createShortcut(folder, "RuneChanger", "open.bat");
     }
 
