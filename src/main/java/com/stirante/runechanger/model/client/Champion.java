@@ -331,6 +331,7 @@ public class Champion {
             } catch (IOException | IllegalStateException e) {
                 e.printStackTrace();
             }
+            portraitsDir.getParentFile().mkdirs();
             for (Champion champion : values) {
                 // Checking and downloading portrait
                 File f = new File(portraitsDir, champion.id + ".jpg");
