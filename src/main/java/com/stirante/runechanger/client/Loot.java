@@ -8,7 +8,7 @@ import com.stirante.runechanger.model.client.Champion;
 import generated.LolChampionsCollectionsChampionMinimal;
 import generated.LolCollectionsCollectionsChampionMastery;
 import generated.LolLootPlayerLoot;
-import generated.LolLootRecipe;
+import generated.LolLootRecipeWithMilestones;
 import javafx.util.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -165,8 +165,8 @@ public class Loot extends ClientModule {
      */
     public Map<String, Pair<String, Integer>> getRecipes(String lootId) {
         try {
-            ApiResponse<LolLootRecipe[]> loot =
-                    getApi().executeGet("/lol-loot/v1/recipes/initial-item/" + lootId, LolLootRecipe[].class);
+            ApiResponse<LolLootRecipeWithMilestones[]> loot =
+                    getApi().executeGet("/lol-loot/v1/recipes/initial-item/" + lootId, LolLootRecipeWithMilestones[].class);
             return Arrays.stream(loot.getResponseObject())
                     .filter(lolLootRecipe -> lolLootRecipe.slots.size() == 1 &&
                             lolLootRecipe.slots.get(0).lootIds.size() == 1 &&

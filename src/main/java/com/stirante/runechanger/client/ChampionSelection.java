@@ -18,8 +18,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.function.BinaryOperator;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class ChampionSelection extends ClientModule {
@@ -52,20 +50,24 @@ public class ChampionSelection extends ClientModule {
     public List<Champion> getLastChampions() {
         try {
             ApiResponse<LolMatchHistoryRecentlyPlayedChampionCollection> recentlyPlayed =
-                    getApi().executeGet("/lol-match-history/v1/recently-played-champions/" + getCurrentSummoner().accountId,
+                    getApi().executeGet(
+                            "/lol-match-history/v1/recently-played-champions/" + getCurrentSummoner().accountId,
                             LolMatchHistoryRecentlyPlayedChampionCollection.class,
                             "force", "true");
-            if (!recentlyPlayed.isOk() || recentlyPlayed.getResponseObject().champions == null || recentlyPlayed.getResponseObject().champions.size() == 0) {
+            if (!recentlyPlayed.isOk() || recentlyPlayed.getResponseObject().champions == null ||
+                    recentlyPlayed.getResponseObject().champions.size() == 0) {
                 return null;
             }
             List<LolMatchHistoryRecentlyPlayedChampion> games = recentlyPlayed.getResponseObject().champions;
-            games.sort((o1, o2) -> o2.timestamp.compareTo(o1.timestamp));
             return games.stream()
-                    .sorted((o1, o2) -> o2.timestamp.compareTo(o1.timestamp))
-                    .collect(Collectors.toMap(c -> c.championId, Function.identity(), BinaryOperator.maxBy(Comparator.comparingLong(o -> o.timestamp))))
+                    .collect(Collectors.groupingBy(o -> o.championId))
                     .values().stream()
-                    .map(c -> c.championId)
-                    .map(Champion::getById)
+                    .map(l -> l
+                            .stream()
+                            .max(Comparator.comparing(o -> o.timestamp))
+                            .orElseThrow())
+                    .sorted((o1, o2) -> Long.compare(o2.timestamp, o1.timestamp))
+                    .map(c -> Champion.getById(c.championId))
                     .collect(Collectors.toList());
         } catch (Exception e) {
             log.error("Exception occurred while getting last picked champions", e);
@@ -120,7 +122,10 @@ public class ChampionSelection extends ClientModule {
                         if (championId != 0) {
                             banned.add(Champion.getById(championId));
                         }
-                    } else if (a.get("type").equals("ban") && ((Double) a.get("actorCellId")).intValue() == self.cellId.intValue() && !((Boolean) a.get("completed"))) {
+                    }
+                    else if (a.get("type").equals("ban") &&
+                            ((Double) a.get("actorCellId")).intValue() == self.cellId.intValue() &&
+                            !((Boolean) a.get("completed"))) {
                         banAction = a;
                     }
                 }
