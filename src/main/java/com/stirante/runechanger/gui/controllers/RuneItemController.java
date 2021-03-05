@@ -1,6 +1,7 @@
 package com.stirante.runechanger.gui.controllers;
 
 import com.stirante.runechanger.RuneChanger;
+import com.stirante.runechanger.gui.Settings;
 import com.stirante.runechanger.model.client.RunePage;
 import com.stirante.runechanger.util.LangHelper;
 import com.stirante.runechanger.util.SimplePreferences;
@@ -107,13 +108,18 @@ public class RuneItemController {
 
     @FXML
     public void onDelete(MouseEvent mouseEvent) {
-        if (page.isFromClient()) {
-            RuneChanger.getInstance().getRunesModule().deletePage(page);
+        boolean removePage = Settings.openYesNoDialog(
+                LangHelper.getLang().getString("remove_page_confirmation_title"),
+                String.format(LangHelper.getLang().getString("remove_page_confirmation_message"), page.getName()));
+        if (removePage) {
+            if (page.isFromClient()) {
+                RuneChanger.getInstance().getRunesModule().deletePage(page);
+            }
+            if (SimplePreferences.getRuneBookPage(page.getName()) == null) {
+                return;
+            }
+            SimplePreferences.removeRuneBookPage(page.getName());
         }
-        if (SimplePreferences.getRuneBookPage(page.getName()) == null) {
-            return;
-        }
-        SimplePreferences.removeRuneBookPage(page.getName());
     }
 
     @FXML
