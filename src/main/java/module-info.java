@@ -6,7 +6,6 @@ module RuneChanger {
     requires javafx.fxml;
     requires javafx.swing;
     requires javafx.controls;
-    requires jdk.unsupported.desktop;
     requires java.naming;
     requires java.sql;
     requires jdk.crypto.ec;

@@ -18,14 +18,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.imageio.ImageIO;
-import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -178,18 +176,32 @@ public class Champion {
     private static void onlineInit(File cache) throws IOException {
         Gson gson = new Gson();
         ChampionList champions;
-        try (InputStream in = getUrl("http://ddragon.leagueoflegends.com/cdn/" + Patch.getLatest().toFullString() + "/data/en_US/champion.json")) {
+        try (InputStream in = getUrl("http://ddragon.leagueoflegends.com/cdn/" + Patch.getLatest().toFullString() +
+                "/data/en_US/champion.json")) {
             champions = gson.fromJson(new InputStreamReader(in), ChampionList.class);
         }
         List<ChampionDTO> values = new ArrayList<>(champions.data.values());
         values.sort(Comparator.comparing(o -> o.name));
 
+        Patch patch = Patch.getLatest();
+        List<Patch> latest = Patch.getLatest(5);
+        for (Patch p : latest) {
+            try {
+                if (isOk("https://cdn.communitydragon.org/" + p.toFullString() + "/champion/Annie/square")) {
+                    patch = p;
+                    break;
+                }
+            } catch (IOException ignored) {
+            }
+        }
+
         synchronized (Champion.values) {
             boolean allExist = true;
             for (ChampionDTO champion : values) {
                 Champion c = new Champion(Integer.parseInt(champion.key), champion.id, champion.name,
-                        champion.name.replaceAll(" ", ""), "https://cdn.communitydragon.org/" + Patch.getLatest().toShortString() + "/champion" +
-                        "/" + champion.key);
+                        champion.name.replaceAll(" ", ""),
+                        "https://cdn.communitydragon.org/" + patch.toFullString() + "/champion" +
+                                "/" + champion.key);
                 if (Champion.values.contains(c)) {
                     Champion champion1 =
                             Champion.values.stream().filter(champ -> champ.id == c.id).findFirst().orElseThrow();
@@ -197,7 +209,8 @@ public class Champion {
                     champion1.internalName = c.internalName;
                     champion1.alias = c.alias;
                     champion1.url = c.url;
-                } else {
+                }
+                else {
                     Champion.values.add(c);
                 }
 
@@ -231,6 +244,15 @@ public class Champion {
         URL urlObject = new URL(url);
         HttpURLConnection urlConnection = (HttpURLConnection) urlObject.openConnection();
         return urlConnection.getInputStream();
+    }
+
+    private static boolean isOk(String url) throws IOException {
+        URL urlObject = new URL(url);
+        HttpURLConnection urlConnection = (HttpURLConnection) urlObject.openConnection();
+        urlConnection.setRequestMethod("HEAD");
+        int responseCode = urlConnection.getResponseCode();
+        urlConnection.disconnect();
+        return responseCode >= 200 && responseCode < 300;
     }
 
     /**
@@ -390,7 +412,9 @@ public class Champion {
             try {
                 Document doc = Jsoup.parse(new URL("https://leagueoflegends.fandom.com/wiki/" +
                         // Special case for Nunu...
-                        URLEncoder.encode(champion.getName().replaceAll(" ", "_").replaceAll("_&.+", ""), StandardCharsets.UTF_8) +
+                        URLEncoder.encode(champion.getName()
+                                .replaceAll(" ", "_")
+                                .replaceAll("_&.+", ""), StandardCharsets.UTF_8) +
                         "/LoL/Audio"), 60000);
                 Elements select = doc.select("#mw-content-text .mw-parser-output").first().children();
                 boolean isPick = false;
