@@ -196,7 +196,7 @@ public class AutoUpdater {
                 .baseUri("https://runechanger.stirante.com/dev")
                 .basePath(new File("").getAbsolutePath())
                 .files(FileMetadata.streamDirectory(imageDir.getAbsolutePath())
-                        .peek(r -> r.classpath(r.getSource().toString().endsWith(".jar"))))
+                        .peek(r -> r.classpath(r.getSource().toString().endsWith(".jar")).ignoreBootConflict()))
                 .launcher(RuneChanger.class)
                 .build();
         FileWriter writer = new FileWriter("image/dev.xml");
