@@ -312,7 +312,7 @@ public class Settings extends Application {
                 tokens.setConverter(new StringConverter<>() {
                     @Override
                     public String toString(Map.Entry<String, Pair<String, Integer>> object) {
-                        return object.getValue().getKey();
+                        return object != null ? object.getValue().getKey() : null;
                     }
 
                     @Override
@@ -329,7 +329,7 @@ public class Settings extends Application {
                 recipes.setConverter(new StringConverter<>() {
                     @Override
                     public String toString(Map.Entry<String, Pair<String, Integer>> object) {
-                        return object.getValue().getKey();
+                        return object != null ? object.getValue().getKey() : null;
                     }
 
                     @Override
