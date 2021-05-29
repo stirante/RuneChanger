@@ -49,7 +49,6 @@ public class GuiHandler {
     private JWindow win;
     private ClientOverlay clientOverlay;
     private WinDef.HWND hwnd;
-    private Consumer<RunePage> runeSelectedListener;
     private TrayIcon trayIcon;
     private SceneType type = SceneType.NONE;
     private List<Champion> suggestedChampions;
@@ -120,16 +119,15 @@ public class GuiHandler {
         if (type == SceneType.NONE) {
             runes.clear();
             if (clientOverlay != null) {
-                clientOverlay.getLayer(RuneMenu.class).setRuneData(runes.getBackingList(), null);
+                clientOverlay.getLayer(RuneMenu.class).setRuneData(runes.getBackingList());
             }
         }
     }
 
-    public void setRunes(SyncingListWrapper<RunePage> runeList, Consumer<RunePage> onClickListener) {
+    public void setRunes(SyncingListWrapper<RunePage> runeList) {
         runes = runeList;
-        runeSelectedListener = onClickListener;
         if (clientOverlay != null) {
-            clientOverlay.getLayer(RuneMenu.class).setRuneData(runes.getBackingList(), onClickListener);
+            clientOverlay.getLayer(RuneMenu.class).setRuneData(runes.getBackingList());
         }
     }
 
@@ -170,7 +168,7 @@ public class GuiHandler {
         }
         win = new JWindow();
         clientOverlay = new ClientOverlay(runeChanger);
-        clientOverlay.getLayer(RuneMenu.class).setRuneData(runes.getBackingList(), runeSelectedListener);
+        clientOverlay.getLayer(RuneMenu.class).setRuneData(runes.getBackingList());
         clientOverlay.getLayer(ChampionSuggestions.class)
                 .setSuggestedChampions(suggestedChampions, bannedChampions, suggestedChampionSelectedListener);
         clientOverlay.setSceneType(type);
@@ -407,9 +405,7 @@ public class GuiHandler {
     @Subscribe(ChampionSelection.ChampionChangedEvent.NAME)
     public void onChampionChange(ChampionSelection.ChampionChangedEvent event) {
         SyncingListWrapper<RunePage> pages = new SyncingListWrapper<>();
-        setRunes(pages, (page) -> RuneChanger.EXECUTOR_SERVICE.submit(() -> RuneChanger.getInstance()
-                .getRunesModule()
-                .setCurrentRunePage(page)));
+        setRunes(pages);
         if (event.getChampion() != null) {
             log.info("Downloading runes for champion: " + event.getChampion().getName());
             SourceStore.getRunes(

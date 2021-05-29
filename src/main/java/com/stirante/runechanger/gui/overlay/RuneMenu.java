@@ -24,12 +24,12 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Consumer;
 
 public class RuneMenu extends OverlayLayer {
     private static final Logger log = LoggerFactory.getLogger(RuneMenu.class);
     private List<RunePage> pages = new ArrayList<>();
-    private Consumer<RunePage> runeSelectedListener;
     private boolean opened = false;
     private int selectedRunePageIndex = -1;
     private BufferedImage icon;
@@ -46,9 +46,9 @@ public class RuneMenu extends OverlayLayer {
         super(overlay);
         try {
             warnIcon =
-                    SwingUtils.getScaledImage(32, 32, ImageIO.read(getClass().getResourceAsStream("/images/info-yellow.png")));
+                    SwingUtils.getScaledImage(32, 32, ImageIO.read(Objects.requireNonNull(getClass().getResourceAsStream("/images/info-yellow.png"))));
             closeIcon =
-                    SwingUtils.getScaledImage(16, 16, ImageIO.read(getClass().getResourceAsStream("/images/close.png")));
+                    SwingUtils.getScaledImage(16, 16, ImageIO.read(Objects.requireNonNull(getClass().getResourceAsStream("/images/close.png"))));
         } catch (IOException e) {
             log.error("Exception occurred while loading rune button icons", e);
             AnalyticsUtil.addCrashReport(e, "Exception occurred while loading rune button icons", false);
@@ -70,8 +70,7 @@ public class RuneMenu extends OverlayLayer {
         }
     }
 
-    public void setRuneData(ObservableList<RunePage> pages, Consumer<RunePage> runeSelectedListener) {
-        this.runeSelectedListener = runeSelectedListener;
+    public void setRuneData(ObservableList<RunePage> pages) {
         this.pages = pages;
         repaintNow();
         pages.addListener((InvalidationListener) observable -> FxUtils.doOnFxThread(this::repaintNow));
@@ -79,16 +78,17 @@ public class RuneMenu extends OverlayLayer {
 
     private void drawRuneButton(Graphics2D g2d) {
         int size = (int) (Constants.RUNE_BUTTON_SIZE * getHeight());
-        if (size != this.size) {
+        if (size != this.size || icon == null || grayscaleIcon == null) {
             this.size = size;
             try {
                 icon =
-                        SwingUtils.getScaledImage(size, size, ImageIO.read(getClass().getResourceAsStream("/images/28.png")));
+                        SwingUtils.getScaledImage(size, size, ImageIO.read(Objects.requireNonNull(getClass().getResourceAsStream("/images/28.png"))));
                 grayscaleIcon =
-                        SwingUtils.getScaledImage(size, size, ImageIO.read(getClass().getResourceAsStream("/images/28grayscale.png")));
-            } catch (IOException e) {
+                        SwingUtils.getScaledImage(size, size, ImageIO.read(Objects.requireNonNull(getClass().getResourceAsStream("/images/28grayscale.png"))));
+            } catch (Exception e) {
                 log.error("Exception occurred while loading rune button icons", e);
                 AnalyticsUtil.addCrashReport(e, "Exception occurred while loading rune button icons", false);
+                return;
             }
         }
         int x = (int) ((getClientWidth()) * Constants.RUNE_BUTTON_POSITION_X);
