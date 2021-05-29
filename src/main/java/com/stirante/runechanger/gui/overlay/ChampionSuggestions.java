@@ -108,7 +108,7 @@ public class ChampionSuggestions extends OverlayLayer {
     }
 
     public void mouseReleased(MouseEvent e) {
-        if (selectedChampionIndex != -1 && suggestedChampionSelectedListener != null) {
+        if (selectedChampionIndex != -1 && suggestedChampionSelectedListener != null && bannedChampions != null && lastChampions != null) {
             // Fix wrong champion selected, when one or more of them are banned
             int index = selectedChampionIndex;
             for (int i = 0; i <= index; i++) {
