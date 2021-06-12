@@ -6,6 +6,7 @@ import com.google.gson.JsonObject;
 import com.stirante.justpipe.Pipe;
 import com.stirante.runechanger.model.client.*;
 import com.stirante.runechanger.sourcestore.RuneSource;
+import com.stirante.runechanger.sourcestore.SourceStore;
 import com.stirante.runechanger.util.PipeExtension;
 import com.stirante.runechanger.util.SyncingListWrapper;
 import generated.Position;
@@ -22,11 +23,13 @@ public class LolTheorySource implements RuneSource {
             "https://loltheory-1b4da.firebaseio.com/%s/champions/%s/%s%sinfo/selection.json";
     private static final String RUNES_URL =
             "https://loltheory-1b4da.firebaseio.com/%s/champions/%s/%s%ssecondary_documents/runes_and_stat_shards.json";
+    private static final String SUMMONER_SPELLS_URL =
+            "https://loltheory-1b4da.firebaseio.com/%s/champions/%s/%s%ssecondary_documents/sums.json";
     private static final String PUBLIC_URL = "https://loltheory.gg/champion/%s";
     private static final String PATCH_URL = "https://loltheory-1b4da.firebaseio.com/patch.json";
     private String patchString;
 
-    private final Map<Champion, List<RunePage>> cache = new HashMap<>();
+    private final Map<Champion, List<ChampionBuild>> cache = new HashMap<>();
 
     @Override
     public String getSourceName() {
@@ -51,7 +54,7 @@ public class LolTheorySource implements RuneSource {
         return new ArrayList<>();
     }
 
-    private JsonObject getRunes(Champion champion, int role) {
+    private List<JsonObject> getData(Champion champion, int role) {
         try {
             String items = "/";
             for (int i = 0; i < 3; i++) {
@@ -59,16 +62,17 @@ public class LolTheorySource implements RuneSource {
                 JsonArray list = Pipe.from(new URL(url)).to(PipeExtension.JSON_ARRAY);
                 items += list.get(0).getAsInt() + "/";
             }
-            String url = String.format(RUNES_URL, patchString, champion.getInternalName(), role, items);
-            return Pipe.from(new URL(url)).to(PipeExtension.JSON_OBJECT);
+            String runesUrl = String.format(RUNES_URL, patchString, champion.getInternalName(), role, items);
+            String sumsUrl = String.format(SUMMONER_SPELLS_URL, patchString, champion.getInternalName(), role, items);
+            return Arrays.asList(Pipe.from(new URL(runesUrl)).to(PipeExtension.JSON_OBJECT), Pipe.from(new URL(sumsUrl)).to(PipeExtension.JSON_OBJECT));
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return null;
+        return Collections.emptyList();
     }
 
     @Override
-    public void getRunesForGame(GameData data, SyncingListWrapper<RunePage> pages) {
+    public void getRunesForGame(GameData data, SyncingListWrapper<ChampionBuild> pages) {
         if (cache.containsKey(data.getChampion())) {
             pages.addAll(cache.get(data.getChampion()));
         }
@@ -81,7 +85,8 @@ public class LolTheorySource implements RuneSource {
         try {
             List<Integer> roles = getRoles(data.getChampion());
             for (Integer role : roles) {
-                JsonObject item = getRunes(data.getChampion(), role);
+                List<JsonObject> list = getData(data.getChampion(), role);
+                JsonObject item = !list.isEmpty() ? list.get(0) : null;
                 if (item != null) {
                     RunePage p = new RunePage();
                     JsonArray mainRunes = item.getAsJsonObject("runes")
@@ -120,8 +125,15 @@ public class LolTheorySource implements RuneSource {
                     if (!p.verify()) {
                         continue;
                     }
-                    pages.add(p);
-                    cache.get(data.getChampion()).add(p);
+                    List<SummonerSpell> spells = StreamSupport.stream(list.get(1)
+                            .getAsJsonArray("selection")
+                            .get(0)
+                            .getAsJsonArray()
+                            .spliterator(), false)
+                            .map(jsonElement -> SummonerSpell.getByKey(jsonElement.getAsInt()))
+                            .collect(Collectors.toList());
+                    pages.add(ChampionBuild.builder(p).withSpells(spells).create());
+                    cache.get(data.getChampion()).add(ChampionBuild.builder(p).create());
                 }
             }
         } catch (Exception e) {
@@ -175,6 +187,10 @@ public class LolTheorySource implements RuneSource {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public static void main(String[] args) throws IOException {
+        SourceStore.testSource(new LolTheorySource());
     }
 
 }

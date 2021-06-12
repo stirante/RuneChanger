@@ -4,10 +4,12 @@ import com.google.gson.Gson;
 import com.stirante.justpipe.Pipe;
 import com.stirante.runechanger.model.client.*;
 import com.stirante.runechanger.sourcestore.RuneSource;
+import com.stirante.runechanger.sourcestore.SourceStore;
 import com.stirante.runechanger.util.SyncingListWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.io.StringWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -20,9 +22,11 @@ import java.util.stream.Collectors;
 public class LolalyticsSource implements RuneSource {
     private static final Logger log = LoggerFactory.getLogger(LolalyticsSource.class);
     private final static String CHAMPION_URL =
+            //TODO: This source needs to be fixed
+            //"https://apix1.op.lol/mega/?ep=champion&p=d&v=9patch=%PATCH%tier=platinum_plus&queue=420&region=all&cid=%CHAMPIONID%&lane=%LANE%";
             "https://api.op.lol/champion/3/?patch=%PATCH%tier=platinum_plus&queue=420&region=all&cid=%CHAMPIONID%&lane=%LANE%";
 
-    private void downloadRunes(Champion champion, SyncingListWrapper<RunePage> pages) {
+    private void downloadRunes(Champion champion, SyncingListWrapper<ChampionBuild> pages) {
         final String[] lanes = {"Top", "Jungle", "Middle", "Bottom", "Support"};
         try {
             for (String lane : lanes) {
@@ -37,7 +41,7 @@ public class LolalyticsSource implements RuneSource {
                 LolalyticsResult jsonData =
                         new Gson().fromJson(json.toString(), LolalyticsResult.class);
                 if (jsonData == null || jsonData.display == null) {
-                    log.warn("Invalid data received, when getting " + url.toString());
+                    log.warn("Invalid data received, when getting " + url);
                     log.debug(json.toString());
                     continue;
                 }
@@ -59,7 +63,7 @@ public class LolalyticsSource implements RuneSource {
                 runePage.setSource(
                         "https://lolalytics.com/lol/runes/" + champion.getName().replace("'", "").toLowerCase() +
                                 "?lane=" + lane + "&patch=" + Patch.getLatest(1).get(0).toString());
-                pages.add(runePage);
+                pages.add(ChampionBuild.builder(runePage).create());
             }
 
         } catch (Exception e) {
@@ -131,7 +135,7 @@ public class LolalyticsSource implements RuneSource {
     }
 
     @Override
-    public void getRunesForGame(GameData data, SyncingListWrapper<RunePage> pages) {
+    public void getRunesForGame(GameData data, SyncingListWrapper<ChampionBuild> pages) {
         downloadRunes(data.getChampion(), pages);
     }
 
@@ -208,6 +212,10 @@ public class LolalyticsSource implements RuneSource {
         public int getIndex() {
             return index;
         }
+    }
+
+    public static void main(String[] args) throws IOException {
+        SourceStore.testSource(new LolalyticsSource());
     }
 
 }

@@ -4,6 +4,7 @@ import com.stirante.eventbus.EventBus;
 import com.stirante.eventbus.Subscribe;
 import com.stirante.lolclient.ApiResponse;
 import com.stirante.lolclient.ClientApi;
+import com.stirante.runechanger.model.client.ChampionBuild;
 import com.stirante.runechanger.model.client.RunePage;
 import com.stirante.runechanger.util.SimplePreferences;
 import generated.LolPerksPerkPageResource;
@@ -133,14 +134,14 @@ public class Runes extends ClientModule {
     }
 
     public void syncRunePages() {
-        ArrayList<RunePage> savedPages = SimplePreferences.getRuneBookValues();
+        ArrayList<ChampionBuild> savedPages = SimplePreferences.getRuneBookValues();
         List<RunePage> clientPages = getRunePages();
         for (RunePage p : clientPages) {
-            Optional<RunePage> savedPage = savedPages.stream()
+            Optional<ChampionBuild> savedPage = savedPages.stream()
                     .filter(runePage -> runePage.getName().equalsIgnoreCase(p.getName()))
                     .findFirst();
             if (savedPage.isPresent()) {
-                savedPage.get().copyFrom(p);
+                savedPage.get().getRunePage().copyFrom(p);
             }
             else {
                 SimplePreferences.addRuneBookPage(p);

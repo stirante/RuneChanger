@@ -2,6 +2,7 @@ package com.stirante.runechanger.gui.controllers;
 
 import com.stirante.runechanger.RuneChanger;
 import com.stirante.runechanger.gui.Settings;
+import com.stirante.runechanger.model.client.ChampionBuild;
 import com.stirante.runechanger.model.client.RunePage;
 import com.stirante.runechanger.util.LangHelper;
 import com.stirante.runechanger.util.SimplePreferences;
@@ -45,7 +46,7 @@ public class RuneItemController {
     public Circle syncStatus;
     private List<Node> newRuneNodes;
     private List<Node> localRuneNodes;
-    private RunePage page;
+    private ChampionBuild page;
 
     public RuneItemController() {
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/fxml/RuneItem.fxml"), LangHelper.getLang());
@@ -66,7 +67,7 @@ public class RuneItemController {
         selected.setTooltip(tooltip);
     }
 
-    public void setNewRuneMode(RunePage page) {
+    public void setNewRuneMode(ChampionBuild page) {
         this.page = page;
         newRuneNodes.forEach(node -> node.setVisible(true));
         localRuneNodes.forEach(node -> node.setVisible(false));
@@ -76,27 +77,27 @@ public class RuneItemController {
         } catch (URISyntaxException e) {
             log.error("Exception occurred while getting source host", e);
         }
-        icon.setImage(SwingFXUtils.toFXImage(Objects.requireNonNull(page.getRunes()
+        icon.setImage(SwingFXUtils.toFXImage(Objects.requireNonNull(page.getRunePage().getRunes()
                 .get(0)
                 .getImage()), null));
     }
 
-    public void setLocalRuneMode(RunePage page) {
+    public void setLocalRuneMode(ChampionBuild page) {
         setHomeRuneMode(page);
     }
 
-    public void setHomeRuneMode(RunePage page) {
+    public void setHomeRuneMode(ChampionBuild page) {
         this.page = page;
         newRuneNodes.forEach(node -> node.setVisible(false));
         localRuneNodes.forEach(node -> node.setVisible(true));
         name.setText(page.getName());
-        icon.setImage(SwingFXUtils.toFXImage(Objects.requireNonNull(page.getRunes()
+        icon.setImage(SwingFXUtils.toFXImage(Objects.requireNonNull(page.getRunePage().getRunes()
                 .get(0)
                 .getImage()), null));
-        selected.setSelected(page.isFromClient());
-        syncStatus.setVisible(page.isFromClient() && !page.isSynced());
+        selected.setSelected(page.getRunePage().isFromClient());
+        syncStatus.setVisible(page.getRunePage().isFromClient() && !page.getRunePage().isSynced());
         selected.getTooltip()
-                .setText(page.isFromClient() ?
+                .setText(page.getRunePage().isFromClient() ?
                         LangHelper.getLang().getString("client_runepage") :
                         LangHelper.getLang().getString("local_runepage"));
     }
@@ -112,8 +113,8 @@ public class RuneItemController {
                 LangHelper.getLang().getString("remove_page_confirmation_title"),
                 String.format(LangHelper.getLang().getString("remove_page_confirmation_message"), page.getName()));
         if (removePage) {
-            if (page.isFromClient()) {
-                RuneChanger.getInstance().getRunesModule().deletePage(page);
+            if (page.getRunePage().isFromClient()) {
+                RuneChanger.getInstance().getRunesModule().deletePage(page.getRunePage());
             }
             if (SimplePreferences.getRuneBookPage(page.getName()) == null) {
                 return;
@@ -138,16 +139,16 @@ public class RuneItemController {
             return;
         }
         // Page is from client and we're deselecting it, so we need to remove it
-        if (page.isFromClient() && !selected.isSelected()) {
-            RuneChanger.getInstance().getRunesModule().deletePage(page);
+        if (page.getRunePage().isFromClient() && !selected.isSelected()) {
+            RuneChanger.getInstance().getRunesModule().deletePage(page.getRunePage());
         }
         // Page is not selected, we're selecting it and we have at least one free rune page. We need to add it to client
         else if (selected.isSelected() && RuneChanger.getInstance().getRunesModule().getOwnedPageCount() >
                 RuneChanger.getInstance().getRunesModule().getRunePages().size()) {
-            RuneChanger.getInstance().getRunesModule().addPage(page);
+            RuneChanger.getInstance().getRunesModule().addPage(page.getRunePage());
         }
         selected.getTooltip()
-                .setText(page.isFromClient() ?
+                .setText(page.getRunePage().isFromClient() ?
                         LangHelper.getLang().getString("client_runepage") :
                         LangHelper.getLang().getString("local_runepage"));
     }
@@ -160,20 +161,20 @@ public class RuneItemController {
                     .showWarningMessage(LangHelper.getLang().getString("page_already_exists"));
             return;
         }
-        SimplePreferences.addRuneBookPage(page);
+        SimplePreferences.addRuneBookPage(page.getRunePage());
     }
 
-    public static class RunePageCell extends ListCell<RunePage> {
+    public static class ChampionBuildCell extends ListCell<ChampionBuild> {
 
-        private final BiConsumer<RuneItemController, RunePage> prepareFunction;
+        private final BiConsumer<RuneItemController, ChampionBuild> prepareFunction;
         private RuneItemController item;
 
-        public RunePageCell(BiConsumer<RuneItemController, RunePage> prepareFunction) {
+        public ChampionBuildCell(BiConsumer<RuneItemController, ChampionBuild> prepareFunction) {
             this.prepareFunction = prepareFunction;
         }
 
         @Override
-        public void updateItem(RunePage page, boolean empty) {
+        public void updateItem(ChampionBuild page, boolean empty) {
             super.updateItem(page, empty);
             if (item == null) {
                 item = new RuneItemController();

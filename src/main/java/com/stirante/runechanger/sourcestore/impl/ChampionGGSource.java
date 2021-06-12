@@ -5,9 +5,13 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.stirante.justpipe.Pipe;
+import com.stirante.lolclient.libs.org.apache.http.client.methods.HttpGet;
+import com.stirante.lolclient.libs.org.apache.http.impl.client.CloseableHttpClient;
+import com.stirante.lolclient.libs.org.apache.http.impl.client.HttpClients;
 import com.stirante.runechanger.model.app.SettingsConfiguration;
 import com.stirante.runechanger.model.client.*;
 import com.stirante.runechanger.sourcestore.RuneSource;
+import com.stirante.runechanger.sourcestore.SourceStore;
 import com.stirante.runechanger.util.StringUtils;
 import com.stirante.runechanger.util.SyncingListWrapper;
 import generated.Position;
@@ -17,8 +21,11 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 public class ChampionGGSource implements RuneSource {
     private static final Logger log = LoggerFactory.getLogger(ChampionGGSource.class);
@@ -30,7 +37,7 @@ public class ChampionGGSource implements RuneSource {
             "https://backend-alt.iesdev.com/api/lolstats/champions/%champion%?queue=%queue%&rank=%rank%&region=world";
     private final static String CHAMPION_URL = "https://champion.gg/champion/";
     private final static HashMap<Champion, Position> positionCache = new HashMap<>();
-    private final static HashMap<Champion, Map<Position, RunePage>> pageCache = new HashMap<>();
+    private final static HashMap<Champion, Map<Position, ChampionBuild>> pageCache = new HashMap<>();
     private static boolean initialized = false;
     private static final Tier DEFAULT_TIER = Tier.PLATINUM_PLUS;
     private static final Queue DEFAULT_QUEUE = Queue.RANKED_SOLO_DUO;
@@ -63,10 +70,14 @@ public class ChampionGGSource implements RuneSource {
             return;
         }
         try {
-            String json = Pipe.from(new URL(ALL_URL
-                    .replaceAll("%queue%", String.valueOf(DEFAULT_QUEUE.getId()))
-                    .replaceAll("%rank%", DEFAULT_TIER.name())
-            ).openStream()).toString();
+            String json;
+            try (CloseableHttpClient client = HttpClients.createDefault()) {
+                HttpGet request = new HttpGet(ALL_URL
+                        .replaceAll("%queue%", String.valueOf(DEFAULT_QUEUE.getId()))
+                        .replaceAll("%rank%", DEFAULT_TIER.name()));
+                request.setHeader("Origin", "https://champion.gg");
+                json = Pipe.from(client.execute(request).getEntity().getContent()).toString();
+            }
             JsonArray data = JsonParser.parseString(json).getAsJsonObject().getAsJsonArray("data");
             for (JsonElement champion : data) {
                 JsonObject obj = champion.getAsJsonObject();
@@ -80,7 +91,7 @@ public class ChampionGGSource implements RuneSource {
                 }
                 JsonObject stats = obj.getAsJsonObject("stats");
                 pageCache.get(champ)
-                        .put(role, toRunePage(champ, obj.get("role")
+                        .put(role, toChampionBuild(champ, obj.get("role")
                                 .getAsString(), stats));
             }
         } catch (Exception e) {
@@ -90,7 +101,7 @@ public class ChampionGGSource implements RuneSource {
         LOCK.unlock();
     }
 
-    private RunePage toRunePage(Champion champion, String position, JsonObject stats) {
+    private ChampionBuild toChampionBuild(Champion champion, String position, JsonObject stats) {
         JsonObject runes = stats.getAsJsonObject((mostCommon ? "most_common_" : "") + "runes");
         JsonObject shards = stats.getAsJsonObject((mostCommon ? "most_common_" : "") + "rune_stat_shards");
         RunePage page = new RunePage();
@@ -121,7 +132,13 @@ public class ChampionGGSource implements RuneSource {
         if (!page.verify()) {
             return null;
         }
-        return page;
+
+        List<SummonerSpell> spells =
+                StreamSupport.stream(stats.getAsJsonObject("spells").getAsJsonArray("build").spliterator(), false)
+                        .map(jsonElement -> SummonerSpell.getByKey(jsonElement.getAsInt()))
+                        .collect(Collectors.toList());
+
+        return ChampionBuild.builder(page).withSpells(spells).create();
     }
 
     @Override
@@ -130,8 +147,8 @@ public class ChampionGGSource implements RuneSource {
     }
 
     @Override
-    public void getRunesForGame(GameData data, SyncingListWrapper<RunePage> pages) {
-        Map<Position, RunePage> cache = pageCache.get(data.getChampion());
+    public void getRunesForGame(GameData data, SyncingListWrapper<ChampionBuild> pages) {
+        Map<Position, ChampionBuild> cache = pageCache.get(data.getChampion());
         if (!cache.isEmpty()) {
             pages.addAll(cache.values());
         }
@@ -152,7 +169,7 @@ public class ChampionGGSource implements RuneSource {
                     }
                     JsonObject stats = obj.getAsJsonObject("stats");
                     if (stats.get("games").getAsInt() > minThreshold) {
-                        RunePage page = toRunePage(data.getChampion(), obj.get("role")
+                        ChampionBuild page = toChampionBuild(data.getChampion(), obj.get("role")
                                 .getAsString(), stats);
                         pages.add(page);
                         cache.put(role, page);
@@ -239,5 +256,8 @@ public class ChampionGGSource implements RuneSource {
 
     public static void main(String[] args) throws IOException {
         Champion.init();
+        ChampionGGSource source = new ChampionGGSource();
+        source.initCache();
+        SourceStore.testSource(source);
     }
 }

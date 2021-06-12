@@ -6,9 +6,11 @@ import com.stirante.runechanger.RuneChanger;
 import com.stirante.runechanger.client.ChampionSelection;
 import com.stirante.runechanger.gui.Constants;
 import com.stirante.runechanger.gui.SceneType;
+import com.stirante.runechanger.model.client.ChampionBuild;
 import com.stirante.runechanger.model.client.RunePage;
 import com.stirante.runechanger.util.AnalyticsUtil;
 import com.stirante.runechanger.util.FxUtils;
+import com.stirante.runechanger.util.SimplePreferences;
 import com.stirante.runechanger.util.SwingUtils;
 import javafx.beans.InvalidationListener;
 import javafx.collections.ObservableList;
@@ -25,11 +27,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.function.Consumer;
 
 public class RuneMenu extends OverlayLayer {
     private static final Logger log = LoggerFactory.getLogger(RuneMenu.class);
-    private List<RunePage> pages = new ArrayList<>();
+    private List<ChampionBuild> builds = new ArrayList<>();
     private boolean opened = false;
     private int selectedRunePageIndex = -1;
     private BufferedImage icon;
@@ -70,10 +71,10 @@ public class RuneMenu extends OverlayLayer {
         }
     }
 
-    public void setRuneData(ObservableList<RunePage> pages) {
-        this.pages = pages;
+    public void setBuilds(ObservableList<ChampionBuild> builds) {
+        this.builds = builds;
         repaintNow();
-        pages.addListener((InvalidationListener) observable -> FxUtils.doOnFxThread(this::repaintNow));
+        builds.addListener((InvalidationListener) observable -> FxUtils.doOnFxThread(this::repaintNow));
     }
 
     private void drawRuneButton(Graphics2D g2d) {
@@ -93,7 +94,7 @@ public class RuneMenu extends OverlayLayer {
         }
         int x = (int) ((getClientWidth()) * Constants.RUNE_BUTTON_POSITION_X);
         int y = (int) (getHeight() * Constants.RUNE_BUTTON_POSITION_Y);
-        if (pages.size() > 0) {
+        if (builds.size() > 0) {
             g2d.drawImage(icon, x, y, icon.getWidth(), icon.getHeight(), null);
         }
         else {
@@ -165,10 +166,10 @@ public class RuneMenu extends OverlayLayer {
         //positions and dimensions
         int itemWidth = (int) (Constants.RUNE_ITEM_WIDTH * (getClientWidth()));
         int itemHeight = (int) (Constants.RUNE_ITEM_HEIGHT * getHeight());
-        int menuHeight = (int) (Constants.RUNE_ITEM_HEIGHT * getHeight() * pages.size());
+        int menuHeight = (int) (Constants.RUNE_ITEM_HEIGHT * getHeight() * builds.size());
         int menuX = (int) (Constants.RUNE_MENU_X * (getClientWidth()));
         int menuY = (int) ((Constants.RUNE_MENU_Y * getHeight()) -
-                (Math.min(10 * itemHeight, itemHeight * pages.size()) * (currentRuneMenuPosition / 100f)) - scroll);
+                (Math.min(10 * itemHeight, itemHeight * builds.size()) * (currentRuneMenuPosition / 100f)) - scroll);
 
         //draw menu background
         g2d.setColor(BACKGROUND_COLOR);
@@ -179,8 +180,8 @@ public class RuneMenu extends OverlayLayer {
         g2d.drawRect(menuX, menuY, itemWidth, menuHeight);
 
         //draw menu items
-        for (int i = 0; i < pages.size(); i++) {
-            RunePage page = pages.get(i);
+        for (int i = 0; i < builds.size(); i++) {
+            ChampionBuild page = builds.get(i);
             int itemTop = (int) ((menuY + (i * Constants.RUNE_ITEM_HEIGHT * getHeight())));
             int itemBottom = itemTop + itemHeight;
             //highlight hovered item
@@ -189,10 +190,10 @@ public class RuneMenu extends OverlayLayer {
                 g2d.fillRect(1 + menuX, itemTop, itemWidth, itemHeight);
             }
             g2d.setColor(TEXT_COLOR);
-            g2d.drawImage(page.getRunes().get(0).getImage(), menuX, itemTop, itemHeight, itemHeight, null);
+            g2d.drawImage(page.getRunePage().getRunes().get(0).getImage(), menuX, itemTop, itemHeight, itemHeight, null);
             drawRuneText(g2d, menuX + itemHeight, itemBottom, page.getName(), page.getSourceName());
             //draw dividers, except at the bottom
-            if (i != pages.size() - 1) {
+            if (i != builds.size() - 1) {
                 g2d.setColor(DIVIDER_COLOR);
                 g2d.drawLine(
                         1 + menuX, itemBottom,
@@ -206,11 +207,11 @@ public class RuneMenu extends OverlayLayer {
         //clear everything above menu
         int upperY = (int) (Math.min(
                 Constants.RUNE_ITEM_HEIGHT * 10 - (1 - Constants.RUNE_MENU_Y),
-                Constants.RUNE_ITEM_HEIGHT * pages.size() - (1 - Constants.RUNE_MENU_Y)) * getHeight());
+                Constants.RUNE_ITEM_HEIGHT * builds.size() - (1 - Constants.RUNE_MENU_Y)) * getHeight());
         clearRect(g2d, menuX, 0, itemWidth + 1, upperY);
         //draw top line, if menu is scrollable and menu is scrolled
         g2d.setColor(TEXT_COLOR);
-        if (pages.size() > 10 && opened && scroll > 0f) {
+        if (builds.size() > 10 && opened && scroll > 0f) {
             g2d.drawLine(menuX, upperY, menuX + itemWidth, upperY);
         }
     }
@@ -246,7 +247,7 @@ public class RuneMenu extends OverlayLayer {
                 warningCloseButton.contains(e.getX(), e.getY())) {
             warningVisible = false;
         }
-        else if (pages.size() > 0 && e.getX() > ((getClientWidth()) * Constants.RUNE_BUTTON_POSITION_X) &&
+        else if (builds.size() > 0 && e.getX() > ((getClientWidth()) * Constants.RUNE_BUTTON_POSITION_X) &&
                 e.getX() < ((getClientWidth()) * Constants.RUNE_BUTTON_POSITION_X) + icon.getWidth() &&
                 e.getY() > (getHeight() * Constants.RUNE_BUTTON_POSITION_Y) &&
                 e.getY() < (getHeight() * Constants.RUNE_BUTTON_POSITION_Y) + icon.getHeight()) {
@@ -254,10 +255,14 @@ public class RuneMenu extends OverlayLayer {
         }
         else if (selectedRunePageIndex > -1) {
             RuneChanger.EXECUTOR_SERVICE.submit(() -> {
-                if (pages.size() > selectedRunePageIndex) {
+                if (builds.size() > selectedRunePageIndex) {
+                    ChampionBuild build = builds.get(selectedRunePageIndex);
                     RuneChanger.getInstance()
                             .getRunesModule()
-                            .setCurrentRunePage(pages.get(selectedRunePageIndex));
+                            .setCurrentRunePage(build.getRunePage());
+                    if (build.hasSummonerSpells() && SimplePreferences.getBooleanValue(SimplePreferences.SettingsKeys.APPLY_SUMMONER_SPELLS, true)) {
+                        RuneChanger.getInstance().getChampionSelectionModule().setSummonerSpells(build.getFirstSpell(), build.getSecondSpell());
+                    }
                 }
             });
             opened = !opened;
@@ -266,7 +271,7 @@ public class RuneMenu extends OverlayLayer {
 
     public void mouseWheelMoved(MouseWheelEvent e) {
         scroll += e.getUnitsToScroll() * e.getScrollAmount();
-        scroll = (int) Math.max(0, Math.min(scroll, (pages.size() - 10) * Constants.RUNE_ITEM_HEIGHT * getHeight()));
+        scroll = (int) Math.max(0, Math.min(scroll, (builds.size() - 10) * Constants.RUNE_ITEM_HEIGHT * getHeight()));
     }
 
     public void mouseExited(MouseEvent e) {
@@ -286,7 +291,7 @@ public class RuneMenu extends OverlayLayer {
             getClientOverlay().setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
             return;
         }
-        if (pages.size() > 0 && e.getX() > ((getClientWidth()) * Constants.RUNE_BUTTON_POSITION_X) &&
+        if (builds.size() > 0 && e.getX() > ((getClientWidth()) * Constants.RUNE_BUTTON_POSITION_X) &&
                 e.getX() < ((getClientWidth()) * Constants.RUNE_BUTTON_POSITION_X) + icon.getWidth() &&
                 e.getY() > (getHeight() * Constants.RUNE_BUTTON_POSITION_Y) &&
                 e.getY() < (getHeight() * Constants.RUNE_BUTTON_POSITION_Y) + icon.getHeight()) {
@@ -295,7 +300,7 @@ public class RuneMenu extends OverlayLayer {
         if (e.getY() > Constants.RUNE_MENU_Y * getClientWidth() ||
                 e.getY() < Math.min(
                         Constants.RUNE_ITEM_HEIGHT * 10 - (1 - Constants.RUNE_MENU_Y),
-                        Constants.RUNE_ITEM_HEIGHT * pages.size() - (1 - Constants.RUNE_MENU_Y)) *
+                        Constants.RUNE_ITEM_HEIGHT * builds.size() - (1 - Constants.RUNE_MENU_Y)) *
                         getHeight()
                 || e.getX() < Constants.RUNE_MENU_X * (getClientWidth()) ||
                 e.getX() > (Constants.RUNE_MENU_X + Constants.RUNE_ITEM_WIDTH) * (getClientWidth())) {
@@ -305,13 +310,13 @@ public class RuneMenu extends OverlayLayer {
             runePageIndex = (int) (((e.getY() + scroll) -
                     ((Constants.RUNE_MENU_Y - Math.min(
                             Constants.RUNE_ITEM_HEIGHT * 10,
-                            Constants.RUNE_ITEM_HEIGHT * pages.size())) * getHeight())) /
+                            Constants.RUNE_ITEM_HEIGHT * builds.size())) * getHeight())) /
                     (Constants.RUNE_ITEM_HEIGHT * getHeight()));
             getClientOverlay().setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         }
         if (runePageIndex != selectedRunePageIndex) {
             // Prevent getting nonexistent rune page
-            selectedRunePageIndex = runePageIndex >= pages.size() || runePageIndex < 0 ? -1 : runePageIndex;
+            selectedRunePageIndex = runePageIndex >= builds.size() || runePageIndex < 0 ? -1 : runePageIndex;
             repaintNow();
         }
     }

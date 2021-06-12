@@ -8,6 +8,7 @@ import com.stirante.runechanger.RuneChanger;
 import com.stirante.runechanger.client.ClientEventListener;
 import com.stirante.runechanger.gui.controllers.*;
 import com.stirante.runechanger.model.client.Champion;
+import com.stirante.runechanger.model.client.ChampionBuild;
 import com.stirante.runechanger.model.client.RunePage;
 import com.stirante.runechanger.sourcestore.SourceStore;
 import com.stirante.runechanger.util.*;
@@ -148,10 +149,10 @@ public class Settings extends Application {
                 controller.contentPane.getChildren().contains(home.container);
         if (event.getCode() == KeyCode.C && event.isControlDown()) {
             if (isRunebook) {
-                copyRunePage(runebook.localRunesList.getSelectionModel().getSelectedItem());
+                copyRunePage(runebook.localRunesList.getSelectionModel().getSelectedItem().getRunePage());
             }
             else if (isHome) {
-                copyRunePage(home.localRunesList.getSelectionModel().getSelectedItem());
+                copyRunePage(home.localRunesList.getSelectionModel().getSelectedItem().getRunePage());
             }
         }
         else if (event.getCode() == KeyCode.V && event.isControlDown()) {
@@ -565,12 +566,12 @@ public class Settings extends Application {
                 // This bit of code is added, because clear causes change in filtered list, which
                 // causes IndexOutOfBoundsException in ListView
                 // At the end, we set the same list again to ListView
-                ObservableList<RunePage> oldList = runebook.localRunesList.getItems();
+                ObservableList<ChampionBuild> oldList = runebook.localRunesList.getItems();
                 runebook.localRunesList.setItems(null);
 
                 runebook.localRunes.clear();
                 String title;
-                ArrayList<RunePage> runeBookValues;
+                ArrayList<ChampionBuild> runeBookValues;
                 if (result == null || !RuneChanger.getInstance().getApi().isConnected()) {
                     title = LangHelper.getLang().getString("local_runes_no_connection");
                     runeBookValues = SimplePreferences.getRuneBookValues();
@@ -581,11 +582,11 @@ public class Settings extends Application {
                             result.size(),
                             runeChanger.getRunesModule().getOwnedPageCount());
                     // Split list into runepages, that are both in runebook and in client and those, that are only in runebook
-                    @SuppressWarnings("unchecked") Map<Boolean, List<RunePage>> results =
-                            ((List<RunePage>) SimplePreferences.getRuneBookValues().clone())
+                    @SuppressWarnings("unchecked") Map<Boolean, List<ChampionBuild>> results =
+                            ((List<ChampionBuild>) SimplePreferences.getRuneBookValues().clone())
                                     .stream()
                                     .collect(Collectors.partitioningBy(runePage -> result
-                                            .stream().noneMatch(runePage1 -> runePage1.equals(runePage))));
+                                            .stream().noneMatch(runePage1 -> runePage1.equals(runePage.getRunePage()))));
                     for (RunePage page : result.stream()
                             .filter(p -> results.get(false)
                                     .stream()
@@ -593,7 +594,9 @@ public class Settings extends Application {
                             .collect(Collectors.toCollection(ArrayList::new))) {
                         page.setSynced(true);
                     }
-                    runeBookValues = new ArrayList<>(result);
+                    runeBookValues = result.stream()
+                            .map(runePage -> ChampionBuild.builder(runePage).create())
+                            .collect(Collectors.toCollection(ArrayList::new));
                     runeBookValues.addAll(results.get(true));
                 }
                 home.localRunesTitle.setText(title);

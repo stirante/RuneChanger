@@ -9,6 +9,7 @@ import com.stirante.runechanger.DebugConsts;
 import com.stirante.runechanger.model.client.Champion;
 import com.stirante.runechanger.model.client.GameMap;
 import com.stirante.runechanger.model.client.GameMode;
+import com.stirante.runechanger.model.client.SummonerSpell;
 import com.stirante.runechanger.util.AnalyticsUtil;
 import com.stirante.runechanger.util.SimplePreferences;
 import generated.*;
@@ -32,6 +33,8 @@ public class ChampionSelection extends ClientModule {
     private GameMap map;
     private String currentPhase = "";
     private long phaseEnd = 0L;
+    private int skinId = 0;
+    private long wardSkinId = 0;
 
     public ChampionSelection(ClientApi api) {
         super(api);
@@ -146,6 +149,8 @@ public class ChampionSelection extends ClientModule {
             if (selection != null && Objects.equals(selection.summonerId, getCurrentSummoner().summonerId)) {
                 //first check locked champion
                 champion = Champion.getById(selection.championId);
+                skinId = selection.selectedSkinId;
+                wardSkinId = selection.wardSkinId;
                 //if it fails check just selected champion
                 if (champion == null) {
                     champion = Champion.getById(selection.championPickIntent);
@@ -303,6 +308,19 @@ public class ChampionSelection extends ClientModule {
             }
         } catch (IOException e) {
             log.error("Exception occurred while getting a champion selection session", e);
+        }
+    }
+
+    public void setSummonerSpells(SummonerSpell spell1, SummonerSpell spell2) {
+        try {
+            LolChampSelectChampSelectMySelection selection = new LolChampSelectChampSelectMySelection();
+            selection.spell1Id = (long) spell1.getKey();
+            selection.spell2Id = (long) spell2.getKey();
+            selection.selectedSkinId = skinId;
+            selection.wardSkinId = wardSkinId;
+            getApi().executePatch("/lol-champ-select/v1/session/my-selection", selection);
+        } catch (IOException e) {
+            log.error("Exception occurred while setting summoner spells", e);
         }
     }
 

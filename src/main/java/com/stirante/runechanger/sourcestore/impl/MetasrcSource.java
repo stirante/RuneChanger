@@ -2,6 +2,7 @@ package com.stirante.runechanger.sourcestore.impl;
 
 import com.stirante.runechanger.model.client.*;
 import com.stirante.runechanger.sourcestore.RuneSource;
+import com.stirante.runechanger.sourcestore.SourceStore;
 import com.stirante.runechanger.util.SyncingListWrapper;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -12,11 +13,10 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Objects;
+import java.util.*;
+import java.util.stream.Collectors;
 
 
-// ._5bxv5t > div.desktop > div._xtoaop._4pvjjd > a > table > tbody > tr:nth-of-type(1) > td > h1
 public class MetasrcSource implements RuneSource {
     final String CHAMPION_URL = "https://metasrc.com/%MODE%/champion/%CHAMPION%/%LANE%";
     private static final Logger log = LoggerFactory.getLogger(MetasrcSource.class);
@@ -32,11 +32,11 @@ public class MetasrcSource implements RuneSource {
     }
 
     @Override
-    public void getRunesForGame(GameData data, SyncingListWrapper<RunePage> pages) {
+    public void getRunesForGame(GameData data, SyncingListWrapper<ChampionBuild> pages) {
         downloadRunes(data, pages);
     }
 
-    public void downloadRunes(GameData data, SyncingListWrapper<RunePage> pages) {
+    public void downloadRunes(GameData data, SyncingListWrapper<ChampionBuild> pages) {
         // This makes sure that the runes wont get duplicated when getting them from GUI
         if (data.getGameMode() == GameMode.CLASSIC || data.getContext() == GameData.Context.CHAMPION_SELECT) {
             ArrayList<String> runeLanes = getAvailableRuneLanes(data.getChampion());
@@ -48,11 +48,14 @@ public class MetasrcSource implements RuneSource {
                 try {
                     Document webPage = Jsoup.parse(new URL(requestURL), 10000);
                     RunePage r = extractRunes(webPage);
+                    if (r == null) {
+                        continue;
+                    }
                     r.setChampion(data.getChampion());
-                    r.setName(lane.substring(0, 1) + lane.toLowerCase().substring(1));
+                    r.setName(lane.charAt(0) + lane.toLowerCase().substring(1));
                     r.setSource(requestURL);
                     r.setSourceName("Metasrc");
-                    pages.add(r);
+                    pages.add(ChampionBuild.builder(r).withSpells(extractSpells(webPage)).create());
                 } catch (Exception e) {
                     log.warn("Error occured while getting Metasrc rune data for lane: " + lane);
                     e.printStackTrace();
@@ -78,7 +81,7 @@ public class MetasrcSource implements RuneSource {
                 r.setName(data.getGameMode().getName());
                 r.setSource(requestURL);
                 r.setSourceName("Metasrc");
-                pages.add(r);
+                pages.add(ChampionBuild.builder(r).create());
             } catch (Exception e) {
                 log.warn("Failed to get Metasrc runedata for special gamemode: " + data.getGameMode().getName());
                 e.printStackTrace();
@@ -88,9 +91,17 @@ public class MetasrcSource implements RuneSource {
 
     }
 
+    private List<SummonerSpell> extractSpells(Document webPage) {
+        Elements spells = webPage.select("div._lop72r:nth-of-type(1) > div._yq1p7n._sjgjkw:nth-of-type(1) > div._sfh2p9 > div div._q8ue62");
+        if (spells.size() == 0) {
+            return Collections.emptyList();
+        }
+        return spells.stream().map(element -> SummonerSpell.getByName(element.text())).collect(Collectors.toList());
+    }
+
     private RunePage extractRunes(Document webPage) {
         RunePage r = new RunePage();
-        Elements runes = webPage.select("div._lop72r:nth-of-type(2) > div._sjgjkw:nth-of-type(2) > div._sfh2p9 > div");
+        Elements runes = webPage.select("div._lop72r:nth-of-type(2) > div._sh98mb:nth-of-type(2) div._sfh2p9 > div > div");
         if (runes.size() == 0) {
             return null;
         }
@@ -175,5 +186,9 @@ public class MetasrcSource implements RuneSource {
     @Override
     public GameMode[] getSupportedGameModes() {
         return new GameMode[]{GameMode.CLASSIC, GameMode.ONEFORALL, GameMode.URF, GameMode.ARAM, GameMode.KINGPORO, GameMode.NEXUSBLITZ};
+    }
+
+    public static void main(String[] args) throws IOException {
+        SourceStore.testSource(new MetasrcSource());
     }
 }

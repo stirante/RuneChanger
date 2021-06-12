@@ -11,8 +11,8 @@ import com.stirante.runechanger.gui.overlay.ChampionSuggestions;
 import com.stirante.runechanger.gui.overlay.ClientOverlay;
 import com.stirante.runechanger.gui.overlay.RuneMenu;
 import com.stirante.runechanger.model.client.Champion;
+import com.stirante.runechanger.model.client.ChampionBuild;
 import com.stirante.runechanger.model.client.GameData;
-import com.stirante.runechanger.model.client.RunePage;
 import com.stirante.runechanger.sourcestore.SourceStore;
 import com.stirante.runechanger.util.*;
 import com.sun.jna.platform.win32.Advapi32Util;
@@ -27,7 +27,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.ResourceBundle;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantLock;
@@ -42,7 +41,7 @@ public class GuiHandler {
     public static final String REGISTRY_APPLIED_DPI = "AppliedDPI";
     private final AtomicBoolean threadRunning = new AtomicBoolean(false);
     private final AtomicBoolean windowOpen = new AtomicBoolean(false);
-    private SyncingListWrapper<RunePage> runes = new SyncingListWrapper<>();
+    private SyncingListWrapper<ChampionBuild> builds = new SyncingListWrapper<>();
     private final ResourceBundle resourceBundle = LangHelper.getLang();
     private final RuneChanger runeChanger;
     private final ReentrantLock lock = new ReentrantLock();
@@ -117,17 +116,17 @@ public class GuiHandler {
             clientOverlay.setSceneType(type);
         }
         if (type == SceneType.NONE) {
-            runes.clear();
+            builds.clear();
             if (clientOverlay != null) {
-                clientOverlay.getLayer(RuneMenu.class).setRuneData(runes.getBackingList());
+                clientOverlay.getLayer(RuneMenu.class).setBuilds(builds.getBackingList());
             }
         }
     }
 
-    public void setRunes(SyncingListWrapper<RunePage> runeList) {
-        runes = runeList;
+    public void setBuilds(SyncingListWrapper<ChampionBuild> buildList) {
+        builds = buildList;
         if (clientOverlay != null) {
-            clientOverlay.getLayer(RuneMenu.class).setRuneData(runes.getBackingList());
+            clientOverlay.getLayer(RuneMenu.class).setBuilds(builds.getBackingList());
         }
     }
 
@@ -168,7 +167,7 @@ public class GuiHandler {
         }
         win = new JWindow();
         clientOverlay = new ClientOverlay(runeChanger);
-        clientOverlay.getLayer(RuneMenu.class).setRuneData(runes.getBackingList());
+        clientOverlay.getLayer(RuneMenu.class).setBuilds(builds.getBackingList());
         clientOverlay.getLayer(ChampionSuggestions.class)
                 .setSuggestedChampions(suggestedChampions, bannedChampions, suggestedChampionSelectedListener);
         clientOverlay.setSceneType(type);
@@ -404,8 +403,8 @@ public class GuiHandler {
 
     @Subscribe(ChampionSelection.ChampionChangedEvent.NAME)
     public void onChampionChange(ChampionSelection.ChampionChangedEvent event) {
-        SyncingListWrapper<RunePage> pages = new SyncingListWrapper<>();
-        setRunes(pages);
+        SyncingListWrapper<ChampionBuild> pages = new SyncingListWrapper<>();
+        setBuilds(pages);
         if (event.getChampion() != null) {
             log.info("Downloading runes for champion: " + event.getChampion().getName());
             SourceStore.getRunes(

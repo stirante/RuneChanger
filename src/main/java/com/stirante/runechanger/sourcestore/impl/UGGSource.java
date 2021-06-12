@@ -4,12 +4,12 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.stirante.runechanger.DebugConsts;
 import com.stirante.runechanger.model.app.CounterData;
 import com.stirante.runechanger.model.app.SettingsConfiguration;
 import com.stirante.runechanger.model.client.*;
 import com.stirante.runechanger.sourcestore.CounterSource;
 import com.stirante.runechanger.sourcestore.RuneSource;
+import com.stirante.runechanger.sourcestore.SourceStore;
 import com.stirante.runechanger.util.StringUtils;
 import com.stirante.runechanger.util.SyncingListWrapper;
 import org.slf4j.Logger;
@@ -22,6 +22,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 public class UGGSource implements RuneSource, CounterSource {
     private static final Logger log = LoggerFactory.getLogger(UGGSource.class);
@@ -41,28 +42,15 @@ public class UGGSource implements RuneSource, CounterSource {
     private int minThreshold = 0;
 
     public static void main(String[] args) throws IOException {
-        DebugConsts.enableDebugMode();
-        Champion.init();
-        SyncingListWrapper<RunePage> pages = new SyncingListWrapper<>();
-        new UGGSource().getRunesForGame(GameData.of(Champion.getByName("blitzcrank"), GameMode.CLASSIC), pages);
-        for (RunePage page : pages.getBackingList()) {
-            System.out.println(page);
-        }
-        System.out.println(new UGGSource().getCounterData(Champion.getByName("Janna")));
+        UGGSource source = new UGGSource();
+        SourceStore.testSource(source);
+        System.out.println(source.getCounterData(Champion.getByName("Janna")));
     }
 
     @Override
     public String getSourceKey() {
         return "u.gg";
     }
-
-//    public RunePage getForChampion(Champion champion, Tier tier, Position position, Server server, QueueType queue) throws IOException {
-//        if (queue == QueueType.ARAM) {
-//            position = Position.NONE;
-//            tier = Tier.OVERALL;
-//        }
-//        return getForChampion(getRootObject(champion, OVERVIEW_PATH, OVERVIEW_VERSION, queue), champion, tier, position, server);
-//    }
 
     private JsonObject getRootObject(Champion champion, String path, String version, QueueType queue) throws IOException {
         if (patchString == null) {
@@ -81,7 +69,7 @@ public class UGGSource implements RuneSource, CounterSource {
         return root;
     }
 
-    private RunePage getForChampion(JsonObject root, Champion champion, Tier tier, Position position, Server server) {
+    private ChampionBuild.Builder getForChampion(JsonObject root, Champion champion, Tier tier, Position position, Server server) {
         if (!root.has(server.toString()) ||
                 !root.getAsJsonObject(server.toString()).has(tier.toString()) ||
                 !root.getAsJsonObject(server.toString()).getAsJsonObject(tier.toString()).has(position.toString())) {
@@ -127,7 +115,14 @@ public class UGGSource implements RuneSource, CounterSource {
         if (!page.verify()) {
             return null;
         }
-        return page;
+        List<SummonerSpell> spells = StreamSupport.stream(arr.get(OverviewElement.SUMMONER_SPELLS.getKey())
+                .getAsJsonArray()
+                .get(SummonerSpells.SPELLS.getKey())
+                .getAsJsonArray()
+                .spliterator(), false)
+                .map(jsonElement -> SummonerSpell.getByKey(jsonElement.getAsInt()))
+                .collect(Collectors.toList());
+        return ChampionBuild.builder(page).withSpells(spells);
     }
 
     @Override
@@ -136,25 +131,26 @@ public class UGGSource implements RuneSource, CounterSource {
     }
 
     @Override
-    public void getRunesForGame(GameData data, SyncingListWrapper<RunePage> pages) {
+    public void getRunesForGame(GameData data, SyncingListWrapper<ChampionBuild> pages) {
         try {
             JsonObject root = getRootObject(data.getChampion(), OVERVIEW_PATH, OVERVIEW_VERSION,
                     data.getGameMode() == GameMode.ARAM ? QueueType.ARAM : QueueType.RANKED_SOLO);
             if (data.getGameMode() == GameMode.ARAM) {
-                RunePage page = getForChampion(root, data.getChampion(), Tier.OVERALL, Position.NONE, DEFAULT_SERVER);
-                if (page == null) {
+                ChampionBuild.Builder builder =
+                        getForChampion(root, data.getChampion(), Tier.OVERALL, Position.NONE, DEFAULT_SERVER);
+                if (builder == null) {
                     return;
                 }
-                page.setName("ARAM");
-                pages.add(page);
+                pages.add(builder.withName("ARAM").create());
             }
             else {
                 for (Position position : Position.values()) {
-                    RunePage page = getForChampion(root, data.getChampion(), DEFAULT_TIER, position, DEFAULT_SERVER);
-                    if (page == null) {
-                        continue;
+                    ChampionBuild.Builder builder =
+                            getForChampion(root, data.getChampion(), DEFAULT_TIER, position, DEFAULT_SERVER);
+                    if (builder == null) {
+                        return;
                     }
-                    pages.add(page);
+                    pages.add(builder.create());
                 }
             }
         } catch (IOException e) {
@@ -528,6 +524,27 @@ public class UGGSource implements RuneSource, CounterSource {
         private final int key;
 
         Page(int key) {
+            this.key = key;
+        }
+
+        public int getKey() {
+            return key;
+        }
+
+        @Override
+        public String toString() {
+            return Integer.toString(key);
+        }
+    }
+
+    private enum SummonerSpells {
+        GAMES(0),
+        WON(1),
+        SPELLS(2);
+
+        private final int key;
+
+        SummonerSpells(int key) {
             this.key = key;
         }
 

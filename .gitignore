@@ -1,6 +1,9 @@
 assets/
 classes
 target/
+analytics/
+image/
+performance/
 pom.xml.tag
 pom.xml.releaseBackup
 pom.xml.versionsBackup

@@ -20,13 +20,15 @@ import java.util.TimerTask;
 
 public class FxUtils {
 
+    public static boolean DEBUG_WITHOUT_TOOLKIT = false;
+
     /**
      * Executes runnable on FX thread or runs it, if it's already FX thread
      *
      * @param runnable runnable to execute
      */
     public static void doOnFxThread(Runnable runnable) {
-        if (Platform.isFxApplicationThread()) {
+        if (Platform.isFxApplicationThread() || DEBUG_WITHOUT_TOOLKIT) {
             runnable.run();
         }
         else {

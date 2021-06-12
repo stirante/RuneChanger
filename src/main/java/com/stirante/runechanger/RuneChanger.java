@@ -163,6 +163,8 @@ public class RuneChanger implements Launcher {
                 }
 
                 Runtime.getRuntime().exec(AutoStartUtils.getStartCommand(), null, currentJar.getParentFile());
+                log.warn("User directory: " + new File(System.getProperty("user.dir")).getAbsolutePath());
+                log.warn("Current JAR location: " + currentJar.getParentFile().getAbsolutePath());
                 log.warn("Runechanger was started from a unusual jvm location most likely due to autostart. " +
                         "Restarting client now to fix pathing errors..");
                 System.exit(0);

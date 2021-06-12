@@ -4,7 +4,7 @@ import com.stirante.runechanger.RuneChanger;
 import com.stirante.runechanger.client.Loot;
 import com.stirante.runechanger.gui.Content;
 import com.stirante.runechanger.gui.components.Button;
-import com.stirante.runechanger.model.client.RunePage;
+import com.stirante.runechanger.model.client.ChampionBuild;
 import com.stirante.runechanger.util.LangHelper;
 import com.stirante.runechanger.util.SimplePreferences;
 import generated.LolSummonerSummoner;
@@ -42,9 +42,9 @@ public class HomeController implements Content {
     public Label localRunesTitle;
     public Button disenchantChampionsButton;
     public Button syncButton;
-    public ListView<RunePage> localRunesList;
+    public ListView<ChampionBuild> localRunesList;
 
-    public final ObservableList<RunePage> localRunes = FXCollections.observableArrayList();
+    public final ObservableList<ChampionBuild> localRunes = FXCollections.observableArrayList();
     private Loot lootModule;
 
     public HomeController() {
@@ -55,10 +55,10 @@ public class HomeController implements Content {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        localRunes.addListener((ListChangeListener<RunePage>) observable -> {
+        localRunes.addListener((ListChangeListener<ChampionBuild>) observable -> {
             while (observable.next()) {
                 if (observable.getAddedSize() > 0 || observable.getRemovedSize() > 0) {
-                    FXCollections.sort(localRunes, Comparator.comparing(RunePage::getName));
+                    FXCollections.sort(localRunes, Comparator.comparing(ChampionBuild::getName));
                     return;
                 }
             }
@@ -70,7 +70,7 @@ public class HomeController implements Content {
             }
         });
         localRunesList.setItems(localRunes);
-        localRunesList.setCellFactory(listView -> new RuneItemController.RunePageCell(RuneItemController::setHomeRuneMode));
+        localRunesList.setCellFactory(listView -> new RuneItemController.ChampionBuildCell(RuneItemController::setHomeRuneMode));
         syncButton.setVisible(!SimplePreferences.getBooleanValue(SimplePreferences.SettingsKeys.AUTO_SYNC, false));
         Objects.requireNonNull(syncButton.getTooltip()).setShowDelay(Duration.ZERO);
     }

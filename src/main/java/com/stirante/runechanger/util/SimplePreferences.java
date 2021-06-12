@@ -2,6 +2,7 @@ package com.stirante.runechanger.util;
 
 import com.stirante.eventbus.EventBus;
 import com.stirante.runechanger.client.ClientEventListener;
+import com.stirante.runechanger.model.client.ChampionBuild;
 import com.stirante.runechanger.model.client.RunePage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,10 +18,10 @@ public class SimplePreferences {
             new File(PathUtils.getWorkingDirectory(), "RuneChangerSettings.dat").getAbsolutePath();
     private static final String RUNEBOOK_FILENAME =
             new File(PathUtils.getWorkingDirectory(), "RuneChangerRuneBook.dat").getAbsolutePath();
-    private static ArrayList<RunePage> runeBookValues;
+    private static ArrayList<ChampionBuild> runeBookValues;
     private static HashMap<String, String> settingsValues;
 
-    public static ArrayList<RunePage> getRuneBookValues() {
+    public static ArrayList<ChampionBuild> getRuneBookValues() {
         return runeBookValues;
     }
 
@@ -32,7 +33,7 @@ public class SimplePreferences {
             for (int i = 0; i < size; i++) {
                 RunePage p = new RunePage();
                 p.deserialize(ois);
-                runeBookValues.add(p);
+                runeBookValues.add(ChampionBuild.builder(p).create());
             }
         } catch (IOException e) {
             if (!(e instanceof FileNotFoundException)) {
@@ -98,8 +99,12 @@ public class SimplePreferences {
         }
         try (DataOutputStream dataOutputStream = new DataOutputStream(new FileOutputStream(runeBookFile))) {
             dataOutputStream.writeInt(runeBookValues.size());
-            for (RunePage p : runeBookValues) {
-                p.serialize(dataOutputStream);
+            for (ChampionBuild p : runeBookValues) {
+                p.getRunePage().setChampion(p.getChampion());
+                p.getRunePage().setName(p.getName());
+                p.getRunePage().setSource(p.getSource());
+                p.getRunePage().setSourceName(p.getSourceName());
+                p.getRunePage().serialize(dataOutputStream);
             }
             dataOutputStream.flush();
         } catch (IOException e) {
@@ -136,11 +141,12 @@ public class SimplePreferences {
         return runeBookValues.stream()
                 .filter(runePage -> runePage.getName().equalsIgnoreCase(key))
                 .findFirst()
+                .map(ChampionBuild::getRunePage)
                 .orElse(null);
     }
 
     public static void addRuneBookPage(RunePage page) {
-        runeBookValues.add(page.copy());
+        runeBookValues.add(ChampionBuild.builder(page.copy()).create());
         save();
         EventBus.publish(ClientEventListener.RunePagesEvent.NAME,
                 new ClientEventListener.RunePagesEvent(ClientEventListener.WebSocketEventType.UPDATE, null));
@@ -159,6 +165,7 @@ public class SimplePreferences {
         public static final String SMART_DISENCHANT = "smartDisenchant";
         public static final String CHAMPION_SUGGESTIONS = "championSuggestions";
         public static final String RESTART_ON_DODGE = "restartOnDodge";
+        public static final String APPLY_SUMMONER_SPELLS = "applySummonerSpells";
 
         public static final String FORCE_ENGLISH = "forceEnglish";
         public static final String AUTO_UPDATE = "autoUpdate";

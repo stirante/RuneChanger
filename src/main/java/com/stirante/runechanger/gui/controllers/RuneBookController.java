@@ -2,6 +2,7 @@ package com.stirante.runechanger.gui.controllers;
 
 import com.stirante.runechanger.gui.Content;
 import com.stirante.runechanger.model.client.Champion;
+import com.stirante.runechanger.model.client.ChampionBuild;
 import com.stirante.runechanger.model.client.RunePage;
 import com.stirante.runechanger.util.SyncingListWrapper;
 import com.stirante.runechanger.util.LangHelper;
@@ -28,12 +29,12 @@ public class RuneBookController implements Content {
     public Label championName;
     public Label joke;
     public Label localRunesTitle;
-    public ListView<RunePage> localRunesList;
-    public ListView<RunePage> newRunesList;
+    public ListView<ChampionBuild> localRunesList;
+    public ListView<ChampionBuild> newRunesList;
     public Pane container;
 
-    public final SyncingListWrapper<RunePage> localRunes = new SyncingListWrapper<>();
-    public final SyncingListWrapper<RunePage> newRunes = new SyncingListWrapper<>();
+    public final SyncingListWrapper<ChampionBuild> localRunes = new SyncingListWrapper<>();
+    public final SyncingListWrapper<ChampionBuild> newRunes = new SyncingListWrapper<>();
 
     public RuneBookController() {
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/fxml/RuneBook.fxml"), LangHelper.getLang());
@@ -48,7 +49,7 @@ public class RuneBookController implements Content {
         localRunes.addListener(observable -> {
             while (observable.next()) {
                 if (observable.getAddedSize() > 0 || observable.getRemovedSize() > 0) {
-                    localRunes.sort(Comparator.comparing(RunePage::getName));
+                    localRunes.sort(Comparator.comparing(ChampionBuild::getName));
                     return;
                 }
             }
@@ -62,7 +63,7 @@ public class RuneBookController implements Content {
         newRunes.addListener(observable -> {
             while (observable.next()) {
                 if (observable.getAddedSize() > 0 || observable.getRemovedSize() > 0) {
-                    newRunes.sort(Comparator.comparing(RunePage::getName));
+                    newRunes.sort(Comparator.comparing(ChampionBuild::getName));
                     return;
                 }
             }
@@ -73,8 +74,8 @@ public class RuneBookController implements Content {
                 newRunesList.setPrefWidth(272);
             }
         });
-        localRunesList.setCellFactory(listView -> new RuneItemController.RunePageCell(RuneItemController::setLocalRuneMode));
-        newRunesList.setCellFactory(listView -> new RuneItemController.RunePageCell(RuneItemController::setNewRuneMode));
+        localRunesList.setCellFactory(listView -> new RuneItemController.ChampionBuildCell(RuneItemController::setLocalRuneMode));
+        newRunesList.setCellFactory(listView -> new RuneItemController.ChampionBuildCell(RuneItemController::setNewRuneMode));
     }
 
     public void onBuildsClick(ActionEvent actionEvent) {
@@ -123,8 +124,8 @@ public class RuneBookController implements Content {
         championName.setText(champion.getName());
         joke.setText(champion.getPickQuote());
         setPosition(champion.getPosition());
-        FilteredList<RunePage> filteredList = new FilteredList<>(localRunes.getBackingList(), runePage ->
-                runePage.isFromClient() ||
+        FilteredList<ChampionBuild> filteredList = new FilteredList<>(localRunes.getBackingList(), runePage ->
+                runePage.getRunePage().isFromClient() ||
                         runePage.getChampion() == null ||
                         runePage.getChampion().equals(champion)
         );
@@ -135,7 +136,7 @@ public class RuneBookController implements Content {
         else {
             localRunesList.setPrefWidth(272);
         }
-        filteredList.addListener((ListChangeListener<RunePage>) observable -> {
+        filteredList.addListener((ListChangeListener<ChampionBuild>) observable -> {
             if (filteredList.size() > 4) {
                 localRunesList.setPrefWidth(282);
             }

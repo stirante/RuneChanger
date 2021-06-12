@@ -2,18 +2,21 @@ package com.stirante.runechanger.sourcestore;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
+import com.stirante.runechanger.DebugConsts;
 import com.stirante.runechanger.RuneChanger;
 import com.stirante.runechanger.model.app.CounterData;
 import com.stirante.runechanger.model.app.SettingsConfiguration;
 import com.stirante.runechanger.model.client.Champion;
+import com.stirante.runechanger.model.client.ChampionBuild;
 import com.stirante.runechanger.model.client.GameData;
 import com.stirante.runechanger.model.client.GameMode;
-import com.stirante.runechanger.model.client.RunePage;
 import com.stirante.runechanger.sourcestore.impl.*;
+import com.stirante.runechanger.util.FxUtils;
 import com.stirante.runechanger.util.SimplePreferences;
 import com.stirante.runechanger.util.SyncingListWrapper;
 import javafx.collections.ListChangeListener;
 
+import java.io.IOException;
 import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -23,9 +26,9 @@ public class SourceStore {
 
     private static final List<Source> sources = new ArrayList<>();
 
-    private static final Cache<GameData, List<RunePage>> GAME_CACHE =
+    private static final Cache<GameData, List<ChampionBuild>> GAME_CACHE =
             Caffeine.newBuilder().expireAfterWrite(Duration.ofHours(4)).build();
-    private static final Cache<Champion, List<RunePage>> GUI_CACHE =
+    private static final Cache<Champion, List<ChampionBuild>> GUI_CACHE =
             Caffeine.newBuilder().expireAfterWrite(Duration.ofMinutes(15)).maximumSize(5).build();
 
     static {
@@ -74,16 +77,16 @@ public class SourceStore {
      * @param data  game data
      * @param pages list of pages, which will be filled with pages
      */
-    public static void getRunes(GameData data, SyncingListWrapper<RunePage> pages) {
-        List<RunePage> cached = GAME_CACHE.getIfPresent(data);
+    public static void getRunes(GameData data, SyncingListWrapper<ChampionBuild> pages) {
+        List<ChampionBuild> cached = GAME_CACHE.getIfPresent(data);
         if (cached != null) {
             pages.addAll(cached);
             return;
         }
         else {
             GAME_CACHE.put(data, new ArrayList<>());
-            pages.getBackingList().addListener((ListChangeListener.Change<? extends RunePage> c) -> {
-                List<RunePage> list = GAME_CACHE.getIfPresent(data);
+            pages.getBackingList().addListener((ListChangeListener.Change<? extends ChampionBuild> c) -> {
+                List<ChampionBuild> list = GAME_CACHE.getIfPresent(data);
                 if (list != null && !c.getList().isEmpty()) {
                     list.clear();
                     list.addAll(c.getList());
@@ -123,16 +126,16 @@ public class SourceStore {
      * @param champion champion
      * @param pages    list of pages, which will be filled with pages
      */
-    public static void getRemoteRunes(Champion champion, SyncingListWrapper<RunePage> pages) {
-        List<RunePage> cached = GUI_CACHE.getIfPresent(champion);
+    public static void getRemoteRunes(Champion champion, SyncingListWrapper<ChampionBuild> pages) {
+        List<ChampionBuild> cached = GUI_CACHE.getIfPresent(champion);
         if (cached != null) {
             pages.addAll(cached);
             return;
         }
         else {
             GUI_CACHE.put(champion, new ArrayList<>());
-            pages.getBackingList().addListener((ListChangeListener.Change<? extends RunePage> c) -> {
-                List<RunePage> list = GUI_CACHE.getIfPresent(champion);
+            pages.getBackingList().addListener((ListChangeListener.Change<? extends ChampionBuild> c) -> {
+                List<ChampionBuild> list = GUI_CACHE.getIfPresent(champion);
                 if (list != null && !c.getList().isEmpty()) {
                     list.clear();
                     list.addAll(c.getList());
@@ -158,7 +161,7 @@ public class SourceStore {
      *
      * @param pages list of pages, which will be filled with pages
      */
-    public static void getLocalRunes(SyncingListWrapper<RunePage> pages) {
+    public static void getLocalRunes(SyncingListWrapper<ChampionBuild> pages) {
         pages.addAll(SimplePreferences.getRuneBookValues());
     }
 
@@ -174,5 +177,22 @@ public class SourceStore {
 
     public static List<Source> getSources() {
         return Collections.unmodifiableList(sources);
+    }
+
+    /**
+     * Gets build for blitzcrank from provided source. Purely for testing whether source works locally. Don't use!
+     */
+    public static void testSource(RuneSource source) throws IOException {
+        FxUtils.DEBUG_WITHOUT_TOOLKIT = true;
+        DebugConsts.enableDebugMode();
+        Champion.init();
+        SyncingListWrapper<ChampionBuild> pages = new SyncingListWrapper<>();
+        source.getRunesForGame(GameData.of(Champion.getByName("blitzcrank"), GameMode.CLASSIC), pages);
+        for (ChampionBuild page : pages.getBackingList()) {
+            if (page.hasSummonerSpells()) {
+                System.out.println(page.getFirstSpell().getName() + ", " + page.getSecondSpell().getName());
+            }
+            System.out.println(page.getRunePage());
+        }
     }
 }

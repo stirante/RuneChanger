@@ -26,7 +26,7 @@ public class RuneforgeSource implements RuneSource {
 
     private static final String URL_ADDRESS = "https://runeforge.gg/all-loadouts-data.json";
     private static final int TIMEOUT = 10000;
-    private static final HashMap<Champion, List<RunePage>> pagesCache = new HashMap<>();
+    private static final HashMap<Champion, List<ChampionBuild>> pagesCache = new HashMap<>();
     private static Loadout[] cache = null;
 
     public RuneforgeSource() {
@@ -101,12 +101,12 @@ public class RuneforgeSource implements RuneSource {
      * @param data game data
      * @return list of rune pages
      */
-    public void getRunesForGame(GameData data, SyncingListWrapper<RunePage> pages) {
+    public void getRunesForGame(GameData data, SyncingListWrapper<ChampionBuild> pages) {
         if (pagesCache.containsKey(data.getChampion())) {
             pages.addAll(pagesCache.get(data.getChampion()));
             return;
         }
-        ArrayList<RunePage> result = new ArrayList<>();
+        ArrayList<ChampionBuild> result = new ArrayList<>();
         try {
             if (cache == null || cache.length == 0) {
                 HttpURLConnection conn = (HttpURLConnection) new URL(URL_ADDRESS).openConnection();
@@ -120,7 +120,7 @@ public class RuneforgeSource implements RuneSource {
                         loadout.loadout_champion_name.equalsIgnoreCase(data.getChampion().getInternalName())) {
                     RunePage runes = getRunes(data.getChampion(), loadout.loadout_url);
                     if (runes != null) {
-                        result.add(runes);
+                        result.add(ChampionBuild.builder(runes).create());
                     }
                 }
             }
