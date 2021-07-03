@@ -280,21 +280,21 @@ public class GuiHandler {
                 WinDef.RECT rect = new WinDef.RECT();
                 User32.INSTANCE.GetWindowRect(top, rect);
                 boolean isClientWindow = NativeUtils.isLeagueOfLegendsClientWindow(top);
-                if (isClientWindow) {
-                    screenCheckCounter++;
-                    if (screenCheckCounter >= 10) {
-                        screenCheckCounter = 0;
-                        if (getSceneType() == SceneType.CHAMPION_SELECT ||
-                                getSceneType() == SceneType.CHAMPION_SELECT_RUNE_PAGE_EDIT) {
-                            if (ScreenPointChecker.testScreenPoint(top, ScreenPointChecker.CHAMPION_SELECTION_RUNE_PAGE_EDIT)) {
-                                setSceneType(SceneType.CHAMPION_SELECT_RUNE_PAGE_EDIT);
-                            }
-                            else {
-                                setSceneType(SceneType.CHAMPION_SELECT);
-                            }
-                        }
-                    }
-                }
+//                if (isClientWindow) {
+//                    screenCheckCounter++;
+//                    if (screenCheckCounter >= 10) {
+//                        screenCheckCounter = 0;
+//                        if (getSceneType() == SceneType.CHAMPION_SELECT ||
+//                                getSceneType() == SceneType.CHAMPION_SELECT_RUNE_PAGE_EDIT) {
+//                            if (ScreenPointChecker.testScreenPoint(top, ScreenPointChecker.CHAMPION_SELECTION_RUNE_PAGE_EDIT)) {
+//                                setSceneType(SceneType.CHAMPION_SELECT_RUNE_PAGE_EDIT);
+//                            }
+//                            else {
+//                                setSceneType(SceneType.CHAMPION_SELECT);
+//                            }
+//                        }
+//                    }
+//                }
                 if (win != null) {
                     try {
                         //apparently if left is -32000 then window is minimized
