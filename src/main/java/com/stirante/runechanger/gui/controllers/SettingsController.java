@@ -115,6 +115,7 @@ public class SettingsController implements Content {
         setupSimplePreference(CLIENT_CATEGORY, SimplePreferences.SettingsKeys.SMART_DISENCHANT, false, "smart_disenchant", "smart_disenchant_message");
         setupSimplePreference(CLIENT_CATEGORY, SimplePreferences.SettingsKeys.CHAMPION_SUGGESTIONS, true, "champion_suggestions", "champion_suggestions_message");
         setupSimplePreference(CLIENT_CATEGORY, SimplePreferences.SettingsKeys.APPLY_SUMMONER_SPELLS, true, "apply_summoner_spells", "apply_summoner_spells_message");
+        setupSimplePreference(CLIENT_CATEGORY, SimplePreferences.SettingsKeys.FLASH_FIRST, true, "flash_first", "flash_first_message");
 
         setupSimplePreference(APP_CATEGORY, SimplePreferences.SettingsKeys.AUTO_UPDATE, true, "autoupdate_state", "autoupdate_message");
         setupSimplePreference(APP_CATEGORY, SimplePreferences.SettingsKeys.EXPERIMENTAL_CHANNEL, false, "autoupdate_experimental", "autoupdate_experimental_message", selected -> {

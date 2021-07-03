@@ -166,6 +166,7 @@ public class SimplePreferences {
         public static final String CHAMPION_SUGGESTIONS = "championSuggestions";
         public static final String RESTART_ON_DODGE = "restartOnDodge";
         public static final String APPLY_SUMMONER_SPELLS = "applySummonerSpells";
+        public static final String FLASH_FIRST = "flashFirst";
 
         public static final String FORCE_ENGLISH = "forceEnglish";
         public static final String AUTO_UPDATE = "autoUpdate";

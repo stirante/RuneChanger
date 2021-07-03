@@ -314,8 +314,14 @@ public class ChampionSelection extends ClientModule {
     public void setSummonerSpells(SummonerSpell spell1, SummonerSpell spell2) {
         try {
             LolChampSelectChampSelectMySelection selection = new LolChampSelectChampSelectMySelection();
-            selection.spell1Id = (long) spell1.getKey();
-            selection.spell2Id = (long) spell2.getKey();
+            boolean flashFirst = SimplePreferences.getBooleanValue(SimplePreferences.SettingsKeys.FLASH_FIRST, true);
+            if ((spell1 == SummonerSpell.FLASH && flashFirst) || (spell2 == SummonerSpell.FLASH && !flashFirst) || (spell1 != SummonerSpell.FLASH && spell2 != SummonerSpell.FLASH)) {
+                selection.spell1Id = (long) spell1.getKey();
+                selection.spell2Id = (long) spell2.getKey();
+            } else {
+                selection.spell1Id = (long) spell2.getKey();
+                selection.spell2Id = (long) spell1.getKey();
+            }
             selection.selectedSkinId = skinId;
             selection.wardSkinId = wardSkinId;
             getApi().executePatch("/lol-champ-select/v1/session/my-selection", selection);
