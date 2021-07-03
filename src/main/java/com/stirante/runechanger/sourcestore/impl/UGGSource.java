@@ -43,7 +43,7 @@ public class UGGSource implements RuneSource, CounterSource {
 
     public static void main(String[] args) throws IOException {
         UGGSource source = new UGGSource();
-        SourceStore.testSource(source);
+        SourceStore.testSource(source, GameMode.CLASSIC);
         System.out.println(source.getCounterData(Champion.getByName("Janna")));
     }
 

@@ -189,6 +189,6 @@ public class MetasrcSource implements RuneSource {
     }
 
     public static void main(String[] args) throws IOException {
-        SourceStore.testSource(new MetasrcSource());
+        SourceStore.testSource(new MetasrcSource(), GameMode.CLASSIC);
     }
 }

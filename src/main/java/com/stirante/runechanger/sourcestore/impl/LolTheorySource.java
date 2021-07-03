@@ -190,7 +190,7 @@ public class LolTheorySource implements RuneSource {
     }
 
     public static void main(String[] args) throws IOException {
-        SourceStore.testSource(new LolTheorySource());
+        SourceStore.testSource(new LolTheorySource(), GameMode.CLASSIC);
     }
 
 }

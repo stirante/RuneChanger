@@ -258,6 +258,6 @@ public class ChampionGGSource implements RuneSource {
         Champion.init();
         ChampionGGSource source = new ChampionGGSource();
         source.initCache();
-        SourceStore.testSource(source);
+        SourceStore.testSource(source, GameMode.CLASSIC);
     }
 }

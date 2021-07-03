@@ -38,6 +38,7 @@ public class SourceStore {
         sources.add(new LolalyticsSource());
         sources.add(new MetasrcSource());
         sources.add(new LolTheorySource());
+        sources.add(new AramAcademySource());
         sources.add(new LocalSource());
     }
 
@@ -182,12 +183,12 @@ public class SourceStore {
     /**
      * Gets build for blitzcrank from provided source. Purely for testing whether source works locally. Don't use!
      */
-    public static void testSource(RuneSource source) throws IOException {
+    public static void testSource(RuneSource source, GameMode gameMode) throws IOException {
         FxUtils.DEBUG_WITHOUT_TOOLKIT = true;
         DebugConsts.enableDebugMode();
         Champion.init();
         SyncingListWrapper<ChampionBuild> pages = new SyncingListWrapper<>();
-        source.getRunesForGame(GameData.of(Champion.getByName("blitzcrank"), GameMode.CLASSIC), pages);
+        source.getRunesForGame(GameData.of(Champion.getByName("blitzcrank"), gameMode), pages);
         for (ChampionBuild page : pages.getBackingList()) {
             if (page.hasSummonerSpells()) {
                 System.out.println(page.getFirstSpell().getName() + ", " + page.getSecondSpell().getName());
