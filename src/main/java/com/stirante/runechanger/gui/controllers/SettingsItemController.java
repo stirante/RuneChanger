@@ -2,23 +2,17 @@ package com.stirante.runechanger.gui.controllers;
 
 import com.stirante.runechanger.util.LangHelper;
 import javafx.application.Platform;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.layout.Pane;
 import javafx.scene.shape.Line;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 public class SettingsItemController {
-    private static final Logger log = LoggerFactory.getLogger(SettingsItemController.class);
-
     private final Pane root;
     private boolean canceling = false;
 

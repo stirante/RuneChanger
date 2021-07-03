@@ -1,5 +1,6 @@
 package com.stirante.runechanger.gui.controllers;
 
+import com.stirante.runechanger.RuneChanger;
 import com.stirante.runechanger.gui.Content;
 import com.stirante.runechanger.gui.Settings;
 import com.stirante.runechanger.model.app.SettingsConfiguration;
@@ -10,6 +11,7 @@ import javafx.animation.Animation;
 import javafx.animation.Interpolator;
 import javafx.animation.Transition;
 import javafx.application.Platform;
+import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -133,6 +135,16 @@ public class SettingsController implements Content {
                 LangHelper.getLang().getString("autostart_message"),
                 false
         ).getRoot());
+        setupButton(APP_CATEGORY, "create_shortcuts_btn", "create_shortcuts_tooltip", event -> {
+            try {
+                ShortcutUtils.createDesktopShortcut();
+                ShortcutUtils.createMenuShortcuts();
+                RuneChanger.getInstance().getGuiHandler().showInfoMessage(LangHelper.getLang().getString("create_shortcuts_success"));
+            } catch (IOException e) {
+                e.printStackTrace();
+                RuneChanger.getInstance().getGuiHandler().showWarningMessage(String.format(LangHelper.getLang().getString("create_shortcuts_failure"), e.getMessage()));
+            }
+        }, false);
 
         for (Source source : SourceStore.getSources()) {
             SettingsConfiguration config = new SettingsConfiguration();
@@ -284,6 +296,15 @@ public class SettingsController implements Content {
                     SimplePreferences.save();
                     return true;
                 }, hideSeparator
+        ).getRoot());
+    }
+
+    private void setupButton(String category, String titleKey, String descKey, EventHandler<ActionEvent> onClick, boolean hideSeparator) {
+        setupPreference(category, new SettingsButtonController(
+                onClick,
+                LangHelper.getLang().getString(titleKey),
+                descKey != null ? LangHelper.getLang().getString(descKey) : null,
+                hideSeparator
         ).getRoot());
     }
 
