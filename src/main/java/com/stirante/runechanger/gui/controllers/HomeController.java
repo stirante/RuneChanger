@@ -3,6 +3,8 @@ package com.stirante.runechanger.gui.controllers;
 import com.stirante.runechanger.RuneChanger;
 import com.stirante.runechanger.client.Loot;
 import com.stirante.runechanger.gui.Content;
+import com.stirante.runechanger.gui.GuiHandler;
+import com.stirante.runechanger.gui.Settings;
 import com.stirante.runechanger.gui.components.Button;
 import com.stirante.runechanger.model.client.ChampionBuild;
 import com.stirante.runechanger.util.LangHelper;
@@ -103,11 +105,13 @@ public class HomeController implements Content {
 
     @FXML
     public void onChampionDisenchant(ActionEvent event) {
-        if (SimplePreferences.getBooleanValue(SimplePreferences.SettingsKeys.SMART_DISENCHANT, false)) {
-            lootModule.smartDisenchantChampions();
-        }
-        else {
-            lootModule.disenchantChampions();
+        if (Settings.openYesNoDialog(LangHelper.getLang().getString("disenchant_confirm_title"), LangHelper.getLang().getString("disenchant_confirm_message"))) {
+            if (SimplePreferences.getBooleanValue(SimplePreferences.SettingsKeys.SMART_DISENCHANT, false)) {
+                lootModule.smartDisenchantChampions();
+            }
+            else {
+                lootModule.disenchantChampions();
+            }
         }
     }
 
