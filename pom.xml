@@ -113,7 +113,7 @@
         <dependency>
             <groupId>com.github.vatbub</groupId>
             <artifactId>mslinks</artifactId>
-            <version>1.0.5</version>
+            <version>1.0.7-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.github.ben-manes.caffeine</groupId>

@@ -2,6 +2,8 @@ package com.stirante.runechanger.util;
 
 import com.sun.jna.platform.win32.Advapi32Util;
 import mslinks.ShellLink;
+import mslinks.ShellLinkException;
+import mslinks.ShellLinkHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,19 +20,20 @@ public class ShortcutUtils {
     private static final String REGISTRY_DESKTOP_KEY = "Desktop";
 
     public static void createShortcut(File directory, String linkName, String fileName) throws IOException {
-        String dir = PathUtils.getWorkingDirectory();
-        File iconFile = new File(dir + File.separator + "icon.ico");
-        ShellLink sl = ShellLink.createLink(fileName);
-        sl.setIconLocation(iconFile.getAbsolutePath());
-        sl.setWorkingDir(dir);
-        sl.setName(linkName);
-        String absolutePath = new File(directory, linkName + ".lnk").getAbsolutePath();
         try {
-            sl.saveTo(absolutePath);
-        } catch (AccessDeniedException e) {
+            String dir = PathUtils.getWorkingDirectory();
+            File iconFile = new File(dir + File.separator + "icon.ico");
+            ShellLink sl = new ShellLink(fileName);
+            ShellLinkHelper slh = new ShellLinkHelper(sl);
+            sl.setIconLocation(iconFile.getAbsolutePath());
+            sl.setWorkingDir(dir);
+            sl.setName(linkName);
+            String absolutePath = new File(directory, linkName + ".lnk").getAbsolutePath();
+            slh.saveTo(absolutePath);
+            log.info(String.format("Created shortcut for %s in %s", fileName, absolutePath));
+        } catch (AccessDeniedException | ShellLinkException e) {
             log.error("An error occurred while creating a shortcut", e);
         }
-        log.info(String.format("Created shortcut for %s in %s", fileName, absolutePath));
     }
 
     public static void createMenuShortcuts() throws IOException {
