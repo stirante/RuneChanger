@@ -7,7 +7,7 @@ import com.stirante.runechanger.client.ChampionSelection;
 import com.stirante.runechanger.gui.Constants;
 import com.stirante.runechanger.gui.SceneType;
 import com.stirante.runechanger.model.client.ChampionBuild;
-import com.stirante.runechanger.model.client.RunePage;
+import com.stirante.runechanger.model.client.GameMode;
 import com.stirante.runechanger.util.AnalyticsUtil;
 import com.stirante.runechanger.util.FxUtils;
 import com.stirante.runechanger.util.SimplePreferences;
@@ -190,7 +190,10 @@ public class RuneMenu extends OverlayLayer {
                 g2d.fillRect(1 + menuX, itemTop, itemWidth, itemHeight);
             }
             g2d.setColor(TEXT_COLOR);
-            g2d.drawImage(page.getRunePage().getRunes().get(0).getImage(), menuX, itemTop, itemHeight, itemHeight, null);
+            g2d.drawImage(page.getRunePage()
+                    .getRunes()
+                    .get(0)
+                    .getImage(), menuX, itemTop, itemHeight, itemHeight, null);
             drawRuneText(g2d, menuX + itemHeight, itemBottom, page.getName(), page.getSourceName());
             //draw dividers, except at the bottom
             if (i != builds.size() - 1) {
@@ -260,8 +263,13 @@ public class RuneMenu extends OverlayLayer {
                     RuneChanger.getInstance()
                             .getRunesModule()
                             .setCurrentRunePage(build.getRunePage());
-                    if (build.hasSummonerSpells() && SimplePreferences.getBooleanValue(SimplePreferences.SettingsKeys.APPLY_SUMMONER_SPELLS, true)) {
-                        RuneChanger.getInstance().getChampionSelectionModule().setSummonerSpells(build.getFirstSpell(), build.getSecondSpell());
+                    if (build.hasSummonerSpells() &&
+                            RuneChanger.getInstance().getChampionSelectionModule().getGameMode() !=
+                                    GameMode.ULTBOOK &&
+                            SimplePreferences.getBooleanValue(SimplePreferences.SettingsKeys.APPLY_SUMMONER_SPELLS, true)) {
+                        RuneChanger.getInstance()
+                                .getChampionSelectionModule()
+                                .setSummonerSpells(build.getFirstSpell(), build.getSecondSpell());
                     }
                 }
             });

@@ -26,7 +26,8 @@ public enum GameMode {
     TUTORIAL_MODULE_3("Tutorial Part 3", false),
     TFT("Team Fight Tactics", false, true),
     NEXUSBLITZ("Nexus Blitz", true, false),
-    PRACTICETOOL("Practice tool", true);
+    PRACTICETOOL("Practice tool", true),
+    ULTBOOK("Ultimate Spellbook", true);
 
     private final String name;
     private final boolean championSelection;

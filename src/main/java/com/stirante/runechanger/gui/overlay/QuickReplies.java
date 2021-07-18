@@ -4,6 +4,7 @@ import com.stirante.runechanger.RuneChanger;
 import com.stirante.runechanger.gui.Constants;
 import com.stirante.runechanger.gui.SceneType;
 import com.stirante.runechanger.model.client.GameMap;
+import com.stirante.runechanger.model.client.GameMode;
 import com.stirante.runechanger.util.AnalyticsUtil;
 import com.stirante.runechanger.util.SimplePreferences;
 import org.slf4j.Logger;
@@ -68,8 +69,9 @@ public class QuickReplies extends OverlayLayer {
                             customMessage != null && !customMessage.isEmpty();
             if (isQuickReplies || isCustomMessage) {
                 boolean onlyCustomMessage = isCustomMessage && !isQuickReplies;
-                if ((getRuneChanger().getChampionSelectionModule().isPositionSelector() ||
-                        getRuneChanger().getChampionSelectionModule().getMap() != GameMap.MAP_11)) {
+                if (getRuneChanger().getChampionSelectionModule().isPositionSelector() ||
+                        getRuneChanger().getChampionSelectionModule().getMap() != GameMap.MAP_11 ||
+                        getRuneChanger().getChampionSelectionModule().getGameMode() != GameMode.ULTBOOK) {
                     if (isCustomMessage) {
                         onlyCustomMessage = true;
                     }
