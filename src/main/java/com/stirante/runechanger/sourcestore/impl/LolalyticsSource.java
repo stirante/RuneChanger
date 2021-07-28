@@ -124,6 +124,10 @@ public class LolalyticsSource implements RuneSource {
         return "Lolalytics - " + runePageType.name;
     }
 
+    @Override
+    public GameMode[] getSupportedGameModes() {
+        return new GameMode[]{GameMode.ARAM, GameMode.URF, GameMode.ONEFORALL, GameMode.ULTBOOK, GameMode.CLASSIC};
+    }
 
     @Override
     public String getSourceKey() {
