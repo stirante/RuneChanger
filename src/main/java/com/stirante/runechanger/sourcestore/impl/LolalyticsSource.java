@@ -2,6 +2,7 @@ package com.stirante.runechanger.sourcestore.impl;
 
 import com.google.gson.Gson;
 import com.stirante.justpipe.Pipe;
+import com.stirante.runechanger.model.app.SettingsConfiguration;
 import com.stirante.runechanger.model.client.Champion;
 import com.stirante.runechanger.model.client.ChampionBuild;
 import com.stirante.runechanger.model.client.GameData;
@@ -23,11 +24,14 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class LolalyticsSource implements RuneSource {
     private static final Logger log = LoggerFactory.getLogger(LolalyticsSource.class);
     private final static String CHAMPION_URL =
-            "https://apix1.op.lol/mega/?ep=champion&p=d&v=9patch=%PATCH%tier=platinum_plus&queue=%QUEUE%&region=all&cid=%CHAMPIONID%&lane=%LANE%";
+            "https://apix1.op.lol/mega/?ep=champion&p=d&v=9&patch=%PATCH%tier=platinum_plus&queue=%QUEUE%&region=all&cid=%CHAMPIONID%&lane=%LANE%";
+    private int minThreshold = 0;
+    private boolean mostCommon = false;
 
     private void downloadRunes(GameData data, SyncingListWrapper<ChampionBuild> pages) {
         Champion champion = data.getChampion();
@@ -46,21 +50,17 @@ public class LolalyticsSource implements RuneSource {
                 Pipe.from(conn.getInputStream()).to(json);
                 LolalyticsResult jsonData =
                         new Gson().fromJson(json.toString(), LolalyticsResult.class);
-                if (jsonData == null || jsonData.summary == null) {
+                if (jsonData == null || jsonData.summary == null || jsonData.header == null || jsonData.header.n < minThreshold) {
                     // Entering this means that API has changed, error has occurred or
                     // website doesn't have build for current combination of parameters
+                    // or current combination of parameters doesn't satisfy requirements
                     continue;
                 }
 
-                // We're adding most common and highest win rate runes
-                RunePage mostCommonPage = getRunePage(champion, lane, jsonData.summary.runes.pick, RunePageType.MOST_COMMON);
-                if (mostCommonPage != null) {
-                    pages.add(ChampionBuild.builder(mostCommonPage).withSpells(extractSummonerSpells(jsonData.summary.sum.pick)).create());
-                }
-
-                RunePage highestWin = getRunePage(champion, lane, jsonData.summary.runes.win, RunePageType.MOST_WINS);
-                if (highestWin != null) {
-                    pages.add(ChampionBuild.builder(highestWin).withSpells(extractSummonerSpells(jsonData.summary.sum.win)).create());
+                // We're adding most common or highest win rate runes depending on the settings
+                RunePage runePage = getRunePage(champion, lane, jsonData.summary.runes.pick, mostCommon ? RunePageType.MOST_COMMON : RunePageType.MOST_WINS);
+                if (runePage != null) {
+                    pages.add(ChampionBuild.builder(runePage).withSpells(extractSummonerSpells(jsonData.summary.sum.pick)).create());
                 }
             }
 
@@ -130,12 +130,46 @@ public class LolalyticsSource implements RuneSource {
     }
 
     @Override
+    public void onSettingsUpdate(Map<String, Object> settings) {
+        if (settings.containsKey("min_threshold")) {
+            minThreshold = Integer.parseInt((String) settings.get("min_threshold"));
+        }
+        if (settings.containsKey("most_common")) {
+            mostCommon = (Boolean) settings.get("most_common");
+        }
+    }
+
+    @Override
+    public void setupSettings(SettingsConfiguration config) {
+        config
+                .textField("min_threshold")
+                .defaultValue("50")
+                .validation(s -> {
+                    try {
+                        return Integer.parseInt(s) >= 0;
+                    } catch (NumberFormatException e) {
+                        return false;
+                    }
+                })
+                .add()
+                .checkbox("most_common")
+                .defaultValue(false)
+                .add();
+    }
+
+    @Override
     public String getSourceKey() {
         return "lolalytics.com";
     }
 
     private static class LolalyticsResult {
         public Summary summary;
+        public Header header;
+    }
+
+    private static class Header {
+        public int n;
+        public String tier;
     }
 
     private static class Summary {
