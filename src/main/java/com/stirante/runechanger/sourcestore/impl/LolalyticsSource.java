@@ -2,7 +2,15 @@ package com.stirante.runechanger.sourcestore.impl;
 
 import com.google.gson.Gson;
 import com.stirante.justpipe.Pipe;
-import com.stirante.runechanger.model.client.*;
+import com.stirante.runechanger.model.client.Champion;
+import com.stirante.runechanger.model.client.ChampionBuild;
+import com.stirante.runechanger.model.client.GameData;
+import com.stirante.runechanger.model.client.GameMode;
+import com.stirante.runechanger.model.client.Modifier;
+import com.stirante.runechanger.model.client.Patch;
+import com.stirante.runechanger.model.client.Rune;
+import com.stirante.runechanger.model.client.RunePage;
+import com.stirante.runechanger.model.client.SummonerSpell;
 import com.stirante.runechanger.sourcestore.RuneSource;
 import com.stirante.runechanger.sourcestore.SourceStore;
 import com.stirante.runechanger.util.SyncingListWrapper;
@@ -13,57 +21,47 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.Comparator;
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 public class LolalyticsSource implements RuneSource {
     private static final Logger log = LoggerFactory.getLogger(LolalyticsSource.class);
     private final static String CHAMPION_URL =
-            //TODO: This source needs to be fixed
-            //"https://apix1.op.lol/mega/?ep=champion&p=d&v=9patch=%PATCH%tier=platinum_plus&queue=420&region=all&cid=%CHAMPIONID%&lane=%LANE%";
-            "https://api.op.lol/champion/3/?patch=%PATCH%tier=platinum_plus&queue=420&region=all&cid=%CHAMPIONID%&lane=%LANE%";
+            "https://apix1.op.lol/mega/?ep=champion&p=d&v=9patch=%PATCH%tier=platinum_plus&queue=%QUEUE%&region=all&cid=%CHAMPIONID%&lane=%LANE%";
 
-    private void downloadRunes(Champion champion, SyncingListWrapper<ChampionBuild> pages) {
+    private void downloadRunes(GameData data, SyncingListWrapper<ChampionBuild> pages) {
+        Champion champion = data.getChampion();
         final String[] lanes = {"Top", "Jungle", "Middle", "Bottom", "Support"};
+
         try {
             for (String lane : lanes) {
                 final URL url = new URL(CHAMPION_URL
                         .replace("%PATCH", Patch.getLatest(1).get(0).toString())
                         .replace("%CHAMPIONID%", Integer.toString(champion.getId()))
-                        .replace("%LANE%", lane.toLowerCase()));
+                        .replace("%LANE%", lane.toLowerCase())
+                        .replace("%QUEUE%", getQueueId(data.getGameMode())));
                 HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                 conn.connect();
                 StringWriter json = new StringWriter();
                 Pipe.from(conn.getInputStream()).to(json);
                 LolalyticsResult jsonData =
                         new Gson().fromJson(json.toString(), LolalyticsResult.class);
-                if (jsonData == null || jsonData.display == null) {
-                    log.warn("Invalid data received, when getting " + url);
-                    log.debug(json.toString());
+                if (jsonData == null || jsonData.summary == null) {
+                    // Entering this means that API has changed, error has occurred or
+                    // website doesn't have build for current combination of parameters
                     continue;
                 }
-                ConvertedDataPair convertedDataPair = new ConvertedDataPair(Map.ofEntries(
-                        Map.entry("rune1", jsonData.display.rune1),
-                        Map.entry("rune2", jsonData.display.rune2),
-                        Map.entry("rune3", jsonData.display.rune3),
-                        Map.entry("rune4", jsonData.display.rune4),
-                        Map.entry("rune5", jsonData.display.rune5)
-                ));
-                RunePage runePage = calculateRunes(convertedDataPair, RunePageType.MOST_COMMON);
-                if (!runePage.verify()) {
-                    log.error("Runepage has failed verification. Mode: " + RunePageType.MOST_COMMON.name());
-                    return;
+
+                // We're adding most common and highest win rate runes
+                RunePage mostCommonPage = getRunePage(champion, lane, jsonData.summary.runes.pick, RunePageType.MOST_COMMON);
+                if (mostCommonPage != null) {
+                    pages.add(ChampionBuild.builder(mostCommonPage).withSpells(extractSummonerSpells(jsonData.summary.sum.pick)).create());
                 }
-                runePage.setChampion(champion);
-                runePage.setName(lane);
-                runePage.setSourceName(this.getSourceName());
-                runePage.setSource(
-                        "https://lolalytics.com/lol/runes/" + champion.getName().replace("'", "").toLowerCase() +
-                                "?lane=" + lane + "&patch=" + Patch.getLatest(1).get(0).toString());
-                pages.add(ChampionBuild.builder(runePage).create());
+
+                RunePage highestWin = getRunePage(champion, lane, jsonData.summary.runes.win, RunePageType.MOST_WINS);
+                if (highestWin != null) {
+                    pages.add(ChampionBuild.builder(highestWin).withSpells(extractSummonerSpells(jsonData.summary.sum.win)).create());
+                }
             }
 
         } catch (Exception e) {
@@ -71,77 +69,64 @@ public class LolalyticsSource implements RuneSource {
         }
     }
 
+    private RunePage getRunePage(Champion champion, String lane, Pick runesRaw, RunePageType runePageType) {
+        RunePage runePage = calculateRunes(runesRaw);
+        if (!runePage.verify()) {
+            log.error("Runepage has failed verification.");
+            return null;
+        }
+        runePage.setChampion(champion);
+        runePage.setName(lane);
+        runePage.setSourceName(this.getSourceName(runePageType));
+        runePage.setSource(
+                "https://lolalytics.com/lol/runes/" + champion.getName().replace("'", "").toLowerCase() +
+                        "?lane=" + lane + "&patch=" + Patch.getLatest(1).get(0).toString());
+        return runePage;
+    }
 
-    private RunePage calculateRunes(ConvertedDataPair convertedDataPair, RunePageType mode) {
+
+    private RunePage calculateRunes(Pick pick) {
         RunePage r = new RunePage();
 
-        // PRIMARY RUNES
-        //Checking which keystone has the biggest number of plays/wins (depending on mode)
-        Map.Entry<Rune, int[]> biggestValKeystone = convertedDataPair.getRuneDataConverted().get("rune1")
-                .entrySet()
-                .stream()
-                .filter(map -> map.getKey().getSlot() == 0)
-                .max(Comparator.comparingInt(runeEntry -> runeEntry.getValue()[mode.getIndex()]))
-                .orElseThrow();
-
-        final Style primaryStyle = biggestValKeystone.getKey().getStyle();
-        r.setMainStyle(primaryStyle);
-        r.getRunes().add(biggestValKeystone.getKey());
-
-        //Checking which runes are we still able to use
-        List<Map.Entry<Rune, int[]>> availablePrimaryRunes =
-                convertedDataPair.getRuneDataConverted().get("rune1").entrySet().stream()
-                        .filter(map -> map.getKey().getStyle() == primaryStyle)
-                        .collect(Collectors.toList());
-        //Checking for a highest scoring rune for each slot
-        for (int i = 1; i < 4; i++) {
-            final int slot = i;
-            Map.Entry<Rune, int[]> biggestValRune = availablePrimaryRunes.stream()
-                    .filter(map -> map.getKey().getSlot() == slot)
-                    .max(Comparator.comparingInt(runeEntry -> runeEntry.getValue()[mode.getIndex()]))
-                    .orElseThrow();
-            r.getRunes().add(biggestValRune.getKey());
+        //Adding primary
+        for (int i : pick.set.pri) {
+            r.getRunes().add(Rune.getById(i));
         }
-        // SECONDARY RUNES
 
-        Map.Entry<Rune, int[]> biggestValSecondaryRune = convertedDataPair.getRuneDataConverted().get("rune2")
-                .entrySet()
-                .stream()
-                .max(Comparator.comparingInt(runeEntry -> runeEntry.getValue()[mode.getIndex()]))
-                .orElseThrow();
-        final Style secondaryStyle = biggestValSecondaryRune.getKey().getStyle();
-        final int secondaryUsedSlot = biggestValSecondaryRune.getKey().getSlot();
-        r.setSubStyle(secondaryStyle);
-        r.getRunes().add(biggestValSecondaryRune.getKey());
-
-        Map.Entry<Rune, int[]> biggestRemainingSecondaryRune =
-                convertedDataPair.getRuneDataConverted().get("rune2").entrySet().stream()
-                        .filter(map -> map.getKey().getStyle() == secondaryStyle &&
-                                map.getKey().getSlot() != secondaryUsedSlot)
-                        .max(Comparator.comparingInt(runeEntry -> runeEntry.getValue()[mode.getIndex()]))
-                        .orElseThrow();
-        r.getRunes().add(biggestRemainingSecondaryRune.getKey());
-
-        // MODIFIERS
-
-        for (int i = 3; i < 6; i++) {
-            Map<Modifier, int[]> modifierList = convertedDataPair.getModifierDataConverted().get("rune" + i);
-            Map.Entry<Modifier, int[]> biggestValModifier = modifierList.entrySet().stream()
-                    .max(Comparator.comparingInt(runeEntry -> runeEntry.getValue()[mode.getIndex()]))
-                    .orElseThrow();
-            r.getModifiers().add(biggestValModifier.getKey());
+        //Adding secondary
+        for (int i : pick.set.sec) {
+            r.getRunes().add(Rune.getById(i));
         }
+
+        //Adding modifiers
+        for (int i : pick.set.mod) {
+            r.getModifiers().add(Modifier.getById(i));
+        }
+
+        r.setMainStyle(r.getRunes().get(0).getStyle());
+        r.setSubStyle(r.getRunes().get(4).getStyle());
+
         return r;
     }
 
     @Override
     public void getRunesForGame(GameData data, SyncingListWrapper<ChampionBuild> pages) {
-        downloadRunes(data.getChampion(), pages);
+        downloadRunes(data, pages);
     }
 
     @Override
     public String getSourceName() {
         return "Lolalytics";
+    }
+
+    // Imports both highest win rate and most common build until checkbox in settings is implemented
+    public String getSourceName(RunePageType runePageType) {
+        return "Lolalytics - " + runePageType.name;
+    }
+
+    @Override
+    public GameMode[] getSupportedGameModes() {
+        return new GameMode[]{GameMode.ARAM, GameMode.URF, GameMode.ONEFORALL, GameMode.ULTBOOK, GameMode.CLASSIC};
     }
 
     @Override
@@ -150,68 +135,81 @@ public class LolalyticsSource implements RuneSource {
     }
 
     private static class LolalyticsResult {
-        public DisplayRuneRawData display;
+        public Summary summary;
     }
 
-    private static class DisplayRuneRawData {
-        public Map<String, int[]> rune1;
-        public Map<String, int[]> rune2;
-        public Map<String, int[]> rune3;
-        public Map<String, int[]> rune4;
-        public Map<String, int[]> rune5;
+    private static class Summary {
+        public Runes runes;
+        public Sum sum;
     }
 
-    private static class ConvertedDataPair {
-        public Map<String, Map<Rune, int[]>> runeDataConverted;
-        public Map<String, Map<Modifier, int[]>> modifierDataConverted;
+    private static class Runes {
+        public Pick pick;
+        public Pick win;
+    }
 
-        private ConvertedDataPair(Map<String, Map<String, int[]>> rawData) {
-            Map<String, Map<Rune, int[]>> runeDataConverted = new HashMap<>();
-            Map<String, Map<Modifier, int[]>> modifierDataConverted = new HashMap<>();
+    private static class Pick {
+        public SetLol set;
+    }
 
-            //converting runes
-            for (int i = 0; i < 2; i++) {
-                int n = i + 1;
-                runeDataConverted.put("rune" + n, rawData.get("rune" + n)
-                        .entrySet()
-                        .stream()
-                        .collect(Collectors.toMap(e -> Rune.getById(Integer.parseInt(e.getKey())), Map.Entry::getValue)));
-            }
+    private static class SetLol {
+        public int[] pri;
+        public int[] sec;
+        public int[] mod;
+    }
 
-            //converting modifiers
-            for (int i = 2; i < 5; i++) {
-                int n = i + 1;
-                modifierDataConverted.put("rune" + n, rawData.get("rune" + n)
-                        .entrySet()
-                        .stream()
-                        .collect(Collectors.toMap(e -> Modifier.getById(Integer.parseInt(e.getKey())), Map.Entry::getValue)));
-            }
+    private static class Sum {
+        public SumPick pick;
+        public SumPick win;
+    }
 
-            this.runeDataConverted = runeDataConverted;
-            this.modifierDataConverted = modifierDataConverted;
-        }
-
-        public Map<String, Map<Rune, int[]>> getRuneDataConverted() {
-            return this.runeDataConverted;
-        }
-
-        public Map<String, Map<Modifier, int[]>> getModifierDataConverted() {
-            return this.modifierDataConverted;
-        }
+    private static class SumPick {
+        public String id;
     }
 
     public enum RunePageType {
-        MOST_COMMON(0),
-        MOST_WINS(1);
-        private final int index;
+        MOST_COMMON("Most common"),
+        MOST_WINS("Highest win");
+        private final String name;
 
-        RunePageType(int index) {
-            this.index = index;
+        RunePageType(String name) {
+            this.name = name;
         }
 
-        public int getIndex() {
-            return index;
+        public String getIndex() {
+            return name;
         }
+    }
+
+    private String getQueueId(GameMode mode) {
+        switch (mode) {
+            case ARAM:
+                return "450";
+            case URF:
+                return "900";
+            case ONEFORALL:
+                return "1020";
+            case ULTBOOK:
+                return "1400";
+            default:
+                log.info("Game mode {} not available for this source. Returning runes for solo/duo.", mode.getName());
+            case CLASSIC:
+                return "420";
+        }
+    }
+
+    private List<SummonerSpell> extractSummonerSpells(SumPick pick){
+        try{
+            final String[] spells = pick.id.split("_");
+            List<SummonerSpell> list = new ArrayList<>(2);
+            list.add(SummonerSpell.getByKey(Integer.parseInt(spells[0])));
+            list.add(SummonerSpell.getByKey(Integer.parseInt(spells[1])));
+            return list;
+        }catch (Exception e){
+            log.error("Unable to parse sumoner spells for {}", pick);
+            return null;
+        }
+
     }
 
     public static void main(String[] args) throws IOException {
