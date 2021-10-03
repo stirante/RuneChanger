@@ -19,7 +19,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class ChampionSelection extends ClientModule {
     private static final Logger log = LoggerFactory.getLogger(ChampionSelection.class);
@@ -52,26 +51,35 @@ public class ChampionSelection extends ClientModule {
 
     public List<Champion> getLastChampions() {
         try {
-            ApiResponse<LolMatchHistoryRecentlyPlayedChampionCollection> recentlyPlayed =
+            ApiResponse<LolMatchHistoryMatchHistoryList> recentlyPlayed =
                     getApi().executeGet(
-                            "/lol-match-history/v1/recently-played-champions/" + getCurrentSummoner().accountId,
-                            LolMatchHistoryRecentlyPlayedChampionCollection.class,
-                            "force", "true");
-            if (!recentlyPlayed.isOk() || recentlyPlayed.getResponseObject().champions == null ||
-                    recentlyPlayed.getResponseObject().champions.size() == 0) {
+                            "/lol-match-history/v1/products/lol/current-summoner/matches",
+                            LolMatchHistoryMatchHistoryList.class, "begIndex", "0", "endIndex", "20");
+            if (!recentlyPlayed.isOk() || recentlyPlayed.getResponseObject().games == null ||
+                    recentlyPlayed.getResponseObject().games.games.size() == 0) {
                 return null;
             }
-            List<LolMatchHistoryRecentlyPlayedChampion> games = recentlyPlayed.getResponseObject().champions;
-            return games.stream()
-                    .collect(Collectors.groupingBy(o -> o.championId))
-                    .values().stream()
-                    .map(l -> l
-                            .stream()
-                            .max(Comparator.comparing(o -> o.timestamp))
-                            .orElseThrow())
-                    .sorted((o1, o2) -> Long.compare(o2.timestamp, o1.timestamp))
-                    .map(c -> Champion.getById(c.championId))
-                    .collect(Collectors.toList());
+            List<Champion> result = new ArrayList<>();
+            List<LolMatchHistoryMatchHistoryGame> games = recentlyPlayed.getResponseObject().games.games;
+            for (LolMatchHistoryMatchHistoryGame game : games) {
+                int participantId = game.participantIdentities.stream()
+                        .filter(id -> Objects.equals(id.player.summonerId, getCurrentSummoner().summonerId))
+                        .mapToInt(value -> value.participantId)
+                        .findFirst()
+                        .orElse(-1);
+                if (participantId == -1) {
+                    continue;
+                }
+                Champion champion = game.participants.stream()
+                        .filter(participant -> participant.participantId == participantId)
+                        .map(participant -> Champion.getById(participant.championId))
+                        .findFirst()
+                        .orElse(null);
+                if (champion != null && !result.contains(champion)) {
+                    result.add(champion);
+                }
+            }
+            return result;
         } catch (Exception e) {
             log.error("Exception occurred while getting last picked champions", e);
             return null;
@@ -315,10 +323,12 @@ public class ChampionSelection extends ClientModule {
         try {
             LolChampSelectChampSelectMySelection selection = new LolChampSelectChampSelectMySelection();
             boolean flashFirst = SimplePreferences.getBooleanValue(SimplePreferences.SettingsKeys.FLASH_FIRST, true);
-            if ((spell1 == SummonerSpell.FLASH && flashFirst) || (spell2 == SummonerSpell.FLASH && !flashFirst) || (spell1 != SummonerSpell.FLASH && spell2 != SummonerSpell.FLASH)) {
+            if ((spell1 == SummonerSpell.FLASH && flashFirst) || (spell2 == SummonerSpell.FLASH && !flashFirst) ||
+                    (spell1 != SummonerSpell.FLASH && spell2 != SummonerSpell.FLASH)) {
                 selection.spell1Id = (long) spell1.getKey();
                 selection.spell2Id = (long) spell2.getKey();
-            } else {
+            }
+            else {
                 selection.spell1Id = (long) spell2.getKey();
                 selection.spell2Id = (long) spell1.getKey();
             }
