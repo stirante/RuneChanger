@@ -92,35 +92,36 @@ public class MetasrcSource implements RuneSource {
     }
 
     private List<SummonerSpell> extractSpells(Document webPage) {
-        Elements spells = webPage.select("div._lop72r:nth-of-type(1) > div._yq1p7n._sjgjkw:nth-of-type(1) > div._sfh2p9 > div div._q8ue62");
+        // ._qngo9y > div:nth-child(3) > div:nth-child(2) > div:nth-child(1) > div:nth-child(2) > div:nth-child(1)
+        Elements spells = webPage.select("._qngo9y > div:nth-child(3) > div:nth-child(2) > div:nth-child(1) > div:nth-child(2) > div > ._hmag7l");
         if (spells.size() == 0) {
             return Collections.emptyList();
         }
-        return spells.stream().map(element -> SummonerSpell.getByName(element.text())).collect(Collectors.toList());
+        return spells.stream().map(element -> SummonerSpell.getByKey(Integer.parseInt(element.attr("data-tooltip").replace("spell-", "")))).collect(Collectors.toList());
     }
 
     private RunePage extractRunes(Document webPage) {
         RunePage r = new RunePage();
-        Elements runes = webPage.select("div._lop72r:nth-of-type(2) > div._sh98mb:nth-of-type(2) div._sfh2p9 > div > div");
+        Elements runes = webPage.select("div._lop72r:nth-of-type(3) > div._sh98mb:nth-of-type(2) div._sfh2p9 > div > div");
         if (runes.size() == 0) {
             return null;
         }
-        Elements mainRunes = runes.get(0).select("div._hmag7l > div._xdda66 > div._q8ue62");
-        Elements secondaryRunes = runes.get(1).select("div._hmag7l > div._xdda66 > div._q8ue62");
-        r.setMainStyle(Style.getByName(mainRunes.get(0).text()));
-        r.setSubStyle(Style.getByName(secondaryRunes.get(0).text()));
+        List<Integer> mainRunes = runes.get(0).select("div._hmag7l").stream().map(element -> Integer.parseInt(element.attr("data-tooltip").replace("perk-", ""))).collect(Collectors.toList());
+        List<Integer> secondaryRunes = runes.get(1).select("div._hmag7l").stream().map(element -> Integer.parseInt(element.attr("data-tooltip").replace("perk-", ""))).collect(Collectors.toList());
+        r.setMainStyle(Style.getById(mainRunes.get(0)));
+        r.setSubStyle(Style.getById(secondaryRunes.get(0)));
 
 
         for (int i = 1; i < 5; i++) {
-            r.getRunes().add(Rune.getByName(mainRunes.get(i).text()));
+            r.getRunes().add(Rune.getById(mainRunes.get(i)));
         }
 
         for (int i = 1; i < 3; i++) {
-            r.getRunes().add(Rune.getByName(secondaryRunes.get(i).text()));
+            r.getRunes().add(Rune.getById(secondaryRunes.get(i)));
         }
 
         for (int i = 3; i < 6; i++) {
-            r.getModifiers().add(convertModifier(secondaryRunes.get(i).text()));
+            r.getModifiers().add(Modifier.getById(secondaryRunes.get(i)));
         }
 
         return r;
@@ -135,8 +136,15 @@ public class MetasrcSource implements RuneSource {
         ArrayList<String> availableRoles = new ArrayList<>();
         try {
             Document webPage = Jsoup.parse(new URL(minimalURL), 10000);
+            // Get possible roles
             Elements rolesElements =
-                    webPage.select("._5bxv5t > div.desktop > div._xtoaop._4pvjjd > a > table > tbody > tr:nth-of-type(1) > td > h1");
+                    webPage.select("div._tf4dk4 > a .desktop");
+            for (Element role : rolesElements) {
+                availableRoles.add(role.text());
+            }
+            // Add main one
+            rolesElements =
+                    webPage.select("div._tf4dk4._q9sxji .desktop");
             for (Element role : rolesElements) {
                 availableRoles.add(role.text());
             }
@@ -145,25 +153,6 @@ public class MetasrcSource implements RuneSource {
             e.printStackTrace();
         }
         return availableRoles;
-    }
-
-    private Modifier convertModifier(String modifier) {
-        switch (modifier.toLowerCase()) {
-            case "adaptive":
-                return Modifier.RUNE_5008;
-            case "armor":
-                return Modifier.RUNE_5002;
-            case "magicres":
-                return Modifier.RUNE_5003;
-            case "attackspeed":
-                return Modifier.RUNE_5005;
-            case "cdrscaling":
-                return Modifier.RUNE_5007;
-            case "healthscaling":
-                return Modifier.RUNE_5001;
-            default:
-                return null;
-        }
     }
 
     private String getSpecialGamemodeKey(GameData data) {
