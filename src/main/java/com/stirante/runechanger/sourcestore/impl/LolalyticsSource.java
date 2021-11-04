@@ -29,7 +29,7 @@ import java.util.Map;
 public class LolalyticsSource implements RuneSource {
     private static final Logger log = LoggerFactory.getLogger(LolalyticsSource.class);
     private final static String CHAMPION_URL =
-            "https://apix1.op.lol/mega/?ep=champion&p=d&v=9&patch=%PATCH%tier=platinum_plus&queue=%QUEUE%&region=all&cid=%CHAMPIONID%&lane=%LANE%";
+            "https://axe.lolalytics.com/mega/?ep=champion&p=d&v=1&patch=%PATCH%tier=platinum_plus&queue=%QUEUE%&region=all&cid=%CHAMPIONID%&lane=%LANE%&region=all";
     private int minThreshold = 0;
     private boolean mostCommon = false;
 
