@@ -32,9 +32,9 @@ public class ChampionGGSource implements RuneSource {
     private static final ReentrantLock LOCK = new ReentrantLock();
 
     private final static String ALL_URL =
-            "https://backend-alt.iesdev.com/api/lolstats/champions?queue=%queue%&rank=%rank%&region=world";
+            "https://league-champion-aggregate.iesdev.com/api/champions?queue=%queue%&rank=%rank%&region=world";
     private final static String CHAMPION_API_URL =
-            "https://backend-alt.iesdev.com/api/lolstats/champions/%champion%?queue=%queue%&rank=%rank%&region=world";
+            "https://league-champion-aggregate.iesdev.com/api/champions/%champion%?queue=%queue%&rank=%rank%&region=world";
     private final static String CHAMPION_URL = "https://champion.gg/champion/";
     private final static HashMap<Champion, Position> positionCache = new HashMap<>();
     private final static HashMap<Champion, Map<Position, ChampionBuild>> pageCache = new HashMap<>();
