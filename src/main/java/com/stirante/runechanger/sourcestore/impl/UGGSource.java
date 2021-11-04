@@ -28,8 +28,8 @@ public class UGGSource implements RuneSource, CounterSource {
     private static final Logger log = LoggerFactory.getLogger(UGGSource.class);
 
     private static final String UGG_VERSION = "1.1";
-    private static final String OVERVIEW_VERSION = "1.4.0";
-    private static final String COUNTERS_VERSION = "1.4.0";
+    private static final String OVERVIEW_VERSION = "1.5.0";
+    private static final String COUNTERS_VERSION = "1.5.0";
     private static final String OVERVIEW_PATH = "overview";
     private static final String COUNTERS_PATH = "counters";
     private static final String BASE_URL =
