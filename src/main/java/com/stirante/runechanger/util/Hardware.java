@@ -15,7 +15,7 @@ public class Hardware {
 
     private static boolean isWmicAvailable() {
         try {
-            Runtime.getRuntime().exec("wmic /?").waitFor();
+            Runtime.getRuntime().exec("wmic cpu list").waitFor();
             return true;
         } catch (Exception e) {
             return false;
