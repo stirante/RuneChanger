@@ -13,6 +13,15 @@ import java.util.Scanner;
 public class Hardware {
     private static final Logger log = LoggerFactory.getLogger(Hardware.class);
 
+    private static boolean isWmicAvailable() {
+        try {
+            Runtime.getRuntime().exec("wmic /?").waitFor();
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
     private static <T> List<T> executeCommand(String cmd, Class<T> clz, boolean csv) {
         InputStream in = null;
         Process process = null;
@@ -138,6 +147,13 @@ public class Hardware {
 
     public static HardwareInfo getAllHardwareInfo() {
         HardwareInfo info = new HardwareInfo();
+        if (!isWmicAvailable()) {
+            info.cpuName = "unknown";
+            info.gpuNames = new String[]{"unknown"};
+            info.cpuSpeed = 0L;
+            info.ram = 0L;
+            return info;
+        }
         CpuInfo cpuInfo = getCpuInfo();
         if (cpuInfo != null) {
             info.cpuName = cpuInfo.Name.replaceAll("\\([rR]\\)", "®").replaceAll("\\([tT][mM]\\)", "™");
