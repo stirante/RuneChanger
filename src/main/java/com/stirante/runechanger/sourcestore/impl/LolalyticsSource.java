@@ -79,8 +79,8 @@ public class LolalyticsSource implements RuneSource {
         runePage.setName(lane);
         runePage.setSourceName(this.getSourceName(runePageType));
         runePage.setSource(
-                "https://lolalytics.com/lol/runes/" + champion.getName().replace("'", "").toLowerCase() +
-                        "?lane=" + lane + "&patch=" + Patch.getLatest(1).get(0).toString());
+                "https://lolalytics.com/lol/" + champion.getName().replace("'", "").toLowerCase() +
+                        "/build/?lane=" + lane);
         return runePage;
     }
 
