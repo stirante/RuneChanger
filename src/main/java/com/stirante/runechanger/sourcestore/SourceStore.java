@@ -33,7 +33,6 @@ public class SourceStore {
 
     static {
         sources.add(new UGGSource());
-        sources.add(new RuneforgeSource());
         sources.add(new ChampionGGSource());
         sources.add(new LolalyticsSource());
         sources.add(new MetasrcSource());
