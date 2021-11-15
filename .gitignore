@@ -54,3 +54,5 @@ hs_err_pid*
 
 # Helper scripts
 *.sh
+
+crowdin.yml
