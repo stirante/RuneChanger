@@ -70,8 +70,7 @@ public class QuickReplies extends OverlayLayer {
             if (isQuickReplies || isCustomMessage) {
                 boolean onlyCustomMessage = isCustomMessage && !isQuickReplies;
                 if (getRuneChanger().getChampionSelectionModule().isPositionSelector() ||
-                        getRuneChanger().getChampionSelectionModule().getMap() != GameMap.MAP_11 ||
-                        getRuneChanger().getChampionSelectionModule().getGameMode() != GameMode.ULTBOOK) {
+                        getRuneChanger().getChampionSelectionModule().getMap() != GameMap.MAP_11) {
                     if (isCustomMessage) {
                         onlyCustomMessage = true;
                     }
