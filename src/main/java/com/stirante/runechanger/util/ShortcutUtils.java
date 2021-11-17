@@ -41,7 +41,7 @@ public class ShortcutUtils {
                 new File(System.getenv("AppData") + "\\Microsoft\\Windows\\Start Menu\\Programs\\RuneChanger");
         menuFolder.mkdir();
         createShortcut(menuFolder, "RuneChanger", "open.bat");
-        createShortcut(menuFolder, "RuneChanger (Debug)", "run.bat");
+        createShortcut(menuFolder, "RuneChanger (Debug)", "debug.bat");
     }
 
     public static void createDesktopShortcut() throws IOException {
