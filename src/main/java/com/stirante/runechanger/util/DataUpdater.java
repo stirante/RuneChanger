@@ -217,7 +217,6 @@ public class DataUpdater {
     private static void downloadImages() {
         HashMap<Rune, String> replacements = new HashMap<>();
         replacements.put(Rune.RUNE_8439, "veteranaftershock");
-        replacements.put(Rune.RUNE_8358, "masterkey");
         for (Rune rune : Rune.values()) {
             if (rune.getSlot() == 0) {
                 String internalName = rune.getName().toLowerCase().replaceAll(" ", "");
