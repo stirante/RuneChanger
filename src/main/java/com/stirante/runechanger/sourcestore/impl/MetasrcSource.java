@@ -167,6 +167,8 @@ public class MetasrcSource implements RuneSource {
                 return "poro";
             case NEXUSBLITZ:
                 return "blitz";
+            case ULTBOOK:
+                return "ultbook";
             default:
                 return null;
         }
@@ -174,7 +176,7 @@ public class MetasrcSource implements RuneSource {
 
     @Override
     public GameMode[] getSupportedGameModes() {
-        return new GameMode[]{GameMode.CLASSIC, GameMode.ONEFORALL, GameMode.URF, GameMode.ARAM, GameMode.KINGPORO, GameMode.NEXUSBLITZ};
+        return new GameMode[]{GameMode.CLASSIC, GameMode.ONEFORALL, GameMode.URF, GameMode.ARAM, GameMode.KINGPORO, GameMode.NEXUSBLITZ, GameMode.ULTBOOK};
     }
 
     public static void main(String[] args) throws IOException {
