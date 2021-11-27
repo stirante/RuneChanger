@@ -39,7 +39,7 @@ public class ChampionSelection extends ClientModule {
     private long phaseEnd = 0L;
     private int skinId = 0;
     private long wardSkinId = 0;
-    private TeamCompAnalyzer teamCompAnalyzer = new TeamCompAnalyzer();
+    private final TeamCompAnalyzer teamCompAnalyzer = new TeamCompAnalyzer();
 
     public ChampionSelection(ClientApi api) {
         super(api);
@@ -123,8 +123,10 @@ public class ChampionSelection extends ClientModule {
     }
 
     @SuppressWarnings("unchecked")
-    private void findCurrentAction(LolChampSelectChampSelectSession session) {
+    private void processActions(LolChampSelectChampSelectSession session) {
         banned.clear();
+        enemyTeam.clear();
+        allyTeam.clear();
         banAction = null;
         //we need to find summoner's cell id
         LolChampSelectChampSelectPlayerSelection self =
@@ -138,18 +140,34 @@ public class ChampionSelection extends ClientModule {
                 for (Object action : ((List) actions)) {
                     Map<String, Object> a = (Map<String, Object>) action;
                     //no idea why, but cell id gets recognized here as Double
-                    if (((Double) a.get("actorCellId")).intValue() == self.cellId.intValue() &&
-                            a.get("type").equals("pick")) {
-                        this.action = a;
+                    int actorCellId = ((Double) a.get("actorCellId")).intValue();
+                    String type = String.valueOf(a.get("type"));
+                    if (type.equals("pick")) {
+                        if (actorCellId == self.cellId.intValue()) {
+                            this.action = a;
+                        }
+                        else if (session.theirTeam.stream()
+                                .anyMatch(player -> player.cellId.intValue() == actorCellId)) {
+                            this.enemyTeam.add(Champion.getById(((Double) a.get("championId")).intValue()));
+                        }
+                        else if (session.myTeam.stream().anyMatch(player -> player.cellId.intValue() == actorCellId)) {
+                            Optional<LolChampSelectChampSelectPlayerSelection> first = session.myTeam.stream()
+                                    .filter(player -> player.cellId.intValue() == actorCellId)
+                                    .findFirst();
+                            if (first.isPresent() && first.get().assignedPosition != null &&
+                                    !first.get().assignedPosition.isBlank()) {
+                                this.allyTeam.put(Position.valueOf(first.get().assignedPosition.toUpperCase(Locale.ROOT)), Champion.getById(((Double) a.get("championId")).intValue()));
+                            }
+                        }
                     }
-                    if (a.get("type").equals("ban") && ((Boolean) a.get("completed"))) {
+                    if (type.equals("ban") && ((Boolean) a.get("completed"))) {
                         int championId = ((Double) a.get("championId")).intValue();
                         if (championId != 0) {
                             banned.add(Champion.getById(championId));
                         }
                     }
-                    else if (a.get("type").equals("ban") &&
-                            ((Double) a.get("actorCellId")).intValue() == self.cellId.intValue() &&
+                    else if (type.equals("ban") &&
+                            actorCellId == self.cellId.intValue() &&
                             !((Boolean) a.get("completed"))) {
                         banAction = a;
                     }
@@ -171,8 +189,8 @@ public class ChampionSelection extends ClientModule {
             if (selection != null && Objects.equals(selection.summonerId, getCurrentSummoner().summonerId)) {
                 //first check locked champion
                 champion = Champion.getById(selection.championId);
-                skinId = selection.selectedSkinId;
-                wardSkinId = selection.wardSkinId;
+                skinId = selection.selectedSkinId == null ? 0 : selection.selectedSkinId;
+                wardSkinId = selection.wardSkinId == null ? 0 : selection.wardSkinId;
                 //if it fails check just selected champion
                 if (champion == null) {
                     champion = Champion.getById(selection.championPickIntent);
@@ -183,7 +201,9 @@ public class ChampionSelection extends ClientModule {
                 }
                 selectedPosition = null;
                 try {
-                    selectedPosition = Position.valueOf(selection.assignedPosition);
+                    if (selection.assignedPosition != null) {
+                        selectedPosition = Position.valueOf(selection.assignedPosition.toUpperCase(Locale.ROOT));
+                    }
                 } catch (IllegalArgumentException e) {
                     //ignore
                 }
@@ -257,21 +277,19 @@ public class ChampionSelection extends ClientModule {
             if (gameMode.isDisabled()) {
                 return;
             }
-            findCurrentAction(event.getData());
-            findSelectedChampion(event.getData());
             Map<Position, Champion> oldChampions = new HashMap<>(allyTeam);
             List<Champion> oldEnemyChampions = new ArrayList<>(enemyTeam);
-            allyTeam.clear();
-            enemyTeam.clear();
-            if (getGameMode() == GameMode.CLASSIC && isPositionSelector()) {
+            processActions(event.getData());
+            findSelectedChampion(event.getData());
+            if (isPositionSelector()) {
                 for (LolChampSelectChampSelectPlayerSelection selection : event.getData().myTeam) {
-                    allyTeam.put(Position.valueOf(selection.assignedPosition), Champion.getById(selection.championId));
-                }
-                for (LolChampSelectChampSelectPlayerSelection selection : event.getData().theirTeam) {
-                    enemyTeam.add(Champion.getById(selection.championId));
+                    if (selection.assignedPosition != null && Champion.getById(selection.championId) != null) {
+                        allyTeam.put(Position.valueOf(selection.assignedPosition.toUpperCase(Locale.ROOT)), Champion.getById(selection.championId));
+                    }
                 }
             }
-            boolean teamChanged = oldChampions.size() != allyTeam.size() || oldEnemyChampions.size() != enemyTeam.size();
+            boolean teamChanged =
+                    oldChampions.size() != allyTeam.size() || oldEnemyChampions.size() != enemyTeam.size();
             if (!teamChanged) {
                 for (int i = 0, oldEnemyChampionsSize = oldEnemyChampions.size(); i < oldEnemyChampionsSize; i++) {
                     Champion oldEnemyChampion = oldEnemyChampions.get(i);
@@ -289,7 +307,11 @@ public class ChampionSelection extends ClientModule {
                     }
                 }
             }
-            if (isPositionSelector() && selectedPosition != null && (!allyTeam.isEmpty() || !enemyTeam.isEmpty()) && teamChanged) {
+            //TODO: Remove hardcoded position for testing
+            selectedPosition = Position.UTILITY;
+            //TODO: Uncomment position selector and selected position check
+            if (/*isPositionSelector() && selectedPosition != null &&*/ (!allyTeam.isEmpty() || !enemyTeam.isEmpty()) &&
+                    teamChanged) {
                 System.out.println("Team changed, analyzing new team");
                 RuneChanger.EXECUTOR_SERVICE.submit(() -> {
                     try {
@@ -402,6 +424,10 @@ public class ChampionSelection extends ClientModule {
 
     public boolean isPositionSelector() {
         return positionSelector;
+    }
+
+    public Position getSelectedPosition() {
+        return selectedPosition;
     }
 
     public void clearSession() {
