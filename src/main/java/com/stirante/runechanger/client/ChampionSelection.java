@@ -6,10 +6,12 @@ import com.stirante.eventbus.Subscribe;
 import com.stirante.lolclient.ApiResponse;
 import com.stirante.lolclient.ClientApi;
 import com.stirante.runechanger.DebugConsts;
+import com.stirante.runechanger.RuneChanger;
 import com.stirante.runechanger.model.client.Champion;
 import com.stirante.runechanger.model.client.GameMap;
 import com.stirante.runechanger.model.client.GameMode;
 import com.stirante.runechanger.model.client.SummonerSpell;
+import com.stirante.runechanger.sourcestore.TeamCompAnalyzer;
 import com.stirante.runechanger.util.AnalyticsUtil;
 import com.stirante.runechanger.util.SimplePreferences;
 import generated.*;
@@ -27,13 +29,17 @@ public class ChampionSelection extends ClientModule {
     private Champion champion;
     private GameMode gameMode;
     private boolean positionSelector;
-    private ArrayList<Champion> banned = new ArrayList<>();
+    private final ArrayList<Champion> banned = new ArrayList<>();
     private Map<String, Object> banAction;
+    private final Map<Position, Champion> allyTeam = new HashMap<>();
+    private final List<Champion> enemyTeam = new ArrayList<>();
+    private Position selectedPosition;
     private GameMap map;
     private String currentPhase = "";
     private long phaseEnd = 0L;
     private int skinId = 0;
     private long wardSkinId = 0;
+    private TeamCompAnalyzer teamCompAnalyzer = new TeamCompAnalyzer();
 
     public ChampionSelection(ClientApi api) {
         super(api);
@@ -108,6 +114,14 @@ public class ChampionSelection extends ClientModule {
         }
     }
 
+    public Map<Position, Champion> getAllyTeam() {
+        return allyTeam;
+    }
+
+    public List<Champion> getEnemyTeam() {
+        return enemyTeam;
+    }
+
     @SuppressWarnings("unchecked")
     private void findCurrentAction(LolChampSelectChampSelectSession session) {
         banned.clear();
@@ -166,6 +180,12 @@ public class ChampionSelection extends ClientModule {
                 //if all fails check list of actions
                 if (champion == null && action != null) {
                     champion = Champion.getById(((Double) action.get("championId")).intValue());
+                }
+                selectedPosition = null;
+                try {
+                    selectedPosition = Position.valueOf(selection.assignedPosition);
+                } catch (IllegalArgumentException e) {
+                    //ignore
                 }
                 break;
             }
@@ -239,6 +259,46 @@ public class ChampionSelection extends ClientModule {
             }
             findCurrentAction(event.getData());
             findSelectedChampion(event.getData());
+            Map<Position, Champion> oldChampions = new HashMap<>(allyTeam);
+            List<Champion> oldEnemyChampions = new ArrayList<>(enemyTeam);
+            allyTeam.clear();
+            enemyTeam.clear();
+            if (getGameMode() == GameMode.CLASSIC && isPositionSelector()) {
+                for (LolChampSelectChampSelectPlayerSelection selection : event.getData().myTeam) {
+                    allyTeam.put(Position.valueOf(selection.assignedPosition), Champion.getById(selection.championId));
+                }
+                for (LolChampSelectChampSelectPlayerSelection selection : event.getData().theirTeam) {
+                    enemyTeam.add(Champion.getById(selection.championId));
+                }
+            }
+            boolean teamChanged = oldChampions.size() != allyTeam.size() || oldEnemyChampions.size() != enemyTeam.size();
+            if (!teamChanged) {
+                for (int i = 0, oldEnemyChampionsSize = oldEnemyChampions.size(); i < oldEnemyChampionsSize; i++) {
+                    Champion oldEnemyChampion = oldEnemyChampions.get(i);
+                    if (oldEnemyChampion != enemyTeam.get(i)) {
+                        teamChanged = true;
+                        break;
+                    }
+                }
+                if (!teamChanged) {
+                    for (Position position : oldChampions.keySet()) {
+                        if (oldChampions.get(position) != allyTeam.get(position)) {
+                            teamChanged = true;
+                            break;
+                        }
+                    }
+                }
+            }
+            if (isPositionSelector() && selectedPosition != null && (!allyTeam.isEmpty() || !enemyTeam.isEmpty()) && teamChanged) {
+                System.out.println("Team changed, analyzing new team");
+                RuneChanger.EXECUTOR_SERVICE.submit(() -> {
+                    try {
+                        teamCompAnalyzer.analyze(selectedPosition, champion, allyTeam, enemyTeam, banned);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                });
+            }
             LolChampSelectChampSelectTimer timer = event.getData().timer;
             if (timer != null) {
                 currentPhase = timer.phase;

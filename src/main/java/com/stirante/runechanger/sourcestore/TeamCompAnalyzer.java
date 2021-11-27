@@ -1,5 +1,7 @@
 package com.stirante.runechanger.sourcestore;
 
+import com.github.benmanes.caffeine.cache.Caffeine;
+import com.github.benmanes.caffeine.cache.LoadingCache;
 import com.google.gson.Gson;
 import com.google.gson.annotations.SerializedName;
 import com.stirante.justpipe.Pipe;
@@ -9,8 +11,10 @@ import generated.Position;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 public class TeamCompAnalyzer {
 
@@ -18,25 +22,30 @@ public class TeamCompAnalyzer {
             "https://api.loltheory.gg/teamcomp/spot_recommendation/%position%?%spots%counter_cutoff=%counter_cutoff%";
     private static final Double COUNTER_CUTOFF = -0.03;
 
-    private String createUrl(Position position, Champion playerChampion, List<Champion> allyTeam, List<Champion> enemyTeam) {
+    private LoadingCache<String, SpotRecommendation> cache = Caffeine.newBuilder()
+            .maximumSize(1000)
+            .expireAfterAccess(1, TimeUnit.HOURS)
+            .build(key -> {
+                String json = Pipe.from(new URL(key)).toString();
+                return new Gson().fromJson(json, SpotRecommendation.class);
+            });
+
+    private String createUrl(Position position, Map<Position, Champion> allyTeam, List<Champion> enemyTeam, List<Champion> bans) {
         int positionIndex = getPositionIndex(position);
-        allyTeam.remove(playerChampion);
-        allyTeam.add(Math.min(positionIndex, allyTeam.size()), playerChampion);
         StringBuilder spots = new StringBuilder();
-        for (int i = 0, allyTeamSize = allyTeam.size(); i < allyTeamSize; i++) {
-            Champion champion = allyTeam.get(i);
-            if (champion != null) {
-                spots.append("spot")
-                        .append(champion == playerChampion ? positionIndex : i)
-                        .append("=")
-                        .append(champion.getId())
-                        .append("&");
+        for (int i = 0; i < 5; i++) {
+            Position spotPosition = spotToPosition(i);
+            if (allyTeam.containsKey(spotPosition)) {
+                spots.append("spot").append(i).append("=").append(allyTeam.get(spotPosition).getId()).append("&");
             }
         }
-        for (int j = 0; j < 5; j++) {
+        for (int i = 0; i < 5; i++) {
             for (Champion champion : enemyTeam) {
-                spots.append("spot").append(j + 5).append("=").append(champion.getId()).append("&");
+                spots.append("spot").append(i + 5).append("=").append(champion.getId()).append("&");
             }
+        }
+        for (Champion ban : bans) {
+            spots.append("bans").append("=").append(ban.getId()).append("&");
         }
         return API_URL
                 .replace("%position%", String.valueOf(positionIndex))
@@ -47,38 +56,42 @@ public class TeamCompAnalyzer {
     public static void main(String[] args) throws IOException {
         Champion.init();
         TeamCompAnalyzer analyzer = new TeamCompAnalyzer();
-        List<Champion> allyTeam = new ArrayList<>(5);
-        allyTeam.add(Champion.getById(429));
-        allyTeam.add(Champion.getById(63));
-        allyTeam.add(Champion.getById(53));
-        allyTeam.add(Champion.getById(3));
-        allyTeam.add(Champion.getById(96));
+        Map<Position, Champion> allyTeam = new HashMap<>();
+        allyTeam.put(Position.BOTTOM, Champion.getById(429));
+        allyTeam.put(Position.MIDDLE, Champion.getById(63));
+        allyTeam.put(Position.UTILITY, Champion.getById(53));
+        allyTeam.put(Position.TOP, Champion.getById(3));
+        allyTeam.put(Position.JUNGLE, Champion.getById(96));
         List<Champion> enemyTeam = new ArrayList<>(5);
         enemyTeam.add(Champion.getById(22));
         enemyTeam.add(Champion.getById(25));
         enemyTeam.add(Champion.getById(64));
         enemyTeam.add(Champion.getById(92));
         enemyTeam.add(Champion.getById(85));
-        analyzer.analyze(Position.UTILITY, Champion.getById(53), allyTeam, enemyTeam);
+        analyzer.analyze(Position.UTILITY, Champion.getById(53), allyTeam, enemyTeam, new ArrayList<>());
     }
 
-    private void analyze(Position position, Champion playerChampion, List<Champion> allyTeam, List<Champion> enemyTeam) throws IOException {
-        String url = createUrl(position, playerChampion, allyTeam, enemyTeam);
-        System.out.println(url);
-        String json = Pipe.from(new URL(url)).toString();
-        SpotRecommendation spotRecommendation = new Gson().fromJson(json, SpotRecommendation.class);
+    public void analyze(Position position, Champion playerChampion, Map<Position, Champion> allyTeam, List<Champion> enemyTeam, List<Champion> bans) throws IOException {
+        String url = createUrl(position, allyTeam, enemyTeam, bans);
+        SpotRecommendation spotRecommendation = cache.get(url);
+        if (spotRecommendation == null) {
+            System.out.println("No recommendation found");
+            return;
+        }
         if (playerChampion != null) {
             System.out.println("Player picked " + playerChampion.getName() + ", win rate: " +
-                    spotRecommendation.championWinRates.stream()
+                    toPercentage(spotRecommendation.championWinRates.stream()
                             .filter(championWinRate -> championWinRate.championId == playerChampion.getId())
                             .findFirst()
                             .map(championWinRate -> championWinRate.winRate)
-                            .orElse(null));
+                            .orElse(null)));
         }
         spotRecommendation.championWinRates.stream().filter(championWinRate -> playerChampion == null || championWinRate.championId != playerChampion.getId()).forEach(championWinRate -> {
-            System.out.println(Champion.getById(championWinRate.championId).getName() + ": " + championWinRate.winRate);
+            System.out.println(Champion.getById(championWinRate.championId).getName() + ": " + toPercentage(championWinRate.winRate));
         });
-        System.out.println("Team comp win rate: " + spotRecommendation.winRate);
+        System.out.println();
+        System.out.println("Team comp win rate: " + toPercentage(spotRecommendation.winRate));
+        System.out.println();
         if (spotRecommendation.options != null && !spotRecommendation.options.isEmpty()) {
             System.out.println("Most probable assignments:");
             List<ChampionSpot> assignment = spotRecommendation.options.get(0).assignment;
@@ -86,12 +99,17 @@ public class TeamCompAnalyzer {
             for (int i = 0, assignmentSize = assignment.size(); i < assignmentSize; i++) {
                 ChampionSpot championSpot = assignment.get(i);
                 if (i == 4) {
+                    System.out.println();
                     System.out.println("Enemy team:");
                 }
                 System.out.println(
                         Champion.getById(championSpot.championId).getName() + ": " + spotToPosition(championSpot.spot));
             }
         }
+    }
+
+    private String toPercentage(Double v) {
+        return v == null ? "?" : String.format("%.2f", v * 100) + "%";
     }
 
     private static int getPositionIndex(Position position) {
@@ -149,6 +167,10 @@ public class TeamCompAnalyzer {
         private int championId;
         @SerializedName("win_rate")
         private double winRate;
+        @SerializedName("counters")
+        private List<Object> counters;
+        @SerializedName("power_pick_performances")
+        private List<PowerPickPerfomance> powerPickPerformances;
     }
 
     private static class ChampionSpotInfo {
@@ -172,5 +194,14 @@ public class TeamCompAnalyzer {
         private int spot;
         @SerializedName("champ")
         private int championId;
+    }
+
+    private static class PowerPickPerfomance {
+        @SerializedName("champ")
+        private int championId;
+        @SerializedName("win_rate")
+        private double winRate;
+        @SerializedName("removed")
+        private boolean removed;
     }
 }
