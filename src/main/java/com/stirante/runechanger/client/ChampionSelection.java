@@ -307,10 +307,7 @@ public class ChampionSelection extends ClientModule {
                     }
                 }
             }
-            //TODO: Remove hardcoded position for testing
-            selectedPosition = Position.UTILITY;
-            //TODO: Uncomment position selector and selected position check
-            if (/*isPositionSelector() && selectedPosition != null &&*/ (!allyTeam.isEmpty() || !enemyTeam.isEmpty()) &&
+            if (isPositionSelector() && selectedPosition != null && (!allyTeam.isEmpty() || !enemyTeam.isEmpty()) &&
                     teamChanged) {
                 System.out.println("Team changed, analyzing new team");
                 RuneChanger.EXECUTOR_SERVICE.submit(() -> {

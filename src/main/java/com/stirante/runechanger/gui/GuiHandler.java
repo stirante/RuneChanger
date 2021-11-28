@@ -168,8 +168,6 @@ public class GuiHandler {
         win = new JWindow();
         clientOverlay = new ClientOverlay(runeChanger);
         clientOverlay.getLayer(RuneMenu.class).setBuilds(builds.getBackingList());
-        clientOverlay.getLayer(ChampionSuggestions.class)
-                .setSuggestedChampions(suggestedChampions, bannedChampions, suggestedChampionSelectedListener);
         clientOverlay.setSceneType(type);
         win.setContentPane(clientOverlay);
         win.setAlwaysOnTop(true);
@@ -367,13 +365,6 @@ public class GuiHandler {
 
     @Subscribe(ClientEventListener.ChampionSelectionEvent.NAME)
     public void onChampionSelection(ClientEventListener.ChampionSelectionEvent event) {
-        if (event.getEventType() == ClientEventListener.WebSocketEventType.CREATE) {
-            ChampionSelection selectionModule = RuneChanger.getInstance().getChampionSelectionModule();
-            setSuggestedChampions(
-                    selectionModule.getLastChampions(),
-                    selectionModule.getBannedChampions(),
-                    selectionModule::selectChampion);
-        }
         if (event.getEventType() == ClientEventListener.WebSocketEventType.DELETE) {
             setSceneType(SceneType.NONE);
         }
@@ -388,17 +379,6 @@ public class GuiHandler {
         //Client window size changed, so we restart the overlay
         closeWindow();
         openWindow();
-    }
-
-    public void setSuggestedChampions(List<Champion> lastChampions,
-                                      List<Champion> bannedChampions, Consumer<Champion> suggestedChampionSelectedListener) {
-        this.suggestedChampions = lastChampions;
-        this.suggestedChampionSelectedListener = suggestedChampionSelectedListener;
-        this.bannedChampions = bannedChampions;
-        if (clientOverlay != null) {
-            clientOverlay.getLayer(ChampionSuggestions.class)
-                    .setSuggestedChampions(lastChampions, bannedChampions, suggestedChampionSelectedListener);
-        }
     }
 
     @Subscribe(ChampionSelection.ChampionChangedEvent.NAME)

@@ -90,7 +90,6 @@ public class ChampionBuild {
             if (spells == null || spells.size() < 2) {
                 return this;
             }
-            //TODO: configure to automatically switch spells, if flash is in undesirable position
             this.firstSpell = spells.get(0);
             this.secondSpell = spells.get(1);
             return this;

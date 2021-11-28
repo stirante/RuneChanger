@@ -49,8 +49,7 @@ public class TeamCompAnalysis extends OverlayLayer {
     @Subscribe(value = ClientEventListener.ChampionSelectionEvent.NAME, priority = EventPriority.LOWEST)
     public void onSession(ClientEventListener.ChampionSelectionEvent event) {
         ChampionSelection champSelect = RuneChanger.getInstance().getChampionSelectionModule();
-        //TODO: Uncomment position selector check
-        if (champSelect != null/* && champSelect.isPositionSelector()*/ &&
+        if (champSelect != null && champSelect.isPositionSelector() &&
                 (!champSelect.getAllyTeam().isEmpty() || !champSelect.getEnemyTeam().isEmpty())) {
             RuneChanger.EXECUTOR_SERVICE.execute(() -> {
                 try {

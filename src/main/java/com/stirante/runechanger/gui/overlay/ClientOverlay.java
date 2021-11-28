@@ -55,7 +55,7 @@ public class ClientOverlay extends JPanel implements MouseMotionListener, MouseL
         addLayer(new QuickReplies(this));
         addLayer(new ChampionSuggestions(this));
         addLayer(new TeamCompAnalysis(this));
-        addLayer(new NotificationWindow(this));
+//        addLayer(new NotificationWindow(this));
         try {
             InputStream is = getClass().getResourceAsStream("/fonts/Beaufort-Bold.ttf");
             font = Font.createFont(Font.TRUETYPE_FONT, is);

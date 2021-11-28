@@ -114,6 +114,7 @@ public class SettingsController implements Content {
         setupSimplePreference(CLIENT_CATEGORY, SimplePreferences.SettingsKeys.AUTO_SYNC, false, "auto_sync_pages", "auto_sync_pages_message", toTruePredicate(this::tryRestart));
         setupSimplePreference(CLIENT_CATEGORY, SimplePreferences.SettingsKeys.SMART_DISENCHANT, false, "smart_disenchant", "smart_disenchant_message");
         setupSimplePreference(CLIENT_CATEGORY, SimplePreferences.SettingsKeys.CHAMPION_SUGGESTIONS, true, "champion_suggestions", "champion_suggestions_message");
+        setupSimplePreference(CLIENT_CATEGORY, SimplePreferences.SettingsKeys.SMART_CHAMPION_SUGGESTIONS, true, "team_based_champion_suggestions", "team_based_champion_suggestions_message");
         setupSimplePreference(CLIENT_CATEGORY, SimplePreferences.SettingsKeys.APPLY_SUMMONER_SPELLS, true, "apply_summoner_spells", "apply_summoner_spells_message");
         setupSimplePreference(CLIENT_CATEGORY, SimplePreferences.SettingsKeys.FLASH_FIRST, true, "flash_first", "flash_first_message");
 

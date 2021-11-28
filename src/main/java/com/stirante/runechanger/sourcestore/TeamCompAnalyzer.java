@@ -4,6 +4,7 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.LoadingCache;
 import com.google.gson.Gson;
 import com.google.gson.annotations.SerializedName;
+import com.stirante.eventbus.BusEvent;
 import com.stirante.eventbus.EventBus;
 import com.stirante.justpipe.Pipe;
 import com.stirante.runechanger.gui.overlay.NotificationWindow;
@@ -24,7 +25,7 @@ public class TeamCompAnalyzer {
             "https://api.loltheory.gg/teamcomp/spot_recommendation/%position%?%spots%counter_cutoff=%counter_cutoff%";
     private static final Double COUNTER_CUTOFF = -0.03;
 
-    private LoadingCache<String, SpotRecommendation> cache = Caffeine.newBuilder()
+    private final LoadingCache<String, SpotRecommendation> cache = Caffeine.newBuilder()
             .maximumSize(1000)
             .expireAfterAccess(1, TimeUnit.HOURS)
             .build(key -> {
@@ -104,7 +105,8 @@ public class TeamCompAnalyzer {
                 });
         System.out.println();
         System.out.println("Team comp win rate: " + toPercentage(spotRecommendation.winRate));
-        EventBus.publish(NotificationWindow.NotificationMessageEvent.NAME, new NotificationWindow.NotificationMessageEvent("Estimated win rate: " + toPercentage(spotRecommendation.winRate)));
+        EventBus.publish(NotificationWindow.NotificationMessageEvent.NAME, new NotificationWindow.NotificationMessageEvent(
+                "Estimated win rate: " + toPercentage(spotRecommendation.winRate)));
         System.out.println();
         if (spotRecommendation.options != null && !spotRecommendation.options.isEmpty()) {
             System.out.println("Most probable assignments:");
@@ -115,6 +117,7 @@ public class TeamCompAnalyzer {
                 comp.estimatedPosition.put(Champion.getById(championSpot.championId), spotToPosition(championSpot.spot));
             }
         }
+        EventBus.publish(TeamCompAnalysisEvent.NAME, new TeamCompAnalysisEvent(comp));
         return comp;
     }
 
@@ -157,6 +160,15 @@ public class TeamCompAnalyzer {
                 return Position.UTILITY;
             default:
                 return Position.UNSELECTED;
+        }
+    }
+
+    public static class TeamCompAnalysisEvent implements BusEvent {
+        public static final String NAME = "TeamCompAnalysisEvent";
+        public final TeamComp teamComp;
+
+        public TeamCompAnalysisEvent(TeamComp teamCompAnalysis) {
+            this.teamComp = teamCompAnalysis;
         }
     }
 
