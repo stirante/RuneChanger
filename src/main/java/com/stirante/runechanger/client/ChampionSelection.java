@@ -39,6 +39,7 @@ public class ChampionSelection extends ClientModule {
     private long phaseEnd = 0L;
     private int skinId = 0;
     private long wardSkinId = 0;
+    private String chatRoomName;
     private final TeamCompAnalyzer teamCompAnalyzer = new TeamCompAnalyzer();
 
     public ChampionSelection(ClientApi api) {
@@ -273,6 +274,7 @@ public class ChampionSelection extends ClientModule {
         }
         else {
             Champion oldChampion = champion;
+            chatRoomName = event.getData().chatDetails.chatRoomName;
             updateGameMode();
             if (gameMode.isDisabled()) {
                 return;
@@ -374,27 +376,17 @@ public class ChampionSelection extends ClientModule {
     }
 
     public void sendMessageToChampSelect(String msg) {
+        if (chatRoomName == null) {
+            return;
+        }
+        String name = chatRoomName.substring(0, chatRoomName.indexOf('@'));
+        LolChatConversationMessageResource message = new LolChatConversationMessageResource();
+        message.body = msg;
+        message.type = "chat";
         try {
-            ApiResponse<LolChampSelectChampSelectSession> session = getApi()
-                    .executeGet("/lol-champ-select/v1/session", LolChampSelectChampSelectSession.class);
-            if (!session.isOk()) {
-                return;
-            }
-            String name = session.getResponseObject().chatDetails.chatRoomName;
-            if (name == null) {
-                return;
-            }
-            name = name.substring(0, name.indexOf('@'));
-            LolChatConversationMessageResource message = new LolChatConversationMessageResource();
-            message.body = msg;
-            message.type = "chat";
-            try {
-                getApi().executePost("/lol-chat/v1/conversations/" + name + "/messages", message);
-            } catch (IOException e) {
-                log.error("Exception occurred while sending a message", e);
-            }
+            getApi().executePost("/lol-chat/v1/conversations/" + name + "/messages", message);
         } catch (IOException e) {
-            log.error("Exception occurred while getting a champion selection session", e);
+            log.error("Exception occurred while sending a message", e);
         }
     }
 
@@ -432,6 +424,7 @@ public class ChampionSelection extends ClientModule {
         action = null;
         positionSelector = false;
         gameMode = null;
+        chatRoomName = null;
     }
 
     public void reset() {
