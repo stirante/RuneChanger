@@ -39,15 +39,18 @@ public class TeamCompAnalyzer {
         for (int i = 0; i < 5; i++) {
             Position spotPosition = spotToPosition(i);
             if (allyTeam.containsKey(spotPosition)) {
+                if (allyTeam.get(spotPosition) == null) continue;
                 spots.append("spot").append(i).append("=").append(allyTeam.get(spotPosition).getId()).append("&");
             }
         }
         for (int i = 0; i < 5; i++) {
             for (Champion champion : enemyTeam) {
+                if (champion == null) continue;
                 spots.append("spot").append(i + 5).append("=").append(champion.getId()).append("&");
             }
         }
         for (Champion ban : bans) {
+            if (ban == null) continue;
             spots.append("bans").append("=").append(ban.getId()).append("&");
         }
         return API_URL
@@ -95,9 +98,7 @@ public class TeamCompAnalyzer {
                             .map(championWinRate -> championWinRate.winRate)
                             .orElse(null)));
         }
-        spotRecommendation.championWinRates.stream()
-                .filter(championWinRate -> playerChampion == null ||
-                        championWinRate.championId != playerChampion.getId())
+        spotRecommendation.championWinRates
                 .forEach(championWinRate -> {
                     comp.suggestions.add(new TeamCompChampion(Champion.getById(championWinRate.championId), championWinRate.winRate, spotRecommendation.championSpotInfo.get(championWinRate.championId).playRate));
                     System.out.println(Champion.getById(championWinRate.championId).getName() + ": " +
@@ -176,7 +177,7 @@ public class TeamCompAnalyzer {
         public TeamCompChampion playerPicked;
         public List<TeamCompChampion> suggestions = new ArrayList<>();
         public double winRate;
-        public Map<Champion, Position> estimatedPosition = new HashMap<>();
+        public final Map<Champion, Position> estimatedPosition = new HashMap<>();
     }
 
     public static class TeamCompChampion {

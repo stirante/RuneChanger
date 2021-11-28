@@ -50,7 +50,7 @@ public class TeamCompAnalysis extends OverlayLayer {
     public void onSession(ClientEventListener.ChampionSelectionEvent event) {
         ChampionSelection champSelect = RuneChanger.getInstance().getChampionSelectionModule();
         if (champSelect != null && champSelect.isPositionSelector() &&
-                (!champSelect.getAllyTeam().isEmpty() || !champSelect.getEnemyTeam().isEmpty())) {
+                (!champSelect.getAllyTeam().isEmpty() || !champSelect.getEnemyTeam().isEmpty()) && event.getEventType() != ClientEventListener.WebSocketEventType.DELETE) {
             RuneChanger.EXECUTOR_SERVICE.execute(() -> {
                 try {
                     analysis =
@@ -90,7 +90,7 @@ public class TeamCompAnalysis extends OverlayLayer {
                 0.5541667,
                 0.6638889
         };
-        if (getSceneType() == SceneType.CHAMPION_SELECT && analysis != null) {
+        if (getSceneType() == SceneType.CHAMPION_SELECT && analysis != null && !analysis.estimatedPosition.isEmpty()) {
             ChampionSelection champSelect = RuneChanger.getInstance().getChampionSelectionModule();
             List<Champion> enemyTeam = champSelect.getEnemyTeam();
             if (DebugConsts.MOCK_SESSION) {
@@ -99,8 +99,10 @@ public class TeamCompAnalysis extends OverlayLayer {
             }
             for (int i = 0, enemyTeamSize = enemyTeam.size(); i < enemyTeamSize; i++) {
                 Champion champion = enemyTeam.get(i);
-                BufferedImage icon = icons[analysis.estimatedPosition.get(champion).ordinal()];
-                g.drawImage(icon, (int) (getClientWidth() * x), (int) (getHeight() * positions[i]), null);
+                if (analysis.estimatedPosition.containsKey(champion)) {
+                    BufferedImage icon = icons[analysis.estimatedPosition.get(champion).ordinal()];
+                    g.drawImage(icon, (int) (getClientWidth() * x), (int) (getHeight() * positions[i]), null);
+                }
             }
 
         }

@@ -104,7 +104,8 @@ public class ChampionSuggestions extends OverlayLayer {
                     collect = lastChampions.stream()
                             .map(champion -> new Pair<>(champion, -1.0))
                             .collect(Collectors.toList());
-                } else {
+                }
+                else {
                     collect = suggestions.stream()
                             .map(teamCompChampion -> new Pair<>(teamCompChampion.champion, teamCompChampion.winRate))
                             .collect(Collectors.toList());
@@ -133,7 +134,8 @@ public class ChampionSuggestions extends OverlayLayer {
                         FontMetrics fontMetrics = g.getFontMetrics();
                         LineMetrics metrics = fontMetrics.getLineMetrics(winrate, g);
                         g.drawString(winrate,
-                                x + (tileSize / 2) - (fontMetrics.stringWidth(winrate) / 2), (int) (y + tileSize + metrics.getAscent()));
+                                x + (tileSize / 2) - (fontMetrics.stringWidth(winrate) / 2), (int) (y + tileSize +
+                                        metrics.getAscent()));
                     }
                     if (tileIndex >= 6) {
                         break;
@@ -152,16 +154,28 @@ public class ChampionSuggestions extends OverlayLayer {
     }
 
     public void mouseReleased(MouseEvent e) {
-        if (selectedChampionIndex != -1 && bannedChampions != null && lastChampions != null) {
+        boolean isSmart =
+                SimplePreferences.getBooleanValue(SimplePreferences.SettingsKeys.SMART_CHAMPION_SUGGESTIONS, true);
+        if (selectedChampionIndex != -1 && bannedChampions != null &&
+                (lastChampions != null || (suggestions != null && isSmart))) {
+            List<Champion> collect;
+            if (suggestions == null || !isSmart) {
+                collect = lastChampions;
+            }
+            else {
+                collect = suggestions.stream()
+                        .map(teamCompChampion -> teamCompChampion.champion)
+                        .collect(Collectors.toList());
+            }
             // Fix wrong champion selected, when one or more of them are banned
             int index = selectedChampionIndex;
             for (int i = 0; i <= index; i++) {
-                if (bannedChampions.contains(lastChampions.get(i))) {
+                if (bannedChampions.contains(collect.get(i))) {
                     index++;
                 }
             }
-            if (index < lastChampions.size()) {
-                RuneChanger.getInstance().getChampionSelectionModule().selectChampion(lastChampions.get(index));
+            if (index < collect.size()) {
+                RuneChanger.getInstance().getChampionSelectionModule().selectChampion(collect.get(index));
             }
         }
     }
