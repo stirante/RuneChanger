@@ -111,7 +111,7 @@ public class ChampionSuggestions extends OverlayLayer {
                             .collect(Collectors.toList());
                 }
                 for (Pair<Champion, Double> suggestion : collect) {
-                    if (bannedChampions.contains(suggestion.getKey())) {
+                    if (bannedChampions != null && bannedChampions.contains(suggestion.getKey())) {
                         continue;
                     }
                     Image img = suggestion.getKey().getPortrait();
