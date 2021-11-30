@@ -86,17 +86,19 @@ public class TeamCompAnalyzer {
         }
         TeamComp comp = new TeamComp();
         if (playerChampion != null) {
-            comp.playerPicked = new TeamCompChampion(playerChampion, spotRecommendation.championWinRates.stream()
-                    .filter(championWinRate -> championWinRate.championId == playerChampion.getId())
-                    .findFirst()
-                    .map(championWinRate -> championWinRate.winRate)
-                    .orElse(null), spotRecommendation.championSpotInfo.get(playerChampion.getId()).playRate);
-            System.out.println("Player picked " + playerChampion.getName() + ", win rate: " +
-                    toPercentage(spotRecommendation.championWinRates.stream()
-                            .filter(championWinRate -> championWinRate.championId == playerChampion.getId())
-                            .findFirst()
-                            .map(championWinRate -> championWinRate.winRate)
-                            .orElse(null)));
+            if (spotRecommendation.championSpotInfo != null && spotRecommendation.championSpotInfo.get(playerChampion.getId()) != null) {
+                comp.playerPicked = new TeamCompChampion(playerChampion, spotRecommendation.championWinRates.stream()
+                        .filter(championWinRate -> championWinRate.championId == playerChampion.getId())
+                        .findFirst()
+                        .map(championWinRate -> championWinRate.winRate)
+                        .orElse(null), spotRecommendation.championSpotInfo.get(playerChampion.getId()).playRate);
+                System.out.println("Player picked " + playerChampion.getName() + ", win rate: " +
+                        toPercentage(spotRecommendation.championWinRates.stream()
+                                .filter(championWinRate -> championWinRate.championId == playerChampion.getId())
+                                .findFirst()
+                                .map(championWinRate -> championWinRate.winRate)
+                                .orElse(null)));
+            }
         }
         spotRecommendation.championWinRates
                 .forEach(championWinRate -> {
