@@ -113,7 +113,10 @@ public class LolTheorySource implements RuneSource {
                     for (JsonElement r : secRunes) {
                         p.getRunes().add(Rune.getById(r.getAsInt()));
                     }
-                    for (JsonElement r : shards) {
+                    List<JsonElement> collect =
+                            StreamSupport.stream(shards.spliterator(), false).collect(Collectors.toList());
+                    Collections.reverse(collect);
+                    for (JsonElement r : collect) {
                         p.getModifiers().add(Modifier.getById(r.getAsInt()));
                     }
                     p.setName(getPositionName(Objects.requireNonNull(getPosition(role))));
