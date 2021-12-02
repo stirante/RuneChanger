@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory;
 import org.update4j.LaunchContext;
 import org.update4j.service.Launcher;
 
-import javax.swing.*;
+import javax.swing.JOptionPane;
 import java.io.File;
 import java.io.IOException;
 import java.net.ConnectException;
@@ -65,6 +65,11 @@ public class RuneChanger implements Launcher {
     private ClientWebSocket socket;
 
     public static void main(String[] args) {
+        if (Arrays.asList(args).contains("-debug-mode")) {
+            DebugConsts.enableDebugMode();
+            log.debug("Runechanger started with debug mode enabled");
+        }
+        log.debug("Loading prefs");
         SimplePreferences.load();
         Thread.setDefaultUncaughtExceptionHandler((thread, throwable) -> {
             // Ignore bug JDK-8089615
@@ -76,7 +81,9 @@ public class RuneChanger implements Launcher {
             AnalyticsUtil.addCrashReport(throwable,
                     "An unhandled exception occurred in thread " + thread.getName(), true);
         });
+        log.debug("Checking and creating lockfile");
         checkAndCreateLockfile();
+        log.debug("Changing working directory");
         changeWorkingDir();
         if (SimplePreferences.getBooleanValue(SimplePreferences.SettingsKeys.RUN_AS_ADMIN, false) && !isAdmin()) {
             log.info("Not running as admin, elevating...");
@@ -93,11 +100,14 @@ public class RuneChanger implements Launcher {
                 log.error("Failed to elevate: " + Kernel32Util.getLastErrorMessage());
             }
         }
+        log.debug("Cleaning up logs");
         cleanupLogs();
+        log.debug("Checking os");
         // This flag is only meant for development. It disables whole client communication
         if (!Arrays.asList(args).contains("-skip-os-check")) {
             checkOperatingSystem();
         }
+        log.debug("Initializing champions");
         try {
             Champion.init();
         } catch (IOException e) {
@@ -113,10 +123,6 @@ public class RuneChanger implements Launcher {
             logger.getAppender("FILE").stop();
             new File(((FileAppender<ILoggingEvent>) logger.getAppender("FILE")).getFile()).delete();
             logger.detachAppender("FILE");
-        }
-        if (Arrays.asList(args).contains("-debug-mode")) {
-            DebugConsts.enableDebugMode();
-            log.debug("Runechanger started with debug mode enabled");
         }
         try {
             AutoStartUtils.checkAutoStartPath();
@@ -259,11 +265,13 @@ public class RuneChanger implements Launcher {
                 Version.INSTANCE.commitIdAbbrev + " built at " +
                 SimpleDateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT)
                         .format(Version.INSTANCE.buildTime) + ")");
-        try {
-            log.debug(new Gson().toJson(Hardware.getAllHardwareInfo()));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        EXECUTOR_SERVICE.submit(() -> {
+            try {
+                log.debug(new Gson().toJson(Hardware.getAllHardwareInfo()));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
         if (!Arrays.asList(programArguments).contains("-no-connection")) {
             try {
                 // Disabled due to problems with switching between different LoL installations (PBE and release)
@@ -395,7 +403,7 @@ public class RuneChanger implements Launcher {
             PerformanceMonitor.stop();
             log.info("Perfmon stopped");
         }));
-        FxUtils.doOnFxThread(AutoUpdater::checkUpdate);
+        EXECUTOR_SERVICE.submit(AutoUpdater::checkUpdate);
         if (!SimplePreferences.getBooleanValue(SimplePreferences.InternalKeys.ASKED_ANALYTICS, false)) {
             FxUtils.doOnFxThread(() -> {
                 boolean analytics = Settings.openYesNoDialog(

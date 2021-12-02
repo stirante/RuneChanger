@@ -225,12 +225,15 @@ public class AutoUpdater {
     public static void checkUpdate() {
         try {
             if (needsUpdate()) {
-                boolean update = Settings.openYesNoDialog(LangHelper.getLang()
-                        .getString("update_available"), String.format(LangHelper.getLang()
-                        .getString("update_question"), getEstimatedUpdateSize()));
-                if (update) {
-                    performUpdate();
-                }
+                String estimatedUpdateSize = getEstimatedUpdateSize();
+                FxUtils.doOnFxThread(() -> {
+                    boolean update = Settings.openYesNoDialog(LangHelper.getLang()
+                            .getString("update_available"), String.format(LangHelper.getLang()
+                            .getString("update_question"), estimatedUpdateSize));
+                    if (update) {
+                        performUpdate();
+                    }
+                });
             }
         } catch (IOException ex) {
             log.error("Exception occurred while checking for update", ex);
