@@ -13,6 +13,8 @@ import com.stirante.runechanger.sourcestore.TeamCompAnalyzer;
 import com.stirante.runechanger.util.SimplePreferences;
 import com.stirante.runechanger.util.UiEventExecutor;
 import javafx.util.Pair;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.awt.Cursor;
 import java.awt.FontMetrics;
@@ -24,6 +26,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class ChampionSuggestions extends OverlayLayer {
+    private static final Logger log = LoggerFactory.getLogger(ChampionSuggestions.class);
+
     private int selectedChampionIndex = -1;
     private List<Champion> lastChampions;
     private List<Champion> bannedChampions;
@@ -54,8 +58,10 @@ public class ChampionSuggestions extends OverlayLayer {
     public void onTeamCompAnalysis(TeamCompAnalyzer.TeamCompAnalysisEvent event) {
         if (event.teamComp != null) {
             suggestions = event.teamComp.suggestions;
-            repaintLater();
+        } else {
+            suggestions = null;
         }
+        repaintLater();
     }
 
     @Override
@@ -150,7 +156,6 @@ public class ChampionSuggestions extends OverlayLayer {
     @Subscribe(value = Champion.IMAGES_READY_EVENT, eventExecutor = UiEventExecutor.class)
     public void onImagesReady() {
         repaintLater();
-        EventBus.unregister(this);
     }
 
     public void mouseReleased(MouseEvent e) {

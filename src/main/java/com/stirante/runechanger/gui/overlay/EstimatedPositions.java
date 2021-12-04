@@ -1,12 +1,10 @@
 package com.stirante.runechanger.gui.overlay;
 
 import com.stirante.eventbus.EventBus;
-import com.stirante.eventbus.EventPriority;
 import com.stirante.eventbus.Subscribe;
 import com.stirante.runechanger.DebugConsts;
 import com.stirante.runechanger.RuneChanger;
 import com.stirante.runechanger.client.ChampionSelection;
-import com.stirante.runechanger.client.ClientEventListener;
 import com.stirante.runechanger.gui.SceneType;
 import com.stirante.runechanger.model.client.Champion;
 import com.stirante.runechanger.sourcestore.TeamCompAnalyzer;
@@ -23,21 +21,25 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
-public class TeamCompAnalysis extends OverlayLayer {
-    private static final Logger log = LoggerFactory.getLogger(TeamCompAnalysis.class);
+public class EstimatedPositions extends OverlayLayer {
+    private static final Logger log = LoggerFactory.getLogger(EstimatedPositions.class);
 
-    private static final TeamCompAnalyzer ANALYZER = new TeamCompAnalyzer();
     private final BufferedImage[] icons = new BufferedImage[5];
     private TeamCompAnalyzer.TeamComp analysis;
 
-    TeamCompAnalysis(ClientOverlay overlay) {
+    EstimatedPositions(ClientOverlay overlay) {
         super(overlay);
         try {
-            icons[0] = SwingUtils.getScaledImage(16, 16, ImageIO.read(getClass().getResourceAsStream("/images/icon-position-top.png")));
-            icons[1] = SwingUtils.getScaledImage(16, 16, ImageIO.read(getClass().getResourceAsStream("/images/icon-position-middle.png")));
-            icons[2] = SwingUtils.getScaledImage(16, 16, ImageIO.read(getClass().getResourceAsStream("/images/icon-position-bottom.png")));
-            icons[3] = SwingUtils.getScaledImage(16, 16, ImageIO.read(getClass().getResourceAsStream("/images/icon-position-jungle.png")));
-            icons[4] = SwingUtils.getScaledImage(16, 16, ImageIO.read(getClass().getResourceAsStream("/images/icon-position-utility.png")));
+            icons[0] =
+                    SwingUtils.getScaledImage(16, 16, ImageIO.read(getClass().getResourceAsStream("/images/icon-position-top.png")));
+            icons[1] =
+                    SwingUtils.getScaledImage(16, 16, ImageIO.read(getClass().getResourceAsStream("/images/icon-position-middle.png")));
+            icons[2] =
+                    SwingUtils.getScaledImage(16, 16, ImageIO.read(getClass().getResourceAsStream("/images/icon-position-bottom.png")));
+            icons[3] =
+                    SwingUtils.getScaledImage(16, 16, ImageIO.read(getClass().getResourceAsStream("/images/icon-position-jungle.png")));
+            icons[4] =
+                    SwingUtils.getScaledImage(16, 16, ImageIO.read(getClass().getResourceAsStream("/images/icon-position-utility.png")));
         } catch (IOException e) {
             log.error("Exception occurred while loading position icons", e);
             AnalyticsUtil.addCrashReport(e, "Exception occurred while loading position icons", false);
@@ -46,25 +48,10 @@ public class TeamCompAnalysis extends OverlayLayer {
     }
 
 
-    @Subscribe(value = ClientEventListener.ChampionSelectionEvent.NAME, priority = EventPriority.LOWEST)
-    public void onSession(ClientEventListener.ChampionSelectionEvent event) {
-        ChampionSelection champSelect = RuneChanger.getInstance().getChampionSelectionModule();
-        if (champSelect != null && champSelect.isPositionSelector() &&
-                (!champSelect.getAllyTeam().isEmpty() || !champSelect.getEnemyTeam().isEmpty()) && event.getEventType() != ClientEventListener.WebSocketEventType.DELETE) {
-            RuneChanger.EXECUTOR_SERVICE.execute(() -> {
-                try {
-                    analysis =
-                            ANALYZER.analyze(champSelect.getSelectedPosition(), champSelect.getSelectedChampion(), champSelect.getAllyTeam(), champSelect.getEnemyTeam(), champSelect.getBannedChampions());
-                    repaintLater();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            });
-        }
-        else {
-            analysis = null;
-            repaintLater();
-        }
+    @Subscribe(value = TeamCompAnalyzer.TeamCompAnalysisEvent.NAME)
+    public void onTeamCompAnalysis(TeamCompAnalyzer.TeamCompAnalysisEvent event) {
+        analysis = event.teamComp;
+        repaintLater();
     }
 
     @Override

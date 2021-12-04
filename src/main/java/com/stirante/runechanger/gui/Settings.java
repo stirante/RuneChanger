@@ -445,6 +445,16 @@ public class Settings extends Application {
         }
 
         donateDontAsk = SimplePreferences.getBooleanValue(SimplePreferences.InternalKeys.DONATE_DONT_ASK, false);
+        RuneChanger.EXECUTOR_SERVICE.submit(AutoUpdater::checkUpdate);
+        if (!SimplePreferences.getBooleanValue(SimplePreferences.InternalKeys.ASKED_ANALYTICS, false)) {
+            boolean analytics = Settings.openYesNoDialog(
+                    LangHelper.getLang().getString("analytics_dialog_title"),
+                    LangHelper.getLang().getString("analytics_dialog_message")
+            );
+            AnalyticsUtil.onConsent(analytics);
+            SimplePreferences.putBooleanValue(SimplePreferences.InternalKeys.ASKED_ANALYTICS, true);
+            SimplePreferences.putBooleanValue(SimplePreferences.SettingsKeys.ANALYTICS, analytics);
+        }
     }
 
     private void copyRunePage(RunePage runePage) {
@@ -586,7 +596,8 @@ public class Settings extends Application {
                             ((List<ChampionBuild>) SimplePreferences.getRuneBookValues().clone())
                                     .stream()
                                     .collect(Collectors.partitioningBy(runePage -> result
-                                            .stream().noneMatch(runePage1 -> runePage1.equals(runePage.getRunePage()))));
+                                            .stream()
+                                            .noneMatch(runePage1 -> runePage1.equals(runePage.getRunePage()))));
                     for (RunePage page : result.stream()
                             .filter(p -> results.get(false)
                                     .stream()

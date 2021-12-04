@@ -18,7 +18,7 @@ public class ClientEventListener implements ClientWebSocket.SocketListener {
         if (DebugConsts.PRINT_EVENTS && !event.getUri().toLowerCase().contains("voice")) {
             log.info("Event: " + event);
             if (DebugConsts.PRINT_EVENTS_DATA) {
-                System.out.println(new Gson().toJson(event.getData()));
+                log.debug(new Gson().toJson(event.getData()));
             }
         }
         if (event.getUri().equalsIgnoreCase("/lol-gameflow/v1/gameflow-phase")) {

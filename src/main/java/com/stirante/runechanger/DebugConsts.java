@@ -11,6 +11,7 @@ public class DebugConsts {
     //Used for testing the UI
     public static final boolean MOCK_SESSION = false;
     public static final boolean DISPLAY_FAKE = false;
+    public static final boolean FORCE_TEAM_COMP_ANALYSIS = false;
 
     //those are really annoying while testing
     public static final boolean DISABLE_NOTIFICATIONS = false;

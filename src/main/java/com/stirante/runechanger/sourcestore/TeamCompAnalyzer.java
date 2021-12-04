@@ -10,6 +10,8 @@ import com.stirante.justpipe.Pipe;
 import com.stirante.runechanger.gui.overlay.NotificationWindow;
 import com.stirante.runechanger.model.client.Champion;
 import generated.Position;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.URL;
@@ -21,6 +23,7 @@ import java.util.concurrent.TimeUnit;
 
 public class TeamCompAnalyzer {
 
+    private static final Logger log = LoggerFactory.getLogger(TeamCompAnalyzer.class.getName());
     private static final String API_URL =
             "https://api.loltheory.gg/teamcomp/spot_recommendation/%position%?%spots%counter_cutoff=%counter_cutoff%";
     private static final Double COUNTER_CUTOFF = -0.03;
@@ -29,6 +32,7 @@ public class TeamCompAnalyzer {
             .maximumSize(1000)
             .expireAfterAccess(1, TimeUnit.HOURS)
             .build(key -> {
+                log.debug("No team comp cache, fetching...");
                 String json = Pipe.from(new URL(key)).toString();
                 return new Gson().fromJson(json, SpotRecommendation.class);
             });
@@ -39,18 +43,24 @@ public class TeamCompAnalyzer {
         for (int i = 0; i < 5; i++) {
             Position spotPosition = spotToPosition(i);
             if (allyTeam.containsKey(spotPosition)) {
-                if (allyTeam.get(spotPosition) == null) continue;
+                if (allyTeam.get(spotPosition) == null) {
+                    continue;
+                }
                 spots.append("spot").append(i).append("=").append(allyTeam.get(spotPosition).getId()).append("&");
             }
         }
         for (int i = 0; i < 5; i++) {
             for (Champion champion : enemyTeam) {
-                if (champion == null) continue;
+                if (champion == null) {
+                    continue;
+                }
                 spots.append("spot").append(i + 5).append("=").append(champion.getId()).append("&");
             }
         }
         for (Champion ban : bans) {
-            if (ban == null) continue;
+            if (ban == null) {
+                continue;
+            }
             spots.append("bans").append("=").append(ban.getId()).append("&");
         }
         return API_URL
@@ -77,22 +87,23 @@ public class TeamCompAnalyzer {
         analyzer.analyze(Position.UTILITY, Champion.getById(53), allyTeam, enemyTeam, new ArrayList<>());
     }
 
-    public TeamComp analyze(Position position, Champion playerChampion, Map<Position, Champion> allyTeam, List<Champion> enemyTeam, List<Champion> bans) throws IOException {
+    public void analyze(Position position, Champion playerChampion, Map<Position, Champion> allyTeam, List<Champion> enemyTeam, List<Champion> bans) throws IOException {
         String url = createUrl(position, allyTeam, enemyTeam, bans);
         SpotRecommendation spotRecommendation = cache.get(url);
         if (spotRecommendation == null) {
-            System.out.println("No recommendation found");
-            return null;
+            log.debug("No recommendation found");
+            return;
         }
         TeamComp comp = new TeamComp();
         if (playerChampion != null) {
-            if (spotRecommendation.championSpotInfo != null && spotRecommendation.championSpotInfo.get(playerChampion.getId()) != null) {
+            if (spotRecommendation.championSpotInfo != null &&
+                    spotRecommendation.championSpotInfo.get(playerChampion.getId()) != null) {
                 comp.playerPicked = new TeamCompChampion(playerChampion, spotRecommendation.championWinRates.stream()
                         .filter(championWinRate -> championWinRate.championId == playerChampion.getId())
                         .findFirst()
                         .map(championWinRate -> championWinRate.winRate)
                         .orElse(null), spotRecommendation.championSpotInfo.get(playerChampion.getId()).playRate);
-                System.out.println("Player picked " + playerChampion.getName() + ", win rate: " +
+                log.debug("Player picked " + playerChampion.getName() + ", win rate: " +
                         toPercentage(spotRecommendation.championWinRates.stream()
                                 .filter(championWinRate -> championWinRate.championId == playerChampion.getId())
                                 .findFirst()
@@ -103,25 +114,22 @@ public class TeamCompAnalyzer {
         spotRecommendation.championWinRates
                 .forEach(championWinRate -> {
                     comp.suggestions.add(new TeamCompChampion(Champion.getById(championWinRate.championId), championWinRate.winRate, spotRecommendation.championSpotInfo.get(championWinRate.championId).playRate));
-                    System.out.println(Champion.getById(championWinRate.championId).getName() + ": " +
+                    log.debug(Champion.getById(championWinRate.championId).getName() + ": " +
                             toPercentage(championWinRate.winRate));
                 });
-        System.out.println();
-        System.out.println("Team comp win rate: " + toPercentage(spotRecommendation.winRate));
+        log.debug("Team comp win rate: " + toPercentage(spotRecommendation.winRate));
         EventBus.publish(NotificationWindow.NotificationMessageEvent.NAME, new NotificationWindow.NotificationMessageEvent(
                 "Estimated win rate: " + toPercentage(spotRecommendation.winRate)));
-        System.out.println();
         if (spotRecommendation.options != null && !spotRecommendation.options.isEmpty()) {
-            System.out.println("Most probable assignments:");
+            log.debug("Most probable assignments:");
             List<ChampionSpot> assignment = spotRecommendation.options.get(0).assignment;
             for (ChampionSpot championSpot : assignment) {
-                System.out.println(
+                log.debug(
                         Champion.getById(championSpot.championId).getName() + ": " + spotToPosition(championSpot.spot));
                 comp.estimatedPosition.put(Champion.getById(championSpot.championId), spotToPosition(championSpot.spot));
             }
         }
         EventBus.publish(TeamCompAnalysisEvent.NAME, new TeamCompAnalysisEvent(comp));
-        return comp;
     }
 
     private String toPercentage(Double v) {
@@ -129,41 +137,25 @@ public class TeamCompAnalyzer {
     }
 
     private static int getPositionIndex(Position position) {
-        switch (position) {
-            case TOP:
-                return 0;
-            case JUNGLE:
-                return 1;
-            case MIDDLE:
-                return 2;
-            case BOTTOM:
-                return 3;
-            case UTILITY:
-                return 4;
-        }
-        return 0;
+        return switch (position) {
+            case TOP -> 0;
+            case JUNGLE -> 1;
+            case MIDDLE -> 2;
+            case BOTTOM -> 3;
+            case UTILITY -> 4;
+            default -> 0;
+        };
     }
 
     private static Position spotToPosition(int spot) {
-        switch (spot) {
-            case 0:
-            case 5:
-                return Position.TOP;
-            case 1:
-            case 6:
-                return Position.JUNGLE;
-            case 2:
-            case 7:
-                return Position.MIDDLE;
-            case 3:
-            case 8:
-                return Position.BOTTOM;
-            case 4:
-            case 9:
-                return Position.UTILITY;
-            default:
-                return Position.UNSELECTED;
-        }
+        return switch (spot) {
+            case 0, 5 -> Position.TOP;
+            case 1, 6 -> Position.JUNGLE;
+            case 2, 7 -> Position.MIDDLE;
+            case 3, 8 -> Position.BOTTOM;
+            case 4, 9 -> Position.UTILITY;
+            default -> Position.UNSELECTED;
+        };
     }
 
     public static class TeamCompAnalysisEvent implements BusEvent {

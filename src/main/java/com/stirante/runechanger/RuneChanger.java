@@ -298,6 +298,7 @@ public class RuneChanger implements Launcher {
             api.addClientConnectionListener(new ClientConnectionListener() {
                 @Override
                 public void onClientConnected() {
+                    log.info("Client connected");
                     AnalyticsUtil.beginSession();
                     if (!api.getClientPath()
                             .equalsIgnoreCase(SimplePreferences.getStringValue(SimplePreferences.InternalKeys.CLIENT_PATH, null))) {
@@ -403,18 +404,6 @@ public class RuneChanger implements Launcher {
             PerformanceMonitor.stop();
             log.info("Perfmon stopped");
         }));
-        EXECUTOR_SERVICE.submit(AutoUpdater::checkUpdate);
-        if (!SimplePreferences.getBooleanValue(SimplePreferences.InternalKeys.ASKED_ANALYTICS, false)) {
-            FxUtils.doOnFxThread(() -> {
-                boolean analytics = Settings.openYesNoDialog(
-                        LangHelper.getLang().getString("analytics_dialog_title"),
-                        LangHelper.getLang().getString("analytics_dialog_message")
-                );
-                AnalyticsUtil.onConsent(analytics);
-                SimplePreferences.putBooleanValue(SimplePreferences.InternalKeys.ASKED_ANALYTICS, true);
-                SimplePreferences.putBooleanValue(SimplePreferences.SettingsKeys.ANALYTICS, analytics);
-            });
-        }
         AnalyticsUtil.init(api.isConnected());
         EventBus.register(this);
     }

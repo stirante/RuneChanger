@@ -11,7 +11,6 @@ module RuneChanger {
     requires jdk.crypto.ec;
     requires lol.client.java.api;
     requires com.jfoenix;
-    requires slf4j.api;
     requires com.sun.jna;
     requires logback.classic;
     requires logback.core;
@@ -23,10 +22,11 @@ module RuneChanger {
     requires mslinks;
     requires com.github.benmanes.caffeine;
     requires com.google.gson;
-    requires core;
     requires java;
     requires com.stirante.eventbus;
     requires com.stirante.justpipe;
+    requires org.slf4j;
+    requires core;
 
     exports com.stirante.runechanger;
     exports com.stirante.runechanger.gui;

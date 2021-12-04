@@ -271,6 +271,7 @@ public class ChampionSelection extends ClientModule {
         if (event.getEventType() == ClientEventListener.WebSocketEventType.DELETE) {
             clearSession();
             EventBus.publish(ChampionSelectionEndEvent.NAME, new ChampionSelectionEndEvent());
+            EventBus.publish(TeamCompAnalyzer.TeamCompAnalysisEvent.NAME, new TeamCompAnalyzer.TeamCompAnalysisEvent(null));
         }
         else {
             Champion oldChampion = champion;
@@ -309,7 +310,11 @@ public class ChampionSelection extends ClientModule {
                     }
                 }
             }
-            if (isPositionSelector() && selectedPosition != null && (!allyTeam.isEmpty() || !enemyTeam.isEmpty()) &&
+            if (DebugConsts.FORCE_TEAM_COMP_ANALYSIS) {
+                selectedPosition = Position.UTILITY;
+            }
+            if ((isPositionSelector() || DebugConsts.FORCE_TEAM_COMP_ANALYSIS) && selectedPosition != null &&
+                    (!allyTeam.isEmpty() || !enemyTeam.isEmpty()) &&
                     teamChanged) {
                 System.out.println("Team changed, analyzing new team");
                 RuneChanger.EXECUTOR_SERVICE.submit(() -> {
@@ -357,10 +362,12 @@ public class ChampionSelection extends ClientModule {
     }
 
     public void selectChampion(Champion champion) {
-        if (action == null) {
-            return;
-        }
         try {
+            if (action == null) {
+                log.debug("No action to select champion");
+                getApi().executePost("/lol-champ-select/v1/current-champion", champion.getId());
+                return;
+            }
             if (getGameMode() == GameMode.ONEFORALL) {
                 getApi().executePost("/lol-champ-select/v1/current-champion", champion.getId());
             }
