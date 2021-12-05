@@ -1,6 +1,6 @@
 package com.stirante.runechanger.gui.controllers;
 
-import com.stirante.runechanger.gui.components.Button;
+import com.stirante.runechanger.gui.components.RCButton;
 import com.stirante.runechanger.util.LangHelper;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -16,7 +16,7 @@ public class SettingsButtonController {
     private final Pane root;
 
     @FXML
-    private Button button;
+    private RCButton button;
     @FXML
     private Line separator;
 

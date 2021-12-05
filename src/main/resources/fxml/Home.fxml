@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import com.stirante.runechanger.gui.components.Button?>
+<?import com.stirante.runechanger.gui.components.RCButton?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.Tooltip?>
@@ -16,12 +16,12 @@
    <Label fx:id="username" layoutX="320.0" layoutY="186.0" prefHeight="24.0" prefWidth="140.0" styleClass="header" />
    <Label fx:id="localRunesTitle" layoutY="18.0" prefHeight="24.0" prefWidth="264.0" styleClass="header" text="LOCAL RUNES (2/2)" />
    <ListView fx:id="localRunesList" layoutY="42.0" prefHeight="255.0" prefWidth="282.0" />
-   <Button fx:id="disenchantChampionsButton" layoutX="307.0" layoutY="215.0" height="35.0" width="167.0"
-           onAction="#onChampionDisenchant" text="%disenchant_champions"/>
-   <Button fx:id="syncButton" layoutX="307.0" layoutY="265.0" height="35.0" width="167.0"
-           onAction="#onSync" text="%sync_pages">
+   <RCButton fx:id="disenchantChampionsButton" layoutX="307.0" layoutY="215.0" height="35.0" width="167.0"
+             onAction="#onChampionDisenchant" text="%disenchant_champions"/>
+   <RCButton fx:id="syncButton" layoutX="307.0" layoutY="265.0" height="35.0" width="167.0"
+             onAction="#onSync" text="%sync_pages">
       <tooltip>
          <Tooltip text="%auto_sync_pages_message" />
       </tooltip>
-   </Button>
+   </RCButton>
 </Pane>

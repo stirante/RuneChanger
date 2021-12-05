@@ -1,11 +1,14 @@
 package com.stirante.runechanger.gui.controllers;
 
 import com.stirante.runechanger.gui.Content;
+import com.stirante.runechanger.model.app.Version;
 import com.stirante.runechanger.model.client.Champion;
 import com.stirante.runechanger.util.LangHelper;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
@@ -17,7 +20,10 @@ import org.controlsfx.control.textfield.AutoCompletionBinding;
 import org.controlsfx.control.textfield.TextFields;
 import org.slf4j.LoggerFactory;
 
+import java.awt.Desktop;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -28,10 +34,11 @@ public class MainController {
 
     public TextField search;
     public ImageView back;
-//    public Button report;
+    public Button report;
     public Pane fullContentPane;
     public Pane contentPane;
     public Pane container;
+    public Label versionLbl;
 
     private Consumer<Champion> searchHandler;
 
@@ -63,7 +70,8 @@ public class MainController {
         autoCompletion.setOnAutoCompleted(this::onSearch);
         autoCompletion.prefWidthProperty().bind(search.widthProperty());
         back.setVisible(false);
-//        report.getTooltip().setShowDelay(Duration.ZERO);
+        versionLbl.setText(String.format("v%s", Version.INSTANCE.version));
+        report.getTooltip().setShowDelay(Duration.ZERO);
     }
 
     public void setFullContent(Content content) {
@@ -75,7 +83,7 @@ public class MainController {
         fullContentPane.getChildren().add(content.getNode());
         fullContentPane.setVisible(true);
         contentPane.setVisible(false);
-//        report.setVisible(false);
+        report.setVisible(false);
         back.setVisible(true);
     }
 
@@ -88,7 +96,7 @@ public class MainController {
         contentPane.getChildren().add(content.getNode());
         contentPane.setVisible(true);
         fullContentPane.setVisible(false);
-//        report.setVisible(true);
+        report.setVisible(true);
         back.setVisible(false);
     }
 
@@ -140,7 +148,16 @@ public class MainController {
         fullContentPane.getChildren().clear();
         contentPane.setVisible(true);
         fullContentPane.setVisible(false);
-//        report.setVisible(true);
+        report.setVisible(true);
         back.setVisible(false);
+    }
+
+    @FXML
+    public void onBugReport(ActionEvent event) {
+        try {
+            Desktop.getDesktop().browse(new URI("https://github.com/stirante/RuneChanger/issues"));
+        } catch (IOException | URISyntaxException e) {
+            log.warn("Failed to open bug report page", e);
+        }
     }
 }

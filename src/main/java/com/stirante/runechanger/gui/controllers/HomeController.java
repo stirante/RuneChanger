@@ -3,9 +3,8 @@ package com.stirante.runechanger.gui.controllers;
 import com.stirante.runechanger.RuneChanger;
 import com.stirante.runechanger.client.Loot;
 import com.stirante.runechanger.gui.Content;
-import com.stirante.runechanger.gui.GuiHandler;
 import com.stirante.runechanger.gui.Settings;
-import com.stirante.runechanger.gui.components.Button;
+import com.stirante.runechanger.gui.components.RCButton;
 import com.stirante.runechanger.model.client.ChampionBuild;
 import com.stirante.runechanger.util.LangHelper;
 import com.stirante.runechanger.util.SimplePreferences;
@@ -42,8 +41,8 @@ public class HomeController implements Content {
     public ImageView emptyProfilePicture;
     public Label username;
     public Label localRunesTitle;
-    public Button disenchantChampionsButton;
-    public Button syncButton;
+    public RCButton disenchantChampionsButton;
+    public RCButton syncButton;
     public ListView<ChampionBuild> localRunesList;
 
     public final ObservableList<ChampionBuild> localRunes = FXCollections.observableArrayList();

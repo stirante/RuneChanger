@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import com.stirante.runechanger.gui.components.Button?>
+<?import com.stirante.runechanger.gui.components.RCButton?>
 
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.shape.*?>
 
 <Pane prefHeight="50" prefWidth="533" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
-    <Button fx:id="button" layoutX="14.0" layoutY="8.0" height="35.0" width="167.0" />
+    <RCButton fx:id="button" layoutX="14.0" layoutY="8.0" height="35.0" width="167.0" />
     <Line fx:id="separator" endX="530.0" layoutY="48.5" stroke="#c7a96d42" strokeWidth="3.0" />
 </Pane>

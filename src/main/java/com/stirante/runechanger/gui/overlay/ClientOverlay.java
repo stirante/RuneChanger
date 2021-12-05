@@ -96,7 +96,9 @@ public class ClientOverlay extends JPanel implements MouseMotionListener, MouseL
     }
 
     void repaintLater() {
-        timer.restart();
+        if (timer != null) {
+            timer.restart();
+        }
     }
 
     public SceneType getSceneType() {

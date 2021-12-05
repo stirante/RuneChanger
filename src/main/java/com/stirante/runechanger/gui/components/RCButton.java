@@ -14,7 +14,7 @@ import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 import javafx.util.Pair;
 
-public class Button extends Component {
+public class RCButton extends Component {
     private static final int STATE_DEFAULT = 0;
     private static final int STATE_HOVERED = 1;
     private static final int STATE_PRESSED = 2;
@@ -30,7 +30,7 @@ public class Button extends Component {
 
         @Override
         public Object getBean() {
-            return Button.this;
+            return RCButton.this;
         }
 
         @Override
@@ -44,7 +44,7 @@ public class Button extends Component {
     private final Image[] side = new Image[4];
     private final Image[] center = new Image[4];
 
-    public Button() {
+    public RCButton() {
         super();
         //Invalidate currently rendered element on change
         textProperty().addListener(this::invalidated);
@@ -83,10 +83,10 @@ public class Button extends Component {
                     // install / uninstall
                     if (t != old) {
                         if (old != null) {
-                            Tooltip.uninstall(Button.this, old);
+                            Tooltip.uninstall(RCButton.this, old);
                         }
                         if (t != null) {
-                            Tooltip.install(Button.this, t);
+                            Tooltip.install(RCButton.this, t);
                         }
                         old = t;
                     }
@@ -94,7 +94,7 @@ public class Button extends Component {
 
                 @Override
                 public Object getBean() {
-                    return Button.this;
+                    return RCButton.this;
                 }
 
                 @Override

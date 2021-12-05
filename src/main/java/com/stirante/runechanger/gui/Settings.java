@@ -195,265 +195,271 @@ public class Settings extends Application {
 
     @Override
     public void start(Stage stage) {
-        instance = this;
-        runeChanger = RuneChanger.getInstance();
-        mainStage = stage;
+        try {
+            instance = this;
+            runeChanger = RuneChanger.getInstance();
+            mainStage = stage;
 
-        mainStage.initStyle(StageStyle.TRANSPARENT);
-        mainStage.setTitle(Constants.APP_NAME);
-        mainStage.getIcons()
-                .addAll(
-                        new Image(getClass().getResource("/images/32.png").toExternalForm()),
-                        new Image(getClass().getResource("/images/256.png").toExternalForm()),
-                        new Image(getClass().getResource("/images/48.png").toExternalForm())
-                );
+            mainStage.initStyle(StageStyle.TRANSPARENT);
+            mainStage.setTitle(Constants.APP_NAME);
+            mainStage.getIcons()
+                    .addAll(
+                            new Image(getClass().getResource("/images/32.png").toExternalForm()),
+                            new Image(getClass().getResource("/images/256.png").toExternalForm()),
+                            new Image(getClass().getResource("/images/48.png").toExternalForm())
+                    );
 
-        mainStage.addEventHandler(KeyEvent.KEY_RELEASED, event -> {
-            if (event.isControlDown() && event.getCode() == KeyCode.D) {
-                if (PerformanceMonitor.isRunning()) {
-                    ProgressDialogController progressDialog = new ProgressDialogController();
-                    progressDialog.setTitle("Saving performance monitor output");
-                    progressDialog.setProgress(ProgressBar.INDETERMINATE_PROGRESS);
-                    progressDialog.show();
-                    new AsyncTask<Void, Void, Void>() {
+            mainStage.addEventHandler(KeyEvent.KEY_RELEASED, event -> {
+                if (event.isControlDown() && event.getCode() == KeyCode.D) {
+                    if (PerformanceMonitor.isRunning()) {
+                        ProgressDialogController progressDialog = new ProgressDialogController();
+                        progressDialog.setTitle("Saving performance monitor output");
+                        progressDialog.setProgress(ProgressBar.INDETERMINATE_PROGRESS);
+                        progressDialog.show();
+                        new AsyncTask<Void, Void, Void>() {
+                            @Override
+                            public Void doInBackground(Void[] params) {
+                                PerformanceMonitor.stop();
+                                return null;
+                            }
+
+                            @Override
+                            public void onPostExecute(Void result) {
+                                progressDialog.close();
+                                RuneChanger.getInstance()
+                                        .getGuiHandler()
+                                        .showInfoMessage("Performance monitor output saved");
+                            }
+                        }.execute();
+                    }
+                    else {
+                        PerformanceMonitor.start();
+                        RuneChanger.getInstance().getGuiHandler().showInfoMessage("Performance monitor started");
+                    }
+                }
+                else if (event.isControlDown() && event.getCode() == KeyCode.L) {
+                    Alert alert = new Alert(Alert.AlertType.NONE);
+                    alert.setTitle("LCU connection debug");
+                    alert.setHeaderText("Creating debug log of LCU connection");
+                    alert.setContentText(null);
+                    alert.setOnCloseRequest(event1 -> alert.close());
+
+
+                    TextArea textArea = new TextArea("");
+                    textArea.setEditable(false);
+                    textArea.setWrapText(true);
+
+                    textArea.setMaxWidth(Double.MAX_VALUE);
+                    textArea.setMaxHeight(Double.MAX_VALUE);
+                    GridPane.setVgrow(textArea, Priority.ALWAYS);
+                    GridPane.setHgrow(textArea, Priority.ALWAYS);
+
+                    GridPane expContent = new GridPane();
+                    expContent.setMaxWidth(Double.MAX_VALUE);
+                    expContent.add(textArea, 0, 1);
+
+                    alert.getDialogPane().setContent(expContent);
+
+                    alert.show();
+                    new AsyncTask<Void, String, Void>() {
                         @Override
                         public Void doInBackground(Void[] params) {
-                            PerformanceMonitor.stop();
+                            ClientApi.generateDebugLog(this::publishProgress);
                             return null;
                         }
 
                         @Override
+                        public void onProgress(String progress) {
+                            super.onProgress(progress);
+                            textArea.setText(textArea.getText() + "\n" + progress);
+                            textArea.selectPositionCaret(textArea.getLength());
+                            textArea.deselect();
+                        }
+
+                        @Override
                         public void onPostExecute(Void result) {
-                            progressDialog.close();
-                            RuneChanger.getInstance()
-                                    .getGuiHandler()
-                                    .showInfoMessage("Performance monitor output saved");
+                            alert.setHeaderText("Done!");
+                            ButtonType copy = new ButtonType("Copy");
+                            alert.getButtonTypes().addAll(copy, ButtonType.OK);
+                            alert.resultProperty().addListener((observable, oldValue, newValue) -> {
+                                if (newValue == copy) {
+                                    StringSelection selection = new StringSelection(textArea.getText());
+                                    Toolkit.getDefaultToolkit().getSystemClipboard().setContents(selection, selection);
+                                }
+                                alert.close();
+                            });
                         }
                     }.execute();
                 }
-                else {
-                    PerformanceMonitor.start();
-                    RuneChanger.getInstance().getGuiHandler().showInfoMessage("Performance monitor started");
-                }
-            }
-            else if (event.isControlDown() && event.getCode() == KeyCode.L) {
-                Alert alert = new Alert(Alert.AlertType.NONE);
-                alert.setTitle("LCU connection debug");
-                alert.setHeaderText("Creating debug log of LCU connection");
-                alert.setContentText(null);
-                alert.setOnCloseRequest(event1 -> alert.close());
-
-
-                TextArea textArea = new TextArea("");
-                textArea.setEditable(false);
-                textArea.setWrapText(true);
-
-                textArea.setMaxWidth(Double.MAX_VALUE);
-                textArea.setMaxHeight(Double.MAX_VALUE);
-                GridPane.setVgrow(textArea, Priority.ALWAYS);
-                GridPane.setHgrow(textArea, Priority.ALWAYS);
-
-                GridPane expContent = new GridPane();
-                expContent.setMaxWidth(Double.MAX_VALUE);
-                expContent.add(textArea, 0, 1);
-
-                alert.getDialogPane().setContent(expContent);
-
-                alert.show();
-                new AsyncTask<Void, String, Void>() {
-                    @Override
-                    public Void doInBackground(Void[] params) {
-                        ClientApi.generateDebugLog(this::publishProgress);
-                        return null;
+                else if (event.isControlDown() && event.getCode() == KeyCode.T) {
+                    // I'm sorry, this is very experimental and POC and ugly
+                    if (!RuneChanger.getInstance().getApi().isConnected()) {
+                        RuneChanger.getInstance().getGuiHandler().showWarningMessage("Not connected to client!");
+                        return;
                     }
+                    Dialog<Pair<String, String>> dialog = new Dialog<>();
+                    dialog.setTitle("Crafting (suuuper test version)");
+                    dialog.setHeaderText(null);
+                    dialog.setWidth(500);
+                    ButtonType loginButtonType = new ButtonType("Craft", ButtonBar.ButtonData.OK_DONE);
+                    dialog.getDialogPane().getButtonTypes().addAll(loginButtonType, ButtonType.CANCEL);
 
-                    @Override
-                    public void onProgress(String progress) {
-                        super.onProgress(progress);
-                        textArea.setText(textArea.getText() + "\n" + progress);
-                        textArea.selectPositionCaret(textArea.getLength());
-                        textArea.deselect();
-                    }
+                    GridPane grid = new GridPane();
+                    grid.setMinWidth(500);
+                    grid.setHgap(10);
+                    grid.setVgap(10);
+                    grid.setPadding(new Insets(10, 10, 10, 10));
 
-                    @Override
-                    public void onPostExecute(Void result) {
-                        alert.setHeaderText("Done!");
-                        ButtonType copy = new ButtonType("Copy");
-                        alert.getButtonTypes().addAll(copy, ButtonType.OK);
-                        alert.resultProperty().addListener((observable, oldValue, newValue) -> {
-                            if (newValue == copy) {
-                                StringSelection selection = new StringSelection(textArea.getText());
-                                Toolkit.getDefaultToolkit().getSystemClipboard().setContents(selection, selection);
-                            }
-                            alert.close();
-                        });
-                    }
-                }.execute();
-            }
-            else if (event.isControlDown() && event.getCode() == KeyCode.T) {
-                // I'm sorry, this is very experimental and POC and ugly
-                if (!RuneChanger.getInstance().getApi().isConnected()) {
-                    RuneChanger.getInstance().getGuiHandler().showWarningMessage("Not connected to client!");
-                    return;
-                }
-                Dialog<Pair<String, String>> dialog = new Dialog<>();
-                dialog.setTitle("Crafting (suuuper test version)");
-                dialog.setHeaderText(null);
-                dialog.setWidth(500);
-                ButtonType loginButtonType = new ButtonType("Craft", ButtonBar.ButtonData.OK_DONE);
-                dialog.getDialogPane().getButtonTypes().addAll(loginButtonType, ButtonType.CANCEL);
+                    ChoiceBox<Map.Entry<String, Pair<String, Integer>>> tokens = new ChoiceBox<>();
+                    tokens.setConverter(new StringConverter<>() {
+                        @Override
+                        public String toString(Map.Entry<String, Pair<String, Integer>> object) {
+                            return object != null ? object.getValue().getKey() : null;
+                        }
 
-                GridPane grid = new GridPane();
-                grid.setMinWidth(500);
-                grid.setHgap(10);
-                grid.setVgap(10);
-                grid.setPadding(new Insets(10, 10, 10, 10));
-
-                ChoiceBox<Map.Entry<String, Pair<String, Integer>>> tokens = new ChoiceBox<>();
-                tokens.setConverter(new StringConverter<>() {
-                    @Override
-                    public String toString(Map.Entry<String, Pair<String, Integer>> object) {
-                        return object != null ? object.getValue().getKey() : null;
-                    }
-
-                    @Override
-                    public Map.Entry<String, Pair<String, Integer>> fromString(String string) {
-                        return tokens.getItems()
-                                .stream()
-                                .filter(stringPairEntry -> stringPairEntry.getValue().getKey().equals(string))
-                                .findFirst()
-                                .orElse(null);
-                    }
-                });
-                ChoiceBox<Map.Entry<String, Pair<String, Integer>>> recipes = new ChoiceBox<>();
-                recipes.setDisable(true);
-                recipes.setConverter(new StringConverter<>() {
-                    @Override
-                    public String toString(Map.Entry<String, Pair<String, Integer>> object) {
-                        return object != null ? object.getValue().getKey() : null;
-                    }
-
-                    @Override
-                    public Map.Entry<String, Pair<String, Integer>> fromString(String string) {
-                        return recipes.getItems()
-                                .stream()
-                                .filter(stringPairEntry -> stringPairEntry.getValue().getKey().equals(string))
-                                .findFirst()
-                                .orElse(null);
-                    }
-                });
-                tokens.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-                    recipes.setDisable(newValue == null);
-                    if (newValue != null) {
-                        recipes.setItems(FXCollections.observableList(new ArrayList<>(RuneChanger.getInstance()
-                                .getLootModule()
-                                .getRecipes(newValue.getKey())
-                                .entrySet())));
-                    }
-                    else {
-                        recipes.getItems().clear();
-                    }
-                });
-                tokens.setItems(FXCollections.observableList(new ArrayList<>(RuneChanger.getInstance()
-                        .getLootModule()
-                        .getEventTokens()
-                        .entrySet())));
-
-                grid.add(new Label("Event token:"), 0, 0);
-                grid.add(tokens, 1, 0);
-                grid.add(new Label("Recipe:"), 0, 1);
-                grid.add(recipes, 1, 1);
-
-                Node craftButton = dialog.getDialogPane().lookupButton(loginButtonType);
-                craftButton.setDisable(true);
-
-                recipes.getSelectionModel().selectedItemProperty()
-                        .addListener((observable, oldValue, newValue) -> craftButton.setDisable(newValue == null));
-
-                dialog.getDialogPane().setContent(grid);
-
-                Platform.runLater(tokens::requestFocus);
-
-                dialog.setResultConverter(dialogButton -> {
-                    if (dialogButton == loginButtonType) {
-                        return new Pair<>(tokens.getSelectionModel()
-                                .getSelectedItem()
-                                .getKey(), recipes.getSelectionModel().getSelectedItem().getKey());
-                    }
-                    return null;
-                });
-
-                Optional<Pair<String, String>> result = dialog.showAndWait();
-
-                result.ifPresent(tokenRecipePair -> {
-                    Map.Entry<String, Pair<String, Integer>> token =
-                            tokens.getSelectionModel().selectedItemProperty().get();
-                    Map.Entry<String, Pair<String, Integer>> recipe =
-                            recipes.getSelectionModel().selectedItemProperty().get();
-                    int repeat = token.getValue().getValue() / recipe.getValue().getValue();
-                    if (repeat == 0) {
-                        runeChanger.getGuiHandler().showWarningMessage("You don't have enough tokens!");
-                    }
-                    else {
-                        runeChanger.getGuiHandler().showInfoMessage("Trying to craft the recipe " + repeat + " times");
-                        runeChanger.getLootModule().craftRecipe(recipe.getKey(), token.getKey(), repeat);
-                    }
-                });
-            }
-            else if (event.isControlDown() && event.getCode() == KeyCode.Y) {
-                Dialog<Boolean> dialog = new Dialog<>();
-                dialog.setTitle("Banning (for lagging client)");
-                dialog.setHeaderText(null);
-                dialog.setWidth(500);
-                ButtonType ban = new ButtonType("Ban", ButtonBar.ButtonData.OK_DONE);
-                dialog.getDialogPane().getButtonTypes().addAll(ban, ButtonType.CANCEL);
-                StackPane sp = new StackPane();
-                TextField search = new TextField();
-                AutoCompletionBinding<String> autoCompletion =
-                        TextFields.bindAutoCompletion(search, (AutoCompletionBinding.ISuggestionRequest param) -> {
-                            if (param.getUserText().isEmpty()) {
-                                return new ArrayList<>();
-                            }
-                            return FuzzySearch
-                                    .extractSorted(param.getUserText(), Champion.values(), Champion::getName, 3)
+                        @Override
+                        public Map.Entry<String, Pair<String, Integer>> fromString(String string) {
+                            return tokens.getItems()
                                     .stream()
-                                    .map(championBoundExtractedResult -> championBoundExtractedResult.getReferent()
-                                            .getName())
-                                    .collect(Collectors.toList());
-                        });
-                sp.getChildren().add(search);
-                autoCompletion.prefWidthProperty().bind(search.widthProperty());
-                dialog.getDialogPane().setContent(sp);
-                dialog.setResultConverter(dialogButton -> dialogButton == ban);
-                boolean selected = dialog.showAndWait().orElse(false);
-                if (selected) {
-                    Champion champion = Champion.getByName(search.getText());
-                    if (champion == null) {
-                        RuneChanger.getInstance().getGuiHandler().showWarningMessage("Invalid champion name!");
-                    }
-                    else {
-                        RuneChanger.getInstance().getChampionSelectionModule().banChampion(champion);
+                                    .filter(stringPairEntry -> stringPairEntry.getValue().getKey().equals(string))
+                                    .findFirst()
+                                    .orElse(null);
+                        }
+                    });
+                    ChoiceBox<Map.Entry<String, Pair<String, Integer>>> recipes = new ChoiceBox<>();
+                    recipes.setDisable(true);
+                    recipes.setConverter(new StringConverter<>() {
+                        @Override
+                        public String toString(Map.Entry<String, Pair<String, Integer>> object) {
+                            return object != null ? object.getValue().getKey() : null;
+                        }
+
+                        @Override
+                        public Map.Entry<String, Pair<String, Integer>> fromString(String string) {
+                            return recipes.getItems()
+                                    .stream()
+                                    .filter(stringPairEntry -> stringPairEntry.getValue().getKey().equals(string))
+                                    .findFirst()
+                                    .orElse(null);
+                        }
+                    });
+                    tokens.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+                        recipes.setDisable(newValue == null);
+                        if (newValue != null) {
+                            recipes.setItems(FXCollections.observableList(new ArrayList<>(RuneChanger.getInstance()
+                                    .getLootModule()
+                                    .getRecipes(newValue.getKey())
+                                    .entrySet())));
+                        }
+                        else {
+                            recipes.getItems().clear();
+                        }
+                    });
+                    tokens.setItems(FXCollections.observableList(new ArrayList<>(RuneChanger.getInstance()
+                            .getLootModule()
+                            .getEventTokens()
+                            .entrySet())));
+
+                    grid.add(new Label("Event token:"), 0, 0);
+                    grid.add(tokens, 1, 0);
+                    grid.add(new Label("Recipe:"), 0, 1);
+                    grid.add(recipes, 1, 1);
+
+                    Node craftButton = dialog.getDialogPane().lookupButton(loginButtonType);
+                    craftButton.setDisable(true);
+
+                    recipes.getSelectionModel().selectedItemProperty()
+                            .addListener((observable, oldValue, newValue) -> craftButton.setDisable(newValue == null));
+
+                    dialog.getDialogPane().setContent(grid);
+
+                    Platform.runLater(tokens::requestFocus);
+
+                    dialog.setResultConverter(dialogButton -> {
+                        if (dialogButton == loginButtonType) {
+                            return new Pair<>(tokens.getSelectionModel()
+                                    .getSelectedItem()
+                                    .getKey(), recipes.getSelectionModel().getSelectedItem().getKey());
+                        }
+                        return null;
+                    });
+
+                    Optional<Pair<String, String>> result = dialog.showAndWait();
+
+                    result.ifPresent(tokenRecipePair -> {
+                        Map.Entry<String, Pair<String, Integer>> token =
+                                tokens.getSelectionModel().selectedItemProperty().get();
+                        Map.Entry<String, Pair<String, Integer>> recipe =
+                                recipes.getSelectionModel().selectedItemProperty().get();
+                        int repeat = token.getValue().getValue() / recipe.getValue().getValue();
+                        if (repeat == 0) {
+                            runeChanger.getGuiHandler().showWarningMessage("You don't have enough tokens!");
+                        }
+                        else {
+                            runeChanger.getGuiHandler()
+                                    .showInfoMessage("Trying to craft the recipe " + repeat + " times");
+                            runeChanger.getLootModule().craftRecipe(recipe.getKey(), token.getKey(), repeat);
+                        }
+                    });
+                }
+                else if (event.isControlDown() && event.getCode() == KeyCode.Y) {
+                    Dialog<Boolean> dialog = new Dialog<>();
+                    dialog.setTitle("Banning (for lagging client)");
+                    dialog.setHeaderText(null);
+                    dialog.setWidth(500);
+                    ButtonType ban = new ButtonType("Ban", ButtonBar.ButtonData.OK_DONE);
+                    dialog.getDialogPane().getButtonTypes().addAll(ban, ButtonType.CANCEL);
+                    StackPane sp = new StackPane();
+                    TextField search = new TextField();
+                    AutoCompletionBinding<String> autoCompletion =
+                            TextFields.bindAutoCompletion(search, (AutoCompletionBinding.ISuggestionRequest param) -> {
+                                if (param.getUserText().isEmpty()) {
+                                    return new ArrayList<>();
+                                }
+                                return FuzzySearch
+                                        .extractSorted(param.getUserText(), Champion.values(), Champion::getName, 3)
+                                        .stream()
+                                        .map(championBoundExtractedResult -> championBoundExtractedResult.getReferent()
+                                                .getName())
+                                        .collect(Collectors.toList());
+                            });
+                    sp.getChildren().add(search);
+                    autoCompletion.prefWidthProperty().bind(search.widthProperty());
+                    dialog.getDialogPane().setContent(sp);
+                    dialog.setResultConverter(dialogButton -> dialogButton == ban);
+                    boolean selected = dialog.showAndWait().orElse(false);
+                    if (selected) {
+                        Champion champion = Champion.getByName(search.getText());
+                        if (champion == null) {
+                            RuneChanger.getInstance().getGuiHandler().showWarningMessage("Invalid champion name!");
+                        }
+                        else {
+                            RuneChanger.getInstance().getChampionSelectionModule().banChampion(champion);
+                        }
                     }
                 }
+            });
+
+            Platform.setImplicitExit(false);
+
+            if (!Arrays.asList(runeChanger.programArguments).contains("-minimized")) {
+                createScene();
             }
-        });
 
-        Platform.setImplicitExit(false);
-
-        if (!Arrays.asList(runeChanger.programArguments).contains("-minimized")) {
-            createScene();
-        }
-
-        donateDontAsk = SimplePreferences.getBooleanValue(SimplePreferences.InternalKeys.DONATE_DONT_ASK, false);
-        RuneChanger.EXECUTOR_SERVICE.submit(AutoUpdater::checkUpdate);
-        if (!SimplePreferences.getBooleanValue(SimplePreferences.InternalKeys.ASKED_ANALYTICS, false)) {
-            boolean analytics = Settings.openYesNoDialog(
-                    LangHelper.getLang().getString("analytics_dialog_title"),
-                    LangHelper.getLang().getString("analytics_dialog_message")
-            );
-            AnalyticsUtil.onConsent(analytics);
-            SimplePreferences.putBooleanValue(SimplePreferences.InternalKeys.ASKED_ANALYTICS, true);
-            SimplePreferences.putBooleanValue(SimplePreferences.SettingsKeys.ANALYTICS, analytics);
+            donateDontAsk = SimplePreferences.getBooleanValue(SimplePreferences.InternalKeys.DONATE_DONT_ASK, false);
+            RuneChanger.EXECUTOR_SERVICE.submit(AutoUpdater::checkUpdate);
+            if (!SimplePreferences.getBooleanValue(SimplePreferences.InternalKeys.ASKED_ANALYTICS, false)) {
+                boolean analytics = Settings.openYesNoDialog(
+                        LangHelper.getLang().getString("analytics_dialog_title"),
+                        LangHelper.getLang().getString("analytics_dialog_message")
+                );
+                AnalyticsUtil.onConsent(analytics);
+                SimplePreferences.putBooleanValue(SimplePreferences.InternalKeys.ASKED_ANALYTICS, true);
+                SimplePreferences.putBooleanValue(SimplePreferences.SettingsKeys.ANALYTICS, analytics);
+            }
+        } catch (Exception e) {
+            log.error("Failed to initialize GUI", e);
+            AnalyticsUtil.addCrashReport(e, "Failed to initialize GUI", true);
         }
     }
 
@@ -503,9 +509,7 @@ public class Settings extends Application {
                     e.printStackTrace();
                 }
                 FxUtils.doOnFxThread(() -> {
-                    String lastGrade = RuneChanger.getInstance().getChampionSelectionModule().getLastGrade();
-                    log.debug("Grade: " + lastGrade);
-                    if (lastGrade != null && lastGrade.startsWith("S")) {
+                    if (RuneChanger.getInstance().getChampionSelectionModule().wasLastGameGood()) {
                         showDonateDialog();
                     }
                 });

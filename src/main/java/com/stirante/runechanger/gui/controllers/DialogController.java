@@ -1,6 +1,6 @@
 package com.stirante.runechanger.gui.controllers;
 
-import com.stirante.runechanger.gui.components.Button;
+import com.stirante.runechanger.gui.components.RCButton;
 import com.stirante.runechanger.util.LangHelper;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -61,7 +61,7 @@ public class DialogController extends Dialog<ButtonType> {
     public void setButtonTypes(ButtonType[] buttons) {
         buttonContainer.getChildren().clear();
         for (ButtonType button : buttons) {
-            Button btn = new Button();
+            RCButton btn = new RCButton();
             btn.setText(button.getText());
             btn.setWidth(120);
             btn.setHeight(30);

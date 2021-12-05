@@ -1,21 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.Cursor?>
+<?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.shape.Line?>
 
-<Pane fx:id="container" prefHeight="500.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1">
+<?import javafx.scene.control.Tooltip?>
+<?import javafx.scene.control.Button?>
+<Pane fx:id="container" prefHeight="500.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1">
     <ImageView layoutX="-457.0" layoutY="-220.0">
         <Image url="@../images/blueBackground.png" />
     </ImageView>
-<!--     <Button fx:id="report" layoutY="460.0" mnemonicParsing="false" onAction="#onBugReport" styleClass="bug-button">-->
-<!--         <tooltip>-->
-<!--             <Tooltip text="%send_logs" />-->
-<!--         </tooltip>-->
-<!--     </Button>-->
+     <Button fx:id="report" layoutY="460.0" mnemonicParsing="false" styleClass="bug-button" onAction="#onBugReport">
+         <tooltip>
+             <Tooltip text="%report_error" />
+         </tooltip>
+     </Button>
     <Line endX="599.0" endY="45.0" startY="44.0" stroke="#c8aa6e" strokeWidth="3.0" />
     <Pane fx:id="fullContentPane" prefHeight="500.0" prefWidth="600.0" visible="false" />
     <Pane fx:id="contentPane" layoutX="80.0" layoutY="70.0" prefHeight="430.0" prefWidth="520.0" visible="false" />
@@ -47,4 +50,5 @@
          <Image url="@../images/settings.png" />
       </image>
    </ImageView>
+   <Label fx:id="versionLbl" alignment="CENTER_RIGHT" layoutX="402.0" layoutY="1.0" prefHeight="44.0" prefWidth="99.0" text="VERSION" textAlignment="RIGHT" textFill="#c8aa6e" />
 </Pane>

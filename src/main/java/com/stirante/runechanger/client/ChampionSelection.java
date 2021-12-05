@@ -439,20 +439,24 @@ public class ChampionSelection extends ClientModule {
         clearSession();
     }
 
-    public String getLastGrade() {
+    public boolean wasLastGameGood() {
         try {
-            ApiResponse<LolMatchHistoryMatchHistoryPlayerDelta> delta =
-                    getApi().executeGet("/lol-match-history/v1/delta", LolMatchHistoryMatchHistoryPlayerDelta.class);
-            if (!delta.isOk()) {
-                return null;
+            ApiResponse<LolMatchHistoryMatchHistoryList> lastMatch =
+                    getApi().executeGet("/lol-match-history/v1/products/lol/current-summoner/matches", LolMatchHistoryMatchHistoryList.class, "begIndex", "0", "endIndex", "1");
+            if (!lastMatch.isOk() || lastMatch.getResponseObject().games.games.size() > 0) {
+                return false;
             }
-            return delta.getResponseObject().deltas.stream()
-                    .map(gameDelta -> gameDelta.champMastery.grade)
-                    .findFirst()
-                    .orElse(null);
-        } catch (IOException e) {
-            log.error("Exception occurred while getting last grade", e);
-            return null;
+
+            LolMatchHistoryMatchHistoryGame game =
+                    lastMatch.getResponseObject().games.games.get(0);
+            int participantId = game.participantIdentities.stream().filter(pi -> Objects.equals(pi.player.summonerId, getCurrentSummoner().summonerId)).findFirst().orElseThrow().participantId;
+            LolMatchHistoryMatchHistoryParticipant stats =
+                    game.participants.stream().filter(p -> p.participantId == participantId).findFirst().orElseThrow();
+
+            return stats.stats.win && ((stats.stats.kills + stats.stats.assists) / (double) Math.min(1, stats.stats.deaths)) > 2;
+        } catch (Exception e) {
+            log.error("Exception occurred while getting last game", e);
+            return false;
         }
     }
 
