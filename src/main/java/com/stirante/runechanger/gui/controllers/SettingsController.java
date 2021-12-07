@@ -141,11 +141,38 @@ public class SettingsController implements Content {
             try {
                 ShortcutUtils.createDesktopShortcut();
                 ShortcutUtils.createMenuShortcuts();
-                RuneChanger.getInstance().getGuiHandler().showInfoMessage(LangHelper.getLang().getString("create_shortcuts_success"));
+                RuneChanger.getInstance()
+                        .getGuiHandler()
+                        .showInfoMessage(LangHelper.getLang().getString("create_shortcuts_success"));
             } catch (IOException e) {
                 e.printStackTrace();
-                RuneChanger.getInstance().getGuiHandler().showWarningMessage(String.format(LangHelper.getLang().getString("create_shortcuts_failure"), e.getMessage()));
+                RuneChanger.getInstance()
+                        .getGuiHandler()
+                        .showWarningMessage(String.format(LangHelper.getLang()
+                                .getString("create_shortcuts_failure"), e.getMessage()));
             }
+        }, false);
+        setupButton(APP_CATEGORY, "check_update", "check_update_tooltip", event -> {
+            AutoUpdater.resetCache();
+            RuneChanger.EXECUTOR_SERVICE.submit(() -> {
+                try {
+                    boolean needsUpdate = AutoUpdater.needsUpdate();
+                    if (needsUpdate) {
+                        AutoUpdater.checkUpdate();
+                    }
+                    else {
+                        FxUtils.doOnFxThread(() -> RuneChanger.getInstance()
+                                .getGuiHandler()
+                                .showInfoMessage(LangHelper.getLang().getString("no_update_available"))
+                        );
+                    }
+                } catch (IOException e) {
+                    log.error("Failed to check for updates", e);
+                    FxUtils.doOnFxThread(() -> RuneChanger.getInstance()
+                            .getGuiHandler()
+                            .showWarningMessage(LangHelper.getLang().getString("check_update_failure")));
+                }
+            });
         }, false);
 
         for (Source source : SourceStore.getSources()) {
@@ -164,7 +191,8 @@ public class SettingsController implements Content {
                             field.getDescKey(source.getSourceKey()),
                             s -> {
                                 //noinspection unchecked
-                                if (field.getValidator() == null || (((Predicate<Boolean>) field.getValidator()).test(s))) {
+                                if (field.getValidator() == null ||
+                                        (((Predicate<Boolean>) field.getValidator()).test(s))) {
                                     Platform.runLater(() -> {
                                         SourceStore.updateSourceSettings(source);
                                     });
@@ -186,7 +214,8 @@ public class SettingsController implements Content {
                             field.getDescKey(source.getSourceKey()),
                             s -> {
                                 //noinspection unchecked
-                                if (field.getValidator() == null || (((Predicate<String>) field.getValidator()).test(s))) {
+                                if (field.getValidator() == null ||
+                                        (((Predicate<String>) field.getValidator()).test(s))) {
                                     Platform.runLater(() -> {
                                         SourceStore.updateSourceSettings(source);
                                     });
