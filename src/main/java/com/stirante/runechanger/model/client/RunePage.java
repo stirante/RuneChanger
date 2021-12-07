@@ -13,6 +13,13 @@ import java.util.List;
 import java.util.Objects;
 
 public class RunePage {
+    public static final int[][] MODIFIER_ORDERS = new int[][]{
+            {0, 2, 1},
+            {1, 0, 2},
+            {1, 2, 0},
+            {2, 0, 1},
+            {2, 1, 0}
+    };
     private static final Logger log = LoggerFactory.getLogger(RunePage.class);
     public static final int VERSION = 0x2;
     private final ArrayList<Rune> runes = new ArrayList<>(6);
@@ -113,7 +120,7 @@ public class RunePage {
     }
 
     /**
-     * Tries to fix rune order
+     * Tries to fix rune and modifier order
      */
     public void fixOrder() {
         if (getRunes().size() != 6) {
@@ -125,6 +132,33 @@ public class RunePage {
         runes.sort((o1, o2) -> (o1.getStyle() == o2.getStyle()) ?
                 Integer.compare(o1.getSlot(), o2.getSlot()) :
                 (o1.getStyle() == mainStyle ? -1 : 1));
+
+        // I know this is ugly, but it works
+        // This is just a simple bruteforce algorithm, that will check every possible order of 3 modifiers
+        if (!verifyModifiers()) {
+            List<Modifier> copy = new ArrayList<>(modifiers);
+            for (int[] order : MODIFIER_ORDERS) {
+                modifiers.clear();
+                for (int i : order) {
+                    modifiers.add(copy.get(i));
+                }
+                if (verifyModifiers()) {
+                    return;
+                }
+            }
+        }
+    }
+
+    private boolean verifyModifiers() {
+        if (modifiers.size() != 3) {
+            return false;
+        }
+        for (int i = 0; i < 3; i++) {
+            if (!modifiers.get(i).getSlots().contains(i)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     public void fixStyle() {
@@ -169,7 +203,7 @@ public class RunePage {
                 return false;
             }
         }
-        return true;
+        return verifyModifiers();
     }
 
     @Override

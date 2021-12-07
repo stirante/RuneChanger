@@ -194,5 +194,24 @@ public class SourceStore {
             }
             System.out.println(page.getRunePage());
         }
+        System.exit(0);
+    }
+
+    /**
+     * Gets build for all champions from provided source. Purely for testing whether source works locally. Don't use!
+     */
+    public static void testSourceAllChamps(RuneSource source, GameMode gameMode) throws IOException {
+        FxUtils.DEBUG_WITHOUT_TOOLKIT = true;
+        DebugConsts.enableDebugMode();
+        Champion.init();
+        SyncingListWrapper<ChampionBuild> pages = new SyncingListWrapper<>();
+        for (Champion champion : Champion.values()) {
+            source.getRunesForGame(GameData.of(champion, gameMode), pages);
+            for (ChampionBuild page : pages.getBackingList()) {
+                System.out.println(page.getRunePage());
+            }
+            pages.clear();
+        }
+        System.exit(0);
     }
 }

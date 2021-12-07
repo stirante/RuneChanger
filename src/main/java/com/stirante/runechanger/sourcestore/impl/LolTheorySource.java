@@ -115,7 +115,6 @@ public class LolTheorySource implements RuneSource {
                     }
                     List<JsonElement> collect =
                             StreamSupport.stream(shards.spliterator(), false).collect(Collectors.toList());
-                    Collections.reverse(collect);
                     for (JsonElement r : collect) {
                         p.getModifiers().add(Modifier.getById(r.getAsInt()));
                     }
@@ -145,37 +144,25 @@ public class LolTheorySource implements RuneSource {
     }
 
     private static Position getPosition(int id) {
-        switch (id) {
-            case 0:
-                return Position.TOP;
-            case 1:
-                return Position.JUNGLE;
-            case 2:
-                return Position.MIDDLE;
-            case 3:
-                return Position.BOTTOM;
-            case 4:
-                return Position.UTILITY;
-            default:
-                return Position.UNSELECTED;
-        }
+        return switch (id) {
+            case 0 -> Position.TOP;
+            case 1 -> Position.JUNGLE;
+            case 2 -> Position.MIDDLE;
+            case 3 -> Position.BOTTOM;
+            case 4 -> Position.UTILITY;
+            default -> Position.UNSELECTED;
+        };
     }
 
     private static String getPositionName(Position pos) {
-        switch (pos) {
-            case TOP:
-                return "Top";
-            case JUNGLE:
-                return "Jungle";
-            case MIDDLE:
-                return "Mid";
-            case BOTTOM:
-                return "Adc";
-            case UTILITY:
-                return "Support";
-            default:
-                return null;
-        }
+        return switch (pos) {
+            case TOP -> "Top";
+            case JUNGLE -> "Jungle";
+            case MIDDLE -> "Mid";
+            case BOTTOM -> "Adc";
+            case UTILITY -> "Support";
+            default -> null;
+        };
     }
 
     private void initPatchString() {
@@ -193,7 +180,7 @@ public class LolTheorySource implements RuneSource {
     }
 
     public static void main(String[] args) throws IOException {
-        SourceStore.testSource(new LolTheorySource(), GameMode.CLASSIC);
+        SourceStore.testSourceAllChamps(new LolTheorySource(), GameMode.CLASSIC);
     }
 
 }
