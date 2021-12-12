@@ -137,25 +137,42 @@ public class TeamCompAnalyzer {
     }
 
     private static int getPositionIndex(Position position) {
-        return switch (position) {
-            case TOP -> 0;
-            case JUNGLE -> 1;
-            case MIDDLE -> 2;
-            case BOTTOM -> 3;
-            case UTILITY -> 4;
-            default -> 0;
-        };
+        switch (position) {
+            case TOP:
+                return 0;
+            case JUNGLE:
+                return 1;
+            case MIDDLE:
+                return 2;
+            case BOTTOM:
+                return 3;
+            case UTILITY:
+                return 4;
+            default:
+                return 0;
+        }
     }
 
     private static Position spotToPosition(int spot) {
-        return switch (spot) {
-            case 0, 5 -> Position.TOP;
-            case 1, 6 -> Position.JUNGLE;
-            case 2, 7 -> Position.MIDDLE;
-            case 3, 8 -> Position.BOTTOM;
-            case 4, 9 -> Position.UTILITY;
-            default -> Position.UNSELECTED;
-        };
+        switch (spot) {
+            case 0:
+            case 5:
+                return Position.TOP;
+            case 1:
+            case 6:
+                return Position.JUNGLE;
+            case 2:
+            case 7:
+                return Position.MIDDLE;
+            case 3:
+            case 8:
+                return Position.BOTTOM;
+            case 4:
+            case 9:
+                return Position.UTILITY;
+            default:
+                return Position.UNSELECTED;
+        }
     }
 
     public static class TeamCompAnalysisEvent implements BusEvent {

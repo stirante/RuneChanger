@@ -64,7 +64,8 @@ public class LolTheorySource implements RuneSource {
             }
             String runesUrl = String.format(RUNES_URL, patchString, champion.getInternalName(), role, items);
             String sumsUrl = String.format(SUMMONER_SPELLS_URL, patchString, champion.getInternalName(), role, items);
-            return Arrays.asList(Pipe.from(new URL(runesUrl)).to(PipeExtension.JSON_OBJECT), Pipe.from(new URL(sumsUrl)).to(PipeExtension.JSON_OBJECT));
+            return Arrays.asList(Pipe.from(new URL(runesUrl)).to(PipeExtension.JSON_OBJECT), Pipe.from(new URL(sumsUrl))
+                    .to(PipeExtension.JSON_OBJECT));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -128,10 +129,10 @@ public class LolTheorySource implements RuneSource {
                         continue;
                     }
                     List<SummonerSpell> spells = StreamSupport.stream(list.get(1)
-                            .getAsJsonArray("selection")
-                            .get(0)
-                            .getAsJsonArray()
-                            .spliterator(), false)
+                                    .getAsJsonArray("selection")
+                                    .get(0)
+                                    .getAsJsonArray()
+                                    .spliterator(), false)
                             .map(jsonElement -> SummonerSpell.getByKey(jsonElement.getAsInt()))
                             .collect(Collectors.toList());
                     pages.add(ChampionBuild.builder(p).withSpells(spells).create());
@@ -144,30 +145,44 @@ public class LolTheorySource implements RuneSource {
     }
 
     private static Position getPosition(int id) {
-        return switch (id) {
-            case 0 -> Position.TOP;
-            case 1 -> Position.JUNGLE;
-            case 2 -> Position.MIDDLE;
-            case 3 -> Position.BOTTOM;
-            case 4 -> Position.UTILITY;
-            default -> Position.UNSELECTED;
-        };
+        switch (id) {
+            case 0:
+                return Position.TOP;
+            case 1:
+                return Position.JUNGLE;
+            case 2:
+                return Position.MIDDLE;
+            case 3:
+                return Position.BOTTOM;
+            case 4:
+                return Position.UTILITY;
+            default:
+                return Position.UNSELECTED;
+        }
     }
 
     private static String getPositionName(Position pos) {
-        return switch (pos) {
-            case TOP -> "Top";
-            case JUNGLE -> "Jungle";
-            case MIDDLE -> "Mid";
-            case BOTTOM -> "Adc";
-            case UTILITY -> "Support";
-            default -> null;
-        };
+        switch (pos) {
+            case TOP:
+                return "Top";
+            case JUNGLE:
+                return "Jungle";
+            case MIDDLE:
+                return "Mid";
+            case BOTTOM:
+                return "Adc";
+            case UTILITY:
+                return "Support";
+            default:
+                return null;
+        }
     }
 
     private void initPatchString() {
         try {
-            patchString = StreamSupport.stream(Pipe.from(new URL(PATCH_URL)).to(PipeExtension.JSON_ARRAY).spliterator(), false)
+            patchString = StreamSupport.stream(Pipe.from(new URL(PATCH_URL))
+                            .to(PipeExtension.JSON_ARRAY)
+                            .spliterator(), false)
                     .map(JsonElement::getAsJsonObject)
                     .map(jsonObject -> jsonObject.get("key").getAsString())
                     .map(Patch::fromString)
