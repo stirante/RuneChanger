@@ -181,15 +181,16 @@ public class AutoUpdater {
         }
     }
 
-    private static void generateConfig() throws IOException {
-        File target = new File("target");
+    private static File generateConfig(String path) throws IOException {
+        File target = new File(path, "target");
+        System.out.println(target.getAbsolutePath());
         File[] files = target.listFiles((file, s) -> s.endsWith(".zip"));
         if (files == null || files.length == 0) {
             log.error("Zip file not found inside target folder! Skipping config file generation.");
-            return;
+            return null;
         }
         File zip = files[0];
-        File imageDir = new File("image");
+        File imageDir = new File(path, "image");
         imageDir.mkdir();
         extract(zip, imageDir);
         Configuration build = Configuration.builder()
@@ -199,7 +200,7 @@ public class AutoUpdater {
                         .peek(r -> r.classpath(r.getSource().toString().endsWith(".jar")).ignoreBootConflict()))
                 .launcher(RuneChanger.class)
                 .build();
-        FileWriter writer = new FileWriter("image/dev.xml");
+        FileWriter writer = new FileWriter(new File(imageDir, "dev.xml"));
         build.write(writer);
         writer.flush();
         writer.close();
@@ -211,15 +212,22 @@ public class AutoUpdater {
                         .peek(r -> r.classpath(r.getSource().toString().endsWith(".jar"))))
                 .launcher(RuneChanger.class)
                 .build();
-        writer = new FileWriter("image/stable.xml");
+        writer = new FileWriter(new File(imageDir, "stable.xml"));
         build.write(writer);
         writer.flush();
         writer.close();
+        return imageDir;
     }
 
     public static void main(String[] args) throws Exception {
-        generateConfig();
-        Runtime.getRuntime().exec("explorer.exe \"" + new File("image").getAbsolutePath() + "\"");
+        if (args.length == 0) {
+            log.error("No arguments provided! Please provide a path to the folder with a zip.");
+            return;
+        }
+        File imageDir = generateConfig(args[0]);
+        if (imageDir != null) {
+            Runtime.getRuntime().exec("explorer.exe \"" + imageDir.getAbsolutePath() + "\"");
+        }
     }
 
     public static void checkUpdate() {

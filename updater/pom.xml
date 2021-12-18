@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.stirante.runechanger</groupId>
+        <artifactId>parent</artifactId>
+        <version>${revision}</version>
+    </parent>
+    <artifactId>updater</artifactId>
+
+    <repositories>
+        <repository>
+            <id>stirante-nexus-snapshots</id>
+            <url>https://nexus.stirante.com/repository/maven-snapshots/</url>
+        </repository>
+        <repository>
+            <id>countly</id>
+            <url>https://dl.bintray.com/countly/maven</url>
+        </repository>
+        <repository>
+            <id>sonatype</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        </repository>
+    </repositories>
+
+</project>

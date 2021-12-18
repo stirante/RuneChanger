@@ -4,13 +4,22 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.stirante</groupId>
-    <artifactId>RuneChanger</artifactId>
-    <version>1.14.3</version>
+    <groupId>com.stirante.runechanger</groupId>
+    <artifactId>parent</artifactId>
+    <version>${revision}</version>
+    <packaging>pom</packaging>
+
+    <modules>
+        <module>app</module>
+        <module>updater</module>
+        <module>package</module>
+    </modules>
 
     <properties>
         <java.version>17</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <revision>1.14.3</revision>
+        <update4j.version>1.5.7</update4j.version>
     </properties>
 
     <repositories>
@@ -28,133 +37,7 @@
         </repository>
     </repositories>
 
-    <dependencies>
-        <dependency>
-            <groupId>com.stirante</groupId>
-            <artifactId>just-pipe</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>org.update4j</groupId>
-            <artifactId>update4j</artifactId>
-            <version>1.5.7</version>
-        </dependency>
-        <dependency>
-            <groupId>org.openjfx</groupId>
-            <artifactId>javafx-base</artifactId>
-            <version>17.0.0.1</version>
-        </dependency>
-        <dependency>
-            <groupId>org.openjfx</groupId>
-            <artifactId>javafx-controls</artifactId>
-            <version>17.0.0.1</version>
-        </dependency>
-        <dependency>
-            <groupId>org.openjfx</groupId>
-            <artifactId>javafx-swing</artifactId>
-            <version>17.0.0.1</version>
-        </dependency>
-        <dependency>
-            <groupId>org.openjfx</groupId>
-            <artifactId>javafx-fxml</artifactId>
-            <version>17.0.0.1</version>
-        </dependency>
-        <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-classic</artifactId>
-            <version>1.2.7</version>
-        </dependency>
-        <dependency>
-            <groupId>com.stirante</groupId>
-            <artifactId>lol-client-java-api</artifactId>
-            <version>1.2.5-SNAPSHOT</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.stirante</groupId>
-            <artifactId>simple-event-bus</artifactId>
-            <version>1.0.1-SNAPSHOT</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.jsoup</groupId>
-            <artifactId>jsoup</artifactId>
-            <version>1.14.3</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>net.java.dev.jna</groupId>
-            <artifactId>jna</artifactId>
-            <version>5.9.0</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>net.java.dev.jna</groupId>
-            <artifactId>jna-platform</artifactId>
-            <version>5.9.0</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.jfoenix</groupId>
-            <artifactId>jfoenix</artifactId>
-            <version>9.0.10</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>me.xdrop</groupId>
-            <artifactId>fuzzywuzzy</artifactId>
-            <version>1.3.1</version>
-        </dependency>
-        <dependency>
-            <groupId>org.controlsfx</groupId>
-            <artifactId>controlsfx</artifactId>
-            <version>11.1.0</version>
-        </dependency>
-        <dependency>
-            <groupId>com.github.vatbub</groupId>
-            <artifactId>mslinks</artifactId>
-            <version>1.0.7-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>com.github.ben-manes.caffeine</groupId>
-            <artifactId>caffeine</artifactId>
-            <version>3.0.4</version>
-        </dependency>
-        <dependency>
-            <groupId>com.google.code.gson</groupId>
-            <artifactId>gson</artifactId>
-            <version>2.8.9</version>
-        </dependency>
-        <dependency>
-            <groupId>ly.count.sdk</groupId>
-            <artifactId>java</artifactId>
-            <version>19.09-sdk2-rc</version>
-        </dependency>
-    </dependencies>
-
     <build>
-        <resources>
-            <resource>
-                <directory>src/main/resources</directory>
-                <filtering>true</filtering>
-                <includes>
-                    <include>**/version.json</include>
-                </includes>
-            </resource>
-            <resource>
-                <directory>${project.basedir}${file.separator}scripts</directory>
-                <targetPath>${project.build.directory}</targetPath>
-                <filtering>true</filtering>
-                <includes>
-                    <include>*.bat</include>
-                    <include>*.vbs</include>
-                </includes>
-            </resource>
-            <resource>
-                <directory>src/main/resources</directory>
-                <filtering>false</filtering>
-            </resource>
-        </resources>
         <plugins>
             <plugin>
                 <groupId>pl.project13.maven</groupId>
@@ -179,113 +62,6 @@
                         <dirty>-dirty</dirty>
                     </gitDescribe>
                 </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.6.1</version>
-                <configuration>
-                    <source>17</source>
-                    <target>17</target>
-                    <release>11</release>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <version>3.0.2</version>
-                <configuration>
-                    <archive>
-                        <manifest>
-                            <mainClass>com.stirante.runechanger.RuneChanger</mainClass>
-                        </manifest>
-                    </archive>
-                    <finalName>${project.artifactId}</finalName>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>exec-maven-plugin</artifactId>
-                <version>1.2.1</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>java</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <mainClass>com.stirante.runechanger.util.AutoUpdater</mainClass>
-                </configuration>
-            </plugin>
-            <plugin>
-                <artifactId>maven-clean-plugin</artifactId>
-                <version>2.4.1</version>
-                <configuration>
-                    <filesets>
-                        <fileset>
-                            <directory>image/</directory>
-                            <includes>
-                                <include>**/*</include>
-                            </includes>
-                            <followSymlinks>false</followSymlinks>
-                        </fileset>
-                    </filesets>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>com.igormaznitsa</groupId>
-                <artifactId>mvn-jlink-wrapper</artifactId>
-                <version>1.1.1</version>
-                <executions>
-                    <execution>
-                        <id>call-jlink</id>
-                        <goals>
-                            <goal>jlink</goal>
-                        </goals>
-                        <configuration>
-                            <output>${project.build.directory}${file.separator}image</output>
-                            <addModules>
-                                <module>java.base</module>
-                                <module>java.scripting</module>
-                                <module>javafx.graphics</module>
-                                <module>javafx.swing</module>
-                                <module>javafx.fxml</module>
-                                <module>javafx.controls</module>
-                                <module>javafx.base</module>
-                                <module>jdk.unsupported.desktop</module>
-                                <module>java.naming</module>
-                                <module>java.sql</module>
-                                <module>jdk.crypto.ec</module>
-                                <module>jdk.crypto.ec</module>
-                                <module>jdk.zipfs</module>
-                            </addModules>
-                            <options>
-                                <option>--compress=2</option>
-                                <option>--no-header-files</option>
-                                <option>--no-man-pages</option>
-                            </options>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>single</goal>
-                        </goals>
-                        <configuration>
-                            <appendAssemblyId>false</appendAssemblyId>
-                            <descriptors>
-                                <descriptor>src/main/assembly/zip.xml</descriptor>
-                            </descriptors>
-                        </configuration>
-                    </execution>
-                </executions>
             </plugin>
         </plugins>
     </build>

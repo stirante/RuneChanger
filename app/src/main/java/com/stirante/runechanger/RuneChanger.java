@@ -89,8 +89,7 @@ public class RuneChanger implements Launcher {
             log.info("Not running as admin, elevating...");
             ShellAPI.SHELLEXECUTEINFO execInfo = new ShellAPI.SHELLEXECUTEINFO();
             execInfo.lpDirectory = PathUtils.getWorkingDirectory();
-            execInfo.lpParameters = "-cp \"" + PathUtils.getJarName() +
-                    ";lib/*\" --add-exports=javafx.base/com.sun.javafx.reflect=ALL-UNNAMED --add-exports=javafx.graphics/com.sun.javafx.scene.layout=ALL-UNNAMED com.stirante.runechanger.RuneChanger";
+            execInfo.lpParameters = "-cp \"lib/*\" -Djdk.tls.client.protocols=\"TLSv1,TLSv1.1,TLSv1.2\" --add-exports=javafx.base/com.sun.javafx.event=ALL-UNNAMED --add-exports=javafx.base/com.sun.javafx.reflect=ALL-UNNAMED --add-exports=javafx.graphics/com.sun.javafx.scene.layout=ALL-UNNAMED com.stirante.runechanger.RuneChanger";
             execInfo.lpFile = "image\\bin\\javaw.exe";
             execInfo.lpVerb = "runas";
             if (Shell32.INSTANCE.ShellExecuteEx(execInfo)) {
@@ -158,19 +157,17 @@ public class RuneChanger implements Launcher {
 
     private static void changeWorkingDir() {
         try {
-            //find path to the current jar
-            File currentJar = new File(PathUtils.getJarLocation());
             //If this is true then the jar was most likely started by autostart
             if (!new File(System.getProperty("user.dir")).getAbsolutePath()
-                    .equals(currentJar.getParentFile().getAbsolutePath())) {
+                    .equals(PathUtils.getWorkingDirectory())) {
                 //if it's not a jar (probably running from IDE)
-                if (!currentJar.getName().endsWith(".jar")) {
+                if (!PathUtils.getJarLocation().endsWith(".jar")) {
                     return;
                 }
 
-                Runtime.getRuntime().exec(AutoStartUtils.getStartCommand(), null, currentJar.getParentFile());
+                Runtime.getRuntime().exec(AutoStartUtils.getStartCommand(), null, new File(PathUtils.getWorkingDirectory()));
                 log.warn("User directory: " + new File(System.getProperty("user.dir")).getAbsolutePath());
-                log.warn("Current JAR location: " + currentJar.getParentFile().getAbsolutePath());
+                log.warn("Working directory: " + PathUtils.getWorkingDirectory());
                 log.warn("Runechanger was started from a unusual jvm location most likely due to autostart. " +
                         "Restarting client now to fix pathing errors..");
                 System.exit(0);

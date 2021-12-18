@@ -43,7 +43,7 @@ public class MetasrcSource implements RuneSource {
             for (String lane : Objects.requireNonNull(runeLanes)) {
                 final String requestURL = CHAMPION_URL
                         .replace("%MODE%", "5v5")
-                        .replace("%CHAMPION%", data.getChampion().getInternalName())
+                        .replace("%CHAMPION%", data.getChampion().getInternalName().toLowerCase(Locale.ROOT))
                         .replace("%LANE%", lane.toLowerCase());
                 try {
                     Document webPage = Jsoup.parse(new URL(requestURL), 10000);
@@ -64,7 +64,7 @@ public class MetasrcSource implements RuneSource {
         }
 
         String specialGamemodeURL = CHAMPION_URL
-                .replace("%CHAMPION%", data.getChampion().getInternalName())
+                .replace("%CHAMPION%", data.getChampion().getInternalName().toLowerCase(Locale.ROOT))
                 .replace("%LANE%", "");
         // GETTING RUNES FOR SPECIAL GAMEMODES
         String gamemodeKey = getSpecialGamemodeKey(data);
@@ -131,7 +131,7 @@ public class MetasrcSource implements RuneSource {
     private ArrayList<String> getAvailableRuneLanes(Champion champion) {
         final String minimalURL = CHAMPION_URL
                 .replace("%MODE%", "5v5")
-                .replace("%CHAMPION%", champion.getInternalName())
+                .replace("%CHAMPION%", champion.getInternalName().toLowerCase(Locale.ROOT))
                 .replace("%LANE%", "");
         ArrayList<String> availableRoles = new ArrayList<>();
         try {
@@ -149,7 +149,7 @@ public class MetasrcSource implements RuneSource {
                 availableRoles.add(role.text());
             }
         } catch (IOException e) {
-            log.warn("Error occured while getting Metasrc available lane data.");
+            log.warn("Error occurred while getting Metasrc available lane data.");
             e.printStackTrace();
         }
         return availableRoles;

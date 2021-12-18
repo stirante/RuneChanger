@@ -1,7 +1,7 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="RuneChanger Debug" type="Application" factoryName="Application">
     <option name="MAIN_CLASS_NAME" value="com.stirante.runechanger.RuneChanger" />
-    <module name="RuneChanger" />
+    <module name="app" />
     <option name="PROGRAM_PARAMETERS" value="-debug-mode" />
     <option name="VM_PARAMETERS" value="--add-exports=javafx.base/com.sun.javafx.event=org.controlsfx.controls" />
     <method v="2">

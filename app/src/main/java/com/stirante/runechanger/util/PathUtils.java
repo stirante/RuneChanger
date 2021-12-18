@@ -10,7 +10,7 @@ public class PathUtils {
         if (!f.exists() || f.isDirectory()) {
             return System.getProperty("user.dir");
         }
-        return f.getParentFile().getPath();
+        return f.getParentFile().getParentFile().getPath();
     }
 
     public static String getJarLocation() {
