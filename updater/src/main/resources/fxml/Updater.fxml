@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<StackPane fx:id="root" maxHeight="400.0" maxWidth="600.0" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <ImageView layoutX="-457.0" layoutY="-220.0">
+         <Image url="@../images/blueBackground.png" />
+      </ImageView>
+      <VBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" spacing="10.0">
+         <children>
+            <Label fx:id="overallStatus" alignment="CENTER" maxWidth="1.7976931348623157E308" text="Label" textFill="WHITE" />
+            <ProgressBar fx:id="overallProgress" maxWidth="1.7976931348623157E308" progress="0.0" />
+            <Label fx:id="currentStatus" alignment="CENTER" maxWidth="1.7976931348623157E308" text="Label" textFill="WHITE" />
+            <ProgressBar fx:id="currentProgress" maxWidth="1.7976931348623157E308" prefWidth="200.0" progress="0.0" />
+         </children>
+         <StackPane.margin>
+            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+         </StackPane.margin>
+      </VBox>
+   </children>
+</StackPane>

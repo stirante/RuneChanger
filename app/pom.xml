@@ -11,11 +11,6 @@
     </parent>
     <artifactId>app</artifactId>
 
-    <properties>
-        <java.version>17</java.version>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    </properties>
-
     <repositories>
         <repository>
             <id>stirante-nexus-snapshots</id>
@@ -45,22 +40,22 @@
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-base</artifactId>
-            <version>17.0.0.1</version>
+            <version>${javafx.version}</version>
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-controls</artifactId>
-            <version>17.0.0.1</version>
+            <version>${javafx.version}</version>
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-swing</artifactId>
-            <version>17.0.0.1</version>
+            <version>${javafx.version}</version>
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-fxml</artifactId>
-            <version>17.0.0.1</version>
+            <version>${javafx.version}</version>
         </dependency>
         <dependency>
             <groupId>ch.qos.logback</groupId>
@@ -170,7 +165,6 @@
                             <mainClass>com.stirante.runechanger.RuneChanger</mainClass>
                         </manifest>
                     </archive>
-                    <finalName>${project.artifactId}</finalName>
                 </configuration>
             </plugin>
         </plugins>

@@ -20,6 +20,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <revision>1.14.3</revision>
         <update4j.version>1.5.7</update4j.version>
+        <javafx.version>17.0.0.1</javafx.version>
     </properties>
 
     <repositories>

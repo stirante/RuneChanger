@@ -1,2 +1,2 @@
 @echo off
-"updateImage/bin/java" -jar lib/update4j-${update4j.version}.jar --local update.xml
+"updateImage/bin/java" -cp "updateLib/*" -Djdk.tls.client.protocols="TLSv1,TLSv1.1,TLSv1.2" --add-exports=javafx.base/com.sun.javafx.event=ALL-UNNAMED --add-exports=javafx.base/com.sun.javafx.reflect=ALL-UNNAMED --add-exports=javafx.graphics/com.sun.javafx.scene.layout=ALL-UNNAMED com.stirante.runechanger.updater.Main update.xml

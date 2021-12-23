@@ -75,11 +75,12 @@ public class AutoUpdater {
     public static void performUpdate() {
         try {
             copyDir(new File("image").toPath(), new File("updateImage").toPath());
+            copyDir(new File("lib").toPath(), new File("updateLib").toPath());
             FileWriter writer = new FileWriter(LOCAL_UPDATE_CONFIG);
             getConfiguration().write(writer);
             writer.flush();
             writer.close();
-            Runtime.getRuntime().exec("cmd /c start update.bat");
+            Runtime.getRuntime().exec("wscript silent.vbs update.bat");
             System.exit(0);
         } catch (IOException e) {
             log.error("Exception occurred while starting update", e);
@@ -199,6 +200,7 @@ public class AutoUpdater {
                 .files(FileMetadata.streamDirectory(imageDir.getAbsolutePath())
                         .peek(r -> r.classpath(r.getSource().toString().endsWith(".jar")).ignoreBootConflict()))
                 .launcher(RuneChanger.class)
+                .property("flavour", "dev")
                 .build();
         FileWriter writer = new FileWriter(new File(imageDir, "dev.xml"));
         build.write(writer);
@@ -211,6 +213,7 @@ public class AutoUpdater {
                         .filter(r -> !r.getSource().toString().endsWith("dev.xml"))
                         .peek(r -> r.classpath(r.getSource().toString().endsWith(".jar"))))
                 .launcher(RuneChanger.class)
+                .property("flavour", "stable")
                 .build();
         writer = new FileWriter(new File(imageDir, "stable.xml"));
         build.write(writer);
@@ -248,6 +251,17 @@ public class AutoUpdater {
         }
     }
 
+    public static void updateCleanup() {
+        try {
+            deleteDirectory(new File("updateImage"));
+            deleteDirectory(new File("updateLib"));
+            new File(LOCAL_UPDATE_CONFIG).delete();
+        } catch (IOException e) {
+            log.warn("Exception occurred while cleaning up after update", e);
+            AnalyticsUtil.addCrashReport(e, "Exception occurred while cleaning up after update", false);
+        }
+    }
+
     public static void deleteOldLibs() {
         try {
             Reader reader = new InputStreamReader(new FileInputStream(LOCAL_UPDATE_CONFIG));
@@ -273,5 +287,21 @@ public class AutoUpdater {
             e.printStackTrace();
         }
 
+    }
+
+    private static void deleteDirectory(File directory) throws IOException {
+        if (directory.exists()) {
+            File[] files = directory.listFiles();
+            if (files != null) {
+                for (File file : files) {
+                    if (file.isDirectory()) {
+                        deleteDirectory(file);
+                    } else {
+                        Files.delete(file.toPath());
+                    }
+                }
+            }
+            Files.delete(directory.toPath());
+        }
     }
 }

@@ -100,7 +100,9 @@ public class RuneChanger implements Launcher {
             }
         }
         log.debug("Cleaning up logs");
-        cleanupLogs();
+        EXECUTOR_SERVICE.submit(RuneChanger::cleanupLogs);
+        log.debug("Cleaning up update files");
+        EXECUTOR_SERVICE.submit(AutoUpdater::updateCleanup);
         log.debug("Checking os");
         // This flag is only meant for development. It disables whole client communication
         if (!Arrays.asList(args).contains("-skip-os-check")) {
