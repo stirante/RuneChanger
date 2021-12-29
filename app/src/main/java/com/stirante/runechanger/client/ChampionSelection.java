@@ -1,6 +1,5 @@
 package com.stirante.runechanger.client;
 
-import com.stirante.eventbus.BusEvent;
 import com.stirante.eventbus.EventBus;
 import com.stirante.eventbus.Subscribe;
 import com.stirante.lolclient.ApiResponse;
@@ -24,6 +23,10 @@ import java.util.*;
 
 public class ChampionSelection extends ClientModule {
     private static final Logger log = LoggerFactory.getLogger(ChampionSelection.class);
+
+    public static final String CHAMPION_SELECT_SESSION_EVENT = "/lol-champ-select/v1/session";
+    public static final String CHAMPION_CHANGED_EVENT = "ChampionChangedEvent";
+    public static final String CHAMPION_SELECTION_END_EVENT = "ChampionSelectionEndEvent";
 
     private Map<String, Object> action;
     private Champion champion;
@@ -266,26 +269,27 @@ public class ChampionSelection extends ClientModule {
         }
     }
 
-    @Subscribe(ClientEventListener.ChampionSelectionEvent.NAME)
-    public void onSession(ClientEventListener.ChampionSelectionEvent event) {
+    @Subscribe(CHAMPION_SELECT_SESSION_EVENT)
+    public void onSession(ClientEventListener.ClientEvent<LolChampSelectChampSelectSession> event) {
         if (event.getEventType() == ClientEventListener.WebSocketEventType.DELETE) {
             clearSession();
-            EventBus.publish(ChampionSelectionEndEvent.NAME, new ChampionSelectionEndEvent());
+            EventBus.publish(CHAMPION_SELECTION_END_EVENT);
             EventBus.publish(TeamCompAnalyzer.TeamCompAnalysisEvent.NAME, new TeamCompAnalyzer.TeamCompAnalysisEvent(null));
         }
         else {
             Champion oldChampion = champion;
-            chatRoomName = event.getData().chatDetails.chatRoomName;
+            LolChampSelectChampSelectSession data = event.getData();
+            chatRoomName = data.chatDetails.chatRoomName;
             updateGameMode();
             if (gameMode.isDisabled()) {
                 return;
             }
             Map<Position, Champion> oldChampions = new HashMap<>(allyTeam);
             List<Champion> oldEnemyChampions = new ArrayList<>(enemyTeam);
-            processActions(event.getData());
-            findSelectedChampion(event.getData());
+            processActions(data);
+            findSelectedChampion(data);
             if (isPositionSelector()) {
-                for (LolChampSelectChampSelectPlayerSelection selection : event.getData().myTeam) {
+                for (LolChampSelectChampSelectPlayerSelection selection : data.myTeam) {
                     if (selection.assignedPosition != null && Champion.getById(selection.championId) != null) {
                         allyTeam.put(Position.valueOf(selection.assignedPosition.toUpperCase(Locale.ROOT)), Champion.getById(selection.championId));
                     }
@@ -325,13 +329,14 @@ public class ChampionSelection extends ClientModule {
                     }
                 });
             }
-            LolChampSelectChampSelectTimer timer = event.getData().timer;
+            LolChampSelectChampSelectTimer timer = data.timer;
             if (timer != null) {
                 currentPhase = timer.phase;
                 phaseEnd = timer.internalNowInEpochMs + timer.adjustedTimeLeftInPhase;
             }
-            if (event.getEventType() == ClientEventListener.WebSocketEventType.CREATE || oldChampion != champion) {
-                EventBus.publish(ChampionChangedEvent.NAME, new ChampionChangedEvent(champion));
+            if (event.getEventType() == ClientEventListener.WebSocketEventType.CREATE ||
+                    oldChampion != champion) {
+                EventBus.publish(CHAMPION_CHANGED_EVENT, champion);
             }
             if (event.getEventType() == ClientEventListener.WebSocketEventType.CREATE &&
                     SimplePreferences.getBooleanValue(SimplePreferences.SettingsKeys.AUTO_MESSAGE, false)) {
@@ -356,8 +361,8 @@ public class ChampionSelection extends ClientModule {
         }
     }
 
-    @Subscribe(ClientEventListener.CurrentSummonerEvent.NAME)
-    public void onCurrentSummoner(ClientEventListener.CurrentSummonerEvent event) {
+    @Subscribe(CURRENT_SUMMONER_EVENT)
+    public void onCurrentSummoner() {
         resetSummoner();
     }
 
@@ -449,37 +454,19 @@ public class ChampionSelection extends ClientModule {
 
             LolMatchHistoryMatchHistoryGame game =
                     lastMatch.getResponseObject().games.games.get(0);
-            int participantId = game.participantIdentities.stream().filter(pi -> Objects.equals(pi.player.summonerId, getCurrentSummoner().summonerId)).findFirst().orElseThrow().participantId;
+            int participantId = game.participantIdentities.stream()
+                    .filter(pi -> Objects.equals(pi.player.summonerId, getCurrentSummoner().summonerId))
+                    .findFirst()
+                    .orElseThrow().participantId;
             LolMatchHistoryMatchHistoryParticipant stats =
                     game.participants.stream().filter(p -> p.participantId == participantId).findFirst().orElseThrow();
 
-            return stats.stats.win && ((stats.stats.kills + stats.stats.assists) / (double) Math.min(1, stats.stats.deaths)) > 2;
+            return stats.stats.win &&
+                    ((stats.stats.kills + stats.stats.assists) / (double) Math.min(1, stats.stats.deaths)) > 2;
         } catch (Exception e) {
             log.error("Exception occurred while getting last game", e);
             return false;
         }
-    }
-
-    public static class ChampionChangedEvent implements BusEvent {
-        public static final String NAME = "ChampionChangedEvent";
-
-        private final Champion champion;
-
-        public ChampionChangedEvent(Champion champion) {
-            this.champion = champion;
-        }
-
-        public Champion getChampion() {
-            return champion;
-        }
-    }
-
-    public static class ChampionSelectionEndEvent implements BusEvent {
-        public static final String NAME = "ChampionSelectionEndEvent";
-
-        public ChampionSelectionEndEvent() {
-        }
-
     }
 
 }

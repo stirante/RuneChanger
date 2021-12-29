@@ -31,8 +31,8 @@ public class Loot extends ClientModule {
         EventBus.register(this);
     }
 
-    @Subscribe(ClientEventListener.CurrentSummonerEvent.NAME)
-    public void onCurrentSummoner(ClientEventListener.CurrentSummonerEvent event) {
+    @Subscribe(CURRENT_SUMMONER_EVENT)
+    public void onCurrentSummoner() {
         resetSummoner();
     }
 
@@ -166,7 +166,8 @@ public class Loot extends ClientModule {
     public Map<String, Pair<String, Integer>> getRecipes(String lootId) {
         try {
             ApiResponse<LolLootRecipeWithMilestones[]> loot =
-                    getApi().executeGet("/lol-loot/v1/recipes/initial-item/" + lootId, LolLootRecipeWithMilestones[].class);
+                    getApi().executeGet(
+                            "/lol-loot/v1/recipes/initial-item/" + lootId, LolLootRecipeWithMilestones[].class);
             return Arrays.stream(loot.getResponseObject())
                     .filter(lolLootRecipe -> lolLootRecipe.slots.size() == 1 &&
                             lolLootRecipe.slots.get(0).lootIds.size() == 1 &&

@@ -321,16 +321,16 @@ public class RuneChanger implements Launcher {
                             e.championPickIntent = 223;
                             e.summonerId = currentSummoner.summonerId;
                             session.myTeam.add(e);
-                            EventBus.publish(ClientEventListener.ChampionSelectionEvent.NAME,
-                                    new ClientEventListener.ChampionSelectionEvent(ClientEventListener.WebSocketEventType.CREATE, session));
+                            EventBus.publish(ChampionSelection.CHAMPION_SELECT_SESSION_EVENT,
+                                    new ClientEventListener.DummyClientEvent<>(ClientEventListener.WebSocketEventType.CREATE, session));
                         }
                     });
                     // Check if session is active after starting RuneChanger, since we might not get event right away
                     try {
                         LolChampSelectChampSelectSession session = champSelectModule.getSession();
                         if (session != null) {
-                            EventBus.publish(ClientEventListener.ChampionSelectionEvent.NAME,
-                                    new ClientEventListener.ChampionSelectionEvent(ClientEventListener.WebSocketEventType.CREATE, session));
+                            EventBus.publish(ChampionSelection.CHAMPION_SELECT_SESSION_EVENT,
+                                    new ClientEventListener.DummyClientEvent<>(ClientEventListener.WebSocketEventType.CREATE, session));
                         }
                     } catch (Exception ignored) {
                     }
@@ -407,7 +407,7 @@ public class RuneChanger implements Launcher {
         EventBus.register(this);
     }
 
-    @Subscribe(ClientEventListener.SocketCloseEvent.NAME)
+    @Subscribe(ClientEventListener.SOCKET_CLOSE_EVENT)
     public void onSocketClose() {
         socket = null;
     }

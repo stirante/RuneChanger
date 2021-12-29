@@ -22,14 +22,15 @@ import java.util.stream.Collectors;
 
 public class Runes extends ClientModule {
     private static final Logger log = LoggerFactory.getLogger(Runes.class);
+    public static final String RUNE_PAGES_EVENT = "/lol-perks/v1/pages";
 
     public Runes(ClientApi api) {
         super(api);
         EventBus.register(this);
     }
 
-    @Subscribe(ClientEventListener.CurrentSummonerEvent.NAME)
-    public void onCurrentSummoner(ClientEventListener.CurrentSummonerEvent event) {
+    @Subscribe(CURRENT_SUMMONER_EVENT)
+    public void onCurrentSummoner() {
         resetSummoner();
     }
 
@@ -107,8 +108,8 @@ public class Runes extends ClientModule {
         return 0;
     }
 
-    @Subscribe(ClientEventListener.RunePagesEvent.NAME)
-    public void onRunePages(ClientEventListener.RunePagesEvent event) {
+    @Subscribe(RUNE_PAGES_EVENT)
+    public void onRunePages() {
         // Auto sync rune pages to RuneChanger
         if (SimplePreferences.getBooleanValue(SimplePreferences.SettingsKeys.AUTO_SYNC, false)) {
             syncRunePages();

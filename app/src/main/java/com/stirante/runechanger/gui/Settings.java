@@ -4,8 +4,11 @@ import com.stirante.eventbus.EventBus;
 import com.stirante.eventbus.EventPriority;
 import com.stirante.eventbus.Subscribe;
 import com.stirante.lolclient.ClientApi;
+import com.stirante.lolclient.ClientWebSocket;
 import com.stirante.runechanger.RuneChanger;
 import com.stirante.runechanger.client.ClientEventListener;
+import com.stirante.runechanger.client.ClientModule;
+import com.stirante.runechanger.client.Runes;
 import com.stirante.runechanger.gui.controllers.*;
 import com.stirante.runechanger.model.client.Champion;
 import com.stirante.runechanger.model.client.ChampionBuild;
@@ -52,6 +55,7 @@ import java.util.stream.Collectors;
 
 public class Settings extends Application {
     private static final Logger log = LoggerFactory.getLogger(Settings.class);
+    public static final String GAME_PHASE_EVENT = "/lol-gameflow/v1/gameflow-phase";
 
     private static Settings instance;
     private Stage mainStage;
@@ -100,8 +104,8 @@ public class Settings extends Application {
         openDialog(title, message, ButtonType.OK);
     }
 
-    @Subscribe(ClientEventListener.CurrentSummonerEvent.NAME)
-    public static void onCurrentSummoner(ClientEventListener.CurrentSummonerEvent event) {
+    @Subscribe(ClientModule.CURRENT_SUMMONER_EVENT)
+    public static void onCurrentSummoner() {
         setClientConnected(true);
     }
 
@@ -499,8 +503,8 @@ public class Settings extends Application {
         }
     }
 
-    @Subscribe(ClientEventListener.GamePhaseEvent.NAME)
-    public void onGamePhase(ClientEventListener.GamePhaseEvent event) {
+    @Subscribe(GAME_PHASE_EVENT)
+    public void onGamePhase(ClientEventListener.ClientEvent<LolGameflowGameflowPhase> event) {
         if (event.getData() == LolGameflowGameflowPhase.ENDOFGAME) {
             RuneChanger.EXECUTOR_SERVICE.submit(() -> {
                 try {
@@ -547,7 +551,7 @@ public class Settings extends Application {
         }
     }
 
-    @Subscribe(value = ClientEventListener.RunePagesEvent.NAME, priority = EventPriority.LOWEST, eventExecutor = UiEventExecutor.class)
+    @Subscribe(value = Runes.RUNE_PAGES_EVENT, priority = EventPriority.LOWEST, eventExecutor = UiEventExecutor.class)
     public static void onRunePagesChange() {
         instance.updateRunes();
     }

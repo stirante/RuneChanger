@@ -4,7 +4,6 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.LoadingCache;
 import com.google.gson.Gson;
 import com.google.gson.annotations.SerializedName;
-import com.stirante.eventbus.BusEvent;
 import com.stirante.eventbus.EventBus;
 import com.stirante.justpipe.Pipe;
 import com.stirante.runechanger.gui.overlay.NotificationWindow;
@@ -175,7 +174,7 @@ public class TeamCompAnalyzer {
         }
     }
 
-    public static class TeamCompAnalysisEvent implements BusEvent {
+    public static class TeamCompAnalysisEvent {
         public static final String NAME = "TeamCompAnalysisEvent";
         public final TeamComp teamComp;
 

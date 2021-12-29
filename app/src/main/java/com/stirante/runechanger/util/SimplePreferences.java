@@ -2,6 +2,7 @@ package com.stirante.runechanger.util;
 
 import com.stirante.eventbus.EventBus;
 import com.stirante.runechanger.client.ClientEventListener;
+import com.stirante.runechanger.client.Runes;
 import com.stirante.runechanger.model.client.ChampionBuild;
 import com.stirante.runechanger.model.client.RunePage;
 import org.slf4j.Logger;
@@ -148,15 +149,15 @@ public class SimplePreferences {
     public static void addRuneBookPage(RunePage page) {
         runeBookValues.add(ChampionBuild.builder(page.copy()).create());
         save();
-        EventBus.publish(ClientEventListener.RunePagesEvent.NAME,
-                new ClientEventListener.RunePagesEvent(ClientEventListener.WebSocketEventType.UPDATE, null));
+        EventBus.publish(Runes.RUNE_PAGES_EVENT,
+                new ClientEventListener.DummyClientEvent<>(ClientEventListener.WebSocketEventType.UPDATE, null));
     }
 
     public static void removeRuneBookPage(String key) {
         runeBookValues.removeIf(runePage -> runePage.getName().equalsIgnoreCase(key));
         save();
-        EventBus.publish(ClientEventListener.RunePagesEvent.NAME,
-                new ClientEventListener.RunePagesEvent(ClientEventListener.WebSocketEventType.UPDATE, null));
+        EventBus.publish(Runes.RUNE_PAGES_EVENT,
+                new ClientEventListener.DummyClientEvent<>(ClientEventListener.WebSocketEventType.UPDATE, null));
     }
 
     public static class SettingsKeys {

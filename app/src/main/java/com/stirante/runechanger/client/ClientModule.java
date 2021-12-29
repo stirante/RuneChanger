@@ -13,6 +13,8 @@ public abstract class ClientModule {
     private final ClientApi api;
     private LolSummonerSummoner currentSummoner;
 
+    public static final String CURRENT_SUMMONER_EVENT = "/lol-summoner/v1/current-summoner";
+
     public ClientModule(ClientApi api) {
         this.api = api;
     }

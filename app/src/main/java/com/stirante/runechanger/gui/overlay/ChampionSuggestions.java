@@ -39,8 +39,8 @@ public class ChampionSuggestions extends OverlayLayer {
         EventBus.register(this);
     }
 
-    @Subscribe(value = ClientEventListener.ChampionSelectionEvent.NAME, priority = EventPriority.LOWEST)
-    public void onSession(ClientEventListener.ChampionSelectionEvent event) {
+    @Subscribe(value = ChampionSelection.CHAMPION_SELECT_SESSION_EVENT, priority = EventPriority.LOWEST)
+    public void onSession() {
         ChampionSelection champSelect = RuneChanger.getInstance().getChampionSelectionModule();
         if (champSelect != null) {
             RuneChanger.EXECUTOR_SERVICE.execute(() -> {
@@ -77,8 +77,7 @@ public class ChampionSuggestions extends OverlayLayer {
                         !getRuneChanger().getChampionSelectionModule().getGameMode().hasChampionSelection()) {
                     return;
                 }
-                if ((getSceneType() != SceneType.CHAMPION_SELECT &&
-                        getSceneType() != SceneType.CHAMPION_SELECT_RUNE_PAGE_EDIT) ||
+                if (getSceneType() != SceneType.CHAMPION_SELECT ||
                         getRuneChanger().getChampionSelectionModule().isChampionLocked()) {
                     if (currentChampionsPosition > 1f) {
                         currentChampionsPosition = ease(currentChampionsPosition, 0f);

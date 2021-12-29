@@ -6,8 +6,6 @@ import com.stirante.runechanger.DebugConsts;
 import com.stirante.runechanger.RuneChanger;
 import com.stirante.runechanger.client.ChampionSelection;
 import com.stirante.runechanger.client.ClientEventListener;
-import com.stirante.runechanger.client.ScreenPointChecker;
-import com.stirante.runechanger.gui.overlay.ChampionSuggestions;
 import com.stirante.runechanger.gui.overlay.ClientOverlay;
 import com.stirante.runechanger.gui.overlay.RuneMenu;
 import com.stirante.runechanger.model.client.Champion;
@@ -18,15 +16,17 @@ import com.stirante.runechanger.util.*;
 import com.sun.jna.platform.win32.Advapi32Util;
 import com.sun.jna.platform.win32.User32;
 import com.sun.jna.platform.win32.WinDef;
+import generated.LolChampSelectChampSelectSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
 import javax.imageio.ImageIO;
-import javax.swing.*;
+import javax.swing.JWindow;
+import javax.swing.UIManager;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 import java.util.ResourceBundle;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantLock;
@@ -39,6 +39,7 @@ public class GuiHandler {
     private static final Logger log = LoggerFactory.getLogger(GuiHandler.class);
     public static final String REGISTRY_WINDOW_METRICS = "Control Panel\\Desktop\\WindowMetrics";
     public static final String REGISTRY_APPLIED_DPI = "AppliedDPI";
+    public static final String CLIENT_ZOOM_SCALE_EVENT = "/riotclient/zoom-scale";
     private final AtomicBoolean threadRunning = new AtomicBoolean(false);
     private final AtomicBoolean windowOpen = new AtomicBoolean(false);
     private SyncingListWrapper<ChampionBuild> builds = new SyncingListWrapper<>();
@@ -363,33 +364,33 @@ public class GuiHandler {
         }, null);
     }
 
-    @Subscribe(ClientEventListener.ChampionSelectionEvent.NAME)
-    public void onChampionSelection(ClientEventListener.ChampionSelectionEvent event) {
+    @Subscribe(ChampionSelection.CHAMPION_SELECT_SESSION_EVENT)
+    public void onChampionSelection(ClientEventListener.ClientEvent<LolChampSelectChampSelectSession> event) {
         if (event.getEventType() == ClientEventListener.WebSocketEventType.DELETE) {
             setSceneType(SceneType.NONE);
         }
-        else if (getSceneType() != SceneType.CHAMPION_SELECT_RUNE_PAGE_EDIT) {
+        else {
             setSceneType(SceneType.CHAMPION_SELECT);
         }
     }
 
 
-    @Subscribe(ClientEventListener.ClientZoomScaleEvent.NAME)
-    public void onClientZoomScale(ClientEventListener.ClientZoomScaleEvent event) {
+    @Subscribe(CLIENT_ZOOM_SCALE_EVENT)
+    public void onClientZoomScale() {
         //Client window size changed, so we restart the overlay
         closeWindow();
         openWindow();
     }
 
-    @Subscribe(ChampionSelection.ChampionChangedEvent.NAME)
-    public void onChampionChange(ChampionSelection.ChampionChangedEvent event) {
+    @Subscribe(ChampionSelection.CHAMPION_CHANGED_EVENT)
+    public void onChampionChange(Champion champion) {
         SyncingListWrapper<ChampionBuild> pages = new SyncingListWrapper<>();
         setBuilds(pages);
-        if (event.getChampion() != null) {
-            log.info("Downloading runes for champion: " + event.getChampion().getName());
+        if (champion != null) {
+            log.info("Downloading runes for champion: " + champion.getName());
             SourceStore.getRunes(
                     GameData.of(
-                            event.getChampion(),
+                            champion,
                             RuneChanger.getInstance().getChampionSelectionModule().getGameMode()
                     ).addContext(GameData.Context.CHAMPION_SELECT), pages);
         }

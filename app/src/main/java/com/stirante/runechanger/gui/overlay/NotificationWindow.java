@@ -1,6 +1,5 @@
 package com.stirante.runechanger.gui.overlay;
 
-import com.stirante.eventbus.BusEvent;
 import com.stirante.eventbus.EventBus;
 import com.stirante.eventbus.Subscribe;
 import com.stirante.runechanger.gui.Constants;
@@ -104,7 +103,7 @@ public class NotificationWindow extends OverlayLayer {
         }
     }
 
-    public static class NotificationMessageEvent implements BusEvent {
+    public static class NotificationMessageEvent {
         public static final String NAME = "NotificationMessageEvent";
         private final String message;
 

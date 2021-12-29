@@ -4,13 +4,17 @@ package com.stirante.runechanger.util;
 import com.google.gson.Gson;
 import com.stirante.eventbus.EventBus;
 import com.stirante.eventbus.Subscribe;
+import com.stirante.lolclient.ClientWebSocket;
 import com.stirante.runechanger.RuneChanger;
+import com.stirante.runechanger.client.ChampionSelection;
 import com.stirante.runechanger.client.ClientEventListener;
+import com.stirante.runechanger.gui.Settings;
 import com.stirante.runechanger.model.app.Version;
 import com.sun.jna.platform.win32.Kernel32;
 import com.sun.jna.platform.win32.Kernel32Util;
 import com.sun.jna.platform.win32.WinBase;
 import com.sun.jna.platform.win32.WinNT;
+import generated.LolChampSelectChampSelectSession;
 import generated.LolGameflowGameflowPhase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -162,8 +166,8 @@ public class PerformanceMonitor {
         EventBus.unregister(PerformanceMonitor.class);
     }
 
-    @Subscribe(ClientEventListener.GamePhaseEvent.NAME)
-    public void onGamePhase(ClientEventListener.GamePhaseEvent event) {
+    @Subscribe(Settings.GAME_PHASE_EVENT)
+    public void onGamePhase(ClientEventListener.ClientEvent<LolGameflowGameflowPhase> event) {
         if (event.getData() == LolGameflowGameflowPhase.GAMESTART) {
             pushEvent(EventType.GAME_BEGIN);
         }
@@ -172,8 +176,8 @@ public class PerformanceMonitor {
         }
     }
 
-    @Subscribe(ClientEventListener.ChampionSelectionEvent.NAME)
-    public void onChampionSelection(ClientEventListener.ChampionSelectionEvent event) {
+    @Subscribe(ChampionSelection.CHAMPION_SELECT_SESSION_EVENT)
+    public void onChampionSelection(ClientEventListener.ClientEvent<LolChampSelectChampSelectSession> event) {
         if (event.getEventType() == ClientEventListener.WebSocketEventType.CREATE) {
             pushEvent(EventType.CHAMPION_SELECT_BEGIN);
         }

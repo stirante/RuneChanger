@@ -7,11 +7,13 @@ import ch.qos.logback.core.Appender;
 import ch.qos.logback.core.FileAppender;
 import com.stirante.eventbus.EventBus;
 import com.stirante.eventbus.Subscribe;
+import com.stirante.lolclient.ClientWebSocket;
 import com.stirante.runechanger.DebugConsts;
 import com.stirante.runechanger.RuneChanger;
 import com.stirante.runechanger.client.ChampionSelection;
 import com.stirante.runechanger.client.ClientEventListener;
 import com.stirante.runechanger.model.app.Version;
+import generated.LolChampSelectChampSelectSession;
 import ly.count.sdk.ConfigCore;
 import ly.count.sdk.internal.CtxCore;
 import ly.count.sdk.internal.DeviceCore;
@@ -95,8 +97,8 @@ public class AnalyticsUtil {
         });
     }
 
-    @Subscribe(ClientEventListener.ChampionSelectionEvent.NAME)
-    public static void onChampionSelect(ClientEventListener.ChampionSelectionEvent event) {
+    @Subscribe(ChampionSelection.CHAMPION_SELECT_SESSION_EVENT)
+    public static void onChampionSelect(ClientEventListener.ClientEvent<LolChampSelectChampSelectSession> event) {
         if (!Countly.isInitialized()) {
             return;
         }

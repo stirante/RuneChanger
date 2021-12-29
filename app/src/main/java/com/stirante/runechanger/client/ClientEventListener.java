@@ -1,16 +1,20 @@
 package com.stirante.runechanger.client;
 
 import com.google.gson.Gson;
-import com.stirante.eventbus.BusEvent;
 import com.stirante.eventbus.EventBus;
 import com.stirante.lolclient.ClientWebSocket;
 import com.stirante.runechanger.DebugConsts;
-import generated.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ClientEventListener implements ClientWebSocket.SocketListener {
     private static final Logger log = LoggerFactory.getLogger(ClientEventListener.class);
+
+    public static final String SOCKET_CLOSE_EVENT = "SocketCloseEvent";
+
+    public static final String EVENT_TYPE_CREATE = "create";
+    public static final String EVENT_TYPE_UPDATE = "update";
+    public static final String EVENT_TYPE_DELETE = "delete";
 
     @Override
     public void onEvent(ClientWebSocket.Event event) {
@@ -21,162 +25,55 @@ public class ClientEventListener implements ClientWebSocket.SocketListener {
                 log.debug(new Gson().toJson(event.getData()));
             }
         }
-        if (event.getUri().equalsIgnoreCase("/lol-gameflow/v1/gameflow-phase")) {
-            EventBus.publish(GamePhaseEvent.NAME, new GamePhaseEvent(event));
-        }
-        if (event.getUri().equalsIgnoreCase("/lol-chat/v1/me")) {
-            EventBus.publish(ChatUserEvent.NAME, new ChatUserEvent(event));
-        }
-        else if (event.getUri().equalsIgnoreCase("/lol-champ-select/v1/session")) {
-            EventBus.publish(ChampionSelectionEvent.NAME, new ChampionSelectionEvent(event));
-        }
-        else if (event.getUri().equalsIgnoreCase("/lol-matchmaking/v1/search")) {
-            EventBus.publish(MatchmakingSearchEvent.NAME, new MatchmakingSearchEvent(event));
-        }
-        else if (event.getUri().equalsIgnoreCase("/riotclient/zoom-scale")) {
-            EventBus.publish(ClientZoomScaleEvent.NAME, new ClientZoomScaleEvent(event));
-        }
-        else if (event.getUri().equalsIgnoreCase("/lol-summoner/v1/current-summoner")) {
-            EventBus.publish(CurrentSummonerEvent.NAME, new CurrentSummonerEvent(event));
-        }
-        else if (event.getUri().equalsIgnoreCase("/lol-perks/v1/pages")) {
-            EventBus.publish(RunePagesEvent.NAME, new RunePagesEvent(event));
-        }
+        EventBus.publish(event.getUri(), new ClientEvent<>(event));
     }
 
     @Override
     public void onClose(int i, String s) {
-        EventBus.publish(SocketCloseEvent.NAME, new SocketCloseEvent());
+        EventBus.publish(SOCKET_CLOSE_EVENT);
     }
 
-    public enum WebSocketEventType {
-        CREATE,
-        UPDATE,
-        DELETE
-    }
+    public static class ClientEvent<T> {
+        private final WebSocketEventType type;
+        private final ClientWebSocket.Event event;
 
-    public static class WebSocketEvent<T> implements BusEvent {
-
-        protected final WebSocketEventType eventType;
-        protected final T data;
-
-        public WebSocketEvent(ClientWebSocket.Event event) {
-            eventType = WebSocketEventType.valueOf(event.getEventType().toUpperCase());
-            //noinspection unchecked
-            data = (T) event.getData();
+        public ClientEvent(ClientWebSocket.Event event) {
+            this.type = WebSocketEventType.valueOf(event.getEventType().toUpperCase());
+            this.event = event;
         }
 
-        public WebSocketEvent(WebSocketEventType eventType, T data) {
-            this.eventType = eventType;
-            this.data = data;
+        protected ClientEvent(WebSocketEventType type) {
+            this.type = type;
+            this.event = null;
         }
 
+        @SuppressWarnings("unchecked")
         public T getData() {
-            return data;
+            return (T) event.getData();
         }
 
         public WebSocketEventType getEventType() {
-            return eventType;
-        }
-    }
-
-    public static class GamePhaseEvent extends WebSocketEvent<LolGameflowGameflowPhase> {
-        public static final String NAME = "GamePhaseEvent";
-
-        public GamePhaseEvent(ClientWebSocket.Event event) {
-            super(event);
-        }
-
-        public GamePhaseEvent(WebSocketEventType eventType, LolGameflowGameflowPhase data) {
-            super(eventType, data);
+            return type;
         }
 
     }
 
-    public static class ChatUserEvent extends WebSocketEvent<LolChatUserResource> {
-        public static final String NAME = "ChatUserEvent";
+    public static class DummyClientEvent<T> extends ClientEvent<T> {
+        private final T data;
 
-        public ChatUserEvent(ClientWebSocket.Event event) {
-            super(event);
+        public DummyClientEvent(WebSocketEventType type, T data) {
+            super(type);
+            this.data = data;
         }
 
-        public ChatUserEvent(WebSocketEventType eventType, LolChatUserResource data) {
-            super(eventType, data);
+        @Override
+        public T getData() {
+            return data;
         }
-
     }
 
-    public static class ChampionSelectionEvent extends WebSocketEvent<LolChampSelectChampSelectSession> {
-        public static final String NAME = "ChampionSelectionEvent";
-
-        public ChampionSelectionEvent(ClientWebSocket.Event event) {
-            super(event);
-        }
-
-        public ChampionSelectionEvent(WebSocketEventType eventType, LolChampSelectChampSelectSession data) {
-            super(eventType, data);
-        }
-
-    }
-
-    public static class MatchmakingSearchEvent extends WebSocketEvent<LolMatchmakingMatchmakingSearchResource> {
-        public static final String NAME = "MatchmakingSearchEvent";
-
-        public MatchmakingSearchEvent(ClientWebSocket.Event event) {
-            super(event);
-        }
-
-        public MatchmakingSearchEvent(WebSocketEventType eventType, LolMatchmakingMatchmakingSearchResource data) {
-            super(eventType, data);
-        }
-
-    }
-
-    public static class ClientZoomScaleEvent extends WebSocketEvent<Object> {
-        public static final String NAME = "ClientZoomScaleEvent";
-
-        public ClientZoomScaleEvent(ClientWebSocket.Event event) {
-            super(event);
-        }
-
-        public ClientZoomScaleEvent(WebSocketEventType eventType, Object data) {
-            super(eventType, data);
-        }
-
-    }
-
-    public static class CurrentSummonerEvent extends WebSocketEvent<LolSummonerSummoner> {
-        public static final String NAME = "CurrentSummonerEvent";
-
-        public CurrentSummonerEvent(ClientWebSocket.Event event) {
-            super(event);
-        }
-
-        public CurrentSummonerEvent(WebSocketEventType eventType, LolSummonerSummoner data) {
-            super(eventType, data);
-        }
-
-    }
-
-    public static class RunePagesEvent extends WebSocketEvent<LolPerksPerkPageResource[]> {
-        public static final String NAME = "RunePagesEvent";
-
-        public RunePagesEvent(ClientWebSocket.Event event) {
-            super(event);
-        }
-
-        public RunePagesEvent(WebSocketEventType eventType, LolPerksPerkPageResource[] data) {
-            super(eventType, data);
-        }
-
-    }
-
-    public static class SocketCloseEvent implements BusEvent {
-        public static final String NAME = "SocketCloseEvent";
-
-        public SocketCloseEvent() {
-        }
-
+    public enum WebSocketEventType {
+        CREATE, UPDATE, DELETE
     }
 
 }
