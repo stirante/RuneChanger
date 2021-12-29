@@ -35,6 +35,11 @@ public class Runes extends ClientModule {
         resetSummoner();
     }
 
+    /**
+     * Sets the current rune page for the player.
+     * It will actually remove the rune page and add it again, because updating sometime bugs out the client.
+     * @param page The page to set
+     */
     public void setCurrentRunePage(RunePage page) {
         if (page == null) {
             log.warn("Tried to set null rune page!");
@@ -84,6 +89,10 @@ public class Runes extends ClientModule {
         }
     }
 
+    /**
+     * Returns a list of rune pages from the client.
+     * @return
+     */
     public List<RunePage> getRunePages() {
         List<RunePage> availablePages = new ArrayList<>();
         try {
@@ -105,6 +114,10 @@ public class Runes extends ClientModule {
         return availablePages;
     }
 
+    /**
+     * Returns the number of available rune pages.
+     * @return
+     */
     public int getOwnedPageCount() {
         try {
             return getApi().executeGet("/lol-perks/v1/inventory", LolPerksPlayerInventory.class)
@@ -123,6 +136,10 @@ public class Runes extends ClientModule {
         }
     }
 
+    /**
+     * Deletes a rune page from client.
+     * @param page The page to delete.
+     */
     public void deletePage(RunePage page) {
         try {
             getApi().executeDelete("/lol-perks/v1/pages/" + page.getSource());
@@ -131,6 +148,10 @@ public class Runes extends ClientModule {
         }
     }
 
+    /**
+     * Adds a page to the client.
+     * @param page The page to add.
+     */
     public void addPage(RunePage page) {
         LolPerksPerkPageResource page1 = new LolPerksPerkPageResource();
         page.toClient(page1);
@@ -141,6 +162,9 @@ public class Runes extends ClientModule {
         }
     }
 
+    /**
+     * Syncs rune pages to RuneChanger.
+     */
     public void syncRunePages() {
         ArrayList<ChampionBuild> savedPages = RuneBook.getRuneBookValues();
         List<RunePage> clientPages = getRunePages();

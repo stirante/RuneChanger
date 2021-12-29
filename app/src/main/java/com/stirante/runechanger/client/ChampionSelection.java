@@ -50,6 +50,11 @@ public class ChampionSelection extends ClientModule {
         EventBus.register(this);
     }
 
+    /**
+     * Returns current champion selection session or null if not in champion selection
+     * @return
+     * @throws IOException
+     */
     public LolChampSelectChampSelectSession getSession() throws IOException {
         ApiResponse<LolChampSelectChampSelectSession> session =
                 getApi().executeGet("/lol-champ-select/v1/session", LolChampSelectChampSelectSession.class);
@@ -59,6 +64,10 @@ public class ChampionSelection extends ClientModule {
         return null;
     }
 
+    /**
+     * Returns a unique list of recently played champions
+     * @return
+     */
     public List<Champion> getLastChampions() {
         try {
             ApiResponse<LolMatchHistoryMatchHistoryList> recentlyPlayed =
@@ -96,14 +105,24 @@ public class ChampionSelection extends ClientModule {
         }
     }
 
+    /**
+     * Gets currently selected champion in champion selection
+     */
     public Champion getSelectedChampion() {
         return champion;
     }
 
-    public ArrayList<Champion> getBannedChampions() {
+    /**
+     * Gets a list of banned champions
+     */
+    public List<Champion> getBannedChampions() {
         return banned;
     }
 
+    /**
+     * Bans a selected champion. This method will ban the champion instantly as opposed to <pre>selectChampion</pre> method.
+     * @param champion champion to ban
+     */
     public void banChampion(Champion champion) {
         if (banAction != null) {
             //{"actorCellId":0.0,"championId":0.0,"completed":false,"id":0.0,"isAllyAction":false,"isInProgress":true,"type":"ban"}
@@ -118,10 +137,16 @@ public class ChampionSelection extends ClientModule {
         }
     }
 
+    /**
+     * Returns a map of selected position to selected champion in player's team
+     */
     public Map<Position, Champion> getAllyTeam() {
         return allyTeam;
     }
 
+    /**
+     * Returns a list of enemy champions
+     */
     public List<Champion> getEnemyTeam() {
         return enemyTeam;
     }
@@ -138,11 +163,10 @@ public class ChampionSelection extends ClientModule {
                         .filter(player -> player.summonerId.equals(getCurrentSummoner().summonerId))
                         .findFirst()
                         .orElse(null);
-        //should never be null, but i'll check just in case
+        //should never be null, but I'll check just in case
         if (!DebugConsts.MOCK_SESSION && self != null) {
             for (Object actions : session.actions) {
-                for (Object action : ((List) actions)) {
-                    Map<String, Object> a = (Map<String, Object>) action;
+                for (Map<String, Object> a : ((List<Map<String, Object>>) actions)) {
                     //no idea why, but cell id gets recognized here as Double
                     int actorCellId = ((Double) a.get("actorCellId")).intValue();
                     String type = String.valueOf(a.get("type"));
@@ -216,14 +240,23 @@ public class ChampionSelection extends ClientModule {
         }
     }
 
+    /**
+     * Returns current game mode
+     */
     public GameMode getGameMode() {
         return gameMode;
     }
 
+    /**
+     * Returns current map
+     */
     public GameMap getMap() {
         return map;
     }
 
+    /**
+     * Returns whether champion is locked for the player
+     */
     public boolean isChampionLocked() {
         if (action != null && action.containsKey("completed")) {
             return ((boolean) action.get("completed"));
@@ -366,6 +399,9 @@ public class ChampionSelection extends ClientModule {
         resetSummoner();
     }
 
+    /**
+     * Selects a champion for the current player without locking it.
+     */
     public void selectChampion(Champion champion) {
         try {
             if (action == null) {
@@ -387,6 +423,9 @@ public class ChampionSelection extends ClientModule {
         }
     }
 
+    /**
+     * Sends a message to champion selection chat
+     */
     public void sendMessageToChampSelect(String msg) {
         if (chatRoomName == null) {
             return;
@@ -402,6 +441,11 @@ public class ChampionSelection extends ClientModule {
         }
     }
 
+    /**
+     * Sets summoner spells for the player
+     * @param spell1 The first summoner spell
+     * @param spell2 The second summoner spell
+     */
     public void setSummonerSpells(SummonerSpell spell1, SummonerSpell spell2) {
         try {
             LolChampSelectChampSelectMySelection selection = new LolChampSelectChampSelectMySelection();
@@ -423,10 +467,16 @@ public class ChampionSelection extends ClientModule {
         }
     }
 
+    /**
+     * Returns whether the player is in team builder queue.
+     */
     public boolean isPositionSelector() {
         return positionSelector;
     }
 
+    /**
+     * Returns selected position for the current player
+     */
     public Position getSelectedPosition() {
         return selectedPosition;
     }
@@ -444,6 +494,10 @@ public class ChampionSelection extends ClientModule {
         clearSession();
     }
 
+    /**
+     * Returns whether the last game was good based on simple KDA check. It will return true if the KDA was over 2.
+     * @return
+     */
     public boolean wasLastGameGood() {
         try {
             ApiResponse<LolMatchHistoryMatchHistoryList> lastMatch =
