@@ -1,6 +1,6 @@
 package com.stirante.runechanger.gui.controllers;
 
-import com.stirante.runechanger.util.LangHelper;
+import com.stirante.runechanger.utils.LangHelper;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -26,7 +26,8 @@ public class SettingsItemController {
     private Line separator;
 
     public SettingsItemController(boolean selected, Predicate<Boolean> onChange, String title, String description, boolean hideSeparator) {
-        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/fxml/SettingsItem.fxml"), LangHelper.getLang());
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/fxml/SettingsItem.fxml"), com.stirante.runechanger.RuneChanger.getInstance()
+                .getLang());
         fxmlLoader.setController(this);
         try {
             root = fxmlLoader.load();

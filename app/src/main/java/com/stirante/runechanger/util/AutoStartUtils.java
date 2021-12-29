@@ -3,12 +3,12 @@ package com.stirante.runechanger.util;
 import com.stirante.justpipe.Pipe;
 import com.stirante.runechanger.DebugConsts;
 import com.stirante.runechanger.gui.Constants;
+import com.stirante.runechanger.utils.PathUtils;
 import com.sun.jna.platform.win32.Advapi32Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 

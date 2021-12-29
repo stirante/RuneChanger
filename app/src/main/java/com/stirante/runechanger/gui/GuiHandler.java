@@ -12,7 +12,9 @@ import com.stirante.runechanger.model.client.Champion;
 import com.stirante.runechanger.model.client.ChampionBuild;
 import com.stirante.runechanger.model.client.GameData;
 import com.stirante.runechanger.sourcestore.SourceStore;
-import com.stirante.runechanger.util.*;
+import com.stirante.runechanger.util.AnalyticsUtil;
+import com.stirante.runechanger.util.PerformanceMonitor;
+import com.stirante.runechanger.utils.*;
 import com.sun.jna.platform.win32.Advapi32Util;
 import com.sun.jna.platform.win32.User32;
 import com.sun.jna.platform.win32.WinDef;
@@ -43,7 +45,7 @@ public class GuiHandler {
     private final AtomicBoolean threadRunning = new AtomicBoolean(false);
     private final AtomicBoolean windowOpen = new AtomicBoolean(false);
     private SyncingListWrapper<ChampionBuild> builds = new SyncingListWrapper<>();
-    private final ResourceBundle resourceBundle = LangHelper.getLang();
+    private final ResourceBundle resourceBundle;
     private final RuneChanger runeChanger;
     private final ReentrantLock lock = new ReentrantLock();
     private JWindow win;
@@ -54,11 +56,11 @@ public class GuiHandler {
     private List<Champion> suggestedChampions;
     private Consumer<Champion> suggestedChampionSelectedListener;
     private List<Champion> bannedChampions;
-    private int screenCheckCounter = 0;
     private double screenScale = 1d;
 
     public GuiHandler(RuneChanger runeChanger) {
         this.runeChanger = runeChanger;
+        this.resourceBundle = runeChanger.getLang();
         init();
     }
 
@@ -234,7 +236,7 @@ public class GuiHandler {
                                 .start();
                     } catch (IOException ioException) {
                         log.error("Exception occurred while launching LoL", ioException);
-                        showErrorMessage(LangHelper.getLang().getString("failed_launch_lol"));
+                        showErrorMessage(RuneChanger.getInstance().getLang().getString("failed_launch_lol"));
                     }
                 });
             }
@@ -269,7 +271,7 @@ public class GuiHandler {
         if (threadRunning.get()) {
             return;
         }
-        RuneChanger.EXECUTOR_SERVICE.submit(() -> {
+        AsyncTask.EXECUTOR_SERVICE.submit(() -> {
             threadRunning.set(true);
             while (windowOpen.get()) {
                 long start = System.currentTimeMillis();
@@ -279,21 +281,6 @@ public class GuiHandler {
                 WinDef.RECT rect = new WinDef.RECT();
                 User32.INSTANCE.GetWindowRect(top, rect);
                 boolean isClientWindow = NativeUtils.isLeagueOfLegendsClientWindow(top);
-//                if (isClientWindow) {
-//                    screenCheckCounter++;
-//                    if (screenCheckCounter >= 10) {
-//                        screenCheckCounter = 0;
-//                        if (getSceneType() == SceneType.CHAMPION_SELECT ||
-//                                getSceneType() == SceneType.CHAMPION_SELECT_RUNE_PAGE_EDIT) {
-//                            if (ScreenPointChecker.testScreenPoint(top, ScreenPointChecker.CHAMPION_SELECTION_RUNE_PAGE_EDIT)) {
-//                                setSceneType(SceneType.CHAMPION_SELECT_RUNE_PAGE_EDIT);
-//                            }
-//                            else {
-//                                setSceneType(SceneType.CHAMPION_SELECT);
-//                            }
-//                        }
-//                    }
-//                }
                 if (win != null) {
                     try {
                         //apparently if left is -32000 then window is minimized

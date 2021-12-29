@@ -3,7 +3,7 @@ package com.stirante.runechanger.gui.overlay;
 import com.stirante.runechanger.RuneChanger;
 import com.stirante.runechanger.gui.Constants;
 import com.stirante.runechanger.gui.SceneType;
-import com.stirante.runechanger.util.SimplePreferences;
+import com.stirante.runechanger.utils.SimplePreferences;
 
 import java.awt.*;
 import java.awt.event.*;

@@ -6,9 +6,10 @@ import com.stirante.runechanger.gui.SceneType;
 import com.stirante.runechanger.model.client.ChampionBuild;
 import com.stirante.runechanger.model.client.GameMode;
 import com.stirante.runechanger.util.AnalyticsUtil;
-import com.stirante.runechanger.util.FxUtils;
-import com.stirante.runechanger.util.SimplePreferences;
-import com.stirante.runechanger.util.SwingUtils;
+import com.stirante.runechanger.utils.FxUtils;
+import com.stirante.runechanger.utils.SimplePreferences;
+import com.stirante.runechanger.utils.SwingUtils;
+import com.stirante.runechanger.utils.AsyncTask;
 import javafx.beans.InvalidationListener;
 import javafx.collections.ObservableList;
 import org.slf4j.Logger;
@@ -183,7 +184,7 @@ public class RuneMenu extends OverlayLayer {
             opened = !opened;
         }
         else if (selectedRunePageIndex > -1) {
-            RuneChanger.EXECUTOR_SERVICE.submit(() -> {
+            AsyncTask.EXECUTOR_SERVICE.submit(() -> {
                 if (builds.size() > selectedRunePageIndex) {
                     ChampionBuild build = builds.get(selectedRunePageIndex);
                     RuneChanger.getInstance()

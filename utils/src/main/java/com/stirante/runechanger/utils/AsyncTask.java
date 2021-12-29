@@ -1,13 +1,17 @@
-package com.stirante.runechanger.util;
+package com.stirante.runechanger.utils;
 
-import com.stirante.runechanger.RuneChanger;
 import javafx.application.Platform;
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public abstract class AsyncTask<P, T, R> {
 
+    public static final ExecutorService EXECUTOR_SERVICE = Executors.newCachedThreadPool();
+
     @SafeVarargs
     public final void execute(P... params) {
-        RuneChanger.EXECUTOR_SERVICE.submit(() -> {
+        EXECUTOR_SERVICE.submit(() -> {
             try {
                 R result = doInBackground(params);
                 Platform.runLater(() -> onPostExecute(result));

@@ -9,7 +9,7 @@ import com.stirante.runechanger.gui.SceneType;
 import com.stirante.runechanger.model.client.Champion;
 import com.stirante.runechanger.sourcestore.TeamCompAnalyzer;
 import com.stirante.runechanger.util.AnalyticsUtil;
-import com.stirante.runechanger.util.SwingUtils;
+import com.stirante.runechanger.utils.SwingUtils;
 import generated.Position;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

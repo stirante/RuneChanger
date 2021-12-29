@@ -3,7 +3,6 @@ package com.stirante.runechanger.sourcestore;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.stirante.runechanger.DebugConsts;
-import com.stirante.runechanger.RuneChanger;
 import com.stirante.runechanger.model.app.CounterData;
 import com.stirante.runechanger.model.app.SettingsConfiguration;
 import com.stirante.runechanger.model.client.Champion;
@@ -11,9 +10,11 @@ import com.stirante.runechanger.model.client.ChampionBuild;
 import com.stirante.runechanger.model.client.GameData;
 import com.stirante.runechanger.model.client.GameMode;
 import com.stirante.runechanger.sourcestore.impl.*;
-import com.stirante.runechanger.util.FxUtils;
-import com.stirante.runechanger.util.SimplePreferences;
-import com.stirante.runechanger.util.SyncingListWrapper;
+import com.stirante.runechanger.utils.FxUtils;
+import com.stirante.runechanger.util.RuneBook;
+import com.stirante.runechanger.utils.SyncingListWrapper;
+import com.stirante.runechanger.utils.AsyncTask;
+import com.stirante.runechanger.utils.SimplePreferences;
 import javafx.collections.ListChangeListener;
 
 import java.io.IOException;
@@ -98,7 +99,7 @@ public class SourceStore {
                         SimplePreferences.getBooleanValue(source.getSourceKey(), true))
                 .map(source -> (RuneSource) source)
                 .forEach(runeSource ->
-                        RuneChanger.EXECUTOR_SERVICE.submit(() -> runeSource.getRunesForGame(data, pages))
+                        AsyncTask.EXECUTOR_SERVICE.submit(() -> runeSource.getRunesForGame(data, pages))
                 );
     }
 
@@ -114,9 +115,9 @@ public class SourceStore {
                         SimplePreferences.getBooleanValue(source.getSourceKey(), true))
                 .map(source -> (CounterSource) source)
                 .findFirst().ifPresent(counterSource ->
-                RuneChanger.EXECUTOR_SERVICE.submit(() -> {
-                    result.complete(counterSource.getCounterData(champion));
-                }));
+                        AsyncTask.EXECUTOR_SERVICE.submit(() -> {
+                            result.complete(counterSource.getCounterData(champion));
+                        }));
         return result;
     }
 
@@ -142,12 +143,12 @@ public class SourceStore {
                 }
             });
         }
-        RuneChanger.EXECUTOR_SERVICE.submit(() -> {
+        AsyncTask.EXECUTOR_SERVICE.submit(() -> {
             sources.stream()
                     .filter(source -> source instanceof RuneSource && !(source instanceof LocalSource) &&
                             SimplePreferences.getBooleanValue(source.getSourceKey(), true))
                     .map(source -> (RuneSource) source)
-                    .forEach(runeSource -> RuneChanger.EXECUTOR_SERVICE.submit(() -> {
+                    .forEach(runeSource -> AsyncTask.EXECUTOR_SERVICE.submit(() -> {
                                 for (GameMode mode : runeSource.getSupportedGameModes()) {
                                     runeSource.getRunesForGame(GameData.of(champion, mode), pages);
                                 }
@@ -162,7 +163,7 @@ public class SourceStore {
      * @param pages list of pages, which will be filled with pages
      */
     public static void getLocalRunes(SyncingListWrapper<ChampionBuild> pages) {
-        pages.addAll(SimplePreferences.getRuneBookValues());
+        pages.addAll(RuneBook.getRuneBookValues());
     }
 
     @SuppressWarnings("unchecked")

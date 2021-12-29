@@ -1,7 +1,7 @@
 package com.stirante.runechanger.gui.controllers;
 
 import com.stirante.runechanger.gui.components.RCButton;
-import com.stirante.runechanger.util.LangHelper;
+import com.stirante.runechanger.utils.LangHelper;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -28,7 +28,8 @@ public class DialogController extends Dialog<ButtonType> {
 
     public DialogController() {
         setDialogPane(new CustomDialogPane());
-        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/fxml/CustomDialog.fxml"), LangHelper.getLang());
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/fxml/CustomDialog.fxml"), com.stirante.runechanger.RuneChanger.getInstance()
+                .getLang());
         fxmlLoader.setController(this);
         try {
             fxmlLoader.load();

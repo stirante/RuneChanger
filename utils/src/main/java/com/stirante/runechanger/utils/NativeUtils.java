@@ -1,4 +1,4 @@
-package com.stirante.runechanger.util;
+package com.stirante.runechanger.utils;
 
 import com.sun.jna.Native;
 import com.sun.jna.platform.win32.Kernel32;

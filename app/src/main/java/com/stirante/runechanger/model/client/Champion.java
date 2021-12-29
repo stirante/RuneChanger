@@ -8,7 +8,9 @@ import com.stirante.eventbus.EventBus;
 import com.stirante.runechanger.RuneChanger;
 import com.stirante.runechanger.sourcestore.SourceStore;
 import com.stirante.runechanger.sourcestore.impl.ChampionGGSource;
-import com.stirante.runechanger.util.*;
+import com.stirante.runechanger.util.AnalyticsUtil;
+import com.stirante.runechanger.util.PerformanceMonitor;
+import com.stirante.runechanger.utils.*;
 import generated.Position;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -148,7 +150,7 @@ public class Champion {
                 return;
             }
             //Do online init anyways, but async, so it won't hold back GUI
-            RuneChanger.EXECUTOR_SERVICE.submit(() -> {
+            AsyncTask.EXECUTOR_SERVICE.submit(() -> {
                 try {
                     onlineInit(cache);
                 } catch (IOException e) {

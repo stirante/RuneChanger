@@ -7,8 +7,7 @@ import com.google.gson.JsonParser;
 import com.stirante.runechanger.model.client.*;
 import com.stirante.runechanger.sourcestore.RuneSource;
 import com.stirante.runechanger.sourcestore.SourceStore;
-import com.stirante.runechanger.util.StringUtils;
-import com.stirante.runechanger.util.SyncingListWrapper;
+import com.stirante.runechanger.utils.SyncingListWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

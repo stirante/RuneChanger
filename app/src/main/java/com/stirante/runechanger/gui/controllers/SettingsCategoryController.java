@@ -1,6 +1,6 @@
 package com.stirante.runechanger.gui.controllers;
 
-import com.stirante.runechanger.util.LangHelper;
+import com.stirante.runechanger.utils.LangHelper;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Label;
@@ -28,7 +28,8 @@ public class SettingsCategoryController {
         this.id = id;
         this.onClick = onSelect;
         FXMLLoader fxmlLoader =
-                new FXMLLoader(getClass().getResource("/fxml/SettingsCategory.fxml"), LangHelper.getLang());
+                new FXMLLoader(getClass().getResource("/fxml/SettingsCategory.fxml"), com.stirante.runechanger.RuneChanger.getInstance()
+                        .getLang());
         fxmlLoader.setController(this);
         try {
             root = fxmlLoader.load();

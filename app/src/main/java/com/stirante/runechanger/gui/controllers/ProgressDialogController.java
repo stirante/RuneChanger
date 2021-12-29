@@ -1,6 +1,6 @@
 package com.stirante.runechanger.gui.controllers;
 
-import com.stirante.runechanger.util.LangHelper;
+import com.stirante.runechanger.utils.LangHelper;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -23,7 +23,8 @@ public class ProgressDialogController extends Dialog<Void> {
     public ProgressDialogController() {
         setDialogPane(new CustomDialogPane());
         FXMLLoader fxmlLoader =
-                new FXMLLoader(getClass().getResource("/fxml/ProgressDialog.fxml"), LangHelper.getLang());
+                new FXMLLoader(getClass().getResource("/fxml/ProgressDialog.fxml"), com.stirante.runechanger.RuneChanger.getInstance()
+                        .getLang());
         fxmlLoader.setController(this);
         try {
             fxmlLoader.load();

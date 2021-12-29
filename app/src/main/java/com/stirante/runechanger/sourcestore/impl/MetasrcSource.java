@@ -3,7 +3,7 @@ package com.stirante.runechanger.sourcestore.impl;
 import com.stirante.runechanger.model.client.*;
 import com.stirante.runechanger.sourcestore.RuneSource;
 import com.stirante.runechanger.sourcestore.SourceStore;
-import com.stirante.runechanger.util.SyncingListWrapper;
+import com.stirante.runechanger.utils.SyncingListWrapper;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;

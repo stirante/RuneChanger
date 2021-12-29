@@ -1,6 +1,7 @@
 package com.stirante.runechanger.util;
 
-import com.stirante.runechanger.RuneChanger;
+import com.stirante.runechanger.utils.AsyncTask;
+import com.stirante.runechanger.utils.SimplePreferences;
 import com.sun.jna.Pointer;
 import com.sun.jna.platform.win32.Kernel32;
 import com.sun.jna.platform.win32.User32;
@@ -22,7 +23,7 @@ public class LolHelper {
     private static int counter = 0;
 
     public static void init() {
-        RuneChanger.EXECUTOR_SERVICE.submit(() -> {
+        AsyncTask.EXECUTOR_SERVICE.submit(() -> {
             final User32 lib = User32.INSTANCE;
             WinDef.HMODULE hMod = Kernel32.INSTANCE.GetModuleHandle(null);
             keyboardHook = (nCode, wParam, info) -> {

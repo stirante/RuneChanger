@@ -5,14 +5,14 @@ import com.stirante.eventbus.Subscribe;
 import com.stirante.lolclient.ApiResponse;
 import com.stirante.lolclient.ClientApi;
 import com.stirante.runechanger.DebugConsts;
-import com.stirante.runechanger.RuneChanger;
 import com.stirante.runechanger.model.client.Champion;
 import com.stirante.runechanger.model.client.GameMap;
 import com.stirante.runechanger.model.client.GameMode;
 import com.stirante.runechanger.model.client.SummonerSpell;
 import com.stirante.runechanger.sourcestore.TeamCompAnalyzer;
 import com.stirante.runechanger.util.AnalyticsUtil;
-import com.stirante.runechanger.util.SimplePreferences;
+import com.stirante.runechanger.utils.AsyncTask;
+import com.stirante.runechanger.utils.SimplePreferences;
 import generated.*;
 import ly.count.sdk.java.Countly;
 import org.slf4j.Logger;
@@ -321,7 +321,7 @@ public class ChampionSelection extends ClientModule {
                     (!allyTeam.isEmpty() || !enemyTeam.isEmpty()) &&
                     teamChanged) {
                 System.out.println("Team changed, analyzing new team");
-                RuneChanger.EXECUTOR_SERVICE.submit(() -> {
+                AsyncTask.EXECUTOR_SERVICE.submit(() -> {
                     try {
                         teamCompAnalyzer.analyze(selectedPosition, champion, allyTeam, enemyTeam, banned);
                     } catch (IOException e) {

@@ -5,7 +5,8 @@ import com.stirante.eventbus.Subscribe;
 import com.stirante.lolclient.ClientApi;
 import com.stirante.lolclient.ClientWebSocket;
 import com.stirante.runechanger.RuneChanger;
-import com.stirante.runechanger.util.SimplePreferences;
+import com.stirante.runechanger.utils.SimplePreferences;
+import com.stirante.runechanger.utils.AsyncTask;
 import generated.LolMatchmakingMatchmakingDodgeState;
 import generated.LolMatchmakingMatchmakingSearchResource;
 import org.slf4j.Logger;
@@ -33,7 +34,7 @@ public class Matchmaking extends ClientModule {
                 try {
                     log.debug("restart matchmaking");
                     getApi().executeDelete("/lol-lobby/v2/lobby/matchmaking/search");
-                    RuneChanger.EXECUTOR_SERVICE.submit(() -> {
+                    AsyncTask.EXECUTOR_SERVICE.submit(() -> {
                         try {
                             Thread.sleep(1000);
                             getApi().executePost("/lol-lobby/v2/lobby/matchmaking/search");

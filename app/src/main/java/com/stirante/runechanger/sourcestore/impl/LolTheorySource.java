@@ -7,8 +7,8 @@ import com.stirante.justpipe.Pipe;
 import com.stirante.runechanger.model.client.*;
 import com.stirante.runechanger.sourcestore.RuneSource;
 import com.stirante.runechanger.sourcestore.SourceStore;
-import com.stirante.runechanger.util.PipeExtension;
-import com.stirante.runechanger.util.SyncingListWrapper;
+import com.stirante.runechanger.utils.PipeExtension;
+import com.stirante.runechanger.utils.SyncingListWrapper;
 import generated.Position;
 
 import java.io.IOException;

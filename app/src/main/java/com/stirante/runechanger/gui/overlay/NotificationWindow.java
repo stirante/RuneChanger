@@ -4,7 +4,7 @@ import com.stirante.eventbus.EventBus;
 import com.stirante.eventbus.Subscribe;
 import com.stirante.runechanger.gui.Constants;
 import com.stirante.runechanger.util.AnalyticsUtil;
-import com.stirante.runechanger.util.SwingUtils;
+import com.stirante.runechanger.utils.SwingUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

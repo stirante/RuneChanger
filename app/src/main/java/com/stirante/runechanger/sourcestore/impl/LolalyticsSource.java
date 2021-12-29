@@ -14,7 +14,7 @@ import com.stirante.runechanger.model.client.RunePage;
 import com.stirante.runechanger.model.client.SummonerSpell;
 import com.stirante.runechanger.sourcestore.RuneSource;
 import com.stirante.runechanger.sourcestore.SourceStore;
-import com.stirante.runechanger.util.SyncingListWrapper;
+import com.stirante.runechanger.utils.SyncingListWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

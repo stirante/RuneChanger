@@ -6,7 +6,8 @@ import com.stirante.runechanger.gui.SceneType;
 import com.stirante.runechanger.model.client.GameMap;
 import com.stirante.runechanger.model.client.GameMode;
 import com.stirante.runechanger.util.AnalyticsUtil;
-import com.stirante.runechanger.util.SimplePreferences;
+import com.stirante.runechanger.utils.SimplePreferences;
+import com.stirante.runechanger.utils.AsyncTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -98,7 +99,7 @@ public class QuickReplies extends OverlayLayer {
 
     public void mouseReleased(MouseEvent e) {
         //TODO: This needs MAJOR refactoring, please someone do this for me
-        RuneChanger.EXECUTOR_SERVICE.submit(() -> {
+        AsyncTask.EXECUTOR_SERVICE.submit(() -> {
             String customMessage =
                     SimplePreferences.getStringValue(SimplePreferences.SettingsKeys.CUSTOM_MESSAGE_TEXT, "");
             boolean isQuickReplies =

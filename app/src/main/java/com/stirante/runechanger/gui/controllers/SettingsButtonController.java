@@ -1,7 +1,7 @@
 package com.stirante.runechanger.gui.controllers;
 
 import com.stirante.runechanger.gui.components.RCButton;
-import com.stirante.runechanger.util.LangHelper;
+import com.stirante.runechanger.utils.LangHelper;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -22,7 +22,8 @@ public class SettingsButtonController {
 
     public SettingsButtonController(EventHandler<ActionEvent> onClick, String text, String description, boolean hideSeparator) {
         FXMLLoader fxmlLoader =
-                new FXMLLoader(getClass().getResource("/fxml/SettingsButton.fxml"), LangHelper.getLang());
+                new FXMLLoader(getClass().getResource("/fxml/SettingsButton.fxml"), com.stirante.runechanger.RuneChanger.getInstance()
+                        .getLang());
         fxmlLoader.setController(this);
         try {
             root = fxmlLoader.load();

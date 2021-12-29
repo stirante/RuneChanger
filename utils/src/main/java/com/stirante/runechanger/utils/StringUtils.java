@@ -1,4 +1,4 @@
-package com.stirante.runechanger.util;
+package com.stirante.runechanger.utils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,7 +10,7 @@ public class StringUtils {
     private static final Logger log = LoggerFactory.getLogger(StringUtils.class);
 
     /**
-     * Replacements for non standard characters
+     * Replacements for non-standard characters
      */
     private static final HashMap<String, String> REPLACEMENT = new HashMap<>();
 
@@ -23,7 +23,7 @@ public class StringUtils {
     }
 
     /**
-     * Replace non standard characters so they won't break client
+     * Replace non-standard characters so they won't break client
      *
      * @param str string
      * @return fixed string

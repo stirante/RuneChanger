@@ -3,7 +3,7 @@ package com.stirante.runechanger.gui.controllers;
 import com.stirante.runechanger.gui.Content;
 import com.stirante.runechanger.model.app.Version;
 import com.stirante.runechanger.model.client.Champion;
-import com.stirante.runechanger.util.LangHelper;
+import com.stirante.runechanger.utils.LangHelper;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -49,7 +49,8 @@ public class MainController {
 
     public MainController(Stage stage) {
         this.stage = stage;
-        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/fxml/Main.fxml"), LangHelper.getLang());
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/fxml/Main.fxml"), com.stirante.runechanger.RuneChanger.getInstance()
+                .getLang());
         fxmlLoader.setController(this);
         try {
             fxmlLoader.load();

@@ -3,8 +3,7 @@ package com.stirante.runechanger.sourcestore;
 import com.stirante.runechanger.model.client.ChampionBuild;
 import com.stirante.runechanger.model.client.GameData;
 import com.stirante.runechanger.model.client.GameMode;
-import com.stirante.runechanger.model.client.RunePage;
-import com.stirante.runechanger.util.SyncingListWrapper;
+import com.stirante.runechanger.utils.SyncingListWrapper;
 
 public interface RuneSource extends Source {
 

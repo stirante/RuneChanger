@@ -6,7 +6,8 @@ import com.stirante.lolclient.ApiResponse;
 import com.stirante.lolclient.ClientApi;
 import com.stirante.runechanger.model.client.ChampionBuild;
 import com.stirante.runechanger.model.client.RunePage;
-import com.stirante.runechanger.util.SimplePreferences;
+import com.stirante.runechanger.util.RuneBook;
+import com.stirante.runechanger.utils.SimplePreferences;
 import generated.LolPerksPerkPageResource;
 import generated.LolPerksPlayerInventory;
 import ly.count.sdk.java.Countly;
@@ -42,20 +43,24 @@ public class Runes extends ClientModule {
         if (Countly.isInitialized()) {
             Countly.session()
                     .event("rune_page_selection")
-                    .addSegment("remote", String.valueOf(page.getSource() == null || page.getSource().startsWith("http")))
+                    .addSegment("remote", String.valueOf(
+                            page.getSource() == null || page.getSource().startsWith("http")))
                     .addSegment("source", page.getSourceName())
                     .record();
         }
         try {
             //change pages
             LolPerksPerkPageResource page1 =
-                    getApi().executeGet("/lol-perks/v1/currentpage", LolPerksPerkPageResource.class).getResponseObject();
+                    getApi().executeGet("/lol-perks/v1/currentpage", LolPerksPerkPageResource.class)
+                            .getResponseObject();
             if (!page1.isEditable || !page1.isActive) {
                 //get all rune pages
                 LolPerksPerkPageResource[] pages =
-                        getApi().executeGet("/lol-perks/v1/pages", LolPerksPerkPageResource[].class).getResponseObject();
+                        getApi().executeGet("/lol-perks/v1/pages", LolPerksPerkPageResource[].class)
+                                .getResponseObject();
                 //find available pages
-                List<LolPerksPerkPageResource> availablePages = Arrays.stream(pages).filter(p -> p.isEditable).collect(Collectors.toList());
+                List<LolPerksPerkPageResource> availablePages =
+                        Arrays.stream(pages).filter(p -> p.isEditable).collect(Collectors.toList());
                 if (availablePages.size() > 0) {
                     page1 = availablePages.get(0);
                 }
@@ -70,7 +75,8 @@ public class Runes extends ClientModule {
             }
             ApiResponse<Void> response = getApi().executePost("/lol-perks/v1/pages/", page1);
             if (!response.isOk()) {
-                log.warn("Failed to add rune page! 'POST /lol-perks/v1/pages/' returned status code " + response.getStatusCode());
+                log.warn("Failed to add rune page! 'POST /lol-perks/v1/pages/' returned status code " +
+                        response.getStatusCode());
                 log.warn("Raw response: " + response.getRawResponse());
             }
         } catch (IOException ex) {
@@ -101,7 +107,8 @@ public class Runes extends ClientModule {
 
     public int getOwnedPageCount() {
         try {
-            return getApi().executeGet("/lol-perks/v1/inventory", LolPerksPlayerInventory.class).getResponseObject().ownedPageCount;
+            return getApi().executeGet("/lol-perks/v1/inventory", LolPerksPlayerInventory.class)
+                    .getResponseObject().ownedPageCount;
         } catch (IOException e) {
             log.error("Exception occurred while getting owned rune page count", e);
         }
@@ -135,7 +142,7 @@ public class Runes extends ClientModule {
     }
 
     public void syncRunePages() {
-        ArrayList<ChampionBuild> savedPages = SimplePreferences.getRuneBookValues();
+        ArrayList<ChampionBuild> savedPages = RuneBook.getRuneBookValues();
         List<RunePage> clientPages = getRunePages();
         for (RunePage p : clientPages) {
             Optional<ChampionBuild> savedPage = savedPages.stream()
@@ -145,7 +152,7 @@ public class Runes extends ClientModule {
                 savedPage.get().getRunePage().copyFrom(p);
             }
             else {
-                SimplePreferences.addRuneBookPage(p);
+                RuneBook.addRuneBookPage(p);
             }
         }
     }

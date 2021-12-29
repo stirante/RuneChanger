@@ -1,10 +1,9 @@
-package com.stirante.runechanger.util;
+package com.stirante.runechanger.utils;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 

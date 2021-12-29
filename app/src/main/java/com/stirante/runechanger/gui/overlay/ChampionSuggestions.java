@@ -5,13 +5,13 @@ import com.stirante.eventbus.EventPriority;
 import com.stirante.eventbus.Subscribe;
 import com.stirante.runechanger.RuneChanger;
 import com.stirante.runechanger.client.ChampionSelection;
-import com.stirante.runechanger.client.ClientEventListener;
 import com.stirante.runechanger.gui.Constants;
 import com.stirante.runechanger.gui.SceneType;
 import com.stirante.runechanger.model.client.Champion;
 import com.stirante.runechanger.sourcestore.TeamCompAnalyzer;
-import com.stirante.runechanger.util.SimplePreferences;
-import com.stirante.runechanger.util.UiEventExecutor;
+import com.stirante.runechanger.utils.SimplePreferences;
+import com.stirante.runechanger.utils.UiEventExecutor;
+import com.stirante.runechanger.utils.AsyncTask;
 import javafx.util.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,7 +43,7 @@ public class ChampionSuggestions extends OverlayLayer {
     public void onSession() {
         ChampionSelection champSelect = RuneChanger.getInstance().getChampionSelectionModule();
         if (champSelect != null) {
-            RuneChanger.EXECUTOR_SERVICE.execute(() -> {
+            AsyncTask.EXECUTOR_SERVICE.execute(() -> {
                 this.lastChampions = champSelect.getLastChampions();
                 this.bannedChampions = champSelect.getBannedChampions();
                 repaintLater();

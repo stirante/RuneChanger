@@ -1,7 +1,7 @@
 package com.stirante.runechanger.gui;
 
 import com.stirante.runechanger.model.app.Version;
-import com.stirante.runechanger.util.LangHelper;
+import com.stirante.runechanger.utils.LangHelper;
 import javafx.scene.text.Font;
 
 public class Constants {

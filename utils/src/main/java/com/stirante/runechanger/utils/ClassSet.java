@@ -1,4 +1,4 @@
-package com.stirante.runechanger.util;
+package com.stirante.runechanger.utils;
 
 import java.util.*;
 

@@ -7,12 +7,15 @@ import ch.qos.logback.core.Appender;
 import ch.qos.logback.core.FileAppender;
 import com.stirante.eventbus.EventBus;
 import com.stirante.eventbus.Subscribe;
-import com.stirante.lolclient.ClientWebSocket;
 import com.stirante.runechanger.DebugConsts;
 import com.stirante.runechanger.RuneChanger;
 import com.stirante.runechanger.client.ChampionSelection;
 import com.stirante.runechanger.client.ClientEventListener;
 import com.stirante.runechanger.model.app.Version;
+import com.stirante.runechanger.utils.AsyncTask;
+import com.stirante.runechanger.utils.Hardware;
+import com.stirante.runechanger.utils.PathUtils;
+import com.stirante.runechanger.utils.SimplePreferences;
 import generated.LolChampSelectChampSelectSession;
 import ly.count.sdk.ConfigCore;
 import ly.count.sdk.internal.CtxCore;
@@ -64,11 +67,16 @@ public class AnalyticsUtil {
         Countly.stop(false);
     }
 
+    @Subscribe(com.stirante.runechanger.utils.AnalyticsUtil.CrashReport.NAME)
+    public static void onCrashReport(com.stirante.runechanger.utils.AnalyticsUtil.CrashReport event) {
+        addCrashReport(event.getThrowable(), event.getComment(), event.isFatal());
+    }
+
     public static void addCrashReport(Throwable t, String comment, boolean fatal) {
         if (!Countly.isInitialized()) {
             init(false);
         }
-        RuneChanger.EXECUTOR_SERVICE.submit(() -> {
+        AsyncTask.EXECUTOR_SERVICE.submit(() -> {
             initLock.lock();
             String logs = "";
             LoggerContext context = (LoggerContext) LoggerFactory.getILoggerFactory();
@@ -157,7 +165,7 @@ public class AnalyticsUtil {
     }
 
     public static void init(boolean begin) {
-        RuneChanger.EXECUTOR_SERVICE.submit(() -> {
+        AsyncTask.EXECUTOR_SERVICE.submit(() -> {
             initLock.lock();
             Hardware.HardwareInfo info = Hardware.getAllHardwareInfo();
 

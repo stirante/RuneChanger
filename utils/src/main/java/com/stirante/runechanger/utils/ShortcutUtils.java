@@ -1,6 +1,7 @@
-package com.stirante.runechanger.util;
+package com.stirante.runechanger.utils;
 
 import com.sun.jna.platform.win32.Advapi32Util;
+import com.sun.jna.platform.win32.WinReg;
 import mslinks.ShellLink;
 import mslinks.ShellLinkException;
 import mslinks.ShellLinkHelper;
@@ -11,9 +12,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.AccessDeniedException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-
-import static com.sun.jna.platform.win32.WinReg.HKEY_CURRENT_USER;
 
 public class ShortcutUtils {
     private static final Logger log = LoggerFactory.getLogger(ShortcutUtils.class);
@@ -53,7 +51,7 @@ public class ShortcutUtils {
 
     public static void createDesktopShortcut() throws IOException {
         String path =
-                Advapi32Util.registryGetStringValue(HKEY_CURRENT_USER, REGISTRY_DESKTOP_PATH, REGISTRY_DESKTOP_KEY);
+                Advapi32Util.registryGetStringValue(WinReg.HKEY_CURRENT_USER, REGISTRY_DESKTOP_PATH, REGISTRY_DESKTOP_KEY);
         File folder = new File(path);
         createShortcut(folder, "RuneChanger", "open.bat");
     }

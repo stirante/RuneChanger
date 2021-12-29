@@ -3,6 +3,9 @@ package com.stirante.runechanger.util;
 import com.stirante.runechanger.DebugConsts;
 import com.stirante.runechanger.RuneChanger;
 import com.stirante.runechanger.gui.Settings;
+import com.stirante.runechanger.utils.FxUtils;
+import com.stirante.runechanger.utils.PathUtils;
+import com.stirante.runechanger.utils.SimplePreferences;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.update4j.Configuration;
@@ -238,8 +241,8 @@ public class AutoUpdater {
             if (needsUpdate()) {
                 String estimatedUpdateSize = getEstimatedUpdateSize();
                 FxUtils.doOnFxThread(() -> {
-                    boolean update = Settings.openYesNoDialog(LangHelper.getLang()
-                            .getString("update_available"), String.format(LangHelper.getLang()
+                    boolean update = Settings.openYesNoDialog(RuneChanger.getInstance().getLang()
+                            .getString("update_available"), String.format(RuneChanger.getInstance().getLang()
                             .getString("update_question"), estimatedUpdateSize));
                     if (update) {
                         performUpdate();
@@ -296,7 +299,8 @@ public class AutoUpdater {
                 for (File file : files) {
                     if (file.isDirectory()) {
                         deleteDirectory(file);
-                    } else {
+                    }
+                    else {
                         Files.delete(file.toPath());
                     }
                 }

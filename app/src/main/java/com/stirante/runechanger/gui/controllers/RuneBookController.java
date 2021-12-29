@@ -3,9 +3,7 @@ package com.stirante.runechanger.gui.controllers;
 import com.stirante.runechanger.gui.Content;
 import com.stirante.runechanger.model.client.Champion;
 import com.stirante.runechanger.model.client.ChampionBuild;
-import com.stirante.runechanger.model.client.RunePage;
-import com.stirante.runechanger.util.SyncingListWrapper;
-import com.stirante.runechanger.util.LangHelper;
+import com.stirante.runechanger.utils.SyncingListWrapper;
 import generated.Position;
 import javafx.collections.ListChangeListener;
 import javafx.collections.transformation.FilteredList;
@@ -37,7 +35,8 @@ public class RuneBookController implements Content {
     public final SyncingListWrapper<ChampionBuild> newRunes = new SyncingListWrapper<>();
 
     public RuneBookController() {
-        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/fxml/RuneBook.fxml"), LangHelper.getLang());
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/fxml/RuneBook.fxml"), com.stirante.runechanger.RuneChanger.getInstance()
+                .getLang());
         fxmlLoader.setController(this);
         try {
             fxmlLoader.load();

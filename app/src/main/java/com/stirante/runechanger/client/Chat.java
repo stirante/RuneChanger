@@ -5,7 +5,8 @@ import com.stirante.eventbus.Subscribe;
 import com.stirante.lolclient.ClientApi;
 import com.stirante.lolclient.ClientWebSocket;
 import com.stirante.runechanger.RuneChanger;
-import com.stirante.runechanger.util.SimplePreferences;
+import com.stirante.runechanger.utils.SimplePreferences;
+import com.stirante.runechanger.utils.AsyncTask;
 import generated.LolChatUserResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,7 +26,7 @@ public class Chat extends ClientModule {
     public void onChatUser(ClientEventListener.ClientEvent<LolChatUserResource> event) {
         if (SimplePreferences.getBooleanValue(SimplePreferences.SettingsKeys.ANTI_AWAY, false) &&
                 event.getData().availability.equalsIgnoreCase("away")) {
-            RuneChanger.EXECUTOR_SERVICE.submit(() -> {
+            AsyncTask.EXECUTOR_SERVICE.submit(() -> {
                 try {
                     LolChatUserResource data = new LolChatUserResource();
                     data.availability = "chat";

@@ -11,6 +11,8 @@
 
     <modules>
         <module>app</module>
+        <module>utils</module>
+        <module>api</module>
         <module>updater</module>
         <module>package</module>
     </modules>
@@ -21,6 +23,7 @@
         <revision>1.14.3</revision>
         <update4j.version>1.5.7</update4j.version>
         <javafx.version>17.0.0.1</javafx.version>
+        <logback.version>1.2.9</logback.version>
     </properties>
 
     <repositories>

@@ -4,7 +4,6 @@ import com.stirante.eventbus.EventBus;
 import com.stirante.eventbus.EventPriority;
 import com.stirante.eventbus.Subscribe;
 import com.stirante.lolclient.ClientApi;
-import com.stirante.lolclient.ClientWebSocket;
 import com.stirante.runechanger.RuneChanger;
 import com.stirante.runechanger.client.ClientEventListener;
 import com.stirante.runechanger.client.ClientModule;
@@ -15,6 +14,8 @@ import com.stirante.runechanger.model.client.ChampionBuild;
 import com.stirante.runechanger.model.client.RunePage;
 import com.stirante.runechanger.sourcestore.SourceStore;
 import com.stirante.runechanger.util.*;
+import com.stirante.runechanger.util.AnalyticsUtil;
+import com.stirante.runechanger.utils.*;
 import generated.LolGameflowGameflowPhase;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -68,7 +69,7 @@ public class Settings extends Application {
 
     public static void initialize() {
         EventBus.register(Settings.class);
-        RuneChanger.EXECUTOR_SERVICE.submit((Runnable) Application::launch);
+        AsyncTask.EXECUTOR_SERVICE.submit((Runnable) Application::launch);
     }
 
     public static void show() {
@@ -117,7 +118,7 @@ public class Settings extends Application {
             if (value) {
                 try {
                     instance.home.localRunes.clear();
-                    instance.home.localRunes.addAll(SimplePreferences.getRuneBookValues());
+                    instance.home.localRunes.addAll(RuneBook.getRuneBookValues());
                     instance.home.setOnline(
                             RuneChanger.getInstance().getChampionSelectionModule().getCurrentSummoner(),
                             RuneChanger.getInstance().getLootModule());
@@ -187,7 +188,7 @@ public class Settings extends Application {
         Scene scene = new Scene(controller.container, 600, 500);
         scene.getStylesheets().add(getClass().getResource("/style.css").toExternalForm());
         scene.setFill(null);
-        scene.setNodeOrientation(LangHelper.isTextRTL() ? NodeOrientation.RIGHT_TO_LEFT : NodeOrientation.LEFT_TO_RIGHT);
+        scene.setNodeOrientation(LangHelper.isTextRTL(RuneChanger.getInstance().getLang().getLocale()) ? NodeOrientation.RIGHT_TO_LEFT : NodeOrientation.LEFT_TO_RIGHT);
         mainStage.setScene(scene);
 
         mainStage.addEventHandler(KeyEvent.KEY_PRESSED, keyPress);
@@ -451,11 +452,11 @@ public class Settings extends Application {
             }
 
             donateDontAsk = SimplePreferences.getBooleanValue(SimplePreferences.InternalKeys.DONATE_DONT_ASK, false);
-            RuneChanger.EXECUTOR_SERVICE.submit(AutoUpdater::checkUpdate);
+            AsyncTask.EXECUTOR_SERVICE.submit(AutoUpdater::checkUpdate);
             if (!SimplePreferences.getBooleanValue(SimplePreferences.InternalKeys.ASKED_ANALYTICS, false)) {
                 boolean analytics = Settings.openYesNoDialog(
-                        LangHelper.getLang().getString("analytics_dialog_title"),
-                        LangHelper.getLang().getString("analytics_dialog_message")
+                        RuneChanger.getInstance().getLang().getString("analytics_dialog_title"),
+                        RuneChanger.getInstance().getLang().getString("analytics_dialog_message")
                 );
                 AnalyticsUtil.onConsent(analytics);
                 SimplePreferences.putBooleanValue(SimplePreferences.InternalKeys.ASKED_ANALYTICS, true);
@@ -472,7 +473,7 @@ public class Settings extends Application {
             StringSelection selection = new StringSelection(runePage.toSerializedString());
             Toolkit.getDefaultToolkit().getSystemClipboard().setContents(selection, selection);
         }
-        runeChanger.getGuiHandler().showInfoMessage(LangHelper.getLang().getString("successful_rune_copy"));
+        runeChanger.getGuiHandler().showInfoMessage(RuneChanger.getInstance().getLang().getString("successful_rune_copy"));
     }
 
     private void pasteRunePage(Champion champion) {
@@ -486,16 +487,16 @@ public class Settings extends Application {
                 if (champion != null) {
                     page.setChampion(champion);
                 }
-                if (SimplePreferences.getRuneBookPage(page.getName()) != null) {
-                    runeChanger.getGuiHandler().showWarningMessage(String.format(LangHelper.getLang()
+                if (RuneBook.getRuneBookPage(page.getName()) != null) {
+                    runeChanger.getGuiHandler().showWarningMessage(String.format(RuneChanger.getInstance().getLang()
                             .getString("duplicate_name_msg"), page.getName()));
                     return;
                 }
-                SimplePreferences.addRuneBookPage(page);
-                runeChanger.getGuiHandler().showInfoMessage(LangHelper.getLang().getString("successful_rune_copy"));
+                RuneBook.addRuneBookPage(page);
+                runeChanger.getGuiHandler().showInfoMessage(RuneChanger.getInstance().getLang().getString("successful_rune_copy"));
             }
             else {
-                runeChanger.getGuiHandler().showWarningMessage(LangHelper.getLang()
+                runeChanger.getGuiHandler().showWarningMessage(RuneChanger.getInstance().getLang()
                         .getString("invalid_runepage"));
             }
         } catch (UnsupportedFlavorException | IOException e) {
@@ -506,7 +507,7 @@ public class Settings extends Application {
     @Subscribe(GAME_PHASE_EVENT)
     public void onGamePhase(ClientEventListener.ClientEvent<LolGameflowGameflowPhase> event) {
         if (event.getData() == LolGameflowGameflowPhase.ENDOFGAME) {
-            RuneChanger.EXECUTOR_SERVICE.submit(() -> {
+            AsyncTask.EXECUTOR_SERVICE.submit(() -> {
                 try {
                     Thread.sleep(10000);
                 } catch (InterruptedException e) {
@@ -526,12 +527,12 @@ public class Settings extends Application {
             return;
         }
         donateDontAsk = true;
-        ButtonType donate = new ButtonType(LangHelper.getLang().getString("donate_button"));
-        ButtonType later = new ButtonType(LangHelper.getLang().getString("later_button"));
-        ButtonType never = new ButtonType(LangHelper.getLang().getString("never_ask_again_button"));
+        ButtonType donate = new ButtonType(RuneChanger.getInstance().getLang().getString("donate_button"));
+        ButtonType later = new ButtonType(RuneChanger.getInstance().getLang().getString("later_button"));
+        ButtonType never = new ButtonType(RuneChanger.getInstance().getLang().getString("never_ask_again_button"));
         ButtonType result = Settings.openDialog(
-                LangHelper.getLang().getString("donate_dialog_title"),
-                LangHelper.getLang().getString("donate_dialog_message"),
+                RuneChanger.getInstance().getLang().getString("donate_dialog_title"),
+                RuneChanger.getInstance().getLang().getString("donate_dialog_message"),
                 donate,
                 later,
                 never
@@ -591,17 +592,17 @@ public class Settings extends Application {
                 String title;
                 ArrayList<ChampionBuild> runeBookValues;
                 if (result == null || !RuneChanger.getInstance().getApi().isConnected()) {
-                    title = LangHelper.getLang().getString("local_runes_no_connection");
-                    runeBookValues = SimplePreferences.getRuneBookValues();
+                    title = RuneChanger.getInstance().getLang().getString("local_runes_no_connection");
+                    runeBookValues = RuneBook.getRuneBookValues();
                 }
                 else {
                     title = String.format(
-                            LangHelper.getLang().getString("local_runes"),
+                            RuneChanger.getInstance().getLang().getString("local_runes"),
                             result.size(),
                             runeChanger.getRunesModule().getOwnedPageCount());
                     // Split list into runepages, that are both in runebook and in client and those, that are only in runebook
                     @SuppressWarnings("unchecked") Map<Boolean, List<ChampionBuild>> results =
-                            ((List<ChampionBuild>) SimplePreferences.getRuneBookValues().clone())
+                            ((List<ChampionBuild>) RuneBook.getRuneBookValues().clone())
                                     .stream()
                                     .collect(Collectors.partitioningBy(runePage -> result
                                             .stream()

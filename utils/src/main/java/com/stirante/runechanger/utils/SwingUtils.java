@@ -1,4 +1,4 @@
-package com.stirante.runechanger.util;
+package com.stirante.runechanger.utils;
 
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;

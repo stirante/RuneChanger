@@ -7,6 +7,8 @@ import com.stirante.runechanger.model.app.SettingsConfiguration;
 import com.stirante.runechanger.sourcestore.Source;
 import com.stirante.runechanger.sourcestore.SourceStore;
 import com.stirante.runechanger.util.*;
+import com.stirante.runechanger.util.AnalyticsUtil;
+import com.stirante.runechanger.utils.*;
 import javafx.animation.Animation;
 import javafx.animation.Interpolator;
 import javafx.animation.Transition;
@@ -54,7 +56,8 @@ public class SettingsController implements Content {
 
     public SettingsController(Stage stage) {
         this.stage = stage;
-        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/fxml/Settings.fxml"), LangHelper.getLang());
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/fxml/Settings.fxml"), RuneChanger.getInstance()
+                .getLang());
         fxmlLoader.setController(this);
         try {
             fxmlLoader.load();
@@ -67,8 +70,8 @@ public class SettingsController implements Content {
 
     private void tryRestart() {
         Platform.runLater(() -> {
-            boolean restart = Settings.openYesNoDialog(LangHelper.getLang()
-                    .getString("restart_necessary"), LangHelper.getLang()
+            boolean restart = Settings.openYesNoDialog(RuneChanger.getInstance().getLang()
+                    .getString("restart_necessary"), RuneChanger.getInstance().getLang()
                     .getString("restart_necessary_description"));
             if (restart) {
                 restartProgram();
@@ -133,8 +136,8 @@ public class SettingsController implements Content {
         setupPreference(APP_CATEGORY, new SettingsItemController(
                 AutoStartUtils.isAutoStartEnabled(),
                 toTruePredicate(AutoStartUtils::setAutoStart),
-                LangHelper.getLang().getString("autostart"),
-                LangHelper.getLang().getString("autostart_message"),
+                RuneChanger.getInstance().getLang().getString("autostart"),
+                RuneChanger.getInstance().getLang().getString("autostart_message"),
                 false
         ).getRoot());
         setupButton(APP_CATEGORY, "create_shortcuts_btn", "create_shortcuts_tooltip", event -> {
@@ -143,18 +146,18 @@ public class SettingsController implements Content {
                 ShortcutUtils.createMenuShortcuts();
                 RuneChanger.getInstance()
                         .getGuiHandler()
-                        .showInfoMessage(LangHelper.getLang().getString("create_shortcuts_success"));
+                        .showInfoMessage(RuneChanger.getInstance().getLang().getString("create_shortcuts_success"));
             } catch (IOException e) {
                 e.printStackTrace();
                 RuneChanger.getInstance()
                         .getGuiHandler()
-                        .showWarningMessage(String.format(LangHelper.getLang()
+                        .showWarningMessage(String.format(RuneChanger.getInstance().getLang()
                                 .getString("create_shortcuts_failure"), e.getMessage()));
             }
         }, false);
         setupButton(APP_CATEGORY, "check_update", "check_update_tooltip", event -> {
             AutoUpdater.resetCache();
-            RuneChanger.EXECUTOR_SERVICE.submit(() -> {
+            AsyncTask.EXECUTOR_SERVICE.submit(() -> {
                 try {
                     boolean needsUpdate = AutoUpdater.needsUpdate();
                     if (needsUpdate) {
@@ -163,14 +166,14 @@ public class SettingsController implements Content {
                     else {
                         FxUtils.doOnFxThread(() -> RuneChanger.getInstance()
                                 .getGuiHandler()
-                                .showInfoMessage(LangHelper.getLang().getString("no_update_available"))
+                                .showInfoMessage(RuneChanger.getInstance().getLang().getString("no_update_available"))
                         );
                     }
                 } catch (IOException e) {
                     log.error("Failed to check for updates", e);
                     FxUtils.doOnFxThread(() -> RuneChanger.getInstance()
                             .getGuiHandler()
-                            .showWarningMessage(LangHelper.getLang().getString("check_update_failure")));
+                            .showWarningMessage(RuneChanger.getInstance().getLang().getString("check_update_failure")));
                 }
             });
         }, false);
@@ -241,7 +244,7 @@ public class SettingsController implements Content {
     private void setupCategory(String id, String titleKey) {
         categoryContents.put(id, new ArrayList<>());
         SettingsCategoryController controller =
-                new SettingsCategoryController(id, LangHelper.getLang().getString(titleKey), () -> {
+                new SettingsCategoryController(id, RuneChanger.getInstance().getLang().getString(titleKey), () -> {
                     displayCategory(id);
                 });
         categoryControllers.add(controller);
@@ -268,7 +271,7 @@ public class SettingsController implements Content {
             SimplePreferences.putBooleanValue(key, selected);
             SimplePreferences.save();
             return true;
-        }, LangHelper.getLang().getString(titleKey), LangHelper.getLang().getString(descKey), hideSeparator).getRoot());
+        }, RuneChanger.getInstance().getLang().getString(titleKey), RuneChanger.getInstance().getLang().getString(descKey), hideSeparator).getRoot());
     }
 
     private void setupSourcePreference(String key, String title, boolean hideSeparator) {
@@ -281,7 +284,7 @@ public class SettingsController implements Content {
             SimplePreferences.save();
             SourceStore.invalidateCaches();
             return true;
-        }, title, LangHelper.getLang().getString("source_msg"), hideSeparator);
+        }, title, RuneChanger.getInstance().getLang().getString("source_msg"), hideSeparator);
         setupPreference(SOURCES_CATEGORY, controller.getRoot());
     }
 
@@ -295,8 +298,8 @@ public class SettingsController implements Content {
         setupPreference(category, new SettingsEditItemController(
                 text,
                 FxUtils.prop(check, (observable, oldValue, newValue) -> SimplePreferences.putBooleanValue(checkKey, newValue)),
-                LangHelper.getLang().getString(titleKey),
-                descKey != null ? LangHelper.getLang().getString(descKey) : null,
+                RuneChanger.getInstance().getLang().getString(titleKey),
+                descKey != null ? RuneChanger.getInstance().getLang().getString(descKey) : null,
                 s -> {
                     if (onChange != null && !onChange.test(s)) {
                         return false;
@@ -317,8 +320,8 @@ public class SettingsController implements Content {
         setupPreference(category, new SettingsEditItemController(
                 text,
                 null,
-                LangHelper.getLang().getString(titleKey),
-                descKey != null ? LangHelper.getLang().getString(descKey) : null,
+                RuneChanger.getInstance().getLang().getString(titleKey),
+                descKey != null ? RuneChanger.getInstance().getLang().getString(descKey) : null,
                 s -> {
                     if (onChange != null && !onChange.test(s)) {
                         return false;
@@ -333,8 +336,8 @@ public class SettingsController implements Content {
     private void setupButton(String category, String titleKey, String descKey, EventHandler<ActionEvent> onClick, boolean hideSeparator) {
         setupPreference(category, new SettingsButtonController(
                 onClick,
-                LangHelper.getLang().getString(titleKey),
-                descKey != null ? LangHelper.getLang().getString(descKey) : null,
+                RuneChanger.getInstance().getLang().getString(titleKey),
+                descKey != null ? RuneChanger.getInstance().getLang().getString(descKey) : null,
                 hideSeparator
         ).getRoot());
     }

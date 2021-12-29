@@ -27,6 +27,7 @@ module RuneChanger {
     requires com.stirante.justpipe;
     requires org.slf4j;
     requires core;
+    requires utils;
 
     exports com.stirante.runechanger;
     exports com.stirante.runechanger.gui;

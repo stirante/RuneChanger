@@ -1,7 +1,8 @@
 package com.stirante.runechanger.gui.components;
 
+import com.stirante.runechanger.RuneChanger;
 import com.stirante.runechanger.gui.Constants;
-import com.stirante.runechanger.util.FxUtils;
+import com.stirante.runechanger.utils.FxUtils;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ObjectPropertyBase;
 import javafx.beans.property.SimpleStringProperty;
@@ -143,7 +144,7 @@ public class RCButton extends Component {
         g.setFont(Constants.BUTTON_FONT);
         if (textProperty.isNotNull().get()) {
             FxUtils.fillNiceCenteredText(g, textProperty.get(),
-                    getWidth() / 2, getHeight() / 2, Constants.BUTTON_FONT_SPACING);
+                    getWidth() / 2, getHeight() / 2, Constants.BUTTON_FONT_SPACING, RuneChanger.getInstance().isTextRTL());
         }
     }
 
@@ -163,7 +164,7 @@ public class RCButton extends Component {
     public void invalidate() {
         if (getText() != null) {
             Pair<Double, Double> size =
-                    FxUtils.measureTextSize(Constants.BUTTON_FONT, getText(), Constants.BUTTON_FONT_SPACING);
+                    FxUtils.measureTextSize(Constants.BUTTON_FONT, getText(), Constants.BUTTON_FONT_SPACING, RuneChanger.getInstance().isTextRTL());
             Image sideImage = side[0];
             double sideWidth = (sideImage.getWidth() / sideImage.getHeight()) * getHeight();
             setWidth(Math.max(sideWidth * 2 + size.getKey(), getWidth()));

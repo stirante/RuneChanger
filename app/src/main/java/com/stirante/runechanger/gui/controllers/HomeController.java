@@ -6,8 +6,8 @@ import com.stirante.runechanger.gui.Content;
 import com.stirante.runechanger.gui.Settings;
 import com.stirante.runechanger.gui.components.RCButton;
 import com.stirante.runechanger.model.client.ChampionBuild;
-import com.stirante.runechanger.util.LangHelper;
-import com.stirante.runechanger.util.SimplePreferences;
+import com.stirante.runechanger.utils.LangHelper;
+import com.stirante.runechanger.utils.SimplePreferences;
 import generated.LolSummonerSummoner;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
@@ -49,7 +49,8 @@ public class HomeController implements Content {
     private Loot lootModule;
 
     public HomeController() {
-        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/fxml/Home.fxml"), LangHelper.getLang());
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/fxml/Home.fxml"), RuneChanger.getInstance()
+                .getLang());
         fxmlLoader.setController(this);
         try {
             fxmlLoader.load();
@@ -98,13 +99,15 @@ public class HomeController implements Content {
         profilePicture.setFill(null);
         disenchantChampionsButton.setDisable(true);
         syncButton.setDisable(true);
-        localRunesTitle.setText(LangHelper.getLang().getString("local_runes_no_connection"));
-        username.setText(LangHelper.getLang().getString("not_connected"));
+        localRunesTitle.setText(RuneChanger.getInstance().getLang().getString("local_runes_no_connection"));
+        username.setText(RuneChanger.getInstance().getLang().getString("not_connected"));
     }
 
     @FXML
     public void onChampionDisenchant(ActionEvent event) {
-        if (Settings.openYesNoDialog(LangHelper.getLang().getString("disenchant_confirm_title"), LangHelper.getLang().getString("disenchant_confirm_message"))) {
+        if (Settings.openYesNoDialog(RuneChanger.getInstance().getLang().getString("disenchant_confirm_title"), RuneChanger.getInstance()
+                .getLang()
+                .getString("disenchant_confirm_message"))) {
             if (SimplePreferences.getBooleanValue(SimplePreferences.SettingsKeys.SMART_DISENCHANT, false)) {
                 lootModule.smartDisenchantChampions();
             }

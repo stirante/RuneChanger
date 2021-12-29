@@ -20,6 +20,8 @@ import com.stirante.runechanger.model.app.Version;
 import com.stirante.runechanger.model.client.Champion;
 import com.stirante.runechanger.sourcestore.SourceStore;
 import com.stirante.runechanger.util.*;
+import com.stirante.runechanger.util.AnalyticsUtil;
+import com.stirante.runechanger.utils.*;
 import com.sun.jna.platform.win32.Advapi32Util;
 import com.sun.jna.platform.win32.Kernel32Util;
 import com.sun.jna.platform.win32.Shell32;
@@ -43,12 +45,8 @@ import java.nio.file.StandardOpenOption;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 public class RuneChanger implements Launcher {
-
-    public static final ExecutorService EXECUTOR_SERVICE = Executors.newCachedThreadPool();
 
     private static final Logger log = LoggerFactory.getLogger(RuneChanger.class);
     private static RuneChanger instance;
@@ -63,6 +61,7 @@ public class RuneChanger implements Launcher {
     private Matchmaking matchmakingModule;
 
     private ClientWebSocket socket;
+    private ResourceBundle resourceBundle;
 
     public static void main(String[] args) {
         if (Arrays.asList(args).contains("-debug-mode")) {
@@ -81,6 +80,8 @@ public class RuneChanger implements Launcher {
             AnalyticsUtil.addCrashReport(throwable,
                     "An unhandled exception occurred in thread " + thread.getName(), true);
         });
+        instance = new RuneChanger();
+        instance.programArguments = args;
         log.debug("Checking and creating lockfile");
         checkAndCreateLockfile();
         log.debug("Changing working directory");
@@ -89,7 +90,8 @@ public class RuneChanger implements Launcher {
             log.info("Not running as admin, elevating...");
             ShellAPI.SHELLEXECUTEINFO execInfo = new ShellAPI.SHELLEXECUTEINFO();
             execInfo.lpDirectory = PathUtils.getWorkingDirectory();
-            execInfo.lpParameters = "-cp \"lib/*\" -Djdk.tls.client.protocols=\"TLSv1,TLSv1.1,TLSv1.2\" --add-exports=javafx.base/com.sun.javafx.event=ALL-UNNAMED --add-exports=javafx.base/com.sun.javafx.reflect=ALL-UNNAMED --add-exports=javafx.graphics/com.sun.javafx.scene.layout=ALL-UNNAMED com.stirante.runechanger.RuneChanger";
+            execInfo.lpParameters =
+                    "-cp \"lib/*\" -Djdk.tls.client.protocols=\"TLSv1,TLSv1.1,TLSv1.2\" --add-exports=javafx.base/com.sun.javafx.event=ALL-UNNAMED --add-exports=javafx.base/com.sun.javafx.reflect=ALL-UNNAMED --add-exports=javafx.graphics/com.sun.javafx.scene.layout=ALL-UNNAMED com.stirante.runechanger.RuneChanger";
             execInfo.lpFile = "image\\bin\\javaw.exe";
             execInfo.lpVerb = "runas";
             if (Shell32.INSTANCE.ShellExecuteEx(execInfo)) {
@@ -100,9 +102,9 @@ public class RuneChanger implements Launcher {
             }
         }
         log.debug("Cleaning up logs");
-        EXECUTOR_SERVICE.submit(RuneChanger::cleanupLogs);
+        AsyncTask.EXECUTOR_SERVICE.submit(RuneChanger::cleanupLogs);
         log.debug("Cleaning up update files");
-        EXECUTOR_SERVICE.submit(AutoUpdater::updateCleanup);
+        AsyncTask.EXECUTOR_SERVICE.submit(AutoUpdater::updateCleanup);
         log.debug("Checking os");
         // This flag is only meant for development. It disables whole client communication
         if (!Arrays.asList(args).contains("-skip-os-check")) {
@@ -114,7 +116,7 @@ public class RuneChanger implements Launcher {
         } catch (IOException e) {
             log.error("Exception occurred while initializing champions", e);
             AnalyticsUtil.addCrashReport(e, "Exception occurred while initializing champions", true);
-            JOptionPane.showMessageDialog(null, LangHelper.getLang().getString("init_data_error"), Constants.APP_NAME,
+            JOptionPane.showMessageDialog(null, instance.getLang().getString("init_data_error"), Constants.APP_NAME,
                     JOptionPane.ERROR_MESSAGE);
             System.exit(0);
         }
@@ -131,7 +133,7 @@ public class RuneChanger implements Launcher {
             log.error("Exception occurred while checking autostart path", e);
             AnalyticsUtil.addCrashReport(e, "Exception occurred while checking autostart path", false);
         }
-        SimplePreferences.loadRuneBook();
+        RuneBook.loadRuneBook();
         if (!SimplePreferences.getBooleanValue(SimplePreferences.FlagKeys.CREATED_SHORTCUTS, false) ||
                 !SimplePreferences.getBooleanValue(SimplePreferences.FlagKeys.UPDATED_LOGO, false)) {
             try {
@@ -144,8 +146,6 @@ public class RuneChanger implements Launcher {
                 AnalyticsUtil.addCrashReport(e, "Exception occurred while creating shortcuts", false);
             }
         }
-        instance = new RuneChanger();
-        instance.programArguments = args;
         instance.init();
     }
 
@@ -155,6 +155,17 @@ public class RuneChanger implements Launcher {
 
     private static boolean isAdmin() {
         return Advapi32Util.accessCheck(new File("C:/Windows"), Advapi32Util.AccessCheckPermission.WRITE);
+    }
+
+    public ResourceBundle getLang() {
+        if (resourceBundle == null) {
+            resourceBundle = ResourceBundle.getBundle("lang.messages", LangHelper.getLocale());
+        }
+        return resourceBundle;
+    }
+
+    public boolean isTextRTL() {
+        return LangHelper.isTextRTL(getLang().getLocale());
     }
 
     private static void changeWorkingDir() {
@@ -167,7 +178,8 @@ public class RuneChanger implements Launcher {
                     return;
                 }
 
-                Runtime.getRuntime().exec(AutoStartUtils.getStartCommand(), null, new File(PathUtils.getWorkingDirectory()));
+                Runtime.getRuntime()
+                        .exec(AutoStartUtils.getStartCommand(), null, new File(PathUtils.getWorkingDirectory()));
                 log.warn("User directory: " + new File(System.getProperty("user.dir")).getAbsolutePath());
                 log.warn("Working directory: " + PathUtils.getWorkingDirectory());
                 log.warn("Runechanger was started from a unusual jvm location most likely due to autostart. " +
@@ -183,7 +195,7 @@ public class RuneChanger implements Launcher {
     private static void checkOperatingSystem() {
         if (!System.getProperty("os.name").toLowerCase().startsWith("windows")) {
             log.error("User is not on a windows machine");
-            JOptionPane.showMessageDialog(null, LangHelper.getLang().getString("windows_only"),
+            JOptionPane.showMessageDialog(null, instance.getLang().getString("windows_only"),
                     Constants.APP_NAME,
                     JOptionPane.WARNING_MESSAGE);
             System.exit(0);
@@ -264,7 +276,7 @@ public class RuneChanger implements Launcher {
                 Version.INSTANCE.commitIdAbbrev + " built at " +
                 SimpleDateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT)
                         .format(Version.INSTANCE.buildTime) + ")");
-        EXECUTOR_SERVICE.submit(() -> {
+        AsyncTask.EXECUTOR_SERVICE.submit(() -> {
             try {
                 log.debug(new Gson().toJson(Hardware.getAllHardwareInfo()));
             } catch (Exception e) {
@@ -283,7 +295,7 @@ public class RuneChanger implements Launcher {
             } catch (IllegalStateException e) {
                 log.error("Exception occurred while creating client api", e);
                 AnalyticsUtil.addCrashReport(e, "Exception occurred while creating client api", true);
-                JOptionPane.showMessageDialog(null, LangHelper.getLang()
+                JOptionPane.showMessageDialog(null, getLang()
                         .getString("client_error"), Constants.APP_NAME, JOptionPane.ERROR_MESSAGE);
                 System.exit(0);
             }
@@ -306,7 +318,7 @@ public class RuneChanger implements Launcher {
                     }
                     gui.setSceneType(SceneType.NONE);
                     gui.openWindow();
-                    EXECUTOR_SERVICE.submit(() -> {
+                    AsyncTask.EXECUTOR_SERVICE.submit(() -> {
                         try {
                             Thread.sleep(1000);
                         } catch (InterruptedException ignored) {
@@ -340,7 +352,7 @@ public class RuneChanger implements Launcher {
                     }
                     //sometimes, the api is connected too quickly and there is WebsocketNotConnectedException
                     //That's why I added this little piece of code, which will retry opening socket every second
-                    EXECUTOR_SERVICE.submit(() -> {
+                    AsyncTask.EXECUTOR_SERVICE.submit(() -> {
                         while (true) {
                             try {
                                 openSocket();
@@ -382,7 +394,7 @@ public class RuneChanger implements Launcher {
                         if (gui.isWindowOpen()) {
                             gui.closeWindow();
                         }
-                        gui.showInfoMessage(LangHelper.getLang().getString("client_disconnected"));
+                        gui.showInfoMessage(getLang().getString("client_disconnected"));
                         Settings.setClientConnected(false);
                     }
                 }
@@ -414,7 +426,7 @@ public class RuneChanger implements Launcher {
 
     private void openSocket() throws Exception {
         socket = api.openWebSocket();
-        gui.showInfoMessage(LangHelper.getLang().getString("client_connected"));
+        gui.showInfoMessage(getLang().getString("client_connected"));
         Settings.setClientConnected(true);
         socket.setSocketListener(new ClientEventListener());
     }

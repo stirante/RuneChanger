@@ -1,4 +1,4 @@
-package com.stirante.runechanger.util;
+package com.stirante.runechanger.utils;
 
 import javafx.application.Platform;
 import javafx.beans.property.Property;
@@ -75,10 +75,11 @@ public class FxUtils {
      * @param font    Font
      * @param text    Text to fill
      * @param spacing spacing between letters (kerning)
+     * @param rtl     is text right to left
      * @return Pair of doubles, where key is width and value is height
      */
-    public static Pair<Double, Double> measureTextSize(Font font, String text, double spacing) {
-        if (LangHelper.isTextRTL()) {
+    public static Pair<Double, Double> measureTextSize(Font font, String text, double spacing, boolean rtl) {
+        if (rtl) {
             Text t = new Text(text);
             t.setFont(font);
             t.setWrappingWidth(0);
@@ -97,9 +98,10 @@ public class FxUtils {
      * @param x       center x
      * @param y       center y
      * @param spacing spacing between letters (kerning)
+     * @param rtl     is text right to left
      */
-    public static void fillNiceCenteredText(GraphicsContext g, String text, double x, double y, double spacing) {
-        if (LangHelper.isTextRTL()) {
+    public static void fillNiceCenteredText(GraphicsContext g, String text, double x, double y, double spacing, boolean rtl) {
+        if (rtl) {
             g.setTextAlign(TextAlignment.CENTER);
             g.setTextBaseline(VPos.CENTER);
             g.fillText(text, x, y);

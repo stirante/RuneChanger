@@ -1,7 +1,7 @@
 package com.stirante.runechanger;
 
 import ch.qos.logback.classic.Level;
-import com.stirante.runechanger.util.PathUtils;
+import com.stirante.runechanger.utils.PathUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

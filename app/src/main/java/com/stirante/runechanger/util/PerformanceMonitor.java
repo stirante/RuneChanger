@@ -4,12 +4,12 @@ package com.stirante.runechanger.util;
 import com.google.gson.Gson;
 import com.stirante.eventbus.EventBus;
 import com.stirante.eventbus.Subscribe;
-import com.stirante.lolclient.ClientWebSocket;
-import com.stirante.runechanger.RuneChanger;
 import com.stirante.runechanger.client.ChampionSelection;
 import com.stirante.runechanger.client.ClientEventListener;
 import com.stirante.runechanger.gui.Settings;
 import com.stirante.runechanger.model.app.Version;
+import com.stirante.runechanger.utils.AsyncTask;
+import com.stirante.runechanger.utils.Hardware;
 import com.sun.jna.platform.win32.Kernel32;
 import com.sun.jna.platform.win32.Kernel32Util;
 import com.sun.jna.platform.win32.WinBase;
@@ -25,13 +25,10 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
 
-import static com.sun.jna.platform.win32.WinNT.PROCESS_QUERY_INFORMATION;
 import static java.lang.Math.*;
 
 public class PerformanceMonitor {
@@ -191,7 +188,7 @@ public class PerformanceMonitor {
         if (!running.get()) {
             return;
         }
-        RuneChanger.EXECUTOR_SERVICE.submit(() -> {
+        AsyncTask.EXECUTOR_SERVICE.submit(() -> {
             eventLock.lock();
             events.add(new PerformanceEvent(type, additionalInfo));
             eventLock.unlock();
@@ -211,7 +208,7 @@ public class PerformanceMonitor {
             return cpuUsage;
         }
         int pid = Kernel32.INSTANCE.GetCurrentProcessId();
-        WinNT.HANDLE h = Kernel32.INSTANCE.OpenProcess(PROCESS_QUERY_INFORMATION, false, pid);
+        WinNT.HANDLE h = Kernel32.INSTANCE.OpenProcess(WinNT.PROCESS_QUERY_INFORMATION, false, pid);
         try {
             WinBase.FILETIME creationProcessTime = new WinBase.FILETIME();
             WinBase.FILETIME exitProcessTime = new WinBase.FILETIME();

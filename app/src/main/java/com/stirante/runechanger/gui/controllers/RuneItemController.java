@@ -3,9 +3,8 @@ package com.stirante.runechanger.gui.controllers;
 import com.stirante.runechanger.RuneChanger;
 import com.stirante.runechanger.gui.Settings;
 import com.stirante.runechanger.model.client.ChampionBuild;
-import com.stirante.runechanger.model.client.RunePage;
-import com.stirante.runechanger.util.LangHelper;
-import com.stirante.runechanger.util.SimplePreferences;
+import com.stirante.runechanger.util.RuneBook;
+import com.stirante.runechanger.utils.LangHelper;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -49,7 +48,8 @@ public class RuneItemController {
     private ChampionBuild page;
 
     public RuneItemController() {
-        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/fxml/RuneItem.fxml"), LangHelper.getLang());
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/fxml/RuneItem.fxml"), RuneChanger.getInstance()
+                .getLang());
         fxmlLoader.setController(this);
         try {
             fxmlLoader.load();
@@ -59,7 +59,7 @@ public class RuneItemController {
         newRuneNodes = Arrays.asList(shortName, source, importPage);
         localRuneNodes = Arrays.asList(name, selected, delete);
         edit.setVisible(false);
-        Tooltip statusTooltip = new Tooltip(LangHelper.getLang().getString("runepage_not_synced"));
+        Tooltip statusTooltip = new Tooltip(RuneChanger.getInstance().getLang().getString("runepage_not_synced"));
         statusTooltip.setShowDelay(Duration.ZERO);
         Tooltip.install(syncStatus, statusTooltip);
         Tooltip tooltip = new Tooltip();
@@ -98,8 +98,8 @@ public class RuneItemController {
         syncStatus.setVisible(page.getRunePage().isFromClient() && !page.getRunePage().isSynced());
         selected.getTooltip()
                 .setText(page.getRunePage().isFromClient() ?
-                        LangHelper.getLang().getString("client_runepage") :
-                        LangHelper.getLang().getString("local_runepage"));
+                        RuneChanger.getInstance().getLang().getString("client_runepage") :
+                        RuneChanger.getInstance().getLang().getString("local_runepage"));
     }
 
     @FXML
@@ -110,16 +110,16 @@ public class RuneItemController {
     @FXML
     public void onDelete(MouseEvent mouseEvent) {
         boolean removePage = Settings.openYesNoDialog(
-                LangHelper.getLang().getString("remove_page_confirmation_title"),
-                String.format(LangHelper.getLang().getString("remove_page_confirmation_message"), page.getName()));
+                RuneChanger.getInstance().getLang().getString("remove_page_confirmation_title"),
+                String.format(RuneChanger.getInstance().getLang().getString("remove_page_confirmation_message"), page.getName()));
         if (removePage) {
             if (page.getRunePage().isFromClient()) {
                 RuneChanger.getInstance().getRunesModule().deletePage(page.getRunePage());
             }
-            if (SimplePreferences.getRuneBookPage(page.getName()) == null) {
+            if (RuneBook.getRuneBookPage(page.getName()) == null) {
                 return;
             }
-            SimplePreferences.removeRuneBookPage(page.getName());
+            RuneBook.removeRuneBookPage(page.getName());
         }
     }
 
@@ -135,7 +135,7 @@ public class RuneItemController {
             selected.setSelected(false);
             RuneChanger.getInstance()
                     .getGuiHandler()
-                    .showWarningMessage(LangHelper.getLang().getString("not_connected_warning"));
+                    .showWarningMessage(RuneChanger.getInstance().getLang().getString("not_connected_warning"));
             return;
         }
         // Page is from client and we're deselecting it, so we need to remove it
@@ -149,19 +149,19 @@ public class RuneItemController {
         }
         selected.getTooltip()
                 .setText(page.getRunePage().isFromClient() ?
-                        LangHelper.getLang().getString("client_runepage") :
-                        LangHelper.getLang().getString("local_runepage"));
+                        RuneChanger.getInstance().getLang().getString("client_runepage") :
+                        RuneChanger.getInstance().getLang().getString("local_runepage"));
     }
 
     @FXML
     public void onPageImport(MouseEvent mouseEvent) {
-        if (SimplePreferences.getRuneBookPage(page.getName()) != null) {
+        if (RuneBook.getRuneBookPage(page.getName()) != null) {
             RuneChanger.getInstance()
                     .getGuiHandler()
-                    .showWarningMessage(LangHelper.getLang().getString("page_already_exists"));
+                    .showWarningMessage(RuneChanger.getInstance().getLang().getString("page_already_exists"));
             return;
         }
-        SimplePreferences.addRuneBookPage(page.getRunePage());
+        RuneBook.addRuneBookPage(page.getRunePage());
     }
 
     public static class ChampionBuildCell extends ListCell<ChampionBuild> {

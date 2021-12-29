@@ -5,7 +5,7 @@ import com.stirante.runechanger.RuneChanger;
 import com.stirante.runechanger.gui.Constants;
 import com.stirante.runechanger.gui.SceneType;
 import com.stirante.runechanger.util.AnalyticsUtil;
-import com.stirante.runechanger.util.ClassSet;
+import com.stirante.runechanger.utils.ClassSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
