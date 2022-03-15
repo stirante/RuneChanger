@@ -305,7 +305,9 @@ public class RuneChanger implements Launcher, RuneChangerApi {
             }
         }
         initModules();
-        LolHelper.init();
+        if (SimplePreferences.getBooleanValue(SimplePreferences.SettingsKeys.EMERGENCY_SHORTCUTS, false)) {
+            LolHelper.init();
+        }
         Settings.initialize();
         SourceStore.init(this);
         gui = new GuiHandler(this);
