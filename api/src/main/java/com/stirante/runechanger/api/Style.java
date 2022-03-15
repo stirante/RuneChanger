@@ -1,4 +1,4 @@
-package com.stirante.runechanger.model.client;
+package com.stirante.runechanger.api;
 
 public enum Style {
     STYLE_8000(8000, "Precision"),

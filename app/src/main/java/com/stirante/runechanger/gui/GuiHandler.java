@@ -4,12 +4,13 @@ import com.stirante.eventbus.EventBus;
 import com.stirante.eventbus.Subscribe;
 import com.stirante.runechanger.DebugConsts;
 import com.stirante.runechanger.RuneChanger;
+import com.stirante.runechanger.api.Champion;
+import com.stirante.runechanger.api.ChampionBuild;
 import com.stirante.runechanger.client.ChampionSelection;
 import com.stirante.runechanger.client.ClientEventListener;
-import com.stirante.runechanger.gui.overlay.ClientOverlay;
+import com.stirante.runechanger.gui.overlay.ClientOverlayImpl;
 import com.stirante.runechanger.gui.overlay.RuneMenu;
-import com.stirante.runechanger.model.client.Champion;
-import com.stirante.runechanger.model.client.ChampionBuild;
+import com.stirante.runechanger.client.ChampionsImpl;
 import com.stirante.runechanger.model.client.GameData;
 import com.stirante.runechanger.sourcestore.SourceStore;
 import com.stirante.runechanger.util.AnalyticsUtil;
@@ -49,13 +50,13 @@ public class GuiHandler {
     private final RuneChanger runeChanger;
     private final ReentrantLock lock = new ReentrantLock();
     private JWindow win;
-    private ClientOverlay clientOverlay;
+    private ClientOverlayImpl clientOverlay;
     private WinDef.HWND hwnd;
     private TrayIcon trayIcon;
     private SceneType type = SceneType.NONE;
-    private List<Champion> suggestedChampions;
-    private Consumer<Champion> suggestedChampionSelectedListener;
-    private List<Champion> bannedChampions;
+    private List<ChampionsImpl> suggestedChampions;
+    private Consumer<ChampionsImpl> suggestedChampionSelectedListener;
+    private List<ChampionsImpl> bannedChampions;
     private double screenScale = 1d;
 
     public GuiHandler(RuneChanger runeChanger) {
@@ -71,6 +72,10 @@ public class GuiHandler {
      */
     public boolean isWindowOpen() {
         return windowOpen.get();
+    }
+
+    public ClientOverlayImpl getClientOverlay() {
+        return clientOverlay;
     }
 
     /**
@@ -169,7 +174,7 @@ public class GuiHandler {
             win.dispose();
         }
         win = new JWindow();
-        clientOverlay = new ClientOverlay(runeChanger);
+        clientOverlay = new ClientOverlayImpl(runeChanger);
         clientOverlay.getLayer(RuneMenu.class).setBuilds(builds.getBackingList());
         clientOverlay.setSceneType(type);
         win.setContentPane(clientOverlay);
@@ -214,7 +219,7 @@ public class GuiHandler {
                     ImageIO.read(GuiHandler.class.getResourceAsStream("/images/16.png"));
             //Create tray menu
             PopupMenu trayPopupMenu = new PopupMenu();
-            MenuItem action = new MenuItem("RuneChanger v" + Constants.VERSION_STRING);
+            MenuItem action = new MenuItem("RuneChanger v" + runeChanger.getVersion());
             action.setEnabled(false);
             trayPopupMenu.add(action);
 
@@ -383,7 +388,7 @@ public class GuiHandler {
         }
         else {
             log.info("Showing local runes");
-            SourceStore.getLocalRunes(pages);
+            pages.addAll(runeChanger.getRuneBook().getRuneBookValues());
         }
     }
 

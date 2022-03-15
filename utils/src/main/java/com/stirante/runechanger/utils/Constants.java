@@ -1,15 +1,10 @@
-package com.stirante.runechanger.gui;
+package com.stirante.runechanger.utils;
 
-import com.stirante.runechanger.model.app.Version;
-import com.stirante.runechanger.utils.LangHelper;
 import javafx.scene.text.Font;
 
 public class Constants {
     //app name
     public static final String APP_NAME = "RuneChanger";
-
-    //version string
-    public static final String VERSION_STRING = Version.INSTANCE.version;
 
     //percentage positions and lengths
     public static final float RUNE_BUTTON_POSITION_X = 0.3046875f;

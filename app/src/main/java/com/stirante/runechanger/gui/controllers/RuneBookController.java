@@ -1,8 +1,9 @@
 package com.stirante.runechanger.gui.controllers;
 
+import com.stirante.runechanger.api.Champion;
+import com.stirante.runechanger.api.ChampionBuild;
+import com.stirante.runechanger.api.RuneChangerApi;
 import com.stirante.runechanger.gui.Content;
-import com.stirante.runechanger.model.client.Champion;
-import com.stirante.runechanger.model.client.ChampionBuild;
 import com.stirante.runechanger.utils.SyncingListWrapper;
 import generated.Position;
 import javafx.collections.ListChangeListener;
@@ -22,6 +23,7 @@ import java.io.IOException;
 import java.util.Comparator;
 
 public class RuneBookController implements Content {
+    private final RuneChangerApi api;
     public ImageView background;
     public ImageView position;
     public Label championName;
@@ -34,9 +36,11 @@ public class RuneBookController implements Content {
     public final SyncingListWrapper<ChampionBuild> localRunes = new SyncingListWrapper<>();
     public final SyncingListWrapper<ChampionBuild> newRunes = new SyncingListWrapper<>();
 
-    public RuneBookController() {
-        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/fxml/RuneBook.fxml"), com.stirante.runechanger.RuneChanger.getInstance()
-                .getLang());
+    public RuneBookController(RuneChangerApi api) {
+        this.api = api;
+        FXMLLoader fxmlLoader =
+                new FXMLLoader(getClass().getResource("/fxml/RuneBook.fxml"), com.stirante.runechanger.RuneChanger.getInstance()
+                        .getLang());
         fxmlLoader.setController(this);
         try {
             fxmlLoader.load();
@@ -73,8 +77,8 @@ public class RuneBookController implements Content {
                 newRunesList.setPrefWidth(272);
             }
         });
-        localRunesList.setCellFactory(listView -> new RuneItemController.ChampionBuildCell(RuneItemController::setLocalRuneMode));
-        newRunesList.setCellFactory(listView -> new RuneItemController.ChampionBuildCell(RuneItemController::setNewRuneMode));
+        localRunesList.setCellFactory(listView -> new RuneItemController.ChampionBuildCell(api.getRuneBook(), RuneItemController::setLocalRuneMode));
+        newRunesList.setCellFactory(listView -> new RuneItemController.ChampionBuildCell(api.getRuneBook(), RuneItemController::setNewRuneMode));
     }
 
     public void onBuildsClick(ActionEvent actionEvent) {

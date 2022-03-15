@@ -3,18 +3,19 @@ package com.stirante.runechanger.sourcestore;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.stirante.runechanger.DebugConsts;
+import com.stirante.runechanger.api.Champion;
+import com.stirante.runechanger.api.ChampionBuild;
+import com.stirante.runechanger.api.RuneChangerApi;
+import com.stirante.runechanger.client.ChampionsImpl;
 import com.stirante.runechanger.model.app.CounterData;
 import com.stirante.runechanger.model.app.SettingsConfiguration;
-import com.stirante.runechanger.model.client.Champion;
-import com.stirante.runechanger.model.client.ChampionBuild;
 import com.stirante.runechanger.model.client.GameData;
 import com.stirante.runechanger.model.client.GameMode;
 import com.stirante.runechanger.sourcestore.impl.*;
-import com.stirante.runechanger.utils.FxUtils;
-import com.stirante.runechanger.util.RuneBook;
-import com.stirante.runechanger.utils.SyncingListWrapper;
 import com.stirante.runechanger.utils.AsyncTask;
+import com.stirante.runechanger.utils.FxUtils;
 import com.stirante.runechanger.utils.SimplePreferences;
+import com.stirante.runechanger.utils.SyncingListWrapper;
 import javafx.collections.ListChangeListener;
 
 import java.io.IOException;
@@ -42,9 +43,10 @@ public class SourceStore {
         sources.add(new LocalSource());
     }
 
-    public static void init() {
+    public static void init(RuneChangerApi api) {
         for (Source source : sources) {
             updateSourceSettings(source);
+            source.init(api);
         }
     }
 
@@ -60,12 +62,10 @@ public class SourceStore {
         for (SettingsConfiguration.FieldConfiguration<?> field : config.getFields()) {
             Object val = field.getDefaultValue();
             if (field.getType() == Boolean.class) {
-                val =
-                        SimplePreferences.getBooleanValue(field.getPrefKey(source.getSourceKey()), (boolean) field.getDefaultValue());
+                val = SimplePreferences.getBooleanValue(field.getPrefKey(source.getSourceKey()), (boolean) field.getDefaultValue());
             }
             else if (field.getType() == String.class) {
-                val =
-                        SimplePreferences.getStringValue(field.getPrefKey(source.getSourceKey()), (String) field.getDefaultValue());
+                val = SimplePreferences.getStringValue(field.getPrefKey(source.getSourceKey()), (String) field.getDefaultValue());
             }
             data.put(field.getKey(), val);
         }
@@ -157,15 +157,6 @@ public class SourceStore {
         });
     }
 
-    /**
-     * Get list of local rune pages
-     *
-     * @param pages list of pages, which will be filled with pages
-     */
-    public static void getLocalRunes(SyncingListWrapper<ChampionBuild> pages) {
-        pages.addAll(RuneBook.getRuneBookValues());
-    }
-
     @SuppressWarnings("unchecked")
     public static <T extends Source> T getSource(Class<T> clz) {
         for (Source source : sources) {
@@ -186,9 +177,10 @@ public class SourceStore {
     public static void testSource(RuneSource source, GameMode gameMode) throws IOException {
         FxUtils.DEBUG_WITHOUT_TOOLKIT = true;
         DebugConsts.enableDebugMode();
-        Champion.init();
+        ChampionsImpl champions = new ChampionsImpl();
+        champions.init();
         SyncingListWrapper<ChampionBuild> pages = new SyncingListWrapper<>();
-        source.getRunesForGame(GameData.of(Champion.getByName("blitzcrank"), gameMode), pages);
+        source.getRunesForGame(GameData.of(champions.getByName("blitzcrank"), gameMode), pages);
         for (ChampionBuild page : pages.getBackingList()) {
             if (page.hasSummonerSpells()) {
                 System.out.println(page.getFirstSpell().getName() + ", " + page.getSecondSpell().getName());
@@ -204,9 +196,10 @@ public class SourceStore {
     public static void testSourceAllChamps(RuneSource source, GameMode gameMode) throws IOException {
         FxUtils.DEBUG_WITHOUT_TOOLKIT = true;
         DebugConsts.enableDebugMode();
-        Champion.init();
+        ChampionsImpl champions = new ChampionsImpl();
+        champions.init();
         SyncingListWrapper<ChampionBuild> pages = new SyncingListWrapper<>();
-        for (Champion champion : Champion.values()) {
+        for (Champion champion : champions.getChampions()) {
             source.getRunesForGame(GameData.of(champion, gameMode), pages);
             for (ChampionBuild page : pages.getBackingList()) {
                 System.out.println(page.getRunePage());

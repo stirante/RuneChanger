@@ -1,7 +1,7 @@
 package com.stirante.runechanger.gui.components;
 
 import com.stirante.runechanger.RuneChanger;
-import com.stirante.runechanger.gui.Constants;
+import com.stirante.runechanger.utils.Constants;
 import com.stirante.runechanger.utils.FxUtils;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ObjectPropertyBase;

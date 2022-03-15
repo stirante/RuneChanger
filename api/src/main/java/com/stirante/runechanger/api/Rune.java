@@ -1,6 +1,5 @@
-package com.stirante.runechanger.model.client;
+package com.stirante.runechanger.api;
 
-import com.stirante.runechanger.util.AnalyticsUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -171,7 +170,6 @@ public enum Rune {
                 image = ImageIO.read(getClass().getResourceAsStream("/runes/" + getId() + ".png"));
             } catch (IOException e) {
                 log.error("Exception occurred while reading rune icon", e);
-                AnalyticsUtil.addCrashReport(e, "Exception occurred while reading a rune icon", false);
             }
         }
         return image;

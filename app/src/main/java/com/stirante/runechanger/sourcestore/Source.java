@@ -1,5 +1,6 @@
 package com.stirante.runechanger.sourcestore;
 
+import com.stirante.runechanger.api.RuneChangerApi;
 import com.stirante.runechanger.model.app.SettingsConfiguration;
 
 import java.util.Map;
@@ -30,4 +31,9 @@ public interface Source {
 
     }
 
+    /**
+     * Called when source is initialized
+     * @param api
+     */
+    default void init(RuneChangerApi api) {}
 }

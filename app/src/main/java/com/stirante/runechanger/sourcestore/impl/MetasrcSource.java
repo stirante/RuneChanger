@@ -1,6 +1,8 @@
 package com.stirante.runechanger.sourcestore.impl;
 
-import com.stirante.runechanger.model.client.*;
+import com.stirante.runechanger.api.*;
+import com.stirante.runechanger.model.client.GameData;
+import com.stirante.runechanger.model.client.GameMode;
 import com.stirante.runechanger.sourcestore.RuneSource;
 import com.stirante.runechanger.sourcestore.SourceStore;
 import com.stirante.runechanger.utils.SyncingListWrapper;
@@ -93,21 +95,34 @@ public class MetasrcSource implements RuneSource {
 
     private List<SummonerSpell> extractSpells(Document webPage) {
         // ._qngo9y > div:nth-child(3) > div:nth-child(2) > div:nth-child(1) > div:nth-child(2) > div:nth-child(1)
-        Elements spells = webPage.select("._qngo9y > div:nth-child(3) > div:nth-child(2) > div:nth-child(1) > div:nth-child(2) > div > ._hmag7l");
+        Elements spells =
+                webPage.select("._qngo9y > div:nth-child(3) > div:nth-child(2) > div:nth-child(1) > div:nth-child(2) > div > ._hmag7l");
         if (spells.size() == 0) {
             return Collections.emptyList();
         }
-        return spells.stream().map(element -> SummonerSpell.getByKey(Integer.parseInt(element.attr("data-tooltip").replace("spell-", "")))).collect(Collectors.toList());
+        return spells.stream()
+                .map(element -> SummonerSpell.getByKey(Integer.parseInt(element.attr("data-tooltip")
+                        .replace("spell-", ""))))
+                .collect(Collectors.toList());
     }
 
     private RunePage extractRunes(Document webPage) {
         RunePage r = new RunePage();
-        Elements runes = webPage.select("div._lop72r:nth-of-type(3) > div._sh98mb:nth-of-type(2) div._sfh2p9 > div > div");
+        Elements runes =
+                webPage.select("div._lop72r:nth-of-type(3) > div._sh98mb:nth-of-type(2) div._sfh2p9 > div > div");
         if (runes.size() == 0) {
             return null;
         }
-        List<Integer> mainRunes = runes.get(0).select("div._hmag7l").stream().map(element -> Integer.parseInt(element.attr("data-tooltip").replace("perk-", ""))).collect(Collectors.toList());
-        List<Integer> secondaryRunes = runes.get(1).select("div._hmag7l").stream().map(element -> Integer.parseInt(element.attr("data-tooltip").replace("perk-", ""))).collect(Collectors.toList());
+        List<Integer> mainRunes = runes.get(0)
+                .select("div._hmag7l")
+                .stream()
+                .map(element -> Integer.parseInt(element.attr("data-tooltip").replace("perk-", "")))
+                .collect(Collectors.toList());
+        List<Integer> secondaryRunes = runes.get(1)
+                .select("div._hmag7l")
+                .stream()
+                .map(element -> Integer.parseInt(element.attr("data-tooltip").replace("perk-", "")))
+                .collect(Collectors.toList());
         r.setMainStyle(Style.getById(mainRunes.get(0)));
         r.setSubStyle(Style.getById(secondaryRunes.get(0)));
 

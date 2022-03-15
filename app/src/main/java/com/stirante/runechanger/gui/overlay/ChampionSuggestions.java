@@ -4,10 +4,13 @@ import com.stirante.eventbus.EventBus;
 import com.stirante.eventbus.EventPriority;
 import com.stirante.eventbus.Subscribe;
 import com.stirante.runechanger.RuneChanger;
+import com.stirante.runechanger.api.Champion;
+import com.stirante.runechanger.api.RuneChangerApi;
+import com.stirante.runechanger.api.overlay.OverlayLayer;
 import com.stirante.runechanger.client.ChampionSelection;
-import com.stirante.runechanger.gui.Constants;
-import com.stirante.runechanger.gui.SceneType;
-import com.stirante.runechanger.model.client.Champion;
+import com.stirante.runechanger.client.ChampionsImpl;
+import com.stirante.runechanger.utils.Constants;
+import com.stirante.runechanger.utils.SceneType;
 import com.stirante.runechanger.sourcestore.TeamCompAnalyzer;
 import com.stirante.runechanger.utils.SimplePreferences;
 import com.stirante.runechanger.utils.UiEventExecutor;
@@ -34,7 +37,7 @@ public class ChampionSuggestions extends OverlayLayer {
     private float currentChampionsPosition = 0f;
     private List<TeamCompAnalyzer.TeamCompChampion> suggestions;
 
-    ChampionSuggestions(ClientOverlay overlay) {
+    ChampionSuggestions(ClientOverlayImpl overlay) {
         super(overlay);
         EventBus.register(this);
     }
@@ -67,18 +70,18 @@ public class ChampionSuggestions extends OverlayLayer {
     @Override
     protected void draw(Graphics g) {
         if (SimplePreferences.getBooleanValue(SimplePreferences.SettingsKeys.CHAMPION_SUGGESTIONS, true)) {
-            if (Champion.areImagesReady()) {
+            if (getApi().getChampions().areImagesReady()) {
                 boolean isSmart =
                         SimplePreferences.getBooleanValue(SimplePreferences.SettingsKeys.SMART_CHAMPION_SUGGESTIONS, true);
                 if (lastChampions == null && (suggestions == null || !isSmart)) {
                     return;
                 }
-                if (getRuneChanger().getChampionSelectionModule().getGameMode() == null ||
-                        !getRuneChanger().getChampionSelectionModule().getGameMode().hasChampionSelection()) {
+                if (((RuneChanger) getApi()).getChampionSelectionModule().getGameMode() == null ||
+                        !((RuneChanger) getApi()).getChampionSelectionModule().getGameMode().hasChampionSelection()) {
                     return;
                 }
                 if (getSceneType() != SceneType.CHAMPION_SELECT ||
-                        getRuneChanger().getChampionSelectionModule().isChampionLocked()) {
+                        ((RuneChanger) getApi()).getChampionSelectionModule().isChampionLocked()) {
                     if (currentChampionsPosition > 1f) {
                         currentChampionsPosition = ease(currentChampionsPosition, 0f);
                         repaintLater();
@@ -152,7 +155,7 @@ public class ChampionSuggestions extends OverlayLayer {
         }
     }
 
-    @Subscribe(value = Champion.IMAGES_READY_EVENT, eventExecutor = UiEventExecutor.class)
+    @Subscribe(value = ChampionsImpl.IMAGES_READY_EVENT, eventExecutor = UiEventExecutor.class)
     public void onImagesReady() {
         repaintLater();
     }

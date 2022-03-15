@@ -1,6 +1,6 @@
 package com.stirante.runechanger.model.app;
 
-import com.stirante.runechanger.model.client.Champion;
+import com.stirante.runechanger.api.Champion;
 
 import java.util.List;
 import java.util.StringJoiner;

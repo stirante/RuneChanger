@@ -1,10 +1,10 @@
 package com.stirante.runechanger.gui.controllers;
 
 import com.stirante.runechanger.RuneChanger;
+import com.stirante.runechanger.api.ChampionBuild;
+import com.stirante.runechanger.api.RuneBook;
+import com.stirante.runechanger.api.RuneChangerApi;
 import com.stirante.runechanger.gui.Settings;
-import com.stirante.runechanger.model.client.ChampionBuild;
-import com.stirante.runechanger.util.RuneBook;
-import com.stirante.runechanger.utils.LangHelper;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -32,6 +32,7 @@ import java.util.function.BiConsumer;
 
 public class RuneItemController {
     private static final Logger log = LoggerFactory.getLogger(RuneItemController.class);
+    private final RuneBook runeBook;
 
     public Pane container;
     public ImageView icon;
@@ -47,7 +48,8 @@ public class RuneItemController {
     private List<Node> localRuneNodes;
     private ChampionBuild page;
 
-    public RuneItemController() {
+    public RuneItemController(RuneBook runeBook) {
+        this.runeBook = runeBook;
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/fxml/RuneItem.fxml"), RuneChanger.getInstance()
                 .getLang());
         fxmlLoader.setController(this);
@@ -116,10 +118,10 @@ public class RuneItemController {
             if (page.getRunePage().isFromClient()) {
                 RuneChanger.getInstance().getRunesModule().deletePage(page.getRunePage());
             }
-            if (RuneBook.getRuneBookPage(page.getName()) == null) {
+            if (runeBook.getRuneBookPage(page.getName()) == null) {
                 return;
             }
-            RuneBook.removeRuneBookPage(page.getName());
+            runeBook.removeRuneBookPage(page.getName());
         }
     }
 
@@ -155,21 +157,23 @@ public class RuneItemController {
 
     @FXML
     public void onPageImport(MouseEvent mouseEvent) {
-        if (RuneBook.getRuneBookPage(page.getName()) != null) {
+        if (runeBook.getRuneBookPage(page.getName()) != null) {
             RuneChanger.getInstance()
                     .getGuiHandler()
                     .showWarningMessage(RuneChanger.getInstance().getLang().getString("page_already_exists"));
             return;
         }
-        RuneBook.addRuneBookPage(page.getRunePage());
+        runeBook.addRuneBookPage(page.getRunePage());
     }
 
     public static class ChampionBuildCell extends ListCell<ChampionBuild> {
 
+        private final RuneBook runeBook;
         private final BiConsumer<RuneItemController, ChampionBuild> prepareFunction;
         private RuneItemController item;
 
-        public ChampionBuildCell(BiConsumer<RuneItemController, ChampionBuild> prepareFunction) {
+        public ChampionBuildCell(RuneBook runeBook, BiConsumer<RuneItemController, ChampionBuild> prepareFunction) {
+            this.runeBook = runeBook;
             this.prepareFunction = prepareFunction;
         }
 
@@ -177,7 +181,7 @@ public class RuneItemController {
         public void updateItem(ChampionBuild page, boolean empty) {
             super.updateItem(page, empty);
             if (item == null) {
-                item = new RuneItemController();
+                item = new RuneItemController(runeBook);
             }
             if (page != null) {
                 prepareFunction.accept(item, page);

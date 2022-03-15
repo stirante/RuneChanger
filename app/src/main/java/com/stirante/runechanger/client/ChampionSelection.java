@@ -5,10 +5,12 @@ import com.stirante.eventbus.Subscribe;
 import com.stirante.lolclient.ApiResponse;
 import com.stirante.lolclient.ClientApi;
 import com.stirante.runechanger.DebugConsts;
-import com.stirante.runechanger.model.client.Champion;
+import com.stirante.runechanger.RuneChanger;
+import com.stirante.runechanger.api.Champion;
+import com.stirante.runechanger.api.RuneChangerApi;
+import com.stirante.runechanger.api.SummonerSpell;
 import com.stirante.runechanger.model.client.GameMap;
 import com.stirante.runechanger.model.client.GameMode;
-import com.stirante.runechanger.model.client.SummonerSpell;
 import com.stirante.runechanger.sourcestore.TeamCompAnalyzer;
 import com.stirante.runechanger.util.AnalyticsUtil;
 import com.stirante.runechanger.utils.AsyncTask;
@@ -45,19 +47,20 @@ public class ChampionSelection extends ClientModule {
     private String chatRoomName;
     private final TeamCompAnalyzer teamCompAnalyzer = new TeamCompAnalyzer();
 
-    public ChampionSelection(ClientApi api) {
+    public ChampionSelection(RuneChangerApi api) {
         super(api);
         EventBus.register(this);
     }
 
     /**
      * Returns current champion selection session or null if not in champion selection
+     *
      * @return
      * @throws IOException
      */
     public LolChampSelectChampSelectSession getSession() throws IOException {
         ApiResponse<LolChampSelectChampSelectSession> session =
-                getApi().executeGet("/lol-champ-select/v1/session", LolChampSelectChampSelectSession.class);
+                getClientApi().executeGet("/lol-champ-select/v1/session", LolChampSelectChampSelectSession.class);
         if (session.isOk()) {
             return session.getResponseObject();
         }
@@ -66,12 +69,13 @@ public class ChampionSelection extends ClientModule {
 
     /**
      * Returns a unique list of recently played champions
+     *
      * @return
      */
     public List<Champion> getLastChampions() {
         try {
             ApiResponse<LolMatchHistoryMatchHistoryList> recentlyPlayed =
-                    getApi().executeGet(
+                    getClientApi().executeGet(
                             "/lol-match-history/v1/products/lol/current-summoner/matches",
                             LolMatchHistoryMatchHistoryList.class, "begIndex", "0", "endIndex", "20");
             if (!recentlyPlayed.isOk() || recentlyPlayed.getResponseObject().games == null ||
@@ -91,7 +95,7 @@ public class ChampionSelection extends ClientModule {
                 }
                 Champion champion = game.participants.stream()
                         .filter(participant -> participant.participantId == participantId)
-                        .map(participant -> Champion.getById(participant.championId))
+                        .map(participant -> getChampions().getById(participant.championId))
                         .findFirst()
                         .orElse(null);
                 if (champion != null && !result.contains(champion)) {
@@ -121,6 +125,7 @@ public class ChampionSelection extends ClientModule {
 
     /**
      * Bans a selected champion. This method will ban the champion instantly as opposed to <pre>selectChampion</pre> method.
+     *
      * @param champion champion to ban
      */
     public void banChampion(Champion champion) {
@@ -129,8 +134,8 @@ public class ChampionSelection extends ClientModule {
             banAction.put("championId", champion.getId());
             int id = ((Double) banAction.get("id")).intValue();
             try {
-                getApi().executePatch("/lol-champ-select/v1/session/actions/" + id, banAction);
-                getApi().executePost("/lol-champ-select/v1/session/actions/" + id + "/complete", banAction);
+                getClientApi().executePatch("/lol-champ-select/v1/session/actions/" + id, banAction);
+                getClientApi().executePost("/lol-champ-select/v1/session/actions/" + id + "/complete", banAction);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -176,7 +181,9 @@ public class ChampionSelection extends ClientModule {
                         }
                         else if (session.theirTeam.stream()
                                 .anyMatch(player -> player.cellId.intValue() == actorCellId)) {
-                            this.enemyTeam.add(Champion.getById(((Double) a.get("championId")).intValue()));
+                            this.enemyTeam.add(RuneChanger.getInstance()
+                                    .getChampions()
+                                    .getById(((Double) a.get("championId")).intValue()));
                         }
                         else if (session.myTeam.stream().anyMatch(player -> player.cellId.intValue() == actorCellId)) {
                             Optional<LolChampSelectChampSelectPlayerSelection> first = session.myTeam.stream()
@@ -184,14 +191,16 @@ public class ChampionSelection extends ClientModule {
                                     .findFirst();
                             if (first.isPresent() && first.get().assignedPosition != null &&
                                     !first.get().assignedPosition.isBlank()) {
-                                this.allyTeam.put(Position.valueOf(first.get().assignedPosition.toUpperCase(Locale.ROOT)), Champion.getById(((Double) a.get("championId")).intValue()));
+                                this.allyTeam.put(Position.valueOf(first.get().assignedPosition.toUpperCase(Locale.ROOT)), RuneChanger.getInstance()
+                                        .getChampions()
+                                        .getById(((Double) a.get("championId")).intValue()));
                             }
                         }
                     }
                     if (type.equals("ban") && ((Boolean) a.get("completed"))) {
                         int championId = ((Double) a.get("championId")).intValue();
                         if (championId != 0) {
-                            banned.add(Champion.getById(championId));
+                            banned.add(getChampions().getById(championId));
                         }
                     }
                     else if (type.equals("ban") &&
@@ -204,10 +213,10 @@ public class ChampionSelection extends ClientModule {
         }
         else if (DebugConsts.MOCK_SESSION) {
             //mock some banned champions
-            banned.add(Champion.getByName("blitzcrank"));
-            banned.add(Champion.getByName("morgana"));
-            banned.add(Champion.getByName("kayle"));
-            banned.add(Champion.getByName("leona"));
+            banned.add(getChampions().getByName("blitzcrank"));
+            banned.add(getChampions().getByName("morgana"));
+            banned.add(getChampions().getByName("kayle"));
+            banned.add(getChampions().getByName("leona"));
         }
     }
 
@@ -216,16 +225,18 @@ public class ChampionSelection extends ClientModule {
         for (LolChampSelectChampSelectPlayerSelection selection : session.myTeam) {
             if (selection != null && Objects.equals(selection.summonerId, getCurrentSummoner().summonerId)) {
                 //first check locked champion
-                champion = Champion.getById(selection.championId);
+                champion = getChampions().getById(selection.championId);
                 skinId = selection.selectedSkinId == null ? 0 : selection.selectedSkinId;
                 wardSkinId = selection.wardSkinId == null ? 0 : selection.wardSkinId;
                 //if it fails check just selected champion
                 if (champion == null) {
-                    champion = Champion.getById(selection.championPickIntent);
+                    champion = getChampions().getById(selection.championPickIntent);
                 }
                 //if all fails check list of actions
                 if (champion == null && action != null) {
-                    champion = Champion.getById(((Double) action.get("championId")).intValue());
+                    champion = RuneChanger.getInstance()
+                            .getChampions()
+                            .getById(((Double) action.get("championId")).intValue());
                 }
                 selectedPosition = null;
                 try {
@@ -268,7 +279,7 @@ public class ChampionSelection extends ClientModule {
         if (!DebugConsts.MOCK_SESSION) {
             try {
                 ApiResponse<LolLobbyLobbyDto> lolLobbyLobbyDto =
-                        getApi().executeGet("/lol-lobby/v2/lobby", LolLobbyLobbyDto.class);
+                        getClientApi().executeGet("/lol-lobby/v2/lobby", LolLobbyLobbyDto.class);
                 if (lolLobbyLobbyDto.isOk()) {
                     map = GameMap.getById(lolLobbyLobbyDto.getResponseObject().gameConfig.mapId);
                     positionSelector = lolLobbyLobbyDto.getResponseObject().gameConfig.showPositionSelector;
@@ -323,8 +334,11 @@ public class ChampionSelection extends ClientModule {
             findSelectedChampion(data);
             if (isPositionSelector()) {
                 for (LolChampSelectChampSelectPlayerSelection selection : data.myTeam) {
-                    if (selection.assignedPosition != null && Champion.getById(selection.championId) != null) {
-                        allyTeam.put(Position.valueOf(selection.assignedPosition.toUpperCase(Locale.ROOT)), Champion.getById(selection.championId));
+                    if (selection.assignedPosition != null &&
+                            getChampions().getById(selection.championId) != null) {
+                        allyTeam.put(Position.valueOf(selection.assignedPosition.toUpperCase(Locale.ROOT)), RuneChanger.getInstance()
+                                .getChampions()
+                                .getById(selection.championId));
                     }
                 }
             }
@@ -406,16 +420,16 @@ public class ChampionSelection extends ClientModule {
         try {
             if (action == null) {
                 log.debug("No action to select champion");
-                getApi().executePost("/lol-champ-select/v1/current-champion", champion.getId());
+                getClientApi().executePost("/lol-champ-select/v1/current-champion", champion.getId());
                 return;
             }
             if (getGameMode() == GameMode.ONEFORALL) {
-                getApi().executePost("/lol-champ-select/v1/current-champion", champion.getId());
+                getClientApi().executePost("/lol-champ-select/v1/current-champion", champion.getId());
             }
             else {
                 action.put("championId", champion.getId());
                 action.put("completed", false);
-                getApi().executePatch("/lol-champ-select/v1/session/actions/" +
+                getClientApi().executePatch("/lol-champ-select/v1/session/actions/" +
                         ((Double) action.get("id")).intValue(), action);
             }
         } catch (IOException e) {
@@ -435,7 +449,7 @@ public class ChampionSelection extends ClientModule {
         message.body = msg;
         message.type = "chat";
         try {
-            getApi().executePost("/lol-chat/v1/conversations/" + name + "/messages", message);
+            getClientApi().executePost("/lol-chat/v1/conversations/" + name + "/messages", message);
         } catch (IOException e) {
             log.error("Exception occurred while sending a message", e);
         }
@@ -443,6 +457,7 @@ public class ChampionSelection extends ClientModule {
 
     /**
      * Sets summoner spells for the player
+     *
      * @param spell1 The first summoner spell
      * @param spell2 The second summoner spell
      */
@@ -461,7 +476,7 @@ public class ChampionSelection extends ClientModule {
             }
             selection.selectedSkinId = skinId;
             selection.wardSkinId = wardSkinId;
-            getApi().executePatch("/lol-champ-select/v1/session/my-selection", selection);
+            getClientApi().executePatch("/lol-champ-select/v1/session/my-selection", selection);
         } catch (IOException e) {
             log.error("Exception occurred while setting summoner spells", e);
         }
@@ -496,12 +511,13 @@ public class ChampionSelection extends ClientModule {
 
     /**
      * Returns whether the last game was good based on simple KDA check. It will return true if the KDA was over 2.
+     *
      * @return
      */
     public boolean wasLastGameGood() {
         try {
             ApiResponse<LolMatchHistoryMatchHistoryList> lastMatch =
-                    getApi().executeGet("/lol-match-history/v1/products/lol/current-summoner/matches", LolMatchHistoryMatchHistoryList.class, "begIndex", "0", "endIndex", "1");
+                    getClientApi().executeGet("/lol-match-history/v1/products/lol/current-summoner/matches", LolMatchHistoryMatchHistoryList.class, "begIndex", "0", "endIndex", "1");
             if (!lastMatch.isOk() || lastMatch.getResponseObject().games.games.size() > 0) {
                 return false;
             }

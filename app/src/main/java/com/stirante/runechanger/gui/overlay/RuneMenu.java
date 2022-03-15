@@ -1,15 +1,11 @@
 package com.stirante.runechanger.gui.overlay;
 
 import com.stirante.runechanger.RuneChanger;
-import com.stirante.runechanger.gui.Constants;
-import com.stirante.runechanger.gui.SceneType;
-import com.stirante.runechanger.model.client.ChampionBuild;
+import com.stirante.runechanger.api.ChampionBuild;
+import com.stirante.runechanger.api.overlay.OverlayLayer;
 import com.stirante.runechanger.model.client.GameMode;
 import com.stirante.runechanger.util.AnalyticsUtil;
-import com.stirante.runechanger.utils.FxUtils;
-import com.stirante.runechanger.utils.SimplePreferences;
-import com.stirante.runechanger.utils.SwingUtils;
-import com.stirante.runechanger.utils.AsyncTask;
+import com.stirante.runechanger.utils.*;
 import javafx.beans.InvalidationListener;
 import javafx.collections.ObservableList;
 import org.slf4j.Logger;
@@ -35,7 +31,7 @@ public class RuneMenu extends OverlayLayer {
     private float scroll = 0f;
     private int size = 0;
 
-    public RuneMenu(ClientOverlay overlay) {
+    public RuneMenu(ClientOverlayImpl overlay) {
         super(overlay);
     }
 

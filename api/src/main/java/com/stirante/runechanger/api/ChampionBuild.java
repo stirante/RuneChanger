@@ -1,6 +1,5 @@
-package com.stirante.runechanger.model.client;
+package com.stirante.runechanger.api;
 
-import java.util.Collection;
 import java.util.List;
 
 public class ChampionBuild {

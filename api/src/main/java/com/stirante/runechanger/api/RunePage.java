@@ -1,4 +1,4 @@
-package com.stirante.runechanger.model.client;
+package com.stirante.runechanger.api;
 
 import generated.LolPerksPerkPageResource;
 import org.slf4j.Logger;
@@ -39,7 +39,7 @@ public class RunePage {
      * @param page client rune page
      * @return RunePage object
      */
-    public static RunePage fromClient(LolPerksPerkPageResource page) {
+    public static RunePage fromClient(RuneChangerApi api, LolPerksPerkPageResource page) {
         // invalid page
         if (page.selectedPerkIds.size() != 9 || !page.isValid || !page.isEditable) {
             return null;
@@ -57,7 +57,7 @@ public class RunePage {
 
         if (p.name.contains(":")) {
             String[] split = p.name.split(":");
-            Champion champ = Champion.getByName(split[0], true);
+            Champion champ = api.getChampions().getByName(split[0], true);
             if (champ != null) {
                 p.champion = champ;
             }
@@ -313,7 +313,7 @@ public class RunePage {
      *
      * @param in input stream
      */
-    public void deserialize(DataInputStream in) throws IOException {
+    public void deserialize(RuneChangerApi api, DataInputStream in) throws IOException {
         byte version = in.readByte();
         if (version >= 0x1) {
             name = in.readUTF();
@@ -332,7 +332,7 @@ public class RunePage {
         }
         if (version >= 0x2) {
             int id = in.readInt();
-            champion = Champion.getById(id);
+            champion = api.getChampions().getById(id);
             if (champion == null && id != -1) {
                 log.warn("Champion " + id + " not found!");
             }

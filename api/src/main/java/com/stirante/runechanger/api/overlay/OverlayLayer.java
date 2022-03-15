@@ -1,8 +1,8 @@
-package com.stirante.runechanger.gui.overlay;
+package com.stirante.runechanger.api.overlay;
 
-import com.stirante.runechanger.RuneChanger;
-import com.stirante.runechanger.gui.Constants;
-import com.stirante.runechanger.gui.SceneType;
+import com.stirante.runechanger.api.RuneChangerApi;
+import com.stirante.runechanger.utils.Constants;
+import com.stirante.runechanger.utils.SceneType;
 import com.stirante.runechanger.utils.SimplePreferences;
 
 import java.awt.*;
@@ -39,7 +39,11 @@ public abstract class OverlayLayer implements MouseMotionListener, MouseListener
     public void drawOverlay(Graphics g) {
         Image img = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_ARGB);
         Graphics graphics = img.getGraphics();
-        getClientOverlay().initGraphics(graphics);
+        Graphics2D g2d = (Graphics2D) graphics;
+        g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+        g2d.setFont(getClientOverlay().getDefaultFont());
         draw(graphics);
         graphics.dispose();
         g.drawImage(img, 0, 0, null);
@@ -79,8 +83,8 @@ public abstract class OverlayLayer implements MouseMotionListener, MouseListener
         getClientOverlay().clearRect(g, x, y, w, h);
     }
 
-    protected RuneChanger getRuneChanger() {
-        return getClientOverlay().runeChanger;
+    protected RuneChangerApi getApi() {
+        return getClientOverlay().getApi();
     }
 
     @Override

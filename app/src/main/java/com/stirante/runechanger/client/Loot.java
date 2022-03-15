@@ -3,8 +3,8 @@ package com.stirante.runechanger.client;
 import com.stirante.eventbus.EventBus;
 import com.stirante.eventbus.Subscribe;
 import com.stirante.lolclient.ApiResponse;
-import com.stirante.lolclient.ClientApi;
-import com.stirante.runechanger.model.client.Champion;
+import com.stirante.runechanger.api.Champion;
+import com.stirante.runechanger.api.RuneChangerApi;
 import generated.LolChampionsCollectionsChampionMinimal;
 import generated.LolCollectionsCollectionsChampionMastery;
 import generated.LolLootPlayerLoot;
@@ -26,7 +26,7 @@ public class Loot extends ClientModule {
     private static final List<String> IGNORED_MATERIALS =
             Arrays.asList("MATERIAL_329", "MATERIAL_key", "MATERIAL_key_fragment");
 
-    public Loot(ClientApi api) {
+    public Loot(RuneChangerApi api) {
         super(api);
         EventBus.register(this);
     }
@@ -43,11 +43,11 @@ public class Loot extends ClientModule {
      */
     public int craftKeys() {
         try {
-            LolLootPlayerLoot keyFragments = getApi()
+            LolLootPlayerLoot keyFragments = getClientApi()
                     .executeGet("/lol-loot/v1/player-loot/MATERIAL_key_fragment", LolLootPlayerLoot.class)
                     .getResponseObject();
             if (keyFragments.count >= 3) {
-                getApi().executePost("/lol-loot/v1/recipes/MATERIAL_key_fragment_forge/craft?repeat=" +
+                getClientApi().executePost("/lol-loot/v1/recipes/MATERIAL_key_fragment_forge/craft?repeat=" +
                         keyFragments.count / 3, new String[]{"MATERIAL_key_fragment"});
             }
             return keyFragments.count / 3;
@@ -63,11 +63,12 @@ public class Loot extends ClientModule {
     public void disenchantChampions() {
         try {
             LolLootPlayerLoot[] loot =
-                    getApi().executeGet("/lol-loot/v1/player-loot", LolLootPlayerLoot[].class).getResponseObject();
+                    getClientApi().executeGet("/lol-loot/v1/player-loot", LolLootPlayerLoot[].class)
+                            .getResponseObject();
             for (LolLootPlayerLoot item : loot) {
                 if (item.lootId.startsWith("CHAMPION_RENTAL_")) {
                     for (int i = 0; i < item.count; i++) {
-                        getApi().executePost("/lol-loot/v1/recipes/CHAMPION_RENTAL_disenchant/craft", new String[]{item.lootId});
+                        getClientApi().executePost("/lol-loot/v1/recipes/CHAMPION_RENTAL_disenchant/craft", new String[]{item.lootId});
                     }
                 }
             }
@@ -85,19 +86,21 @@ public class Loot extends ClientModule {
     public void smartDisenchantChampions() {
         try {
             LolChampionsCollectionsChampionMinimal[] champions =
-                    getApi().executeGet("/lol-champions/v1/owned-champions-minimal", LolChampionsCollectionsChampionMinimal[].class)
+                    getClientApi().executeGet("/lol-champions/v1/owned-champions-minimal", LolChampionsCollectionsChampionMinimal[].class)
                             .getResponseObject();
             LolCollectionsCollectionsChampionMastery[] masteries =
-                    getApi().executeGet("/lol-collections/v1/inventories/" + getCurrentSummoner().summonerId +
+                    getClientApi().executeGet("/lol-collections/v1/inventories/" + getCurrentSummoner().summonerId +
                             "/champion-mastery", LolCollectionsCollectionsChampionMastery[].class).getResponseObject();
             LolLootPlayerLoot[] loot =
-                    getApi().executeGet("/lol-loot/v1/player-loot", LolLootPlayerLoot[].class).getResponseObject();
+                    getClientApi().executeGet("/lol-loot/v1/player-loot", LolLootPlayerLoot[].class)
+                            .getResponseObject();
 
             // Loop through all loot items
             for (LolLootPlayerLoot item : loot) {
                 // Check if it's champion shard
                 if (item.lootId.startsWith("CHAMPION_RENTAL_")) {
-                    Champion champion = Champion.getById(Integer.parseInt(item.lootId.replace("CHAMPION_RENTAL_", "")));
+                    Champion champion =
+                            getChampions().getById(Integer.parseInt(item.lootId.replace("CHAMPION_RENTAL_", "")));
                     if (champion == null) {
                         continue;
                     }
@@ -113,20 +116,20 @@ public class Loot extends ClientModule {
                             if (mastery.get().championLevel < 4 || mastery.get().championLevel == 7) {
                                 // disenchant, because champion level is below 4 (champion not played often enough) or champion level is max
                                 for (int i = 0; i < item.count; i++) {
-                                    getApi().executePost("/lol-loot/v1/recipes/CHAMPION_RENTAL_disenchant/craft", new String[]{item.lootId});
+                                    getClientApi().executePost("/lol-loot/v1/recipes/CHAMPION_RENTAL_disenchant/craft", new String[]{item.lootId});
                                 }
                             }
                             else if (mastery.get().championLevel == 6) {
                                 // disenchant and leave only one shard, because player might need that one shard for mastery 7
                                 for (int i = 0; i < item.count - 1; i++) {
-                                    getApi().executePost("/lol-loot/v1/recipes/CHAMPION_RENTAL_disenchant/craft", new String[]{item.lootId});
+                                    getClientApi().executePost("/lol-loot/v1/recipes/CHAMPION_RENTAL_disenchant/craft", new String[]{item.lootId});
                                 }
                             }
                         }
                         else {
                             // disenchant, because player doesn't have mastery for that champion
                             for (int i = 0; i < item.count; i++) {
-                                getApi().executePost("/lol-loot/v1/recipes/CHAMPION_RENTAL_disenchant/craft", new String[]{item.lootId});
+                                getClientApi().executePost("/lol-loot/v1/recipes/CHAMPION_RENTAL_disenchant/craft", new String[]{item.lootId});
                             }
                         }
                     }
@@ -145,7 +148,7 @@ public class Loot extends ClientModule {
     public Map<String, Pair<String, Integer>> getEventTokens() {
         try {
             ApiResponse<LolLootPlayerLoot[]> loot =
-                    getApi().executeGet("/lol-loot/v1/player-loot/", LolLootPlayerLoot[].class);
+                    getClientApi().executeGet("/lol-loot/v1/player-loot/", LolLootPlayerLoot[].class);
             return Arrays.stream(loot.getResponseObject())
                     .filter(lolLootPlayerLoot ->
                             lolLootPlayerLoot.type.equalsIgnoreCase("MATERIAL") &&
@@ -169,7 +172,7 @@ public class Loot extends ClientModule {
     public Map<String, Pair<String, Integer>> getRecipes(String lootId) {
         try {
             ApiResponse<LolLootRecipeWithMilestones[]> loot =
-                    getApi().executeGet(
+                    getClientApi().executeGet(
                             "/lol-loot/v1/recipes/initial-item/" + lootId, LolLootRecipeWithMilestones[].class);
             return Arrays.stream(loot.getResponseObject())
                     .filter(lolLootRecipe -> lolLootRecipe.slots.size() == 1 &&
@@ -195,7 +198,7 @@ public class Loot extends ClientModule {
      */
     public boolean craftRecipe(String recipeName, String lootId, int repeat) {
         try {
-            ApiResponse<Void> response = getApi().executePost(
+            ApiResponse<Void> response = getClientApi().executePost(
                     "/lol-loot/v1/recipes/" + recipeName + "/craft?repeat=" + repeat, new String[]{lootId});
             return response.isOk();
         } catch (IOException e) {

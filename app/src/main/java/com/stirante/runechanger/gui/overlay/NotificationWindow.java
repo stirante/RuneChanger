@@ -2,7 +2,8 @@ package com.stirante.runechanger.gui.overlay;
 
 import com.stirante.eventbus.EventBus;
 import com.stirante.eventbus.Subscribe;
-import com.stirante.runechanger.gui.Constants;
+import com.stirante.runechanger.api.overlay.OverlayLayer;
+import com.stirante.runechanger.utils.Constants;
 import com.stirante.runechanger.util.AnalyticsUtil;
 import com.stirante.runechanger.utils.SwingUtils;
 import org.slf4j.Logger;
@@ -23,7 +24,7 @@ public class NotificationWindow extends OverlayLayer {
     private boolean warningVisible = false;
     private String message;
 
-    public NotificationWindow(ClientOverlay overlay) {
+    public NotificationWindow(ClientOverlayImpl overlay) {
         super(overlay);
         try {
             warnIcon =

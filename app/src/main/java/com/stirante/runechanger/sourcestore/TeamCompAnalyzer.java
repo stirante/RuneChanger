@@ -6,8 +6,10 @@ import com.google.gson.Gson;
 import com.google.gson.annotations.SerializedName;
 import com.stirante.eventbus.EventBus;
 import com.stirante.justpipe.Pipe;
+import com.stirante.runechanger.RuneChanger;
+import com.stirante.runechanger.api.Champion;
 import com.stirante.runechanger.gui.overlay.NotificationWindow;
-import com.stirante.runechanger.model.client.Champion;
+import com.stirante.runechanger.client.ChampionsImpl;
 import generated.Position;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,24 +70,6 @@ public class TeamCompAnalyzer {
                 .replace("%counter_cutoff%", String.valueOf(COUNTER_CUTOFF));
     }
 
-    public static void main(String[] args) throws IOException {
-        Champion.init();
-        TeamCompAnalyzer analyzer = new TeamCompAnalyzer();
-        Map<Position, Champion> allyTeam = new HashMap<>();
-        allyTeam.put(Position.BOTTOM, Champion.getById(429));
-        allyTeam.put(Position.MIDDLE, Champion.getById(63));
-        allyTeam.put(Position.UTILITY, Champion.getById(53));
-        allyTeam.put(Position.TOP, Champion.getById(3));
-        allyTeam.put(Position.JUNGLE, Champion.getById(96));
-        List<Champion> enemyTeam = new ArrayList<>(5);
-        enemyTeam.add(Champion.getById(22));
-        enemyTeam.add(Champion.getById(25));
-        enemyTeam.add(Champion.getById(64));
-        enemyTeam.add(Champion.getById(92));
-        enemyTeam.add(Champion.getById(85));
-        analyzer.analyze(Position.UTILITY, Champion.getById(53), allyTeam, enemyTeam, new ArrayList<>());
-    }
-
     public void analyze(Position position, Champion playerChampion, Map<Position, Champion> allyTeam, List<Champion> enemyTeam, List<Champion> bans) throws IOException {
         String url = createUrl(position, allyTeam, enemyTeam, bans);
         SpotRecommendation spotRecommendation = cache.get(url);
@@ -112,8 +96,8 @@ public class TeamCompAnalyzer {
         }
         spotRecommendation.championWinRates
                 .forEach(championWinRate -> {
-                    comp.suggestions.add(new TeamCompChampion(Champion.getById(championWinRate.championId), championWinRate.winRate, spotRecommendation.championSpotInfo.get(championWinRate.championId).playRate));
-                    log.debug(Champion.getById(championWinRate.championId).getName() + ": " +
+                    comp.suggestions.add(new TeamCompChampion(RuneChanger.getInstance().getChampions().getById(championWinRate.championId), championWinRate.winRate, spotRecommendation.championSpotInfo.get(championWinRate.championId).playRate));
+                    log.debug(RuneChanger.getInstance().getChampions().getById(championWinRate.championId).getName() + ": " +
                             toPercentage(championWinRate.winRate));
                 });
         log.debug("Team comp win rate: " + toPercentage(spotRecommendation.winRate));
@@ -124,8 +108,8 @@ public class TeamCompAnalyzer {
             List<ChampionSpot> assignment = spotRecommendation.options.get(0).assignment;
             for (ChampionSpot championSpot : assignment) {
                 log.debug(
-                        Champion.getById(championSpot.championId).getName() + ": " + spotToPosition(championSpot.spot));
-                comp.estimatedPosition.put(Champion.getById(championSpot.championId), spotToPosition(championSpot.spot));
+                        RuneChanger.getInstance().getChampions().getById(championSpot.championId).getName() + ": " + spotToPosition(championSpot.spot));
+                comp.estimatedPosition.put(RuneChanger.getInstance().getChampions().getById(championSpot.championId), spotToPosition(championSpot.spot));
             }
         }
         EventBus.publish(TeamCompAnalysisEvent.NAME, new TeamCompAnalysisEvent(comp));

@@ -4,7 +4,9 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.stirante.runechanger.model.client.*;
+import com.stirante.runechanger.api.*;
+import com.stirante.runechanger.model.client.GameData;
+import com.stirante.runechanger.model.client.GameMode;
 import com.stirante.runechanger.sourcestore.RuneSource;
 import com.stirante.runechanger.sourcestore.SourceStore;
 import com.stirante.runechanger.utils.SyncingListWrapper;
@@ -76,7 +78,8 @@ public class AramAcademySource implements RuneSource {
             if (!page.verify()) {
                 return;
             }
-            JsonArray summonerSpells = root.getAsJsonArray("summoner_spells").get(0).getAsJsonObject().getAsJsonArray("spells");
+            JsonArray summonerSpells =
+                    root.getAsJsonArray("summoner_spells").get(0).getAsJsonObject().getAsJsonArray("spells");
             List<SummonerSpell> spells = StreamSupport.stream(summonerSpells.spliterator(), false)
                     .map(jsonElement -> SummonerSpell.getByName(jsonElement.getAsString()))
                     .collect(Collectors.toList());

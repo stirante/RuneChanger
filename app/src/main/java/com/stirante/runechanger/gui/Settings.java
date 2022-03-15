@@ -5,13 +5,14 @@ import com.stirante.eventbus.EventPriority;
 import com.stirante.eventbus.Subscribe;
 import com.stirante.lolclient.ClientApi;
 import com.stirante.runechanger.RuneChanger;
+import com.stirante.runechanger.api.Champion;
+import com.stirante.runechanger.api.ChampionBuild;
+import com.stirante.runechanger.api.RunePage;
 import com.stirante.runechanger.client.ClientEventListener;
 import com.stirante.runechanger.client.ClientModule;
 import com.stirante.runechanger.client.Runes;
 import com.stirante.runechanger.gui.controllers.*;
-import com.stirante.runechanger.model.client.Champion;
-import com.stirante.runechanger.model.client.ChampionBuild;
-import com.stirante.runechanger.model.client.RunePage;
+import com.stirante.runechanger.client.ChampionsImpl;
 import com.stirante.runechanger.sourcestore.SourceStore;
 import com.stirante.runechanger.util.*;
 import com.stirante.runechanger.util.AnalyticsUtil;
@@ -60,7 +61,7 @@ public class Settings extends Application {
 
     private static Settings instance;
     private Stage mainStage;
-    private RuneChanger runeChanger;
+    private RuneChanger api;
     private MainController controller;
     private RuneBookController runebook;
     private HomeController home;
@@ -118,7 +119,7 @@ public class Settings extends Application {
             if (value) {
                 try {
                     instance.home.localRunes.clear();
-                    instance.home.localRunes.addAll(RuneBook.getRuneBookValues());
+                    instance.home.localRunes.addAll(instance.api.getRuneBook().getRuneBookValues());
                     instance.home.setOnline(
                             RuneChanger.getInstance().getChampionSelectionModule().getCurrentSummoner(),
                             RuneChanger.getInstance().getLootModule());
@@ -131,10 +132,6 @@ public class Settings extends Application {
                 instance.updateRunes();
             }
         });
-    }
-
-    public static void main(String[] args) {
-        RuneChanger.main(args);
     }
 
     private void destroyScene() {
@@ -162,7 +159,7 @@ public class Settings extends Application {
         }
         else if (event.getCode() == KeyCode.V && event.isControlDown()) {
             if (isRunebook) {
-                pasteRunePage(Champion.getByName(runebook.championName.getText()));
+                pasteRunePage(api.getChampions().getByName(runebook.championName.getText()));
             }
             else if (isHome) {
                 pasteRunePage(null);
@@ -172,8 +169,8 @@ public class Settings extends Application {
 
     private void createScene() {
         PerformanceMonitor.pushEvent(PerformanceMonitor.EventType.GUI_SHOW);
-        controller = new MainController(mainStage);
-        runebook = new RuneBookController();
+        controller = new MainController(api, mainStage);
+        runebook = new RuneBookController(api);
 
         controller.setOnChampionSearch(champion -> {
             runebook.setChampion(champion);
@@ -181,8 +178,8 @@ public class Settings extends Application {
             controller.setFullContent(runebook);
         });
 
-        home = new HomeController();
-        setClientConnected(runeChanger.getApi() != null && runeChanger.getApi().isConnected());
+        home = new HomeController(api);
+        setClientConnected(api.getApi() != null && api.getApi().isConnected());
         controller.setContent(home);
 
         Scene scene = new Scene(controller.container, 600, 500);
@@ -202,7 +199,7 @@ public class Settings extends Application {
     public void start(Stage stage) {
         try {
             instance = this;
-            runeChanger = RuneChanger.getInstance();
+            api = RuneChanger.getInstance();
             mainStage = stage;
 
             mainStage.initStyle(StageStyle.TRANSPARENT);
@@ -398,12 +395,12 @@ public class Settings extends Application {
                                 recipes.getSelectionModel().selectedItemProperty().get();
                         int repeat = token.getValue().getValue() / recipe.getValue().getValue();
                         if (repeat == 0) {
-                            runeChanger.getGuiHandler().showWarningMessage("You don't have enough tokens!");
+                            api.getGuiHandler().showWarningMessage("You don't have enough tokens!");
                         }
                         else {
-                            runeChanger.getGuiHandler()
+                            api.getGuiHandler()
                                     .showInfoMessage("Trying to craft the recipe " + repeat + " times");
-                            runeChanger.getLootModule().craftRecipe(recipe.getKey(), token.getKey(), repeat);
+                            api.getLootModule().craftRecipe(recipe.getKey(), token.getKey(), repeat);
                         }
                     });
                 }
@@ -422,7 +419,7 @@ public class Settings extends Application {
                                     return new ArrayList<>();
                                 }
                                 return FuzzySearch
-                                        .extractSorted(param.getUserText(), Champion.values(), Champion::getName, 3)
+                                        .extractSorted(param.getUserText(), api.getChampions().getChampions(), Champion::getName, 3)
                                         .stream()
                                         .map(championBoundExtractedResult -> championBoundExtractedResult.getReferent()
                                                 .getName())
@@ -434,7 +431,7 @@ public class Settings extends Application {
                     dialog.setResultConverter(dialogButton -> dialogButton == ban);
                     boolean selected = dialog.showAndWait().orElse(false);
                     if (selected) {
-                        Champion champion = Champion.getByName(search.getText());
+                        Champion champion = api.getChampions().getByName(search.getText());
                         if (champion == null) {
                             RuneChanger.getInstance().getGuiHandler().showWarningMessage("Invalid champion name!");
                         }
@@ -447,7 +444,7 @@ public class Settings extends Application {
 
             Platform.setImplicitExit(false);
 
-            if (!Arrays.asList(runeChanger.programArguments).contains("-minimized")) {
+            if (!Arrays.asList(api.programArguments).contains("-minimized")) {
                 createScene();
             }
 
@@ -462,7 +459,7 @@ public class Settings extends Application {
                 SimplePreferences.putBooleanValue(SimplePreferences.InternalKeys.ASKED_ANALYTICS, true);
                 SimplePreferences.putBooleanValue(SimplePreferences.SettingsKeys.ANALYTICS, analytics);
             }
-        } catch (Exception e) {
+        } catch (Throwable e) {
             log.error("Failed to initialize GUI", e);
             AnalyticsUtil.addCrashReport(e, "Failed to initialize GUI", true);
         }
@@ -473,7 +470,7 @@ public class Settings extends Application {
             StringSelection selection = new StringSelection(runePage.toSerializedString());
             Toolkit.getDefaultToolkit().getSystemClipboard().setContents(selection, selection);
         }
-        runeChanger.getGuiHandler().showInfoMessage(RuneChanger.getInstance().getLang().getString("successful_rune_copy"));
+        api.getGuiHandler().showInfoMessage(RuneChanger.getInstance().getLang().getString("successful_rune_copy"));
     }
 
     private void pasteRunePage(Champion champion) {
@@ -487,16 +484,16 @@ public class Settings extends Application {
                 if (champion != null) {
                     page.setChampion(champion);
                 }
-                if (RuneBook.getRuneBookPage(page.getName()) != null) {
-                    runeChanger.getGuiHandler().showWarningMessage(String.format(RuneChanger.getInstance().getLang()
+                if (api.getRuneBook().getRuneBookPage(page.getName()) != null) {
+                    api.getGuiHandler().showWarningMessage(String.format(RuneChanger.getInstance().getLang()
                             .getString("duplicate_name_msg"), page.getName()));
                     return;
                 }
-                RuneBook.addRuneBookPage(page);
-                runeChanger.getGuiHandler().showInfoMessage(RuneChanger.getInstance().getLang().getString("successful_rune_copy"));
+                api.getRuneBook().addRuneBookPage(page);
+                api.getGuiHandler().showInfoMessage(RuneChanger.getInstance().getLang().getString("successful_rune_copy"));
             }
             else {
-                runeChanger.getGuiHandler().showWarningMessage(RuneChanger.getInstance().getLang()
+                api.getGuiHandler().showWarningMessage(RuneChanger.getInstance().getLang()
                         .getString("invalid_runepage"));
             }
         } catch (UnsupportedFlavorException | IOException e) {
@@ -564,11 +561,11 @@ public class Settings extends Application {
         new AsyncTask<Void, Void, List<RunePage>>() {
             @Override
             public List<RunePage> doInBackground(Void[] params) {
-                if (!runeChanger.getApi().isConnected()) {
+                if (!api.getApi().isConnected()) {
                     return null;
                 }
                 try {
-                    return runeChanger.getRunesModule().getRunePages();
+                    return api.getRunesModule().getRunePages();
                 } catch (Exception e) {
                     return null;
                 }
@@ -590,19 +587,19 @@ public class Settings extends Application {
 
                 runebook.localRunes.clear();
                 String title;
-                ArrayList<ChampionBuild> runeBookValues;
+                List<ChampionBuild> runeBookValues;
                 if (result == null || !RuneChanger.getInstance().getApi().isConnected()) {
                     title = RuneChanger.getInstance().getLang().getString("local_runes_no_connection");
-                    runeBookValues = RuneBook.getRuneBookValues();
+                    runeBookValues = api.getRuneBook().getRuneBookValues();
                 }
                 else {
                     title = String.format(
                             RuneChanger.getInstance().getLang().getString("local_runes"),
                             result.size(),
-                            runeChanger.getRunesModule().getOwnedPageCount());
+                            api.getRunesModule().getOwnedPageCount());
                     // Split list into runepages, that are both in runebook and in client and those, that are only in runebook
-                    @SuppressWarnings("unchecked") Map<Boolean, List<ChampionBuild>> results =
-                            ((List<ChampionBuild>) RuneBook.getRuneBookValues().clone())
+                    Map<Boolean, List<ChampionBuild>> results =
+                            new ArrayList<>(api.getRuneBook().getRuneBookValues())
                                     .stream()
                                     .collect(Collectors.partitioningBy(runePage -> result
                                             .stream()

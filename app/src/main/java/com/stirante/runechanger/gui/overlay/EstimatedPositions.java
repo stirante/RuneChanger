@@ -4,11 +4,12 @@ import com.stirante.eventbus.EventBus;
 import com.stirante.eventbus.Subscribe;
 import com.stirante.runechanger.DebugConsts;
 import com.stirante.runechanger.RuneChanger;
+import com.stirante.runechanger.api.Champion;
+import com.stirante.runechanger.api.overlay.OverlayLayer;
 import com.stirante.runechanger.client.ChampionSelection;
-import com.stirante.runechanger.gui.SceneType;
-import com.stirante.runechanger.model.client.Champion;
 import com.stirante.runechanger.sourcestore.TeamCompAnalyzer;
 import com.stirante.runechanger.util.AnalyticsUtil;
+import com.stirante.runechanger.utils.SceneType;
 import com.stirante.runechanger.utils.SwingUtils;
 import generated.Position;
 import org.slf4j.Logger;
@@ -27,7 +28,7 @@ public class EstimatedPositions extends OverlayLayer {
     private final BufferedImage[] icons = new BufferedImage[5];
     private TeamCompAnalyzer.TeamComp analysis;
 
-    EstimatedPositions(ClientOverlay overlay) {
+    EstimatedPositions(ClientOverlayImpl overlay) {
         super(overlay);
         try {
             icons[0] =
@@ -58,11 +59,11 @@ public class EstimatedPositions extends OverlayLayer {
     protected void draw(Graphics g) {
         if (DebugConsts.MOCK_SESSION) {
             analysis = new TeamCompAnalyzer.TeamComp();
-            analysis.estimatedPosition.put(Champion.getByName("Mordekaiser"), Position.TOP);
-            analysis.estimatedPosition.put(Champion.getByName("Nunu"), Position.JUNGLE);
-            analysis.estimatedPosition.put(Champion.getByName("Lulu"), Position.UTILITY);
-            analysis.estimatedPosition.put(Champion.getByName("Vayne"), Position.BOTTOM);
-            analysis.estimatedPosition.put(Champion.getByName("Yasuo"), Position.MIDDLE);
+            analysis.estimatedPosition.put(getApi().getChampions().getByName("Mordekaiser"), Position.TOP);
+            analysis.estimatedPosition.put(getApi().getChampions().getByName("Nunu"), Position.JUNGLE);
+            analysis.estimatedPosition.put(getApi().getChampions().getByName("Lulu"), Position.UTILITY);
+            analysis.estimatedPosition.put(getApi().getChampions().getByName("Vayne"), Position.BOTTOM);
+            analysis.estimatedPosition.put(getApi().getChampions().getByName("Yasuo"), Position.MIDDLE);
         }
         //[x = 0.9820312 y = 0.21666667]
         //[x = 0.9820312 y = 0.3263889]
@@ -78,11 +79,13 @@ public class EstimatedPositions extends OverlayLayer {
                 0.6638889
         };
         if (getSceneType() == SceneType.CHAMPION_SELECT && analysis != null && !analysis.estimatedPosition.isEmpty()) {
-            ChampionSelection champSelect = RuneChanger.getInstance().getChampionSelectionModule();
+            ChampionSelection champSelect = ((RuneChanger) getApi()).getChampionSelectionModule();
             List<Champion> enemyTeam = champSelect.getEnemyTeam();
             if (DebugConsts.MOCK_SESSION) {
                 enemyTeam =
-                        Arrays.asList(Champion.getByName("Mordekaiser"), Champion.getByName("Nunu"), Champion.getByName("Lulu"), Champion.getByName("Vayne"), Champion.getByName("Yasuo"));
+                        Arrays.asList(getApi().getChampions().getByName("Mordekaiser"), getApi().getChampions()
+                                .getByName("Nunu"), getApi().getChampions().getByName("Lulu"), getApi().getChampions()
+                                .getByName("Vayne"), getApi().getChampions().getByName("Yasuo"));
             }
             for (int i = 0, enemyTeamSize = enemyTeam.size(); i < enemyTeamSize; i++) {
                 Champion champion = enemyTeam.get(i);

@@ -2,11 +2,9 @@ package com.stirante.runechanger.client;
 
 import com.stirante.eventbus.EventBus;
 import com.stirante.eventbus.Subscribe;
-import com.stirante.lolclient.ClientApi;
-import com.stirante.lolclient.ClientWebSocket;
-import com.stirante.runechanger.RuneChanger;
-import com.stirante.runechanger.utils.SimplePreferences;
+import com.stirante.runechanger.api.RuneChangerApi;
 import com.stirante.runechanger.utils.AsyncTask;
+import com.stirante.runechanger.utils.SimplePreferences;
 import generated.LolMatchmakingMatchmakingDodgeState;
 import generated.LolMatchmakingMatchmakingSearchResource;
 import org.slf4j.Logger;
@@ -19,7 +17,7 @@ public class Matchmaking extends ClientModule {
 
     public static final String MATCHMAKING_SEARCH_EVENT = "/lol-matchmaking/v1/search";
 
-    public Matchmaking(ClientApi api) {
+    public Matchmaking(RuneChangerApi api) {
         super(api);
         EventBus.register(this);
     }
@@ -33,11 +31,11 @@ public class Matchmaking extends ClientModule {
                     data.isCurrentlyInQueue) {
                 try {
                     log.debug("restart matchmaking");
-                    getApi().executeDelete("/lol-lobby/v2/lobby/matchmaking/search");
+                    getClientApi().executeDelete("/lol-lobby/v2/lobby/matchmaking/search");
                     AsyncTask.EXECUTOR_SERVICE.submit(() -> {
                         try {
                             Thread.sleep(1000);
-                            getApi().executePost("/lol-lobby/v2/lobby/matchmaking/search");
+                            getClientApi().executePost("/lol-lobby/v2/lobby/matchmaking/search");
                         } catch (IOException | InterruptedException e) {
                             e.printStackTrace();
                         }

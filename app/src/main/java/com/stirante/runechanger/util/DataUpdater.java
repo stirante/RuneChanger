@@ -2,7 +2,7 @@ package com.stirante.runechanger.util;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.stirante.runechanger.model.client.Rune;
+import com.stirante.runechanger.api.Rune;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,9 +21,8 @@ import java.util.*;
 public class DataUpdater {
     private static final Logger log = LoggerFactory.getLogger(DataUpdater.class);
 
-    private static final String RUNE_ENUM_PREFIX = "package com.stirante.runechanger.model.client;\n" +
+    private static final String RUNE_ENUM_PREFIX = "package com.stirante.runechanger.api;\n" +
             "\n" +
-            "import com.stirante.runechanger.util.AnalyticsUtil;\n" +
             "import org.slf4j.Logger;\n" +
             "import org.slf4j.LoggerFactory;\n" +
             "\n" +
@@ -33,6 +32,7 @@ public class DataUpdater {
             "\n" +
             "public enum Rune {\n";
     private static final String RUNE_ENUM_POSTFIX = "\n" +
+            "\n" +
             "\n" +
             "    private static final Logger log = LoggerFactory.getLogger(Rune.class);\n" +
             "    private final int id;\n" +
@@ -130,7 +130,6 @@ public class DataUpdater {
             "                image = ImageIO.read(getClass().getResourceAsStream(\"/runes/\" + getId() + \".png\"));\n" +
             "            } catch (IOException e) {\n" +
             "                log.error(\"Exception occurred while reading rune icon\", e);\n" +
-            "                AnalyticsUtil.addCrashReport(e, \"Exception occurred while reading a rune icon\", false);\n" +
             "            }\n" +
             "        }\n" +
             "        return image;\n" +
@@ -203,9 +202,11 @@ public class DataUpdater {
             }
         }
         try {
-            FileWriter writer = new FileWriter(new File("src/main/java/com/stirante/RuneChanger/model/client/Rune.java"));
+            FileWriter writer = new FileWriter("api/src/main/java/com/stirante/runechanger/api/Rune.java");
             writer.write(RUNE_ENUM_PREFIX + "    //Generated on " +
-                    SimpleDateFormat.getDateTimeInstance(DateFormat.FULL, DateFormat.FULL, Locale.ENGLISH).format(new Date()) + "\n" + sb.toString() +
+                    SimpleDateFormat.getDateTimeInstance(DateFormat.FULL, DateFormat.FULL, Locale.ENGLISH)
+                            .format(new Date()) + "\n" +
+                    sb +
                     RUNE_ENUM_POSTFIX);
             writer.flush();
             writer.close();
@@ -232,7 +233,7 @@ public class DataUpdater {
                     conn.addRequestProperty("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36");
                     BufferedImage read = ImageIO.read(conn.getInputStream());
                     conn.getInputStream().close();
-                    ImageIO.write(read, "png", new File("src/main/resources/runes/" + rune.getId() + ".png"));
+                    ImageIO.write(read, "png", new File("app/src/main/resources/runes/" + rune.getId() + ".png"));
                 } catch (IOException e) {
                     log.error("Exception occurred while downloading rune image for rune " + rune.getName(), e);
                 }

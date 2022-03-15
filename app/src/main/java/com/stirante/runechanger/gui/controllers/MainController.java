@@ -1,9 +1,9 @@
 package com.stirante.runechanger.gui.controllers;
 
+import com.stirante.runechanger.api.Champion;
+import com.stirante.runechanger.api.RuneChangerApi;
 import com.stirante.runechanger.gui.Content;
 import com.stirante.runechanger.model.app.Version;
-import com.stirante.runechanger.model.client.Champion;
-import com.stirante.runechanger.utils.LangHelper;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -31,6 +31,7 @@ import java.util.stream.Collectors;
 public class MainController {
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(MainController.class);
     private final Stage stage;
+    private final RuneChangerApi api;
 
     public TextField search;
     public ImageView back;
@@ -47,10 +48,12 @@ public class MainController {
 
     private Content content;
 
-    public MainController(Stage stage) {
+    public MainController(RuneChangerApi api, Stage stage) {
+        this.api = api;
         this.stage = stage;
-        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/fxml/Main.fxml"), com.stirante.runechanger.RuneChanger.getInstance()
-                .getLang());
+        FXMLLoader fxmlLoader =
+                new FXMLLoader(getClass().getResource("/fxml/Main.fxml"), com.stirante.runechanger.RuneChanger.getInstance()
+                        .getLang());
         fxmlLoader.setController(this);
         try {
             fxmlLoader.load();
@@ -63,7 +66,7 @@ public class MainController {
                         return new ArrayList<>();
                     }
                     return FuzzySearch
-                            .extractSorted(param.getUserText(), Champion.values(), Champion::getName, 3)
+                            .extractSorted(param.getUserText(), api.getChampions().getChampions(), Champion::getName, 3)
                             .stream()
                             .map(championBoundExtractedResult -> championBoundExtractedResult.getReferent().getName())
                             .collect(Collectors.toList());
@@ -134,7 +137,7 @@ public class MainController {
 
     public void onSearch(AutoCompletionBinding.AutoCompletionEvent event) {
         if (searchHandler != null) {
-            searchHandler.accept(Champion.getByName((String) event.getCompletion()));
+            searchHandler.accept(api.getChampions().getByName((String) event.getCompletion()));
         }
         search.setText("");
         search.getParent().requestFocus();

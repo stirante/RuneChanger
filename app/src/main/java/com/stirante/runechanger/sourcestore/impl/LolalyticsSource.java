@@ -2,16 +2,11 @@ package com.stirante.runechanger.sourcestore.impl;
 
 import com.google.gson.Gson;
 import com.stirante.justpipe.Pipe;
+import com.stirante.runechanger.api.*;
 import com.stirante.runechanger.model.app.SettingsConfiguration;
-import com.stirante.runechanger.model.client.Champion;
-import com.stirante.runechanger.model.client.ChampionBuild;
 import com.stirante.runechanger.model.client.GameData;
 import com.stirante.runechanger.model.client.GameMode;
-import com.stirante.runechanger.model.client.Modifier;
 import com.stirante.runechanger.model.client.Patch;
-import com.stirante.runechanger.model.client.Rune;
-import com.stirante.runechanger.model.client.RunePage;
-import com.stirante.runechanger.model.client.SummonerSpell;
 import com.stirante.runechanger.sourcestore.RuneSource;
 import com.stirante.runechanger.sourcestore.SourceStore;
 import com.stirante.runechanger.utils.SyncingListWrapper;
@@ -50,7 +45,8 @@ public class LolalyticsSource implements RuneSource {
                 Pipe.from(conn.getInputStream()).to(json);
                 LolalyticsResult jsonData =
                         new Gson().fromJson(json.toString(), LolalyticsResult.class);
-                if (jsonData == null || jsonData.summary == null || jsonData.header == null || jsonData.header.n < minThreshold) {
+                if (jsonData == null || jsonData.summary == null || jsonData.header == null ||
+                        jsonData.header.n < minThreshold) {
                     // Entering this means that API has changed, error has occurred or
                     // website doesn't have build for current combination of parameters
                     // or current combination of parameters doesn't satisfy requirements
@@ -58,9 +54,12 @@ public class LolalyticsSource implements RuneSource {
                 }
 
                 // We're adding most common or highest win rate runes depending on the settings
-                RunePage runePage = getRunePage(champion, lane, jsonData.summary.runes.pick, mostCommon ? RunePageType.MOST_COMMON : RunePageType.MOST_WINS);
+                RunePage runePage =
+                        getRunePage(champion, lane, jsonData.summary.runes.pick, mostCommon ? RunePageType.MOST_COMMON : RunePageType.MOST_WINS);
                 if (runePage != null) {
-                    pages.add(ChampionBuild.builder(runePage).withSpells(extractSummonerSpells(jsonData.summary.sum.pick)).create());
+                    pages.add(ChampionBuild.builder(runePage)
+                            .withSpells(extractSummonerSpells(jsonData.summary.sum.pick))
+                            .create());
                 }
             }
 
@@ -232,14 +231,14 @@ public class LolalyticsSource implements RuneSource {
         }
     }
 
-    private List<SummonerSpell> extractSummonerSpells(SumPick pick){
-        try{
+    private List<SummonerSpell> extractSummonerSpells(SumPick pick) {
+        try {
             final String[] spells = pick.id.split("_");
             List<SummonerSpell> list = new ArrayList<>(2);
             list.add(SummonerSpell.getByKey(Integer.parseInt(spells[0])));
             list.add(SummonerSpell.getByKey(Integer.parseInt(spells[1])));
             return list;
-        }catch (Exception e){
+        } catch (Exception e) {
             log.error("Unable to parse sumoner spells for {}", pick);
             return null;
         }

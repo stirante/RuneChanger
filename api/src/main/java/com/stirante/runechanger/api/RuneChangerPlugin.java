@@ -2,8 +2,17 @@ package com.stirante.runechanger.api;
 
 public abstract class RuneChangerPlugin {
 
-    public abstract void onEnable();
+    private final RuneChangerApi api;
 
+    RuneChangerPlugin(RuneChangerApi api) {
+        this.api = api;
+    }
+
+    public RuneChangerApi getApi() {
+        return api;
+    }
+
+    public abstract void onEnable();
 
 
 }

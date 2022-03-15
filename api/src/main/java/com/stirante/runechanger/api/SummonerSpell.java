@@ -1,4 +1,4 @@
-package com.stirante.runechanger.model.client;
+package com.stirante.runechanger.api;
 
 public enum SummonerSpell {
     BARRIER("SummonerBarrier", 21, "Barrier"),

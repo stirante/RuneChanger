@@ -1,12 +1,12 @@
 package com.stirante.runechanger.gui.controllers;
 
 import com.stirante.runechanger.RuneChanger;
+import com.stirante.runechanger.api.ChampionBuild;
+import com.stirante.runechanger.api.RuneChangerApi;
 import com.stirante.runechanger.client.Loot;
 import com.stirante.runechanger.gui.Content;
 import com.stirante.runechanger.gui.Settings;
 import com.stirante.runechanger.gui.components.RCButton;
-import com.stirante.runechanger.model.client.ChampionBuild;
-import com.stirante.runechanger.utils.LangHelper;
 import com.stirante.runechanger.utils.SimplePreferences;
 import generated.LolSummonerSummoner;
 import javafx.collections.FXCollections;
@@ -35,6 +35,7 @@ import java.util.Objects;
 
 public class HomeController implements Content {
     private static final Logger log = LoggerFactory.getLogger(HomeController.class);
+    private final RuneChangerApi api;
 
     public Pane container;
     public Circle profilePicture;
@@ -48,9 +49,10 @@ public class HomeController implements Content {
     public final ObservableList<ChampionBuild> localRunes = FXCollections.observableArrayList();
     private Loot lootModule;
 
-    public HomeController() {
-        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/fxml/Home.fxml"), RuneChanger.getInstance()
-                .getLang());
+    public HomeController(RuneChangerApi api) {
+        this.api = api;
+        FXMLLoader fxmlLoader =
+                new FXMLLoader(getClass().getResource("/fxml/Home.fxml"), RuneChanger.getInstance().getLang());
         fxmlLoader.setController(this);
         try {
             fxmlLoader.load();
@@ -72,7 +74,7 @@ public class HomeController implements Content {
             }
         });
         localRunesList.setItems(localRunes);
-        localRunesList.setCellFactory(listView -> new RuneItemController.ChampionBuildCell(RuneItemController::setHomeRuneMode));
+        localRunesList.setCellFactory(listView -> new RuneItemController.ChampionBuildCell(api.getRuneBook(), RuneItemController::setHomeRuneMode));
         syncButton.setVisible(!SimplePreferences.getBooleanValue(SimplePreferences.SettingsKeys.AUTO_SYNC, false));
         Objects.requireNonNull(syncButton.getTooltip()).setShowDelay(Duration.ZERO);
     }
@@ -105,7 +107,9 @@ public class HomeController implements Content {
 
     @FXML
     public void onChampionDisenchant(ActionEvent event) {
-        if (Settings.openYesNoDialog(RuneChanger.getInstance().getLang().getString("disenchant_confirm_title"), RuneChanger.getInstance()
+        if (Settings.openYesNoDialog(RuneChanger.getInstance()
+                .getLang()
+                .getString("disenchant_confirm_title"), RuneChanger.getInstance()
                 .getLang()
                 .getString("disenchant_confirm_message"))) {
             if (SimplePreferences.getBooleanValue(SimplePreferences.SettingsKeys.SMART_DISENCHANT, false)) {

@@ -1,4 +1,4 @@
-package com.stirante.runechanger.gui;
+package com.stirante.runechanger.utils;
 
 public enum SceneType {
     NONE,

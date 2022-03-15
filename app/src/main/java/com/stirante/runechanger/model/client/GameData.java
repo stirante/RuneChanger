@@ -1,5 +1,8 @@
 package com.stirante.runechanger.model.client;
 
+import com.stirante.runechanger.api.Champion;
+import com.stirante.runechanger.client.ChampionsImpl;
+
 public class GameData {
 
     private final GameMode mode;

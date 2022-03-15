@@ -28,6 +28,7 @@ module RuneChanger {
     requires org.slf4j;
     requires core;
     requires utils;
+    requires api;
 
     exports com.stirante.runechanger;
     exports com.stirante.runechanger.gui;
@@ -44,4 +45,5 @@ module RuneChanger {
     opens com.stirante.runechanger.gui.components;
     opens com.stirante.runechanger.gui.controllers;
     opens com.stirante.runechanger.util;
+    opens com.stirante.runechanger.client;
 }

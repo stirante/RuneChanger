@@ -1,36 +1,39 @@
 package com.stirante.runechanger.util;
 
 import com.stirante.eventbus.EventBus;
+import com.stirante.runechanger.api.RuneBook;
+import com.stirante.runechanger.api.RuneChangerApi;
 import com.stirante.runechanger.client.ClientEventListener;
 import com.stirante.runechanger.client.Runes;
-import com.stirante.runechanger.model.client.ChampionBuild;
-import com.stirante.runechanger.model.client.RunePage;
+import com.stirante.runechanger.api.ChampionBuild;
+import com.stirante.runechanger.api.RunePage;
 import com.stirante.runechanger.utils.PathUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.List;
 
-public class RuneBook {
-    private static final Logger log = LoggerFactory.getLogger(RuneBook.class);
+public class RuneBookImpl implements RuneBook {
+    private static final Logger log = LoggerFactory.getLogger(RuneBookImpl.class);
 
     private static final String RUNEBOOK_FILENAME =
             new File(PathUtils.getWorkingDirectory(), "RuneChangerRuneBook.dat").getAbsolutePath();
-    private static ArrayList<ChampionBuild> runeBookValues;
+    private final List<ChampionBuild> runeBookValues;
 
-    public static ArrayList<ChampionBuild> getRuneBookValues() {
-        return runeBookValues;
+    public RuneBookImpl(List<ChampionBuild> runeBookValues) {
+        this.runeBookValues = runeBookValues;
     }
 
-    public static void loadRuneBook() {
+    public static RuneBook loadRuneBook(RuneChangerApi api) {
+        List<ChampionBuild> runeBookValues = new ArrayList<>();
         File runeBookValuesFile = new File(RUNEBOOK_FILENAME);
         try (DataInputStream ois = new DataInputStream(new FileInputStream(runeBookValuesFile))) {
-            runeBookValues = new ArrayList<>();
             int size = ois.readInt();
             for (int i = 0; i < size; i++) {
                 RunePage p = new RunePage();
-                p.deserialize(ois);
+                p.deserialize(api, ois);
                 runeBookValues.add(ChampionBuild.builder(p).create());
             }
         } catch (IOException e) {
@@ -39,12 +42,10 @@ public class RuneBook {
                 AnalyticsUtil.addCrashReport(e, "Exception occurred while loading rune book file", false);
             }
         }
-        if (runeBookValues == null) {
-            runeBookValues = new ArrayList<>();
-        }
+        return new RuneBookImpl(runeBookValues);
     }
 
-    public static void save() {
+    public void save() {
         File runeBookFile = new File(RUNEBOOK_FILENAME);
         if (!runeBookFile.exists()) {
             try {
@@ -69,7 +70,11 @@ public class RuneBook {
         }
     }
 
-    public static RunePage getRuneBookPage(String key) {
+    public List<ChampionBuild> getRuneBookValues() {
+        return runeBookValues;
+    }
+
+    public RunePage getRuneBookPage(String key) {
         return runeBookValues.stream()
                 .filter(runePage -> runePage.getName().equalsIgnoreCase(key))
                 .findFirst()
@@ -77,14 +82,14 @@ public class RuneBook {
                 .orElse(null);
     }
 
-    public static void addRuneBookPage(RunePage page) {
+    public void addRuneBookPage(RunePage page) {
         runeBookValues.add(ChampionBuild.builder(page.copy()).create());
         save();
         EventBus.publish(Runes.RUNE_PAGES_EVENT,
                 new ClientEventListener.DummyClientEvent<>(ClientEventListener.WebSocketEventType.UPDATE, null));
     }
 
-    public static void removeRuneBookPage(String key) {
+    public void removeRuneBookPage(String key) {
         runeBookValues.removeIf(runePage -> runePage.getName().equalsIgnoreCase(key));
         save();
         EventBus.publish(Runes.RUNE_PAGES_EVENT,

@@ -8,10 +8,10 @@ import com.stirante.justpipe.Pipe;
 import com.stirante.lolclient.libs.org.apache.http.client.methods.HttpGet;
 import com.stirante.lolclient.libs.org.apache.http.impl.client.CloseableHttpClient;
 import com.stirante.lolclient.libs.org.apache.http.impl.client.HttpClients;
+import com.stirante.runechanger.api.*;
 import com.stirante.runechanger.model.app.SettingsConfiguration;
-import com.stirante.runechanger.model.client.*;
+import com.stirante.runechanger.model.client.GameData;
 import com.stirante.runechanger.sourcestore.RuneSource;
-import com.stirante.runechanger.sourcestore.SourceStore;
 import com.stirante.runechanger.utils.StringUtils;
 import com.stirante.runechanger.utils.SyncingListWrapper;
 import generated.Position;
@@ -63,7 +63,7 @@ public class ChampionGGSource implements RuneSource {
         }
     }
 
-    private void initCache() {
+    private void initCache(Champions champions) {
         LOCK.lock();
         if (initialized) {
             LOCK.unlock();
@@ -81,7 +81,7 @@ public class ChampionGGSource implements RuneSource {
             JsonArray data = JsonParser.parseString(json).getAsJsonObject().getAsJsonArray("data");
             for (JsonElement champion : data) {
                 JsonObject obj = champion.getAsJsonObject();
-                Champion champ = Champion.getById(obj.get("champion_id").getAsInt());
+                Champion champ = champions.getById(obj.get("champion_id").getAsInt());
                 Position role = toPosition(obj.get("role").getAsString());
                 if (!positionCache.containsKey(champ)) {
                     positionCache.put(champ, role);
@@ -187,7 +187,6 @@ public class ChampionGGSource implements RuneSource {
     }
 
     public Position getPositionForChampion(Champion champion) {
-        initCache();
         if (!positionCache.containsKey(champion)) {
             log.warn("Champion not found: " + champion.getName());
             return Position.UNSELECTED;
@@ -223,6 +222,11 @@ public class ChampionGGSource implements RuneSource {
                 .add();
     }
 
+    @Override
+    public void init(RuneChangerApi api) {
+        initCache(api.getChampions());
+    }
+
     private enum Tier {
         CHALLENGER,
         GRANDMASTER,
@@ -254,10 +258,4 @@ public class ChampionGGSource implements RuneSource {
         }
     }
 
-    public static void main(String[] args) throws IOException {
-        Champion.init();
-        ChampionGGSource source = new ChampionGGSource();
-        source.initCache();
-        SourceStore.testSource(source, GameMode.CLASSIC);
-    }
 }

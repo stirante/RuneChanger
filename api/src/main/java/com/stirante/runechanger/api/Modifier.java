@@ -1,4 +1,4 @@
-package com.stirante.runechanger.model.client;
+package com.stirante.runechanger.api;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -11,16 +11,17 @@ import com.stirante.lolclient.ClientApi;
 import com.stirante.lolclient.ClientConnectionListener;
 import com.stirante.lolclient.ClientWebSocket;
 import com.stirante.lolclient.libs.org.java_websocket.exceptions.WebsocketNotConnectedException;
+import com.stirante.runechanger.api.Champions;
+import com.stirante.runechanger.api.RuneBook;
+import com.stirante.runechanger.api.RuneChangerApi;
+import com.stirante.runechanger.api.overlay.ClientOverlay;
 import com.stirante.runechanger.client.*;
-import com.stirante.runechanger.gui.Constants;
 import com.stirante.runechanger.gui.GuiHandler;
-import com.stirante.runechanger.gui.SceneType;
 import com.stirante.runechanger.gui.Settings;
 import com.stirante.runechanger.model.app.Version;
-import com.stirante.runechanger.model.client.Champion;
 import com.stirante.runechanger.sourcestore.SourceStore;
-import com.stirante.runechanger.util.*;
 import com.stirante.runechanger.util.AnalyticsUtil;
+import com.stirante.runechanger.util.*;
 import com.stirante.runechanger.utils.*;
 import com.sun.jna.platform.win32.Advapi32Util;
 import com.sun.jna.platform.win32.Kernel32Util;
@@ -46,10 +47,11 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-public class RuneChanger implements Launcher {
+public class RuneChanger implements Launcher, RuneChangerApi {
 
     private static final Logger log = LoggerFactory.getLogger(RuneChanger.class);
     private static RuneChanger instance;
+    private static ChampionsImpl champions;
     public String[] programArguments;
     private ClientApi api;
     private GuiHandler gui;
@@ -62,6 +64,7 @@ public class RuneChanger implements Launcher {
 
     private ClientWebSocket socket;
     private ResourceBundle resourceBundle;
+    private RuneBook runeBook;
 
     public static void main(String[] args) {
         if (Arrays.asList(args).contains("-debug-mode")) {
@@ -112,7 +115,8 @@ public class RuneChanger implements Launcher {
         }
         log.debug("Initializing champions");
         try {
-            Champion.init();
+            champions = new ChampionsImpl();
+            champions.init();
         } catch (IOException e) {
             log.error("Exception occurred while initializing champions", e);
             AnalyticsUtil.addCrashReport(e, "Exception occurred while initializing champions", true);
@@ -133,7 +137,7 @@ public class RuneChanger implements Launcher {
             log.error("Exception occurred while checking autostart path", e);
             AnalyticsUtil.addCrashReport(e, "Exception occurred while checking autostart path", false);
         }
-        RuneBook.loadRuneBook();
+        instance.runeBook = RuneBookImpl.loadRuneBook(instance);
         if (!SimplePreferences.getBooleanValue(SimplePreferences.FlagKeys.CREATED_SHORTCUTS, false) ||
                 !SimplePreferences.getBooleanValue(SimplePreferences.FlagKeys.UPDATED_LOGO, false)) {
             try {
@@ -256,11 +260,11 @@ public class RuneChanger implements Launcher {
     }
 
     private void initModules() {
-        champSelectModule = new ChampionSelection(api);
-        runesModule = new Runes(api);
-        lootModule = new Loot(api);
-        chatModule = new Chat(api);
-        matchmakingModule = new Matchmaking(api);
+        champSelectModule = new ChampionSelection(this);
+        runesModule = new Runes(this);
+        lootModule = new Loot(this);
+        chatModule = new Chat(this);
+        matchmakingModule = new Matchmaking(this);
     }
 
     private void resetModules() {
@@ -272,7 +276,7 @@ public class RuneChanger implements Launcher {
     }
 
     private void init() {
-        log.info("Starting RuneChanger version " + Constants.VERSION_STRING + " (" + Version.INSTANCE.branch + "@" +
+        log.info("Starting RuneChanger version " + getVersion() + " (" + Version.INSTANCE.branch + "@" +
                 Version.INSTANCE.commitIdAbbrev + " built at " +
                 SimpleDateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT)
                         .format(Version.INSTANCE.buildTime) + ")");
@@ -303,7 +307,7 @@ public class RuneChanger implements Launcher {
         initModules();
         LolHelper.init();
         Settings.initialize();
-        SourceStore.init();
+        SourceStore.init(this);
         gui = new GuiHandler(this);
         if (!Arrays.asList(programArguments).contains("-no-connection")) {
             api.addClientConnectionListener(new ClientConnectionListener() {
@@ -469,5 +473,30 @@ public class RuneChanger implements Launcher {
 
     public GuiHandler getGuiHandler() {
         return gui;
+    }
+
+    @Override
+    public RuneBook getRuneBook() {
+        return runeBook;
+    }
+
+    @Override
+    public String getVersion() {
+        return Version.INSTANCE.version;
+    }
+
+    @Override
+    public ClientOverlay getClientOverlay() {
+        return getGuiHandler().getClientOverlay();
+    }
+
+    @Override
+    public ClientApi getClientApi() {
+        return api;
+    }
+
+    @Override
+    public Champions getChampions() {
+        return champions;
     }
 }

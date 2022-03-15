@@ -33,12 +33,6 @@
             <version>${update4j.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.stirante</groupId>
-            <artifactId>lol-client-java-api</artifactId>
-            <version>1.2.5-SNAPSHOT</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
             <groupId>com.jfoenix</groupId>
             <artifactId>jfoenix</artifactId>
             <version>9.0.10</version>
@@ -63,11 +57,6 @@
             <groupId>ly.count.sdk</groupId>
             <artifactId>java</artifactId>
             <version>19.09-sdk2-rc</version>
-        </dependency>
-        <dependency>
-            <groupId>com.stirante.runechanger</groupId>
-            <artifactId>utils</artifactId>
-            <version>${revision}</version>
         </dependency>
         <dependency>
             <groupId>com.stirante.runechanger</groupId>

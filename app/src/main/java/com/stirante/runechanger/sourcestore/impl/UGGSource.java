@@ -4,9 +4,13 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.stirante.runechanger.api.*;
+import com.stirante.runechanger.client.ChampionsImpl;
 import com.stirante.runechanger.model.app.CounterData;
 import com.stirante.runechanger.model.app.SettingsConfiguration;
-import com.stirante.runechanger.model.client.*;
+import com.stirante.runechanger.model.client.GameData;
+import com.stirante.runechanger.model.client.GameMode;
+import com.stirante.runechanger.model.client.Patch;
 import com.stirante.runechanger.sourcestore.CounterSource;
 import com.stirante.runechanger.sourcestore.RuneSource;
 import com.stirante.runechanger.sourcestore.SourceStore;
@@ -40,11 +44,16 @@ public class UGGSource implements RuneSource, CounterSource {
 
     private static String patchString = null;
     private int minThreshold = 0;
+    private RuneChangerApi api;
 
     public static void main(String[] args) throws IOException {
         UGGSource source = new UGGSource();
         SourceStore.testSource(source, GameMode.CLASSIC);
-        System.out.println(source.getCounterData(Champion.getByName("Janna")));
+    }
+
+    @Override
+    public void init(RuneChangerApi api) {
+        this.api = api;
     }
 
     @Override
@@ -116,10 +125,10 @@ public class UGGSource implements RuneSource, CounterSource {
             return null;
         }
         List<SummonerSpell> spells = StreamSupport.stream(arr.get(OverviewElement.SUMMONER_SPELLS.getKey())
-                .getAsJsonArray()
-                .get(SummonerSpells.SPELLS.getKey())
-                .getAsJsonArray()
-                .spliterator(), false)
+                        .getAsJsonArray()
+                        .get(SummonerSpells.SPELLS.getKey())
+                        .getAsJsonArray()
+                        .spliterator(), false)
                 .map(jsonElement -> SummonerSpell.getByKey(jsonElement.getAsInt()))
                 .collect(Collectors.toList());
         return ChampionBuild.builder(page).withSpells(spells);
@@ -163,7 +172,8 @@ public class UGGSource implements RuneSource, CounterSource {
         for (Patch value : latest) {
             patchString = value.format("%d_%d");
             try {
-                getRootObject(Champion.getByName("annie"), OVERVIEW_PATH, OVERVIEW_VERSION, QueueType.RANKED_SOLO);
+                getRootObject(api.getChampions()
+                        .getByName("annie"), OVERVIEW_PATH, OVERVIEW_VERSION, QueueType.RANKED_SOLO);
                 break;
             } catch (IOException ignored) {
             }
@@ -240,7 +250,7 @@ public class UGGSource implements RuneSource, CounterSource {
         for (JsonElement element : arr) {
             JsonArray jsonArray = element.getAsJsonArray();
             result.add(new CounterChampion(
-                    Champion.getById(jsonArray.get(Counter.CHAMPION.getKey()).getAsInt()),
+                    api.getChampions().getById(jsonArray.get(Counter.CHAMPION.getKey()).getAsInt()),
                     Position.getByKey(jsonArray.get(Counter.POSITION.getKey()).getAsInt()),
                     jsonArray.get(Counter.WON.getKey()).getAsInt(),
                     jsonArray.get(Counter.GAMES.getKey()).getAsInt()
