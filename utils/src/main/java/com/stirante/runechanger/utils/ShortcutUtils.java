@@ -29,7 +29,7 @@ public class ShortcutUtils {
             sl.setWorkingDir(dir);
             sl.setName(linkName);
             String absolutePath = new File(directory, linkName + ".lnk").getAbsolutePath();
-            Path targetPath = directory.toPath().toAbsolutePath();
+            Path targetPath = new File(new File(dir), fileName).toPath().toAbsolutePath();
             String root = targetPath.getRoot().toString();
             String path = targetPath.subpath(0, targetPath.getNameCount()).toString();
             slh
