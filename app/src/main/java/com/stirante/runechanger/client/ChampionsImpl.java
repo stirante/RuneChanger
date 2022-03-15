@@ -3,9 +3,9 @@ package com.stirante.runechanger.client;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.stirante.eventbus.EventBus;
-import com.stirante.runechanger.RuneChanger;
 import com.stirante.runechanger.api.Champion;
 import com.stirante.runechanger.api.Champions;
+import com.stirante.runechanger.api.RuneChangerApi;
 import com.stirante.runechanger.model.client.ChampionImpl;
 import com.stirante.runechanger.model.client.Patch;
 import com.stirante.runechanger.sourcestore.SourceStore;
@@ -39,6 +39,12 @@ public class ChampionsImpl implements Champions {
 
     static {
         portraitsDir.mkdirs();
+    }
+
+    private final RuneChangerApi api;
+
+    public ChampionsImpl(RuneChangerApi api) {
+        this.api = api;
     }
 
     @Override
@@ -291,7 +297,8 @@ public class ChampionsImpl implements Champions {
                         continue;
                     }
                     if (isPick) {
-                        ((ChampionImpl) champion).setPickQuote(StringUtils.fixString(element.text()).replaceAll("\"", ""));
+                        ((ChampionImpl) champion).setPickQuote(StringUtils.fixString(element.text())
+                                .replaceAll("\"", ""));
                         break;
                     }
                 }
@@ -306,7 +313,9 @@ public class ChampionsImpl implements Champions {
                                 continue;
                             }
                             if (isPick) {
-                                ((ChampionImpl) champion).setPickQuote(StringUtils.fixString(element.select("i").first().text())
+                                ((ChampionImpl) champion).setPickQuote(StringUtils.fixString(element.select("i")
+                                                .first()
+                                                .text())
                                         .replaceAll("\"", ""));
                                 break;
                             }
@@ -328,8 +337,8 @@ public class ChampionsImpl implements Champions {
                 }
                 try {
                     BufferedInputStream in;
-                    if (RuneChanger.getInstance() == null || RuneChanger.getInstance().getApi() == null ||
-                            !RuneChanger.getInstance().getApi().isConnected()) {
+                    if (api == null || api.getClientApi() == null ||
+                            !api.getClientApi().isConnected()) {
                         log.info("Downloading " + url);
                         HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();
                         conn.addRequestProperty("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36");
@@ -337,8 +346,8 @@ public class ChampionsImpl implements Champions {
                     }
                     else {
                         log.info("Getting LCU asset " + lcuPath);
-                        in = new BufferedInputStream(RuneChanger.getInstance()
-                                .getApi()
+                        in = new BufferedInputStream(api
+                                .getClientApi()
                                 .getAsset("lol-game-data", lcuPath));
                     }
                     FileOutputStream fileOutputStream = new FileOutputStream(f);

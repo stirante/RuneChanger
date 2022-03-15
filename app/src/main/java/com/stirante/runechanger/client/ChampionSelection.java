@@ -181,8 +181,7 @@ public class ChampionSelection extends ClientModule {
                         }
                         else if (session.theirTeam.stream()
                                 .anyMatch(player -> player.cellId.intValue() == actorCellId)) {
-                            this.enemyTeam.add(RuneChanger.getInstance()
-                                    .getChampions()
+                            this.enemyTeam.add(getChampions()
                                     .getById(((Double) a.get("championId")).intValue()));
                         }
                         else if (session.myTeam.stream().anyMatch(player -> player.cellId.intValue() == actorCellId)) {
@@ -191,8 +190,7 @@ public class ChampionSelection extends ClientModule {
                                     .findFirst();
                             if (first.isPresent() && first.get().assignedPosition != null &&
                                     !first.get().assignedPosition.isBlank()) {
-                                this.allyTeam.put(Position.valueOf(first.get().assignedPosition.toUpperCase(Locale.ROOT)), RuneChanger.getInstance()
-                                        .getChampions()
+                                this.allyTeam.put(Position.valueOf(first.get().assignedPosition.toUpperCase(Locale.ROOT)), getChampions()
                                         .getById(((Double) a.get("championId")).intValue()));
                             }
                         }
@@ -234,8 +232,7 @@ public class ChampionSelection extends ClientModule {
                 }
                 //if all fails check list of actions
                 if (champion == null && action != null) {
-                    champion = RuneChanger.getInstance()
-                            .getChampions()
+                    champion = getChampions()
                             .getById(((Double) action.get("championId")).intValue());
                 }
                 selectedPosition = null;
@@ -336,8 +333,7 @@ public class ChampionSelection extends ClientModule {
                 for (LolChampSelectChampSelectPlayerSelection selection : data.myTeam) {
                     if (selection.assignedPosition != null &&
                             getChampions().getById(selection.championId) != null) {
-                        allyTeam.put(Position.valueOf(selection.assignedPosition.toUpperCase(Locale.ROOT)), RuneChanger.getInstance()
-                                .getChampions()
+                        allyTeam.put(Position.valueOf(selection.assignedPosition.toUpperCase(Locale.ROOT)), getChampions()
                                 .getById(selection.championId));
                     }
                 }

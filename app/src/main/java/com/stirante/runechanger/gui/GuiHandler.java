@@ -241,7 +241,7 @@ public class GuiHandler {
                                 .start();
                     } catch (IOException ioException) {
                         log.error("Exception occurred while launching LoL", ioException);
-                        showErrorMessage(RuneChanger.getInstance().getLang().getString("failed_launch_lol"));
+                        showErrorMessage(runeChanger.getLang().getString("failed_launch_lol"));
                     }
                 });
             }
@@ -383,7 +383,7 @@ public class GuiHandler {
             SourceStore.getRunes(
                     GameData.of(
                             champion,
-                            RuneChanger.getInstance().getChampionSelectionModule().getGameMode()
+                            runeChanger.getChampionSelectionModule().getGameMode()
                     ).addContext(GameData.Context.CHAMPION_SELECT), pages);
         }
         else {

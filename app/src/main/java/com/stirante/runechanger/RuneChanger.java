@@ -115,7 +115,7 @@ public class RuneChanger implements Launcher, RuneChangerApi {
         }
         log.debug("Initializing champions");
         try {
-            champions = new ChampionsImpl();
+            champions = new ChampionsImpl(instance);
             champions.init();
         } catch (IOException e) {
             log.error("Exception occurred while initializing champions", e);
@@ -433,10 +433,6 @@ public class RuneChanger implements Launcher, RuneChangerApi {
         gui.showInfoMessage(getLang().getString("client_connected"));
         Settings.setClientConnected(true);
         socket.setSocketListener(new ClientEventListener());
-    }
-
-    public ClientApi getApi() {
-        return api;
     }
 
     public ChampionSelection getChampionSelectionModule() {

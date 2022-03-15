@@ -121,8 +121,8 @@ public class Settings extends Application {
                     instance.home.localRunes.clear();
                     instance.home.localRunes.addAll(instance.api.getRuneBook().getRuneBookValues());
                     instance.home.setOnline(
-                            RuneChanger.getInstance().getChampionSelectionModule().getCurrentSummoner(),
-                            RuneChanger.getInstance().getLootModule());
+                            instance.api.getChampionSelectionModule().getCurrentSummoner(),
+                            instance.api.getLootModule());
                     instance.updateRunes();
                 } catch (Exception ignored) {
                 }
@@ -179,13 +179,13 @@ public class Settings extends Application {
         });
 
         home = new HomeController(api);
-        setClientConnected(api.getApi() != null && api.getApi().isConnected());
+        setClientConnected(api.getClientApi() != null && api.getClientApi().isConnected());
         controller.setContent(home);
 
         Scene scene = new Scene(controller.container, 600, 500);
         scene.getStylesheets().add(getClass().getResource("/style.css").toExternalForm());
         scene.setFill(null);
-        scene.setNodeOrientation(LangHelper.isTextRTL(RuneChanger.getInstance().getLang().getLocale()) ? NodeOrientation.RIGHT_TO_LEFT : NodeOrientation.LEFT_TO_RIGHT);
+        scene.setNodeOrientation(LangHelper.isTextRTL(instance.api.getLang().getLocale()) ? NodeOrientation.RIGHT_TO_LEFT : NodeOrientation.LEFT_TO_RIGHT);
         mainStage.setScene(scene);
 
         mainStage.addEventHandler(KeyEvent.KEY_PRESSED, keyPress);
@@ -228,7 +228,7 @@ public class Settings extends Application {
                             @Override
                             public void onPostExecute(Void result) {
                                 progressDialog.close();
-                                RuneChanger.getInstance()
+                                api
                                         .getGuiHandler()
                                         .showInfoMessage("Performance monitor output saved");
                             }
@@ -236,7 +236,7 @@ public class Settings extends Application {
                     }
                     else {
                         PerformanceMonitor.start();
-                        RuneChanger.getInstance().getGuiHandler().showInfoMessage("Performance monitor started");
+                        api.getGuiHandler().showInfoMessage("Performance monitor started");
                     }
                 }
                 else if (event.isControlDown() && event.getCode() == KeyCode.L) {
@@ -295,8 +295,8 @@ public class Settings extends Application {
                 }
                 else if (event.isControlDown() && event.getCode() == KeyCode.T) {
                     // I'm sorry, this is very experimental and POC and ugly
-                    if (!RuneChanger.getInstance().getApi().isConnected()) {
-                        RuneChanger.getInstance().getGuiHandler().showWarningMessage("Not connected to client!");
+                    if (!api.getClientApi().isConnected()) {
+                        api.getGuiHandler().showWarningMessage("Not connected to client!");
                         return;
                     }
                     Dialog<Pair<String, String>> dialog = new Dialog<>();
@@ -348,7 +348,7 @@ public class Settings extends Application {
                     tokens.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
                         recipes.setDisable(newValue == null);
                         if (newValue != null) {
-                            recipes.setItems(FXCollections.observableList(new ArrayList<>(RuneChanger.getInstance()
+                            recipes.setItems(FXCollections.observableList(new ArrayList<>(api
                                     .getLootModule()
                                     .getRecipes(newValue.getKey())
                                     .entrySet())));
@@ -357,7 +357,7 @@ public class Settings extends Application {
                             recipes.getItems().clear();
                         }
                     });
-                    tokens.setItems(FXCollections.observableList(new ArrayList<>(RuneChanger.getInstance()
+                    tokens.setItems(FXCollections.observableList(new ArrayList<>(api
                             .getLootModule()
                             .getEventTokens()
                             .entrySet())));
@@ -433,10 +433,10 @@ public class Settings extends Application {
                     if (selected) {
                         Champion champion = api.getChampions().getByName(search.getText());
                         if (champion == null) {
-                            RuneChanger.getInstance().getGuiHandler().showWarningMessage("Invalid champion name!");
+                            api.getGuiHandler().showWarningMessage("Invalid champion name!");
                         }
                         else {
-                            RuneChanger.getInstance().getChampionSelectionModule().banChampion(champion);
+                            api.getChampionSelectionModule().banChampion(champion);
                         }
                     }
                 }
@@ -452,8 +452,8 @@ public class Settings extends Application {
             AsyncTask.EXECUTOR_SERVICE.submit(AutoUpdater::checkUpdate);
             if (!SimplePreferences.getBooleanValue(SimplePreferences.InternalKeys.ASKED_ANALYTICS, false)) {
                 boolean analytics = Settings.openYesNoDialog(
-                        RuneChanger.getInstance().getLang().getString("analytics_dialog_title"),
-                        RuneChanger.getInstance().getLang().getString("analytics_dialog_message")
+                        api.getLang().getString("analytics_dialog_title"),
+                        api.getLang().getString("analytics_dialog_message")
                 );
                 AnalyticsUtil.onConsent(analytics);
                 SimplePreferences.putBooleanValue(SimplePreferences.InternalKeys.ASKED_ANALYTICS, true);
@@ -470,7 +470,7 @@ public class Settings extends Application {
             StringSelection selection = new StringSelection(runePage.toSerializedString());
             Toolkit.getDefaultToolkit().getSystemClipboard().setContents(selection, selection);
         }
-        api.getGuiHandler().showInfoMessage(RuneChanger.getInstance().getLang().getString("successful_rune_copy"));
+        api.getGuiHandler().showInfoMessage(api.getLang().getString("successful_rune_copy"));
     }
 
     private void pasteRunePage(Champion champion) {
@@ -485,15 +485,15 @@ public class Settings extends Application {
                     page.setChampion(champion);
                 }
                 if (api.getRuneBook().getRuneBookPage(page.getName()) != null) {
-                    api.getGuiHandler().showWarningMessage(String.format(RuneChanger.getInstance().getLang()
+                    api.getGuiHandler().showWarningMessage(String.format(api.getLang()
                             .getString("duplicate_name_msg"), page.getName()));
                     return;
                 }
                 api.getRuneBook().addRuneBookPage(page);
-                api.getGuiHandler().showInfoMessage(RuneChanger.getInstance().getLang().getString("successful_rune_copy"));
+                api.getGuiHandler().showInfoMessage(api.getLang().getString("successful_rune_copy"));
             }
             else {
-                api.getGuiHandler().showWarningMessage(RuneChanger.getInstance().getLang()
+                api.getGuiHandler().showWarningMessage(api.getLang()
                         .getString("invalid_runepage"));
             }
         } catch (UnsupportedFlavorException | IOException e) {
@@ -511,7 +511,7 @@ public class Settings extends Application {
                     e.printStackTrace();
                 }
                 FxUtils.doOnFxThread(() -> {
-                    if (RuneChanger.getInstance().getChampionSelectionModule().wasLastGameGood()) {
+                    if (api.getChampionSelectionModule().wasLastGameGood()) {
                         showDonateDialog();
                     }
                 });
@@ -524,12 +524,12 @@ public class Settings extends Application {
             return;
         }
         donateDontAsk = true;
-        ButtonType donate = new ButtonType(RuneChanger.getInstance().getLang().getString("donate_button"));
-        ButtonType later = new ButtonType(RuneChanger.getInstance().getLang().getString("later_button"));
-        ButtonType never = new ButtonType(RuneChanger.getInstance().getLang().getString("never_ask_again_button"));
+        ButtonType donate = new ButtonType(api.getLang().getString("donate_button"));
+        ButtonType later =  new ButtonType(api.getLang().getString("later_button"));
+        ButtonType never =  new ButtonType(api.getLang().getString("never_ask_again_button"));
         ButtonType result = Settings.openDialog(
-                RuneChanger.getInstance().getLang().getString("donate_dialog_title"),
-                RuneChanger.getInstance().getLang().getString("donate_dialog_message"),
+                api.getLang().getString("donate_dialog_title"),
+                api.getLang().getString("donate_dialog_message"),
                 donate,
                 later,
                 never
@@ -561,7 +561,7 @@ public class Settings extends Application {
         new AsyncTask<Void, Void, List<RunePage>>() {
             @Override
             public List<RunePage> doInBackground(Void[] params) {
-                if (!api.getApi().isConnected()) {
+                if (!api.getClientApi().isConnected()) {
                     return null;
                 }
                 try {
@@ -588,13 +588,13 @@ public class Settings extends Application {
                 runebook.localRunes.clear();
                 String title;
                 List<ChampionBuild> runeBookValues;
-                if (result == null || !RuneChanger.getInstance().getApi().isConnected()) {
-                    title = RuneChanger.getInstance().getLang().getString("local_runes_no_connection");
+                if (result == null || !api.getClientApi().isConnected()) {
+                    title = api.getLang().getString("local_runes_no_connection");
                     runeBookValues = api.getRuneBook().getRuneBookValues();
                 }
                 else {
                     title = String.format(
-                            RuneChanger.getInstance().getLang().getString("local_runes"),
+                            api.getLang().getString("local_runes"),
                             result.size(),
                             api.getRunesModule().getOwnedPageCount());
                     // Split list into runepages, that are both in runebook and in client and those, that are only in runebook

@@ -77,8 +77,8 @@ public class RuneBookController implements Content {
                 newRunesList.setPrefWidth(272);
             }
         });
-        localRunesList.setCellFactory(listView -> new RuneItemController.ChampionBuildCell(api.getRuneBook(), RuneItemController::setLocalRuneMode));
-        newRunesList.setCellFactory(listView -> new RuneItemController.ChampionBuildCell(api.getRuneBook(), RuneItemController::setNewRuneMode));
+        localRunesList.setCellFactory(listView -> new RuneItemController.ChampionBuildCell(api, RuneItemController::setLocalRuneMode));
+        newRunesList.setCellFactory(listView -> new RuneItemController.ChampionBuildCell(api, RuneItemController::setNewRuneMode));
     }
 
     public void onBuildsClick(ActionEvent actionEvent) {

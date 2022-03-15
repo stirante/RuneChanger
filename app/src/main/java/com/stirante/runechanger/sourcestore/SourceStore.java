@@ -177,7 +177,7 @@ public class SourceStore {
     public static void testSource(RuneSource source, GameMode gameMode) throws IOException {
         FxUtils.DEBUG_WITHOUT_TOOLKIT = true;
         DebugConsts.enableDebugMode();
-        ChampionsImpl champions = new ChampionsImpl();
+        ChampionsImpl champions = new ChampionsImpl(null);
         champions.init();
         SyncingListWrapper<ChampionBuild> pages = new SyncingListWrapper<>();
         source.getRunesForGame(GameData.of(champions.getByName("blitzcrank"), gameMode), pages);
@@ -196,7 +196,7 @@ public class SourceStore {
     public static void testSourceAllChamps(RuneSource source, GameMode gameMode) throws IOException {
         FxUtils.DEBUG_WITHOUT_TOOLKIT = true;
         DebugConsts.enableDebugMode();
-        ChampionsImpl champions = new ChampionsImpl();
+        ChampionsImpl champions = new ChampionsImpl(null);
         champions.init();
         SyncingListWrapper<ChampionBuild> pages = new SyncingListWrapper<>();
         for (Champion champion : champions.getChampions()) {

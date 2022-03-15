@@ -32,7 +32,7 @@ import java.util.function.BiConsumer;
 
 public class RuneItemController {
     private static final Logger log = LoggerFactory.getLogger(RuneItemController.class);
-    private final RuneBook runeBook;
+    private final RuneChangerApi api;
 
     public Pane container;
     public ImageView icon;
@@ -48,8 +48,8 @@ public class RuneItemController {
     private List<Node> localRuneNodes;
     private ChampionBuild page;
 
-    public RuneItemController(RuneBook runeBook) {
-        this.runeBook = runeBook;
+    public RuneItemController(RuneChangerApi api) {
+        this.api = api;
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/fxml/RuneItem.fxml"), RuneChanger.getInstance()
                 .getLang());
         fxmlLoader.setController(this);
@@ -118,10 +118,10 @@ public class RuneItemController {
             if (page.getRunePage().isFromClient()) {
                 RuneChanger.getInstance().getRunesModule().deletePage(page.getRunePage());
             }
-            if (runeBook.getRuneBookPage(page.getName()) == null) {
+            if (api.getRuneBook().getRuneBookPage(page.getName()) == null) {
                 return;
             }
-            runeBook.removeRuneBookPage(page.getName());
+            api.getRuneBook().removeRuneBookPage(page.getName());
         }
     }
 
@@ -133,7 +133,7 @@ public class RuneItemController {
     @FXML
     public void onSelectChange(ActionEvent actionEvent) {
         // Don't do anything, if we're not connected to the client
-        if (!RuneChanger.getInstance().getApi().isConnected()) {
+        if (!api.getClientApi().isConnected()) {
             selected.setSelected(false);
             RuneChanger.getInstance()
                     .getGuiHandler()
@@ -157,23 +157,23 @@ public class RuneItemController {
 
     @FXML
     public void onPageImport(MouseEvent mouseEvent) {
-        if (runeBook.getRuneBookPage(page.getName()) != null) {
+        if (api.getRuneBook().getRuneBookPage(page.getName()) != null) {
             RuneChanger.getInstance()
                     .getGuiHandler()
                     .showWarningMessage(RuneChanger.getInstance().getLang().getString("page_already_exists"));
             return;
         }
-        runeBook.addRuneBookPage(page.getRunePage());
+        api.getRuneBook().addRuneBookPage(page.getRunePage());
     }
 
     public static class ChampionBuildCell extends ListCell<ChampionBuild> {
 
-        private final RuneBook runeBook;
+        private final RuneChangerApi api;
         private final BiConsumer<RuneItemController, ChampionBuild> prepareFunction;
         private RuneItemController item;
 
-        public ChampionBuildCell(RuneBook runeBook, BiConsumer<RuneItemController, ChampionBuild> prepareFunction) {
-            this.runeBook = runeBook;
+        public ChampionBuildCell(RuneChangerApi api, BiConsumer<RuneItemController, ChampionBuild> prepareFunction) {
+            this.api = api;
             this.prepareFunction = prepareFunction;
         }
 
@@ -181,7 +181,7 @@ public class RuneItemController {
         public void updateItem(ChampionBuild page, boolean empty) {
             super.updateItem(page, empty);
             if (item == null) {
-                item = new RuneItemController(runeBook);
+                item = new RuneItemController(api);
             }
             if (page != null) {
                 prepareFunction.accept(item, page);

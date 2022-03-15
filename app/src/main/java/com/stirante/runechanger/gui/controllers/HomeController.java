@@ -74,7 +74,7 @@ public class HomeController implements Content {
             }
         });
         localRunesList.setItems(localRunes);
-        localRunesList.setCellFactory(listView -> new RuneItemController.ChampionBuildCell(api.getRuneBook(), RuneItemController::setHomeRuneMode));
+        localRunesList.setCellFactory(listView -> new RuneItemController.ChampionBuildCell(api, RuneItemController::setHomeRuneMode));
         syncButton.setVisible(!SimplePreferences.getBooleanValue(SimplePreferences.SettingsKeys.AUTO_SYNC, false));
         Objects.requireNonNull(syncButton.getTooltip()).setShowDelay(Duration.ZERO);
     }
@@ -83,8 +83,7 @@ public class HomeController implements Content {
         this.lootModule = lootModule;
         username.setText(summoner.displayName);
         try {
-            BufferedImage profileIcon = ImageIO.read(RuneChanger.getInstance()
-                    .getApi()
+            BufferedImage profileIcon = ImageIO.read(api.getClientApi()
                     .getAsset("lol-game-data", "v1/profile-icons/" + summoner.profileIconId + ".jpg"));
             profilePicture.setFill(new ImagePattern(SwingFXUtils.toFXImage(profileIcon, null)));
         } catch (IOException e) {
