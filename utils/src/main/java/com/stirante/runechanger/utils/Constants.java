@@ -22,11 +22,6 @@ public class Constants {
     public static final float WARNING_X = 0.4984375f;
     public static final float WARNING_Y = 0.10972222f;
 
-    //fonts
-    public static final Font BUTTON_FONT = LangHelper.getLocale().getLanguage().equalsIgnoreCase("ar") ?
-            Font.loadFont(Constants.class.getResource("/fonts/Cairo-Regular.ttf").toExternalForm(), 14) :
-            Font.loadFont(Constants.class.getResource("/fonts/Roboto-Regular.ttf").toExternalForm(), 12);
-
     //font spacing
     public static final double BUTTON_FONT_SPACING = 0.5d;
 }

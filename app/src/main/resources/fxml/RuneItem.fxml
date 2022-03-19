@@ -12,7 +12,7 @@
     <children>
         <ImageView fx:id="icon" fitHeight="34.0" fitWidth="34.0" pickOnBounds="true" preserveRatio="true" x="1.0" y="1.0">
             <image>
-                <Image url="@../runes/8229.png" />
+                <Image url="@../../../../../api/src/main/resources/runes/8229.png" />
             </image>
         </ImageView>
         <Label fx:id="name" layoutX="35.0" prefHeight="36.0" prefWidth="154.0" styleClass="rune-item-text" text="Label" />

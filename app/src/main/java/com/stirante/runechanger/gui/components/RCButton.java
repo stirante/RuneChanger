@@ -3,6 +3,7 @@ package com.stirante.runechanger.gui.components;
 import com.stirante.runechanger.RuneChanger;
 import com.stirante.runechanger.utils.Constants;
 import com.stirante.runechanger.utils.FxUtils;
+import com.stirante.runechanger.utils.LangHelper;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ObjectPropertyBase;
 import javafx.beans.property.SimpleStringProperty;
@@ -13,6 +14,7 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
 import javafx.util.Pair;
 
 public class RCButton extends Component {
@@ -21,6 +23,10 @@ public class RCButton extends Component {
     private static final int STATE_PRESSED = 2;
     private static final int STATE_DISABLED = 3;
     private static final Color GOLD_COLOR = new Color(0xC8 / 255D, 0xAA / 255D, 0x6E / 255D, 1D);
+
+    private final Font BUTTON_FONT = LangHelper.getLocale().getLanguage().equalsIgnoreCase("ar") ?
+            Font.loadFont(RCButton.class.getResource("/fonts/Cairo-Regular.ttf").toExternalForm(), 14) :
+            Font.loadFont(RCButton.class.getResource("/fonts/Roboto-Regular.ttf").toExternalForm(), 12);
 
     private final StringProperty textProperty = new SimpleStringProperty();
     private final ObjectProperty<EventHandler<ActionEvent>> onAction = new ObjectPropertyBase<>() {
@@ -141,10 +147,11 @@ public class RCButton extends Component {
         g.drawImage(centerImage, sideWidth, 0, getWidth() - (2 * sideWidth), getHeight());
         g.drawImage(sideImage, getWidth(), 0, -sideWidth, getHeight());
         g.setFill(GOLD_COLOR);
-        g.setFont(Constants.BUTTON_FONT);
+        g.setFont(BUTTON_FONT);
         if (textProperty.isNotNull().get()) {
             FxUtils.fillNiceCenteredText(g, textProperty.get(),
-                    getWidth() / 2, getHeight() / 2, Constants.BUTTON_FONT_SPACING, RuneChanger.getInstance().isTextRTL());
+                    getWidth() / 2,
+                    getHeight() / 2, Constants.BUTTON_FONT_SPACING, RuneChanger.getInstance().isTextRTL());
         }
     }
 
@@ -164,7 +171,8 @@ public class RCButton extends Component {
     public void invalidate() {
         if (getText() != null) {
             Pair<Double, Double> size =
-                    FxUtils.measureTextSize(Constants.BUTTON_FONT, getText(), Constants.BUTTON_FONT_SPACING, RuneChanger.getInstance().isTextRTL());
+                    FxUtils.measureTextSize(BUTTON_FONT, getText(), Constants.BUTTON_FONT_SPACING, RuneChanger.getInstance()
+                            .isTextRTL());
             Image sideImage = side[0];
             double sideWidth = (sideImage.getWidth() / sideImage.getHeight()) * getHeight();
             setWidth(Math.max(sideWidth * 2 + size.getKey(), getWidth()));

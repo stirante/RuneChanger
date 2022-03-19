@@ -104,6 +104,7 @@ public class SimplePreferences {
         public static final String CUSTOM_MESSAGE = "customMessage";
         public static final String CUSTOM_MESSAGE_TEXT = "customMessageText";
 
+        public static final String FORCE_QUICK_REPLIES = "forceQuickReplies";
         public static final String QUICK_REPLIES = "quickReplies";
         public static final String ADC_MESSAGE = "adcMsg";
         public static final String SUPP_MESSAGE = "suppMsg";

@@ -88,6 +88,7 @@ public class SettingsController implements Content {
 
         // Setup preferences
         setupSimplePreference(MESSAGES_CATEGORY, SimplePreferences.SettingsKeys.QUICK_REPLIES, false, "quick_replies", "quick_replies_message");
+        setupSimplePreference(MESSAGES_CATEGORY, SimplePreferences.SettingsKeys.FORCE_QUICK_REPLIES, false, "force_quick_replies", "force_quick_replies_message");
         setupTextPreference(MESSAGES_CATEGORY,
                 SimplePreferences.SettingsKeys.AUTO_MESSAGE, false,
                 SimplePreferences.SettingsKeys.AUTO_MESSAGE_TEXT, "",

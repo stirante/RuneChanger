@@ -68,13 +68,15 @@ public class QuickReplies extends OverlayLayer {
                     SimplePreferences.getStringValue(SimplePreferences.SettingsKeys.CUSTOM_MESSAGE_TEXT, "");
             boolean isQuickReplies =
                     SimplePreferences.getBooleanValue(SimplePreferences.SettingsKeys.QUICK_REPLIES, false);
+            boolean isForceQuickReplies =
+                    SimplePreferences.getBooleanValue(SimplePreferences.SettingsKeys.FORCE_QUICK_REPLIES, false);
             boolean isCustomMessage =
                     SimplePreferences.getBooleanValue(SimplePreferences.SettingsKeys.CUSTOM_MESSAGE, false) &&
                             customMessage != null && !customMessage.isEmpty();
             if (isQuickReplies || isCustomMessage) {
                 boolean onlyCustomMessage = isCustomMessage && !isQuickReplies;
-                if (((RuneChanger) getApi()).getChampionSelectionModule().isPositionSelector() ||
-                        ((RuneChanger) getApi()).getChampionSelectionModule().getMap() != GameMap.MAP_11) {
+                if ((((RuneChanger) getApi()).getChampionSelectionModule().isPositionSelector() ||
+                        ((RuneChanger) getApi()).getChampionSelectionModule().getMap() != GameMap.MAP_11) && !isForceQuickReplies) {
                     if (isCustomMessage) {
                         onlyCustomMessage = true;
                     }
@@ -108,12 +110,14 @@ public class QuickReplies extends OverlayLayer {
                     SimplePreferences.getStringValue(SimplePreferences.SettingsKeys.CUSTOM_MESSAGE_TEXT, "");
             boolean isQuickReplies =
                     SimplePreferences.getBooleanValue(SimplePreferences.SettingsKeys.QUICK_REPLIES, false);
+            boolean isForceQuickReplies =
+                    SimplePreferences.getBooleanValue(SimplePreferences.SettingsKeys.FORCE_QUICK_REPLIES, false);
             boolean isCustomMessage =
                     SimplePreferences.getBooleanValue(SimplePreferences.SettingsKeys.CUSTOM_MESSAGE, false) &&
                             customMessage != null && !customMessage.isEmpty();
             boolean onlyCustomMessage = isCustomMessage && !isQuickReplies;
             if ((((RuneChanger) getApi()).getChampionSelectionModule().isPositionSelector() ||
-                    ((RuneChanger) getApi()).getChampionSelectionModule().getMap() != GameMap.MAP_11)) {
+                    ((RuneChanger) getApi()).getChampionSelectionModule().getMap() != GameMap.MAP_11) && !isForceQuickReplies) {
                 if (isCustomMessage) {
                     onlyCustomMessage = true;
                 }
