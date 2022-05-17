@@ -14,6 +14,7 @@ import com.stirante.runechanger.api.*;
 import com.stirante.runechanger.model.app.SettingsConfiguration;
 import com.stirante.runechanger.model.client.GameData;
 import com.stirante.runechanger.sourcestore.RuneSource;
+import com.stirante.runechanger.utils.AnalyticsUtil;
 import com.stirante.runechanger.utils.StringUtils;
 import com.stirante.runechanger.utils.SyncingListWrapper;
 import generated.Position;
@@ -189,6 +190,7 @@ public class ChampionGGSource implements RuneSource {
         page.setSourceName(getSourceName());
         page.fixOrder();
         if (!page.verify()) {
+            log.error("Invalid rune page for champion {} at {}", champion.getName(), position);
             return null;
         }
 
@@ -233,8 +235,10 @@ public class ChampionGGSource implements RuneSource {
                             .orElseThrow();
                         if (obj.get("games").getAsInt() > minThreshold) {
                             ChampionBuild page = toChampionBuild(data.getChampion(), role, obj);
-                            pages.add(page);
-                            cache.put(toPosition(role), page);
+                            if (page != null) {
+                                pages.add(page);
+                                cache.put(toPosition(role), page);
+                            }
                         }
                 } catch (Exception e) {
                     log.error("Failed to get build for {} {}", data.getChampion(), role, e);
