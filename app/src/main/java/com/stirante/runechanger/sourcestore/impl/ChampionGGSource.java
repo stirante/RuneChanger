@@ -128,7 +128,6 @@ public class ChampionGGSource implements RuneSource {
                         .replaceAll("%rank%", DEFAULT_TIER.name())));
                 json = Pipe.from(client.execute(request).getEntity().getContent()).toString();
             }
-            System.out.println(json);
             JsonArray data = JsonParser.parseString(json).getAsJsonObject().getAsJsonObject("data").getAsJsonArray("allChampionStats");
             StreamSupport.stream(data.spliterator(), false)
                     .map(JsonElement::getAsJsonObject)
@@ -191,6 +190,20 @@ public class ChampionGGSource implements RuneSource {
         page.fixOrder();
         if (!page.verify()) {
             log.error("Invalid rune page for champion {} at {}", champion.getName(), position);
+            System.out.println(StreamSupport.stream(stats.get("runes").getAsJsonArray().spliterator(), false)
+                    .map(JsonElement::getAsJsonObject)
+                    .map(e -> {
+                        int index = e.get("index").getAsInt();
+                        int runeId = e.get("runeId").getAsInt();
+                        String rune = index >
+                                4 ? String.valueOf(Modifier.getById(runeId)) : String.valueOf(Rune.getById(runeId));
+                        return "games: " + e.get("games") + ", wins: " + e.get("wins") + ", rune: " + rune +
+                                ", treeId: " + e.get("treeId") + ", index: " + index;
+                    })
+                    .collect(Collectors.joining("\n")));
+            System.out.println();
+            System.out.println(page.getRunes());
+            System.out.println(page.getModifiers());
             return null;
         }
 

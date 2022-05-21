@@ -227,6 +227,13 @@ public class GuiHandler {
             settings.addActionListener(e -> Settings.show());
             trayPopupMenu.add(settings);
 
+            MenuItem restartConnection = new MenuItem(resourceBundle.getString("restart_connection"));
+            restartConnection.addActionListener(e -> {
+                runeChanger.getClientApi().stop();
+                runeChanger.getClientApi().start();
+            });
+            trayPopupMenu.add(restartConnection);
+
             MenuItem launchLol = new MenuItem(resourceBundle.getString("launch_lol"));
             String clientPath = SimplePreferences.getStringValue(SimplePreferences.InternalKeys.CLIENT_PATH, "");
             File file = new File(clientPath);

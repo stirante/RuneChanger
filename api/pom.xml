@@ -30,7 +30,7 @@
         <dependency>
             <groupId>com.stirante</groupId>
             <artifactId>lol-client-java-api</artifactId>
-            <version>1.2.5-SNAPSHOT</version>
+            <version>1.2.7-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
