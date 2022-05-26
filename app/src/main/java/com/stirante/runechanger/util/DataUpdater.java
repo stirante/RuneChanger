@@ -2,12 +2,12 @@ package com.stirante.runechanger.util;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.stirante.runechanger.api.Rune;
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
+import com.stirante.justpipe.Pipe;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -21,6 +21,63 @@ import java.util.*;
 public class DataUpdater {
     private static final Logger log = LoggerFactory.getLogger(DataUpdater.class);
 
+    private static final String STYLE_ENUM_PREFIX = "package com.stirante.runechanger.api;\n" +
+            "\n" +
+            "public enum Style {\n";
+
+    private static final String STYLE_ENUM_POSTFIX = "\n" +
+            "    private final int id;\n" +
+            "    private final String name;\n" +
+            "\n" +
+            "    Style(int id, String name) {\n" +
+            "        this.id = id;\n" +
+            "        this.name = name;\n" +
+            "    }\n" +
+            "\n" +
+            "    /**\n" +
+            "     * Gets style by name\n" +
+            "     *\n" +
+            "     * @param name style name\n" +
+            "     * @return style\n" +
+            "     */\n" +
+            "    public static Style getByName(String name) {\n" +
+            "        for (Style style : values()) {\n" +
+            "            if (style.name.equalsIgnoreCase(name)) {\n" +
+            "                return style;\n" +
+            "            }\n" +
+            "        }\n" +
+            "        return null;\n" +
+            "    }\n" +
+            "\n" +
+            "    /**\n" +
+            "     * Gets style by id\n" +
+            "     *\n" +
+            "     * @param id style id\n" +
+            "     * @return style\n" +
+            "     */\n" +
+            "    public static Style getById(int id) {\n" +
+            "        for (Style style : values()) {\n" +
+            "            if (style.id == id) {\n" +
+            "                return style;\n" +
+            "            }\n" +
+            "        }\n" +
+            "        return null;\n" +
+            "    }\n" +
+            "\n" +
+            "    public int getId() {\n" +
+            "        return id;\n" +
+            "    }\n" +
+            "\n" +
+            "    public String getName() {\n" +
+            "        return name;\n" +
+            "    }\n" +
+            "\n" +
+            "    @Override\n" +
+            "    public String toString() {\n" +
+            "        return name() + \"(\" + name + \")\";\n" +
+            "    }\n" +
+            "}\n";
+
     private static final String RUNE_ENUM_PREFIX = "package com.stirante.runechanger.api;\n" +
             "\n" +
             "import org.slf4j.Logger;\n" +
@@ -32,7 +89,6 @@ public class DataUpdater {
             "\n" +
             "public enum Rune {\n";
     private static final String RUNE_ENUM_POSTFIX = "\n" +
-            "\n" +
             "\n" +
             "    private static final Logger log = LoggerFactory.getLogger(Rune.class);\n" +
             "    private final int id;\n" +
@@ -142,59 +198,80 @@ public class DataUpdater {
             "}\n";
 
 
-    private static InputStream getEndpoint(String endpoint) throws IOException {
-        log.debug("Endpoint: " + endpoint);
-        URL url = new URL(endpoint);
-        HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
-        return urlConnection.getInputStream();
-    }
-
     public static void main(String[] args) throws IOException {
         Gson gson = new GsonBuilder().create();
-        String patch = getLatestPatch(gson);
-        generateRunes(gson, patch);
-        downloadImages();
+        generateRunes(gson);
     }
 
-    private static String getLatestPatch(Gson gson) throws IOException {
-        InputStream in = getEndpoint("https://ddragon.leagueoflegends.com/api/versions.json");
-        String[] strings = gson.fromJson(new InputStreamReader(in), String[].class);
-        return strings[0];
-    }
-
-    private static void generateRunes(Gson gson, String patch) throws IOException {
+    private static void generateRunes(Gson gson) throws IOException {
         InputStream in =
-                getEndpoint("http://ddragon.leagueoflegends.com/cdn/" + patch + "/data/en_US/runesReforged.json");
+                getConnection("https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perkstyles.json").getInputStream();
         StringBuilder sb = new StringBuilder();
-        ReforgedRunePathDto[] runes = gson.fromJson(new InputStreamReader(in), ReforgedRunePathDto[].class);
+        Styles styles = gson.fromJson(new InputStreamReader(in), Styles.class);
         in.close();
-        List<ReforgedRuneDto> runes1 = new ArrayList<>();
-        for (ReforgedRunePathDto rune : runes) {
-            List<ReforgedRuneSlotDto> slots = rune.slots;
-            for (int i = 0; i < slots.size(); i++) {
-                ReforgedRuneSlotDto slot = slots.get(i);
-                for (ReforgedRuneDto runeDto : slot.runes) {
-                    runeDto.slot = i;
-                    runeDto.runePathId = rune.id;
-                }
-                runes1.addAll(slot.runes);
+        in =
+                getConnection("https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perks.json").getInputStream();
+        Rune[] runes = gson.fromJson(new InputStreamReader(in), Rune[].class);
+        in.close();
+        styles.styles.sort(Comparator.comparingInt(style -> style.id));
+        List<Style> styleList = styles.styles;
+        for (int i = 0; i < styleList.size(); i++) {
+            Style style = styleList.get(i);
+            sb.append("    STYLE_")
+                    .append(style.id)
+                    .append("(")
+                    .append(style.id)
+                    .append(", \"")
+                    .append(style.name)
+                    .append("\")");
+            if (i == styles.styles.size() - 1) {
+                sb.append(";\n");
+            }
+            else {
+                sb.append(",\n");
             }
         }
-        runes1.sort(Comparator.comparingInt(o -> o.id));
-        for (int i = 0; i < runes1.size(); i++) {
-            ReforgedRuneDto rune = runes1.get(i);
+        try {
+            FileWriter writer = new FileWriter("api/src/main/java/com/stirante/runechanger/api/Style.java");
+            writer.write(STYLE_ENUM_PREFIX + "    //Generated on " +
+                    SimpleDateFormat.getDateTimeInstance(DateFormat.FULL, DateFormat.FULL, Locale.ENGLISH)
+                            .format(new Date()) + "\n" +
+                    sb +
+                    STYLE_ENUM_POSTFIX);
+            writer.flush();
+            writer.close();
+        } catch (IOException e) {
+            log.error("Exception occurred while generating Rune enum", e);
+        }
+        sb = new StringBuilder();
+        Arrays.sort(runes, Comparator.comparingInt(o -> o.id));
+        for (int i = 0; i < runes.length; i++) {
+            Rune rune = runes[i];
+            if (rune.id == 7000 || (rune.id > 5000 && rune.id < 6000)) {
+                // Template rune or modifiers
+                continue;
+            }
+            Style style = styles.styles.stream()
+                    .filter(s -> s.slots.stream().anyMatch(slot -> slot.perks.stream().anyMatch(p -> Objects.equals(p, rune.id))))
+                    .findFirst()
+                    .orElse(null);
+            if (style == null) {
+                log.error("Rune {} has no style", rune.id);
+                continue;
+            }
+            int slot = style.slots.indexOf(style.slots.stream().filter(s -> s.perks.stream().anyMatch(p -> Objects.equals(p, rune.id))).findFirst().orElseThrow());
             sb.append("    RUNE_")
                     .append(rune.id)
                     .append("(")
                     .append(rune.id)
                     .append(", ")
-                    .append(rune.runePathId)
+                    .append(style.id)
                     .append(", ")
-                    .append(rune.slot)
+                    .append(slot)
                     .append(", \"")
                     .append(rune.name)
                     .append("\")");
-            if (i == runes1.size() - 1) {
+            if (i == runes.length - 1) {
                 sb.append(";\n");
             }
             else {
@@ -213,56 +290,153 @@ public class DataUpdater {
         } catch (IOException e) {
             log.error("Exception occurred while generating Rune enum", e);
         }
-    }
-
-    private static void downloadImages() {
-        HashMap<Rune, String> replacements = new HashMap<>();
-        replacements.put(Rune.RUNE_8439, "veteranaftershock");
-        for (Rune rune : Rune.values()) {
-            if (rune.getSlot() == 0) {
-                String internalName = rune.getName().toLowerCase().replaceAll(" ", "");
-                if (replacements.containsKey(rune)) {
-                    internalName = replacements.get(rune);
-                }
-                try {
-                    String url =
-                            "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/";
-                    URL input = new URL(url + rune.getStyle().getName().toLowerCase() + "/" + internalName + "/" +
-                            internalName + (rune == Rune.RUNE_8008 ? "temp" : "") + ".png");
-                    HttpURLConnection conn = (HttpURLConnection) input.openConnection();
-                    conn.addRequestProperty("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36");
-                    BufferedImage read = ImageIO.read(conn.getInputStream());
-                    conn.getInputStream().close();
-                    ImageIO.write(read, "png", new File("app/src/main/resources/runes/" + rune.getId() + ".png"));
-                } catch (IOException e) {
-                    log.error("Exception occurred while downloading rune image for rune " + rune.getName(), e);
-                }
-            }
+        for (Style style : styles.styles) {
+            downloadImage(style.id, style.iconPath);
+        }
+        for (Rune rune : runes) {
+            downloadImage(rune.id, rune.iconPath);
         }
     }
 
-    public static class ReforgedRuneDto {
-        public String runePathName;
-        public int runePathId;
+    private static void downloadImage(int id, String iconPath) {
+        String url = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default" + iconPath.replace("/lol-game-data/assets", "").toLowerCase();
+        try {
+            File file = new File("api/src/main/resources/runes/" + id + ".png");
+            Pipe.from(getConnection(url).getInputStream()).to(file);
+        } catch (IOException e) {
+            log.error("Exception occurred while downloading rune icon", e);
+        }
+    }
+
+    private static HttpURLConnection getConnection(String url) throws IOException {
+        HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();
+        conn.addRequestProperty("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36");
+        return conn;
+    }
+
+
+    public static class Styles {
+
+        @SerializedName("schemaVersion")
+        @Expose
+        private Integer schemaVersion;
+        @SerializedName("styles")
+        @Expose
+        private List<Style> styles = null;
+
+    }
+
+    public static class Slot {
+
+        @SerializedName("type")
+        @Expose
+        private String type;
+        @SerializedName("slotLabel")
+        @Expose
+        private String slotLabel;
+        @SerializedName("perks")
+        @Expose
+        private List<Integer> perks = null;
+
+    }
+
+    public static class Style {
+
+        @SerializedName("id")
+        @Expose
+        private Integer id;
+        @SerializedName("name")
+        @Expose
+        private String name;
+        @SerializedName("tooltip")
+        @Expose
+        private String tooltip;
+        @SerializedName("iconPath")
+        @Expose
+        private String iconPath;
+        @SerializedName("assetMap")
+        @Expose
+        private Map<String, String> assetMap;
+        @SerializedName("isAdvanced")
+        @Expose
+        private Boolean isAdvanced;
+        @SerializedName("allowedSubStyles")
+        @Expose
+        private List<Integer> allowedSubStyles = null;
+        @SerializedName("subStyleBonus")
+        @Expose
+        private List<SubStyleBonu> subStyleBonus = null;
+        @SerializedName("slots")
+        @Expose
+        private List<Slot> slots = null;
+        @SerializedName("defaultPageName")
+        @Expose
+        private String defaultPageName;
+        @SerializedName("defaultSubStyle")
+        @Expose
+        private Integer defaultSubStyle;
+        @SerializedName("defaultPerks")
+        @Expose
+        private List<Integer> defaultPerks = null;
+        @SerializedName("defaultPerksWhenSplashed")
+        @Expose
+        private List<Integer> defaultPerksWhenSplashed = null;
+        @SerializedName("defaultStatModsPerSubStyle")
+        @Expose
+        private List<DefaultStatModsPerSubStyle> defaultStatModsPerSubStyle = null;
+
+    }
+
+    public static class DefaultStatModsPerSubStyle {
+
+        @SerializedName("id")
+        @Expose
+        private String id;
+        @SerializedName("perks")
+        @Expose
+        private List<Integer> perks = null;
+
+    }
+
+
+    public static class SubStyleBonu {
+
+        @SerializedName("styleId")
+        @Expose
+        private Integer styleId;
+        @SerializedName("perkId")
+        @Expose
+        private Integer perkId;
+
+    }
+
+    public static class Rune {
+
+        @SerializedName("id")
+        @Expose
+        public Integer id;
+        @SerializedName("name")
+        @Expose
         public String name;
-        public int id;
-        public String key;
+        @SerializedName("majorChangePatchVersion")
+        @Expose
+        public String majorChangePatchVersion;
+        @SerializedName("tooltip")
+        @Expose
+        public String tooltip;
+        @SerializedName("shortDesc")
+        @Expose
         public String shortDesc;
+        @SerializedName("longDesc")
+        @Expose
         public String longDesc;
-        public String icon;
-        public volatile int slot = -1;
-    }
+        @SerializedName("iconPath")
+        @Expose
+        public String iconPath;
+        @SerializedName("endOfGameStatDescs")
+        @Expose
+        public List<String> endOfGameStatDescs = null;
 
-    public static class ReforgedRuneSlotDto {
-        public List<ReforgedRuneDto> runes;
-    }
-
-    public static class ReforgedRunePathDto {
-        public String icon;
-        public int id;
-        public String key;
-        public String name;
-        List<ReforgedRuneSlotDto> slots;
     }
 
 }

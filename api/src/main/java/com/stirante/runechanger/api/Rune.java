@@ -8,7 +8,7 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 
 public enum Rune {
-    //Generated on Wednesday, November 17, 2021 at 5:44:52 PM Central European Standard Time
+    //Generated on Thursday, May 26, 2022 at 10:16:49 PM Central European Summer Time
     RUNE_8005(8005, 8000, 0, "Press the Attack"),
     RUNE_8008(8008, 8000, 0, "Lethal Tempo"),
     RUNE_8009(8009, 8000, 1, "Presence of Mind"),
@@ -24,7 +24,7 @@ public enum Rune {
     RUNE_8126(8126, 8100, 1, "Cheap Shot"),
     RUNE_8128(8128, 8100, 0, "Dark Harvest"),
     RUNE_8134(8134, 8100, 3, "Ingenious Hunter"),
-    RUNE_8135(8135, 8100, 3, "Ravenous Hunter"),
+    RUNE_8135(8135, 8100, 3, "Treasure Hunter"),
     RUNE_8136(8136, 8100, 2, "Zombie Ward"),
     RUNE_8138(8138, 8100, 2, "Eyeball Collection"),
     RUNE_8139(8139, 8100, 1, "Taste of Blood"),

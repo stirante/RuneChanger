@@ -1,6 +1,7 @@
 package com.stirante.runechanger.api;
 
 public enum Style {
+    //Generated on Thursday, May 26, 2022 at 10:16:49 PM Central European Summer Time
     STYLE_8000(8000, "Precision"),
     STYLE_8100(8100, "Domination"),
     STYLE_8200(8200, "Sorcery"),
