@@ -162,9 +162,6 @@ public enum Rune {
      * @return image
      */
     public BufferedImage getImage() {
-        if (getSlot() != 0) {
-            return null;
-        }
         if (image == null) {
             try {
                 image = ImageIO.read(getClass().getResourceAsStream("/runes/" + getId() + ".png"));

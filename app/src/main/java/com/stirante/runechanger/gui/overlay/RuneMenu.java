@@ -2,6 +2,9 @@ package com.stirante.runechanger.gui.overlay;
 
 import com.stirante.runechanger.RuneChanger;
 import com.stirante.runechanger.api.ChampionBuild;
+import com.stirante.runechanger.api.Modifier;
+import com.stirante.runechanger.api.Rune;
+import com.stirante.runechanger.api.RunePage;
 import com.stirante.runechanger.api.overlay.OverlayLayer;
 import com.stirante.runechanger.model.client.GameMode;
 import com.stirante.runechanger.util.AnalyticsUtil;
@@ -30,6 +33,9 @@ public class RuneMenu extends OverlayLayer {
     private float currentRuneMenuPosition = 0f;
     private float scroll = 0f;
     private int size = 0;
+
+    private int mouseX = 0;
+    private int mouseY = 0;
 
     public RuneMenu(ClientOverlayImpl overlay) {
         super(overlay);
@@ -144,6 +150,7 @@ public class RuneMenu extends OverlayLayer {
         if (builds.size() > 10 && opened && scroll > 0f) {
             g2d.drawLine(menuX, upperY, menuX + itemWidth, upperY);
         }
+        drawRunePreview(g2d);
     }
 
     protected void drawRuneText(Graphics2D g, int x, int bottom, String runeName, String runeSource) {
@@ -167,6 +174,44 @@ public class RuneMenu extends OverlayLayer {
                     bottom - (metrics.getHeight() / 2F));
             g.setColor(color);
         }
+    }
+
+    protected void drawRunePreview(Graphics2D g) {
+        if (!SimplePreferences.getBooleanValue(SimplePreferences.SettingsKeys.RUNEPAGE_TOOLTIP, true) || !opened || selectedRunePageIndex == -1 || builds.size() <= selectedRunePageIndex) {
+            return;
+        }
+        RunePage page = builds.get(selectedRunePageIndex).getRunePage();
+        if (page == null) {
+            return;
+        }
+        Color color = g.getColor();
+        g.setColor(BACKGROUND_COLOR);
+        g.fillRect(mouseX, mouseY - 110, 300, 110);
+        g.setColor(TEXT_COLOR);
+        g.drawRect(mouseX, mouseY - 110, 300, 110);
+
+        Composite composite = g.getComposite();
+        g.setComposite(AlphaComposite.SrcOver);
+
+        for (int i = 0; i < 4; i++) {
+            Rune rune = page.getRunes().get(i);
+            g.drawImage(rune.getImage(), mouseX + 5, mouseY - 110 + (i * 25) + 5, 20, 20, null);
+            g.drawString(rune.getName(), mouseX + 25, mouseY - 110 + (i * 25) + 20);
+        }
+
+        for (int i = 0; i < 2; i++) {
+            Rune rune = page.getRunes().get(i + 4);
+            g.drawImage(rune.getImage(), mouseX + 5 + 150, mouseY - 110 + (i * 25) + 5, 20, 20, null);
+            g.drawString(rune.getName(), mouseX + 25 + 150, mouseY - 110 + (i * 25) + 20);
+        }
+
+        for (int i = 0; i < 3; i++) {
+            Modifier modifier = page.getModifiers().get(i);
+            g.drawImage(modifier.getImage(), mouseX + 5 + (i * 25) + 150, mouseY - 110 + 65, 20, 20, null);
+        }
+
+        g.setComposite(composite);
+        g.setColor(color);
     }
 
     public void mouseReleased(MouseEvent e) {
@@ -216,6 +261,8 @@ public class RuneMenu extends OverlayLayer {
         if (icon == null) {
             return;
         }
+        mouseX = e.getX();
+        mouseY = e.getY();
         int runePageIndex;
         if (builds.size() > 0 && e.getX() > ((getClientWidth()) * Constants.RUNE_BUTTON_POSITION_X) &&
                 e.getX() < ((getClientWidth()) * Constants.RUNE_BUTTON_POSITION_X) + icon.getWidth() &&
@@ -240,7 +287,7 @@ public class RuneMenu extends OverlayLayer {
                     (Constants.RUNE_ITEM_HEIGHT * getHeight()));
             getClientOverlay().setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         }
-        if (runePageIndex != selectedRunePageIndex) {
+        if (runePageIndex != selectedRunePageIndex || (opened && runePageIndex > -1 && runePageIndex < builds.size() && SimplePreferences.getBooleanValue(SimplePreferences.SettingsKeys.RUNEPAGE_TOOLTIP, true))) {
             // Prevent getting nonexistent rune page
             selectedRunePageIndex = runePageIndex >= builds.size() || runePageIndex < 0 ? -1 : runePageIndex;
             repaintNow();

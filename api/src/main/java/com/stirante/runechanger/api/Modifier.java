@@ -3,6 +3,9 @@ package com.stirante.runechanger.api;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -21,6 +24,7 @@ public enum Modifier {
     private final String type;
     private final String onlineName;
     private final List<Integer> slots;
+    private BufferedImage image;
 
     Modifier(int id, String type, String onlineName, int... slots) {
         this.id = id;
@@ -94,6 +98,22 @@ public enum Modifier {
      */
     public String getOnlineName() {
         return onlineName;
+    }
+
+    /**
+     * Get rune image. Works only for keystones
+     *
+     * @return image
+     */
+    public BufferedImage getImage() {
+        if (image == null) {
+            try {
+                image = ImageIO.read(getClass().getResourceAsStream("/runes/" + getId() + ".png"));
+            } catch (IOException e) {
+                log.error("Exception occurred while reading rune icon", e);
+            }
+        }
+        return image;
     }
 
     @Override

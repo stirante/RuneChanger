@@ -320,7 +320,9 @@ public class ChampionSelection extends ClientModule {
         else {
             Champion oldChampion = champion;
             LolChampSelectChampSelectSession data = event.getData();
-            chatRoomName = data.chatDetails.chatRoomName;
+            if (data.chatDetails != null) {
+                chatRoomName = data.chatDetails.chatRoomName;
+            }
             updateGameMode();
             if (gameMode.isDisabled()) {
                 return;

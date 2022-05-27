@@ -178,9 +178,6 @@ public class DataUpdater {
             "     * @return image\n" +
             "     */\n" +
             "    public BufferedImage getImage() {\n" +
-            "        if (getSlot() != 0) {\n" +
-            "            return null;\n" +
-            "        }\n" +
             "        if (image == null) {\n" +
             "            try {\n" +
             "                image = ImageIO.read(getClass().getResourceAsStream(\"/runes/\" + getId() + \".png\"));\n" +

@@ -135,6 +135,7 @@ public class SettingsController implements Content {
         setupSimplePreference(APP_CATEGORY, SimplePreferences.SettingsKeys.RUN_AS_ADMIN, false, "run_as_admin", "run_as_admin_message", toTruePredicate(this::tryRestart));
         setupSimplePreference(APP_CATEGORY, SimplePreferences.SettingsKeys.AUTO_EXIT, false, "exit_rune_changer_with_client", "exit_rune_changer_with_client_message");
         setupSimplePreference(APP_CATEGORY, SimplePreferences.SettingsKeys.EMERGENCY_SHORTCUTS, false, "emergency_shortcuts", "emergency_shortcuts_message", toTruePredicate(this::tryRestart));
+        setupSimplePreference(APP_CATEGORY, SimplePreferences.SettingsKeys.RUNEPAGE_TOOLTIP, true, "runepage_tooltip", "runepage_tooltip_message");
         setupPreference(APP_CATEGORY, new SettingsItemController(
                 AutoStartUtils.isAutoStartEnabled(),
                 toTruePredicate(AutoStartUtils::setAutoStart),
