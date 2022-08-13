@@ -5,24 +5,20 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.stirante.justpipe.Pipe;
-import com.stirante.lolclient.libs.org.apache.http.client.methods.HttpGet;
-import com.stirante.lolclient.libs.org.apache.http.client.methods.HttpPost;
-import com.stirante.lolclient.libs.org.apache.http.entity.StringEntity;
-import com.stirante.lolclient.libs.org.apache.http.impl.client.CloseableHttpClient;
-import com.stirante.lolclient.libs.org.apache.http.impl.client.HttpClients;
 import com.stirante.runechanger.api.*;
 import com.stirante.runechanger.model.app.SettingsConfiguration;
 import com.stirante.runechanger.model.client.GameData;
 import com.stirante.runechanger.sourcestore.RuneSource;
-import com.stirante.runechanger.utils.AnalyticsUtil;
 import com.stirante.runechanger.utils.StringUtils;
 import com.stirante.runechanger.utils.SyncingListWrapper;
 import generated.Position;
+import org.apache.hc.client5.http.classic.methods.HttpPost;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.net.URL;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -35,6 +31,7 @@ public class ChampionGGSource implements RuneSource {
     private static final Logger log = LoggerFactory.getLogger(ChampionGGSource.class);
     private static final ReentrantLock LOCK = new ReentrantLock();
     private static final String[] ROLES = {"TOP", "JUNGLE", "MID", "ADC", "SUPPORT"};
+    private static final CloseableHttpClient client = HttpClients.createDefault();
 
     private final static String GRAPHQL_URL =
             "https://league-champion-aggregate.iesdev.com/graphql";
@@ -120,14 +117,12 @@ public class ChampionGGSource implements RuneSource {
         try {
             String json;
             //TODO: This code returns a maximum of 200 entries and least played champions do not make it into the list
-            try (CloseableHttpClient client = HttpClients.createDefault()) {
                 HttpPost request = new HttpPost(GRAPHQL_URL);
                 request.setHeader("Origin", "https://champion.gg");
                 request.setEntity(new StringEntity(ROLES_QUERY_DATA
                         .replaceAll("%queue%", DEFAULT_QUEUE.name())
                         .replaceAll("%rank%", DEFAULT_TIER.name())));
                 json = Pipe.from(client.execute(request).getEntity().getContent()).toString();
-            }
             JsonArray data = JsonParser.parseString(json).getAsJsonObject().getAsJsonObject("data").getAsJsonArray("allChampionStats");
             StreamSupport.stream(data.spliterator(), false)
                     .map(JsonElement::getAsJsonObject)

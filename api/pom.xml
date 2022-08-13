@@ -30,8 +30,14 @@
         <dependency>
             <groupId>com.stirante</groupId>
             <artifactId>lol-client-java-api</artifactId>
-            <version>1.2.7-SNAPSHOT</version>
+            <version>1.2.8-SNAPSHOT</version>
             <scope>compile</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-simple</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.stirante.runechanger</groupId>
@@ -50,18 +56,6 @@
                     <source>17</source>
                     <target>17</target>
                     <release>11</release>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <version>3.0.2</version>
-                <configuration>
-                    <archive>
-                        <manifest>
-                            <mainClass>com.stirante.runechanger.api.RuneChangerPlugin</mainClass>
-                        </manifest>
-                    </archive>
                 </configuration>
             </plugin>
         </plugins>
