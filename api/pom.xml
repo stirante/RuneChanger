@@ -28,12 +28,6 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.stirante</groupId>
-            <artifactId>lol-client-java-api</artifactId>
-            <version>1.2.7-SNAPSHOT</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
             <groupId>com.stirante.runechanger</groupId>
             <artifactId>utils</artifactId>
             <version>${revision}</version>

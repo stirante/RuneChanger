@@ -56,6 +56,12 @@
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
             <version>${logback.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-api</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.github.vatbub</groupId>
@@ -65,20 +71,18 @@
         <dependency>
             <groupId>org.jsoup</groupId>
             <artifactId>jsoup</artifactId>
-            <version>1.14.3</version>
+            <version>1.15.2</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>net.java.dev.jna</groupId>
             <artifactId>jna</artifactId>
-            <version>5.9.0</version>
-            <scope>compile</scope>
+            <version>5.12.1</version>
         </dependency>
         <dependency>
             <groupId>net.java.dev.jna</groupId>
             <artifactId>jna-platform</artifactId>
-            <version>5.9.0</version>
-            <scope>compile</scope>
+            <version>5.12.1</version>
         </dependency>
         <dependency>
             <groupId>com.stirante</groupId>
@@ -86,9 +90,15 @@
             <version>1.0.0-SNAPSHOT</version>
         </dependency>
         <dependency>
+            <groupId>com.stirante</groupId>
+            <artifactId>lol-client-java-api</artifactId>
+            <version>1.2.8-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
-            <version>2.8.9</version>
+            <version>2.9.0</version>
         </dependency>
     </dependencies>
 
