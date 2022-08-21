@@ -24,7 +24,7 @@ public class RCButton extends Component {
     private static final int STATE_DISABLED = 3;
     private static final Color GOLD_COLOR = new Color(0xC8 / 255D, 0xAA / 255D, 0x6E / 255D, 1D);
 
-    private final Font BUTTON_FONT = LangHelper.getLocale().getLanguage().equalsIgnoreCase("ar") ?
+    private final Font BUTTON_FONT = LangHelper.getLocale(RuneChanger.getInstance().getAvailableLanguages()).getLanguage().equalsIgnoreCase("ar") ?
             Font.loadFont(RCButton.class.getResource("/fonts/Cairo-Regular.ttf").toExternalForm(), 14) :
             Font.loadFont(RCButton.class.getResource("/fonts/Roboto-Regular.ttf").toExternalForm(), 12);
 

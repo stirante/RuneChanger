@@ -79,6 +79,11 @@ public class SimplePreferences {
         save();
     }
 
+    public static void removeKey(String key) {
+        settingsValues.remove(key);
+        save();
+    }
+
     public static class SettingsKeys {
         public static final String ANTI_AWAY = "antiAway";
         public static final String AUTO_SYNC = "autoSync";
@@ -89,7 +94,9 @@ public class SimplePreferences {
         public static final String APPLY_SUMMONER_SPELLS = "applySummonerSpells";
         public static final String FLASH_FIRST = "flashFirst";
 
+        @Deprecated
         public static final String FORCE_ENGLISH = "forceEnglish";
+        public static final String LANGUAGE = "language";
         public static final String AUTO_UPDATE = "autoUpdate";
         public static final String EXPERIMENTAL_CHANNEL = "devChannel";
         public static final String ALWAYS_ON_TOP = "alwaysOnTop";

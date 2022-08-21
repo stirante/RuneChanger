@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.shape.Line?>
+<Pane prefHeight="80.0" prefWidth="533"
+      xmlns:fx="http://javafx.com/fxml/1">
+    <HBox alignment="CENTER_LEFT" layoutX="10.5" layoutY="5.0" maxHeight="20.0" minHeight="20.0" prefHeight="20.0"
+          spacing="10.0">
+        <Label fx:id="title" maxHeight="20.0" minHeight="20.0" prefHeight="20.0" styleClass="checkbox-label"
+               text="%no_away"/>
+        <Label fx:id="description" maxHeight="20.0" minHeight="20.0" prefHeight="20.0"
+               styleClass="checkbox-edit-desc" HBox.hgrow="ALWAYS"/>
+    </HBox>
+    <Line endX="530.0" layoutX="1.0" layoutY="98.0" stroke="#c7a96d42" strokeWidth="3.0" fx:id="separator"/>
+    <ComboBox fx:id="comboBox" layoutX="11.0" layoutY="36.0" prefHeight="30.0" prefWidth="480.0"/>
+</Pane>

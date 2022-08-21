@@ -13,12 +13,39 @@ public class LangHelper {
         return RTL.contains(locale.getLanguage());
     }
 
-    public static Locale getLocale() {
-        if (SimplePreferences.getBooleanValue(SimplePreferences.SettingsKeys.FORCE_ENGLISH, false)) {
-            return Locale.ROOT;
+    public static Locale getLocale(List<Locale> available) {
+        // Handle old setting, that used to be a switch between English and system language
+        if (!SimplePreferences.containsKey(SimplePreferences.SettingsKeys.LANGUAGE) && SimplePreferences.getBooleanValue(SimplePreferences.SettingsKeys.FORCE_ENGLISH, false)) {
+            SimplePreferences.putStringValue(SimplePreferences.SettingsKeys.LANGUAGE, Locale.ENGLISH.toLanguageTag());
+            SimplePreferences.removeKey(SimplePreferences.SettingsKeys.FORCE_ENGLISH);
+        }
+        if (SimplePreferences.containsKey(SimplePreferences.SettingsKeys.LANGUAGE)) {
+            return Locale.forLanguageTag(SimplePreferences.getStringValue(SimplePreferences.SettingsKeys.LANGUAGE, Locale.ENGLISH.toLanguageTag()));
         }
         else {
-            return Locale.getDefault();
+            Locale defLocale = Locale.getDefault();
+            if (available.contains(defLocale)) {
+                return defLocale;
+            }
+            else {
+                String lang = defLocale.getLanguage();
+                String country = defLocale.getCountry();
+                Locale matching = available.stream()
+                        .filter(locale -> locale.getLanguage().equals(lang) && locale.getCountry().equals(country))
+                        .findFirst()
+                        .orElse(null);
+                if (matching != null) {
+                    return matching;
+                }
+                matching = available.stream()
+                        .filter(locale -> locale.getLanguage().equals(lang))
+                        .findFirst()
+                        .orElse(null);
+                if (matching != null) {
+                    return matching;
+                }
+                return Locale.ENGLISH;
+            }
         }
     }
 

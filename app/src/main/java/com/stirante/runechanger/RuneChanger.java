@@ -7,6 +7,7 @@ import ch.qos.logback.core.FileAppender;
 import com.google.gson.Gson;
 import com.stirante.eventbus.EventBus;
 import com.stirante.eventbus.Subscribe;
+import com.stirante.justpipe.Pipe;
 import com.stirante.lolclient.ClientApi;
 import com.stirante.lolclient.ClientConnectionListener;
 import com.stirante.lolclient.ClientWebSocket;
@@ -40,12 +41,14 @@ import javax.swing.JOptionPane;
 import java.io.File;
 import java.io.IOException;
 import java.net.ConnectException;
+import java.net.URL;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 import java.nio.file.StandardOpenOption;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class RuneChanger implements Launcher, RuneChangerApi {
 
@@ -163,9 +166,36 @@ public class RuneChanger implements Launcher, RuneChangerApi {
 
     public ResourceBundle getLang() {
         if (resourceBundle == null) {
-            resourceBundle = ResourceBundle.getBundle("lang.messages", LangHelper.getLocale());
+            resourceBundle = ResourceBundle.getBundle("lang.messages", LangHelper.getLocale(getAvailableLanguages()));
         }
         return resourceBundle;
+    }
+
+    private List<Locale> availableLanguages;
+
+    public List<Locale> getAvailableLanguages() {
+        if (availableLanguages == null) {
+            Set<Locale> resourceBundles = new HashSet<>();
+
+            for (Locale locale : Locale.getAvailableLocales()) {
+                URL resource = RuneChanger.class.getResource("/lang/messages_" + locale.toLanguageTag() + ".properties");
+                if (resource != null) {
+                    try {
+                        if (!Pipe.from(resource).toString().isBlank()) {
+                            resourceBundles.add(locale);
+                        }
+                    } catch (IOException ignored) {
+                    }
+                }
+            }
+            resourceBundles.add(Locale.ENGLISH);
+
+            availableLanguages =  resourceBundles.stream()
+                    .sorted(Comparator.comparing(Locale::getDisplayName))
+                    .collect(Collectors.toUnmodifiableList());
+        }
+
+        return availableLanguages;
     }
 
     public boolean isTextRTL() {

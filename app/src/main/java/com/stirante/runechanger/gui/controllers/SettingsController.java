@@ -28,11 +28,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 public class SettingsController implements Content {
@@ -128,7 +126,8 @@ public class SettingsController implements Content {
             AutoUpdater.checkUpdate();
             return true;
         });
-        setupSimplePreference(APP_CATEGORY, SimplePreferences.SettingsKeys.FORCE_ENGLISH, false, "force_english", "force_english_message", toTruePredicate(this::tryRestart));
+//        setupSimplePreference(APP_CATEGORY, SimplePreferences.SettingsKeys.FORCE_ENGLISH, false, "force_english", "force_english_message", toTruePredicate(this::tryRestart));
+        setupComboBoxPreference(APP_CATEGORY, SimplePreferences.SettingsKeys.LANGUAGE, LangHelper.getLocale(RuneChanger.getInstance().getAvailableLanguages()), "language", "language_message", RuneChanger.getInstance().getAvailableLanguages(), Locale::getDisplayName, Locale::toLanguageTag, Locale::new, toTruePredicate(this::tryRestart), true);
         setupSimplePreference(APP_CATEGORY, SimplePreferences.SettingsKeys.ALWAYS_ON_TOP, false, "always_on_top", "always_on_top_message", toTruePredicate(stage::setAlwaysOnTop));
         setupSimplePreference(APP_CATEGORY, SimplePreferences.SettingsKeys.ANALYTICS, true, "enable_analytics", "enable_analytics_message", toTruePredicate(AnalyticsUtil::onConsent));
         setupSimplePreference(APP_CATEGORY, SimplePreferences.SettingsKeys.ENABLE_ANIMATIONS, true, "enable_animations", "enable_animations_message");
@@ -275,6 +274,18 @@ public class SettingsController implements Content {
             SimplePreferences.save();
             return true;
         }, RuneChanger.getInstance().getLang().getString(titleKey), RuneChanger.getInstance().getLang().getString(descKey), hideSeparator).getRoot());
+    }
+
+    private <T> void setupComboBoxPreference(String category, String key, T defaultValue, String titleKey, String descKey, List<T> items, Function<T, String> nameFunction, Function<T, String> valueFunction, Function<String, T> objectFunction, Predicate<T> onChange, boolean hideSeparator) {
+        T val = objectFunction.apply(SimplePreferences.getStringValue(key, valueFunction.apply(defaultValue)));
+        setupPreference(category, new SettingsComboBoxItemController<T>(val, items, selected -> {
+            if (onChange != null && !onChange.test(selected)) {
+                return false;
+            }
+            SimplePreferences.putStringValue(key, valueFunction.apply(selected));
+            SimplePreferences.save();
+            return true;
+        }, nameFunction, RuneChanger.getInstance().getLang().getString(titleKey), RuneChanger.getInstance().getLang().getString(descKey), hideSeparator).getRoot());
     }
 
     private void setupSourcePreference(String key, String title, boolean hideSeparator) {
