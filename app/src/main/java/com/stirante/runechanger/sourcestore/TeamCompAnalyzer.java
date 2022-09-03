@@ -90,7 +90,6 @@ public class TeamCompAnalyzer {
             return;
         }
         TeamComp comp = new TeamComp();
-        //TODO: Calculate risk adjusted win rate
         if (playerChampion != null) {
             if (selectionPerformances.selectionPerformance.championPerformances.size() > 0 &&
                     selectionPerformances.selectionPerformance.championPerformances.get(0).champ ==
@@ -107,6 +106,7 @@ public class TeamCompAnalyzer {
                     comp.suggestions.add(new TeamCompChampion(RuneChanger.getInstance()
                             .getChampions()
                             .getById(championWinRate.champ), championWinRate.scoreInfo.score, championWinRate.basePerformance.playRate));
+                    comp.suggestions.sort(Comparator.comparingDouble(o -> o.champion == playerChampion ? -1 : -o.winRate));
                     log.debug(RuneChanger.getInstance().getChampions().getById(championWinRate.champ).getName() +
                             ": " +
                             toPercentage(championWinRate.scoreInfo.score));
