@@ -60,7 +60,7 @@ public abstract class OverlayLayer implements MouseMotionListener, MouseListener
     }
 
     protected int getClientWidth() {
-        return (int) (getWidth() - (Constants.CHAMPION_SUGGESTION_WIDTH * getHeight()));
+        return (int) (getWidth() - (Constants.EXTRA_WIDTH * getHeight()));
     }
 
     protected int getWidth() {

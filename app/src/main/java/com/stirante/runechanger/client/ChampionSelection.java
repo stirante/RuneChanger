@@ -211,10 +211,16 @@ public class ChampionSelection extends ClientModule {
         }
         else if (DebugConsts.MOCK_SESSION) {
             //mock some banned champions
-            banned.add(getChampions().getByName("blitzcrank"));
-            banned.add(getChampions().getByName("morgana"));
-            banned.add(getChampions().getByName("kayle"));
-            banned.add(getChampions().getByName("leona"));
+            banned.add(getChampions().getByName("Master Yi"));
+            banned.add(getChampions().getByName("Nasus"));
+            banned.add(getChampions().getByName("Zed"));
+            banned.add(getChampions().getByName("Pyke"));
+            banned.add(getChampions().getByName("Kai'Sa"));
+            banned.add(getChampions().getByName("Teemo"));
+            banned.add(getChampions().getByName("Kayn"));
+            banned.add(getChampions().getByName("Darius"));
+            banned.add(getChampions().getByName("Xayah"));
+            banned.add(getChampions().getByName("Diana"));
         }
     }
 
@@ -361,6 +367,17 @@ public class ChampionSelection extends ClientModule {
             }
             if (DebugConsts.FORCE_TEAM_COMP_ANALYSIS) {
                 selectedPosition = Position.UTILITY;
+                allyTeam.put(Position.UTILITY, getChampions().getByName("Leona"));
+                allyTeam.put(Position.TOP, getChampions().getByName("Kennen"));
+                allyTeam.put(Position.MIDDLE, getChampions().getByName("Brand"));
+                allyTeam.put(Position.BOTTOM, getChampions().getByName("Caitlyn"));
+                allyTeam.put(Position.JUNGLE, getChampions().getByName("Xin Zhao"));
+                enemyTeam.add(getChampions().getByName("Mordekaiser"));
+                enemyTeam.add(getChampions().getByName("Nunu"));
+                enemyTeam.add(getChampions().getByName("Lulu"));
+                enemyTeam.add(getChampions().getByName("Vayne"));
+                enemyTeam.add(getChampions().getByName("Yasuo"));
+                teamChanged = true;
             }
             if ((isPositionSelector() || DebugConsts.FORCE_TEAM_COMP_ANALYSIS) && selectedPosition != null &&
                     (!allyTeam.isEmpty() || !enemyTeam.isEmpty()) &&

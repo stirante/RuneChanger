@@ -20,9 +20,6 @@ public class DebugConsts {
     public static final boolean PRINT_EVENTS = false;
     public static final boolean PRINT_EVENTS_DATA = false;
 
-    //set to lang code for overriding language
-    public static final String OVERRIDE_LANGUAGE = null;
-
     //enables extra info from analytics library
     public static final boolean ENABLE_ANALYTICS_DEBUG = false;
 

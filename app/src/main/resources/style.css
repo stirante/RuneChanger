@@ -18,18 +18,18 @@
     -fx-font-smoothing-type: gray;
 }
 
-/*.list-cell {*/
-/*    -fx-text-fill: white;*/
-/*    -fx-background-color: transparent;*/
-/*}*/
+.runesList .list-cell {
+    -fx-text-fill: white;
+    -fx-background-color: transparent;
+}
 
-/*.list-cell:filled:hover {*/
-/*    -fx-background-color: rgba(255, 255, 255, 0.1);*/
-/*}*/
+.runesList .list-cell:filled:hover {
+    -fx-background-color: rgba(255, 255, 255, 0.1);
+}
 
-/*.list-cell:filled:selected:focused, .list-cell:filled:selected {*/
-/*    -fx-background-color: rgba(255, 255, 255, 0.2);*/
-/*}*/
+.runesList .list-cell:filled:selected:focused, .runesList .list-cell:filled:selected {
+    -fx-background-color: rgba(255, 255, 255, 0.2);
+}
 
 .scroll-pane > .viewport {
     -fx-background-color: transparent;

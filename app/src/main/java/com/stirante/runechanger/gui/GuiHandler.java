@@ -54,9 +54,6 @@ public class GuiHandler {
     private WinDef.HWND hwnd;
     private TrayIcon trayIcon;
     private SceneType type = SceneType.NONE;
-    private List<ChampionsImpl> suggestedChampions;
-    private Consumer<ChampionsImpl> suggestedChampionSelectedListener;
-    private List<ChampionsImpl> bannedChampions;
     private double screenScale = 1d;
 
     public GuiHandler(RuneChanger runeChanger) {
@@ -182,7 +179,7 @@ public class GuiHandler {
         win.setAutoRequestFocus(false);
         win.setFocusable(false);
         win.pack();
-        win.setSize((int) (rect.width + (Constants.CHAMPION_SUGGESTION_WIDTH * rect.height)), rect.height);
+        win.setSize((int) (rect.width + (Constants.EXTRA_WIDTH * rect.height)), rect.height);
         win.setBackground(new Color(0f, 0f, 0f, 0f));
         clientOverlay.setSize(rect.width, rect.height);
         trackPosition(rect);

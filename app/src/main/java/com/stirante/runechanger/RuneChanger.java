@@ -11,6 +11,7 @@ import com.stirante.justpipe.Pipe;
 import com.stirante.lolclient.ClientApi;
 import com.stirante.lolclient.ClientConnectionListener;
 import com.stirante.lolclient.ClientWebSocket;
+import com.stirante.runechanger.api.Champion;
 import com.stirante.runechanger.api.Champions;
 import com.stirante.runechanger.api.RuneBook;
 import com.stirante.runechanger.api.RuneChangerApi;
@@ -365,8 +366,9 @@ public class RuneChanger implements Launcher, RuneChangerApi {
                             LolChampSelectChampSelectSession session = new LolChampSelectChampSelectSession();
                             session.myTeam = new ArrayList<>();
                             LolChampSelectChampSelectPlayerSelection e = new LolChampSelectChampSelectPlayerSelection();
-                            e.championId = 223;//Tahm kench
-                            e.championPickIntent = 223;
+                            Champion leona = getChampions().getByName("Leona");
+                            e.championId = leona.getId();
+                            e.championPickIntent = leona.getId();
                             e.summonerId = currentSummoner.summonerId;
                             session.myTeam.add(e);
                             EventBus.publish(ChampionSelection.CHAMPION_SELECT_SESSION_EVENT,

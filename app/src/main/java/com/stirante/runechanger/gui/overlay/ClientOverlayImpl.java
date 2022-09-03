@@ -149,7 +149,7 @@ public class ClientOverlayImpl extends JPanel implements MouseMotionListener, Mo
     }
 
     private int getClientWidth() {
-        return (int) (getWidth() - (Constants.CHAMPION_SUGGESTION_WIDTH * getHeight()));
+        return (int) (getWidth() - (Constants.EXTRA_WIDTH * getHeight()));
     }
 
     public void clearRect(Graphics g, int x, int y, int w, int h) {

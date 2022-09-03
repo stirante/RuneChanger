@@ -19,12 +19,10 @@ import javafx.util.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.awt.Cursor;
-import java.awt.FontMetrics;
-import java.awt.Graphics;
-import java.awt.Image;
+import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.font.LineMetrics;
+import java.awt.geom.AffineTransform;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -100,7 +98,8 @@ public class ChampionSuggestions extends OverlayLayer {
                     }
                 }
                 g.setColor(DARKER_TEXT_COLOR);
-                int barWidth = (int) (Constants.CHAMPION_SUGGESTION_WIDTH * getHeight());
+                int barWidth = (int) ((isSmart ? Constants.EXTRA_WIDTH : Constants.CHAMPION_SUGGESTION_WIDTH) * getHeight());
+                int selectionWidth = (int) (Constants.CHAMPION_SUGGESTION_WIDTH * getHeight());
                 g.drawRect(getWidth() - barWidth + 1 + (int) (currentChampionsPosition / 100f * barWidth) - barWidth, 0,
                         barWidth - 2, getHeight() - 1);
                 g.setColor(BACKGROUND_COLOR);
@@ -127,10 +126,10 @@ public class ChampionSuggestions extends OverlayLayer {
                     int rowSize = getHeight() / 6;
                     if (selectedChampionIndex == tileIndex) {
                         g.setColor(LIGHTEN_COLOR);
-                        g.fillRect(getClientWidth(), rowSize * tileIndex, barWidth, rowSize);
+                        g.fillRect(getClientWidth(), rowSize * tileIndex, selectionWidth, rowSize);
                     }
-                    int x = (getClientWidth() + (barWidth - tileSize) / 2) +
-                            (int) (currentChampionsPosition / 100f * barWidth) - barWidth;
+                    int x = (getClientWidth() + (selectionWidth - tileSize) / 2) +
+                            (int) (currentChampionsPosition / 100f * selectionWidth) - selectionWidth;
                     int y = (rowSize - tileSize) / 2 + (rowSize * tileIndex);
                     g.drawImage(img,
                             x,
@@ -149,6 +148,15 @@ public class ChampionSuggestions extends OverlayLayer {
                         break;
                     }
                     tileIndex++;
+                }
+                if (isSmart) {
+                    g.setColor(TEXT_COLOR);
+                    AffineTransform trans = new AffineTransform();
+                    trans.rotate(Math.toRadians(-90), 0, 0);
+                    Font font = g.getFont();
+                    Font rotatedFont = font.deriveFont(trans);
+                    g.setFont(rotatedFont);
+                    g.drawString("Powered by LoLTheory.gg", (int) (getClientWidth() + (currentChampionsPosition / 100f * selectionWidth)) + 2, getHeight() - 10);
                 }
                 clearRect(g, getClientWidth() - barWidth, 0, barWidth, getHeight());
             }
