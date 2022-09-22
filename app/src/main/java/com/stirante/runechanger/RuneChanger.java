@@ -179,7 +179,8 @@ public class RuneChanger implements Launcher, RuneChangerApi {
             Set<Locale> resourceBundles = new HashSet<>();
 
             for (Locale locale : Locale.getAvailableLocales()) {
-                URL resource = RuneChanger.class.getResource("/lang/messages_" + locale.toLanguageTag() + ".properties");
+                URL resource = RuneChanger.class.getResource("/lang/messages_" +
+                        (!locale.toLanguageTag().startsWith("zh") ? locale.toLanguageTag().replace('-', '_') : locale.toLanguageTag()) + ".properties");
                 if (resource != null) {
                     try {
                         if (!Pipe.from(resource).toString().isBlank()) {

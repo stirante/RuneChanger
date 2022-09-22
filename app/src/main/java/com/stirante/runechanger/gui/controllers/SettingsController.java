@@ -127,7 +127,7 @@ public class SettingsController implements Content {
             return true;
         });
 //        setupSimplePreference(APP_CATEGORY, SimplePreferences.SettingsKeys.FORCE_ENGLISH, false, "force_english", "force_english_message", toTruePredicate(this::tryRestart));
-        setupComboBoxPreference(APP_CATEGORY, SimplePreferences.SettingsKeys.LANGUAGE, LangHelper.getLocale(RuneChanger.getInstance().getAvailableLanguages()), "language", "language_message", RuneChanger.getInstance().getAvailableLanguages(), Locale::getDisplayName, Locale::toLanguageTag, Locale::new, toTruePredicate(this::tryRestart), true);
+        setupComboBoxPreference(APP_CATEGORY, SimplePreferences.SettingsKeys.LANGUAGE, LangHelper.getLocale(RuneChanger.getInstance().getAvailableLanguages()), "language", "language_message", RuneChanger.getInstance().getAvailableLanguages(), Locale::getDisplayName, Locale::toLanguageTag, Locale::forLanguageTag, toTruePredicate(this::tryRestart), true);
         setupSimplePreference(APP_CATEGORY, SimplePreferences.SettingsKeys.ALWAYS_ON_TOP, false, "always_on_top", "always_on_top_message", toTruePredicate(stage::setAlwaysOnTop));
         setupSimplePreference(APP_CATEGORY, SimplePreferences.SettingsKeys.ANALYTICS, true, "enable_analytics", "enable_analytics_message", toTruePredicate(AnalyticsUtil::onConsent));
         setupSimplePreference(APP_CATEGORY, SimplePreferences.SettingsKeys.ENABLE_ANIMATIONS, true, "enable_animations", "enable_animations_message");
