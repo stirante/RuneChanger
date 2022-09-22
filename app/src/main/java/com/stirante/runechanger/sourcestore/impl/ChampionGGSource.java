@@ -191,7 +191,7 @@ public class ChampionGGSource implements RuneSource {
         page.fixOrder();
         if (!page.verify()) {
             log.error("Invalid rune page for champion {} at {}", champion.getName(), position);
-            System.out.println(StreamSupport.stream(stats.get("runes").getAsJsonArray().spliterator(), false)
+            log.debug(StreamSupport.stream(stats.get("runes").getAsJsonArray().spliterator(), false)
                     .map(JsonElement::getAsJsonObject)
                     .map(e -> {
                         int index = e.get("index").getAsInt();
@@ -202,9 +202,9 @@ public class ChampionGGSource implements RuneSource {
                                 ", treeId: " + e.get("treeId") + ", index: " + index;
                     })
                     .collect(Collectors.joining("\n")));
-            System.out.println();
-            System.out.println(page.getRunes());
-            System.out.println(page.getModifiers());
+            log.debug("");
+            log.debug(String.valueOf(page.getRunes()));
+            log.debug(String.valueOf(page.getModifiers()));
             return null;
         }
 

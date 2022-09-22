@@ -135,7 +135,7 @@ public class ChampionsImpl implements Champions {
         List<Patch> latest = Patch.getLatest(5);
         for (Patch p : latest) {
             try {
-                if (isOk("https://cdn.communitydragon.org/" + p.toFullString() + "/champion/Annie/square")) {
+                if (isOk("https://raw.communitydragon.org/" + p.toFullString() + "/plugins/rcp-be-lol-game-data/global/default/v1/champion-splashes/1/1000.jpg")) {
                     patch = p;
                     break;
                 }
@@ -147,9 +147,7 @@ public class ChampionsImpl implements Champions {
             boolean allExist = true;
             for (ChampionDTO champion : values) {
                 ChampionImpl c = new ChampionImpl(Integer.parseInt(champion.key), champion.id, champion.name,
-                        champion.name.replaceAll(" ", ""),
-                        "https://cdn.communitydragon.org/" + patch.toFullString() + "/champion" +
-                                "/" + champion.key);
+                        champion.name.replaceAll(" ", ""));
                 if (this.values.contains(c)) {
                     ChampionImpl champion1 =
                             (ChampionImpl) this.values.stream()
@@ -159,7 +157,6 @@ public class ChampionsImpl implements Champions {
                     champion1.setName(c.getName());
                     champion1.setInternalName(c.getInternalName());
                     champion1.setAlias(c.getAlias());
-                    champion1.setUrl(c.getUrl());
                 }
                 else {
                     this.values.add(c);
@@ -182,7 +179,7 @@ public class ChampionsImpl implements Champions {
             out.flush();
         }
 
-        new DownloadThread().start();
+        new DownloadThread(patch).start();
     }
 
     private void publishImagesReadyEvent() {
@@ -226,6 +223,13 @@ public class ChampionsImpl implements Champions {
 
     private class DownloadThread extends Thread {
 
+        private Patch patch;
+
+        public DownloadThread(Patch patch) {
+            super();
+            this.patch = patch;
+        }
+
         @Override
         public void run() {
             Gson gson = new Gson();
@@ -244,7 +248,6 @@ public class ChampionsImpl implements Champions {
                         f.exists() &&
                         splashes.get(String.valueOf(champion.getId())) > f.lastModified();
                 checkAndDownload(f,
-                        ((ChampionImpl) champion).getUrl() + "/tile",
                         "v1/champion-tiles/" + champion.getId() + "/" + champion.getId() + "000.jpg", force);
                 // Checking and downloading splash art
                 f = new File(portraitsDir, champion.getId() + "_full.jpg");
@@ -252,7 +255,6 @@ public class ChampionsImpl implements Champions {
                         f.exists() &&
                         splashes.get(String.valueOf(champion.getId())) > f.lastModified();
                 checkAndDownload(f,
-                        ((ChampionImpl) champion).getUrl() + "/splash-art/centered",
                         "v1/champion-splashes/" + champion.getId() + "/" + champion.getId() + "000.jpg", force);
                 // Getting pick quote for champion
                 if (champion.getPickQuote().isEmpty()) {
@@ -330,7 +332,10 @@ public class ChampionsImpl implements Champions {
             }
         }
 
-        private void checkAndDownload(File f, String url, String lcuPath, boolean force) {
+        private static final String URL =
+                "https://raw.communitydragon.org/%patch%/plugins/rcp-be-lol-game-data/global/default/";
+
+        private void checkAndDownload(File f, String lcuPath, boolean force) {
             if (!f.exists() || force) {
                 if (force) {
                     log.info("Forcing download, because champion splash art changed");
@@ -339,6 +344,7 @@ public class ChampionsImpl implements Champions {
                     BufferedInputStream in;
                     if (api == null || api.getClientApi() == null ||
                             !api.getClientApi().isConnected()) {
+                        String url = URL.replace("%patch%", patch.toShortString()) + lcuPath;
                         log.info("Downloading " + url);
                         HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();
                         conn.addRequestProperty("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36");

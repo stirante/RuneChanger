@@ -43,16 +43,14 @@ public class ChampionImpl implements Champion {
     private String internalName;
     private String name;
     private String alias;
-    private String url;
     private String pickQuote = "";
     private Position position;
 
-    public ChampionImpl(int id, String internalName, String name, String alias, String url) {
+    public ChampionImpl(int id, String internalName, String name, String alias) {
         this.id = id;
         this.internalName = internalName;
         this.name = name;
         this.alias = alias;
-        this.url = url;
     }
 
     @Override
@@ -122,9 +120,6 @@ public class ChampionImpl implements Champion {
         return String.format("%s(%d)", name, id);
     }
 
-    public String getUrl() {
-        return url;
-    }
 
     public void setName(String name) {
         this.name = name;
@@ -138,7 +133,4 @@ public class ChampionImpl implements Champion {
         this.alias = alias;
     }
 
-    public void setUrl(String url) {
-        this.url = url;
-    }
 }

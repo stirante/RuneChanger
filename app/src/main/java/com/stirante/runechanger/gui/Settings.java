@@ -187,7 +187,6 @@ public class Settings extends Application {
 
         Scene scene = new Scene(controller.container, 600, 500);
         String e = getClass().getResource("/style.css").toExternalForm();
-        System.out.println(e);
         if (DebugConsts.ENABLE_STYLESHEET_DEBUG) {
             try {
                 e = new File("app/src/main/resources/style.css").toURI().toURL().toExternalForm();
@@ -207,7 +206,7 @@ public class Settings extends Application {
                                 final Path filename = ev.context();
                                 if (path.endsWith(filename)) {
                                     Platform.runLater(() -> {
-                                        System.out.println("Reloading stylesheet");
+                                        log.debug("Reloading stylesheet");
                                         scene.getStylesheets().clear();
                                         scene.getStylesheets().add(f);
                                     });

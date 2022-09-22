@@ -187,7 +187,6 @@ public class AutoUpdater {
 
     private static File generateConfig(String path) throws IOException {
         File target = new File(path, "target");
-        System.out.println(target.getAbsolutePath());
         File[] files = target.listFiles((file, s) -> s.endsWith(".zip"));
         if (files == null || files.length == 0) {
             log.error("Zip file not found inside target folder! Skipping config file generation.");
@@ -284,7 +283,7 @@ public class AutoUpdater {
                     .filter(path -> acceptableFiles.stream()
                             .noneMatch(s -> path.toString().contains(s) || s.contains(path.toString())))
                     .map(Path::toFile)
-                    .peek(file -> System.out.println("Deleting " + file.toString()))
+                    .peek(file -> System.out.println("Deleting " + file))
                     .forEach(File::deleteOnExit);
         } catch (IOException e) {
             e.printStackTrace();

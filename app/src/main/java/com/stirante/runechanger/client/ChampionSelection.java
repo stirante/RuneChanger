@@ -382,7 +382,7 @@ public class ChampionSelection extends ClientModule {
             if ((isPositionSelector() || DebugConsts.FORCE_TEAM_COMP_ANALYSIS) && selectedPosition != null &&
                     (!allyTeam.isEmpty() || !enemyTeam.isEmpty()) &&
                     teamChanged) {
-                System.out.println("Team changed, analyzing new team");
+                log.info("Team changed, analyzing new team");
                 AsyncTask.EXECUTOR_SERVICE.submit(() -> {
                     try {
                         teamCompAnalyzer.analyze(selectedPosition, champion, allyTeam, enemyTeam, banned);
