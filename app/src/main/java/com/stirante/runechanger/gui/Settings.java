@@ -4,6 +4,7 @@ import com.stirante.eventbus.EventBus;
 import com.stirante.eventbus.EventPriority;
 import com.stirante.eventbus.Subscribe;
 import com.stirante.lolclient.ClientApi;
+import com.stirante.runechanger.DebugConsts;
 import com.stirante.runechanger.RuneChanger;
 import com.stirante.runechanger.api.Champion;
 import com.stirante.runechanger.api.ChampionBuild;
@@ -12,10 +13,10 @@ import com.stirante.runechanger.client.ClientEventListener;
 import com.stirante.runechanger.client.ClientModule;
 import com.stirante.runechanger.client.Runes;
 import com.stirante.runechanger.gui.controllers.*;
-import com.stirante.runechanger.client.ChampionsImpl;
 import com.stirante.runechanger.sourcestore.SourceStore;
-import com.stirante.runechanger.util.*;
 import com.stirante.runechanger.util.AnalyticsUtil;
+import com.stirante.runechanger.util.AutoUpdater;
+import com.stirante.runechanger.util.PerformanceMonitor;
 import com.stirante.runechanger.utils.*;
 import generated.LolGameflowGameflowPhase;
 import javafx.application.Application;
@@ -49,9 +50,11 @@ import java.awt.Toolkit;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.UnsupportedFlavorException;
+import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -183,9 +186,49 @@ public class Settings extends Application {
         controller.setContent(home);
 
         Scene scene = new Scene(controller.container, 600, 500);
-        scene.getStylesheets().add(getClass().getResource("/style.css").toExternalForm());
+        String e = getClass().getResource("/style.css").toExternalForm();
+        System.out.println(e);
+        if (DebugConsts.ENABLE_STYLESHEET_DEBUG) {
+            try {
+                e = new File("app/src/main/resources/style.css").toURI().toURL().toExternalForm();
+                final String f = e;
+                final Path path = FileSystems.getDefault().getPath("app/src/main/resources/style.css");
+                final WatchService watchService = FileSystems.getDefault().newWatchService();
+                path.getParent().register(watchService, StandardWatchEventKinds.ENTRY_MODIFY);
+                new Thread(() -> {
+                    while (true) {
+                        try {
+                            final WatchKey wk = watchService.take();
+                            for (WatchEvent<?> event : wk.pollEvents()) {
+                                if (event.kind() == StandardWatchEventKinds.OVERFLOW) {
+                                    continue;
+                                }
+                                final WatchEvent<Path> ev = (WatchEvent<Path>) event;
+                                final Path filename = ev.context();
+                                if (path.endsWith(filename)) {
+                                    Platform.runLater(() -> {
+                                        System.out.println("Reloading stylesheet");
+                                        scene.getStylesheets().clear();
+                                        scene.getStylesheets().add(f);
+                                    });
+                                }
+                            }
+                            if (!wk.reset()) {
+                                break;
+                            }
+                        } catch (InterruptedException e1) {
+                            e1.printStackTrace();
+                        }
+                    }
+                }).start();
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
+        }
+        scene.getStylesheets().add(e);
         scene.setFill(null);
-        scene.setNodeOrientation(LangHelper.isTextRTL(instance.api.getLang().getLocale()) ? NodeOrientation.RIGHT_TO_LEFT : NodeOrientation.LEFT_TO_RIGHT);
+        scene.setNodeOrientation(LangHelper.isTextRTL(instance.api.getLang()
+                .getLocale()) ? NodeOrientation.RIGHT_TO_LEFT : NodeOrientation.LEFT_TO_RIGHT);
         mainStage.setScene(scene);
 
         mainStage.addEventHandler(KeyEvent.KEY_PRESSED, keyPress);
@@ -419,7 +462,8 @@ public class Settings extends Application {
                                     return new ArrayList<>();
                                 }
                                 return FuzzySearch
-                                        .extractSorted(param.getUserText(), api.getChampions().getChampions(), Champion::getName, 3)
+                                        .extractSorted(param.getUserText(), api.getChampions()
+                                                .getChampions(), Champion::getName, 3)
                                         .stream()
                                         .map(championBoundExtractedResult -> championBoundExtractedResult.getReferent()
                                                 .getName())
@@ -525,8 +569,8 @@ public class Settings extends Application {
         }
         donateDontAsk = true;
         ButtonType donate = new ButtonType(api.getLang().getString("donate_button"));
-        ButtonType later =  new ButtonType(api.getLang().getString("later_button"));
-        ButtonType never =  new ButtonType(api.getLang().getString("never_ask_again_button"));
+        ButtonType later = new ButtonType(api.getLang().getString("later_button"));
+        ButtonType never = new ButtonType(api.getLang().getString("never_ask_again_button"));
         ButtonType result = Settings.openDialog(
                 api.getLang().getString("donate_dialog_title"),
                 api.getLang().getString("donate_dialog_message"),

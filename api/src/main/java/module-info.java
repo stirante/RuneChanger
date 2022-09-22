@@ -5,5 +5,6 @@ module api {
     requires utils;
     requires java.desktop;
     requires lol.client.java.api;
+    requires org.slf4j;
 
 }

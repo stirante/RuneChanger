@@ -3,7 +3,7 @@
     <option name="MAIN_CLASS_NAME" value="com.stirante.runechanger.RuneChanger" />
     <module name="app" />
     <option name="PROGRAM_PARAMETERS" value="-debug-mode" />
-    <option name="VM_PARAMETERS" value="--add-exports=javafx.base/com.sun.javafx.event=ALL-UNNAMED --add-exports=javafx.base/com.sun.javafx.event=org.controlsfx.controls" />
+    <option name="VM_PARAMETERS" value="--add-exports=javafx.base/com.sun.javafx.event=ALL-UNNAMED --add-exports=javafx.base/com.sun.javafx.event=org.controlsfx.controls --add-opens=java.base/java.util=RuneChanger" />
     <method v="2">
       <option name="Make" enabled="true" />
     </method>

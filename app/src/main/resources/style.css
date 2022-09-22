@@ -31,6 +31,28 @@
     -fx-background-color: rgba(255, 255, 255, 0.2);
 }
 
+.combo-setting.combo-box-base {
+    -fx-background-color: transparent;
+    -fx-border-color: #43403A;
+    -fx-border-insets: -0.4em;
+    -fx-border-width: 0.2em;
+}
+
+.combo-setting.combo-box .list-cell {
+    -fx-text-fill: white;
+}
+
+.combo-setting .combo-box-popup .list-cell {
+    -fx-text-fill: black;
+}
+
+.combo-setting.combo-box-base .arrow {
+    -fx-background-insets: 1 0 -1 0, 0;
+    -fx-background-color: #C6A96E;
+    -fx-padding: 0.166667em 0.333333em 0.166667em 0.333333em; /* 2 4 2 4 */
+    -fx-shape: "M 0 0 h 7 l -3.5 4 z";
+}
+
 .scroll-pane > .viewport {
     -fx-background-color: transparent;
 }
