@@ -70,6 +70,10 @@ public class Loot extends ClientModule {
                     for (int i = 0; i < item.count; i++) {
                         getClientApi().executePost("/lol-loot/v1/recipes/CHAMPION_RENTAL_disenchant/craft", new String[]{item.lootId});
                     }
+                } else if (item.lootId.startsWith("CHAMPION_")) {
+                    for (int i = 0; i < item.count; i++) {
+                        getClientApi().executePost("/lol-loot/v1/recipes/CHAMPION_disenchant/craft", new String[]{item.lootId});
+                    }
                 }
             }
         } catch (IOException e) {
