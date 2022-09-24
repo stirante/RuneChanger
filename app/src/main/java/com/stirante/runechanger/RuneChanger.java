@@ -1,9 +1,12 @@
 package com.stirante.runechanger;
 
+import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.Appender;
 import ch.qos.logback.core.FileAppender;
+import ch.qos.logback.core.filter.Filter;
+import ch.qos.logback.core.spi.FilterReply;
 import com.google.gson.Gson;
 import com.stirante.eventbus.EventBus;
 import com.stirante.eventbus.Subscribe;
@@ -71,6 +74,22 @@ public class RuneChanger implements Launcher, RuneChangerApi {
     private RuneBook runeBook;
 
     public static void main(String[] args) {
+        ch.qos.logback.classic.Logger logger =
+                (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
+        Iterator<Appender<ILoggingEvent>> appenderIterator = logger.iteratorForAppenders();
+        while (appenderIterator.hasNext()) {
+            Appender<ILoggingEvent> appender = appenderIterator.next();
+            appender.addFilter(new Filter<>() {
+                @Override
+                public FilterReply decide(ILoggingEvent event) {
+                    if (Level.DEBUG.isGreaterOrEqual(event.getLevel()) &&
+                            event.getLoggerName().startsWith("org.apache.hc.client5.http.wire")) {
+                        return FilterReply.DENY;
+                    }
+                    return FilterReply.ACCEPT;
+                }
+            });
+        }
         if (Arrays.asList(args).contains("-debug-mode")) {
             DebugConsts.enableDebugMode();
             log.debug("Runechanger started with debug mode enabled");
@@ -128,8 +147,6 @@ public class RuneChanger implements Launcher, RuneChangerApi {
                     JOptionPane.ERROR_MESSAGE);
             System.exit(0);
         }
-        ch.qos.logback.classic.Logger logger =
-                (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
         if (Arrays.asList(args).contains("-nologs")) {
             logger.getAppender("FILE").stop();
             new File(((FileAppender<ILoggingEvent>) logger.getAppender("FILE")).getFile()).delete();
