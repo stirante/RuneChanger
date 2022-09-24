@@ -1,6 +1,11 @@
 package com.stirante.runechanger;
 
 import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.Appender;
+import ch.qos.logback.core.ConsoleAppender;
+import ch.qos.logback.core.filter.Filter;
+import ch.qos.logback.core.spi.FilterReply;
 import com.stirante.runechanger.utils.PathUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,7 +41,18 @@ public class DebugConsts {
     public static void enableDebugMode() {
         ch.qos.logback.classic.Logger logger =
                 (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
-        logger.getAppender("STDOUT").clearAllFilters();
+        Appender<ILoggingEvent> appender = logger.getAppender("STDOUT");
+        appender.clearAllFilters();
+        appender.addFilter(new Filter<>() {
+            @Override
+            public FilterReply decide(ILoggingEvent event) {
+                if (Level.DEBUG.isGreaterOrEqual(event.getLevel()) &&
+                        !event.getLoggerName().startsWith("com.stirante")) {
+                    return FilterReply.DENY;
+                }
+                return FilterReply.ACCEPT;
+            }
+        });
         logger.setLevel(Level.DEBUG);
     }
 
