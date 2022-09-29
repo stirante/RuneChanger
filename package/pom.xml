@@ -94,6 +94,7 @@
                                 <module>jdk.crypto.ec</module>
                                 <module>jdk.crypto.ec</module>
                                 <module>jdk.zipfs</module>
+                                <module>jdk.localedata</module>
                             </addModules>
                             <options>
                                 <option>--compress=2</option>
