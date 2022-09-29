@@ -70,8 +70,8 @@ public class ChampionSuggestions extends OverlayLayer {
         if (SimplePreferences.getBooleanValue(SimplePreferences.SettingsKeys.CHAMPION_SUGGESTIONS, true)) {
             if (getApi().getChampions().areImagesReady()) {
                 boolean isSmart =
-                        SimplePreferences.getBooleanValue(SimplePreferences.SettingsKeys.SMART_CHAMPION_SUGGESTIONS, true);
-                if (lastChampions == null && (suggestions == null || !isSmart)) {
+                        SimplePreferences.getBooleanValue(SimplePreferences.SettingsKeys.SMART_CHAMPION_SUGGESTIONS, true) && suggestions != null;
+                if (lastChampions == null && !isSmart) {
                     return;
                 }
                 if (((RuneChanger) getApi()).getChampionSelectionModule().getGameMode() == null ||
@@ -100,10 +100,10 @@ public class ChampionSuggestions extends OverlayLayer {
                 g.setColor(DARKER_TEXT_COLOR);
                 int barWidth = (int) ((isSmart ? Constants.EXTRA_WIDTH : Constants.CHAMPION_SUGGESTION_WIDTH) * getHeight());
                 int selectionWidth = (int) (Constants.CHAMPION_SUGGESTION_WIDTH * getHeight());
-                g.drawRect(getWidth() - barWidth + 1 + (int) (currentChampionsPosition / 100f * barWidth) - barWidth, 0,
+                g.drawRect(getClientWidth() + 1 + (int) (currentChampionsPosition / 100f * barWidth) - barWidth, 0,
                         barWidth - 2, getHeight() - 1);
                 g.setColor(BACKGROUND_COLOR);
-                g.fillRect(getWidth() - barWidth + (int) (currentChampionsPosition / 100f * barWidth) - barWidth, 1,
+                g.fillRect(getClientWidth() + (int) (currentChampionsPosition / 100f * barWidth) - barWidth, 1,
                         barWidth - 1, getHeight() - 2);
                 int tileIndex = 0;
                 List<Pair<Champion, Double>> collect;
@@ -156,7 +156,8 @@ public class ChampionSuggestions extends OverlayLayer {
                     Font font = g.getFont();
                     Font rotatedFont = font.deriveFont(trans);
                     g.setFont(rotatedFont);
-                    g.drawString("Powered by LoLTheory.gg", (int) (getClientWidth() + (currentChampionsPosition / 100f * selectionWidth)) + 2, getHeight() - 10);
+                    g.drawString("Powered by LoLTheory.gg", (int) ((getClientWidth() - 12) + (currentChampionsPosition / 100f * (selectionWidth + 12))), getHeight() - 10);
+                    g.setFont(font);
                 }
                 clearRect(g, getClientWidth() - barWidth, 0, barWidth, getHeight());
             }
