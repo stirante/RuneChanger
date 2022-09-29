@@ -23,7 +23,6 @@ module RuneChanger {
     requires com.stirante.eventbus;
     requires com.stirante.justpipe;
     requires org.slf4j;
-    requires core;
     requires utils;
     requires api;
     requires com.sun.jna.platform;

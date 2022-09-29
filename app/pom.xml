@@ -56,7 +56,18 @@
         <dependency>
             <groupId>ly.count.sdk</groupId>
             <artifactId>java</artifactId>
-            <version>19.09-sdk2-rc</version>
+            <version>20.11.1</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.json</groupId>
+                    <artifactId>json</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+            <version>20220924</version>
         </dependency>
         <dependency>
             <groupId>com.stirante.runechanger</groupId>
@@ -84,6 +95,12 @@
                     <artifactId>slf4j-api</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>com.stirante.runechanger</groupId>
+            <artifactId>utils</artifactId>
+            <version>1.15.0</version>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
 

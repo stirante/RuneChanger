@@ -17,11 +17,7 @@ import com.stirante.runechanger.utils.Hardware;
 import com.stirante.runechanger.utils.PathUtils;
 import com.stirante.runechanger.utils.SimplePreferences;
 import generated.LolChampSelectChampSelectSession;
-import ly.count.sdk.ConfigCore;
-import ly.count.sdk.internal.CtxCore;
-import ly.count.sdk.internal.DeviceCore;
-import ly.count.sdk.internal.ModuleCrash;
-import ly.count.sdk.internal.Params;
+import ly.count.sdk.java.internal.*;
 import ly.count.sdk.java.Config;
 import ly.count.sdk.java.Countly;
 import org.slf4j.LoggerFactory;
@@ -135,16 +131,26 @@ public class AnalyticsUtil {
             return;
         }
         if (!Countly.isInitialized()) {
-            Config config = (Config) new Config(SERVER_URL, DebugConsts.ENABLE_ANALYTICS_DEBUG ? DEV_APP_KEY : APP_KEY)
+            Config config = new Config(SERVER_URL, DebugConsts.ENABLE_ANALYTICS_DEBUG ? DEV_APP_KEY : APP_KEY)
                     .enableFeatures(Config.Feature.Events, Config.Feature.Sessions, Config.Feature.CrashReporting, Config.Feature.UserProfiles)
                     .setDeviceIdStrategy(Config.DeviceIdStrategy.UUID)
                     .setRequiresConsent(true)
-                    .overrideModule(Config.Feature.CrashReporting, ModuleCrash.class)
                     .setApplicationVersion(Version.INSTANCE.version + "@" + Version.INSTANCE.commitIdAbbrev);
+
+            try {
+                Field moduleOverrides = config.getClass().getDeclaredField("moduleOverrides");
+                moduleOverrides.setAccessible(true);
+                HashMap<Integer, Class<? extends ModuleBase>> overrides = new HashMap<>();
+                overrides.put(Config.Feature.CrashReporting.getIndex(), ModuleCrash.class);
+                moduleOverrides.set(config, overrides);
+            } catch (NoSuchFieldException | IllegalAccessException e) {
+                log.error("Failed to override crash reporting module", e);
+                return;
+            }
 
             if (DebugConsts.ENABLE_ANALYTICS_DEBUG) {
                 config
-                        .setLoggingLevel(ConfigCore.LoggingLevel.DEBUG)
+                        .setLoggingLevel(Config.LoggingLevel.DEBUG)
                         .enableTestMode();
             }
 
