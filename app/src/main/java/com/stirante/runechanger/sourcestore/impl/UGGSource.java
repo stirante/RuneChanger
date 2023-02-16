@@ -5,7 +5,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.stirante.runechanger.api.*;
-import com.stirante.runechanger.client.ChampionsImpl;
 import com.stirante.runechanger.model.app.CounterData;
 import com.stirante.runechanger.model.app.SettingsConfiguration;
 import com.stirante.runechanger.model.client.GameData;
@@ -31,7 +30,7 @@ import java.util.stream.StreamSupport;
 public class UGGSource implements RuneSource, CounterSource {
     private static final Logger log = LoggerFactory.getLogger(UGGSource.class);
 
-    private static final String UGG_VERSION = "1.1";
+    private static final String UGG_VERSION = "1.5";
     private static final String OVERVIEW_VERSION = "1.5.0";
     private static final String COUNTERS_VERSION = "1.5.0";
     private static final String OVERVIEW_PATH = "overview";
@@ -48,7 +47,7 @@ public class UGGSource implements RuneSource, CounterSource {
 
     public static void main(String[] args) throws IOException {
         UGGSource source = new UGGSource();
-        SourceStore.testSource(source, GameMode.CLASSIC);
+        SourceStore.testSource(source);
     }
 
     @Override
@@ -139,11 +138,24 @@ public class UGGSource implements RuneSource, CounterSource {
         return "u.gg";
     }
 
+    private static QueueType getQueueType(GameMode gameMode) {
+        switch (gameMode) {
+            case CLASSIC:
+                return QueueType.RANKED_SOLO;
+            case ARAM:
+                return QueueType.ARAM;
+            case URF:
+                return QueueType.URF;
+            default:
+                return QueueType.RANKED_SOLO;
+        }
+    }
+
     @Override
     public void getRunesForGame(GameData data, SyncingListWrapper<ChampionBuild> pages) {
         try {
             JsonObject root = getRootObject(data.getChampion(), OVERVIEW_PATH, OVERVIEW_VERSION,
-                    data.getGameMode() == GameMode.ARAM ? QueueType.ARAM : QueueType.RANKED_SOLO);
+                    getQueueType(data.getGameMode()));
             if (data.getGameMode() == GameMode.ARAM) {
                 ChampionBuild.Builder builder =
                         getForChampion(root, data.getChampion(), Tier.OVERALL, Position.NONE, DEFAULT_SERVER);
@@ -151,6 +163,14 @@ public class UGGSource implements RuneSource, CounterSource {
                     return;
                 }
                 pages.add(builder.withName("ARAM").create());
+            }
+            else if (data.getGameMode() == GameMode.URF) {
+                ChampionBuild.Builder builder =
+                        getForChampion(root, data.getChampion(), Tier.OVERALL, Position.NONE, DEFAULT_SERVER);
+                if (builder == null) {
+                    return;
+                }
+                pages.add(builder.withName("URF").create());
             }
             else {
                 for (Position position : Position.values()) {
@@ -293,7 +313,7 @@ public class UGGSource implements RuneSource, CounterSource {
 
     @Override
     public GameMode[] getSupportedGameModes() {
-        return new GameMode[]{GameMode.CLASSIC, GameMode.ARAM};
+        return new GameMode[]{GameMode.CLASSIC, GameMode.ARAM, GameMode.URF};
     }
 
     private static class CounterChampion implements Comparable<CounterChampion> {
@@ -340,7 +360,8 @@ public class UGGSource implements RuneSource, CounterSource {
         ARAM("normal_aram"),
         RANKED_FLEX("ranked_flex_sr"),
         NORMAL_BLIND("normal_blind_5x5"),
-        NORMAL_DRAFT("normal_draft_5x5");
+        NORMAL_DRAFT("normal_draft_5x5"),
+        URF("urf");
 
         private final String internalName;
 

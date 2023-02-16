@@ -246,7 +246,7 @@ public class LolalyticsSource implements RuneSource {
     }
 
     public static void main(String[] args) throws IOException {
-        SourceStore.testSource(new LolalyticsSource(), GameMode.CLASSIC);
+        SourceStore.testSource(new LolalyticsSource());
     }
 
 }

@@ -198,7 +198,7 @@ public class LolTheorySource implements RuneSource {
     }
 
     public static void main(String[] args) throws IOException {
-        SourceStore.testSourceAllChamps(new LolTheorySource(), GameMode.CLASSIC);
+        SourceStore.testSource(new LolTheorySource());
     }
 
 }

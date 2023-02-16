@@ -39,7 +39,7 @@ public class MetasrcSource implements RuneSource {
     }
 
     public void downloadRunes(GameData data, SyncingListWrapper<ChampionBuild> pages) {
-        // This makes sure that the runes wont get duplicated when getting them from GUI
+        // This makes sure that the runes won't get duplicated when getting them from GUI
         if (data.getGameMode() == GameMode.CLASSIC || data.getContext() == GameData.Context.CHAMPION_SELECT) {
             ArrayList<String> runeLanes = getAvailableRuneLanes(data.getChampion());
             for (String lane : Objects.requireNonNull(runeLanes)) {
@@ -109,7 +109,7 @@ public class MetasrcSource implements RuneSource {
     private RunePage extractRunes(Document webPage) {
         RunePage r = new RunePage();
         Elements runes =
-                webPage.select("div._lop72r:nth-of-type(3) > div._sh98mb:nth-of-type(2) div._sfh2p9 > div > div");
+                webPage.select("#perks > div:nth-child(2) > div:nth-child(1) > div");
         if (runes.size() == 0) {
             return null;
         }
@@ -153,13 +153,7 @@ public class MetasrcSource implements RuneSource {
             Document webPage = Jsoup.parse(new URL(minimalURL), 10000);
             // Get possible roles
             Elements rolesElements =
-                    webPage.select("div._tf4dk4 > a .desktop");
-            for (Element role : rolesElements) {
-                availableRoles.add(role.text());
-            }
-            // Add main one
-            rolesElements =
-                    webPage.select("div._tf4dk4._q9sxji .desktop");
+                    webPage.select("div._v3q0g:nth-child(1) > a ._4bq4e1");
             for (Element role : rolesElements) {
                 availableRoles.add(role.text());
             }
@@ -195,6 +189,6 @@ public class MetasrcSource implements RuneSource {
     }
 
     public static void main(String[] args) throws IOException {
-        SourceStore.testSource(new MetasrcSource(), GameMode.CLASSIC);
+        SourceStore.testSource(new MetasrcSource());
     }
 }

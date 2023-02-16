@@ -2,10 +2,10 @@ package com.stirante.runechanger.sourcestore;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
+import com.stirante.lolclient.ClientApi;
 import com.stirante.runechanger.DebugConsts;
-import com.stirante.runechanger.api.Champion;
-import com.stirante.runechanger.api.ChampionBuild;
-import com.stirante.runechanger.api.RuneChangerApi;
+import com.stirante.runechanger.api.*;
+import com.stirante.runechanger.api.overlay.ClientOverlay;
 import com.stirante.runechanger.client.ChampionsImpl;
 import com.stirante.runechanger.model.app.CounterData;
 import com.stirante.runechanger.model.app.SettingsConfiguration;
@@ -174,13 +174,41 @@ public class SourceStore {
     /**
      * Gets build for blitzcrank from provided source. Purely for testing whether source works locally. Don't use!
      */
-    public static void testSource(RuneSource source, GameMode gameMode) throws IOException {
+    public static void testSource(RuneSource source) throws IOException {
         FxUtils.DEBUG_WITHOUT_TOOLKIT = true;
         DebugConsts.enableDebugMode();
         ChampionsImpl champions = new ChampionsImpl(null);
         champions.init();
+        source.init(new RuneChangerApi() {
+            @Override
+            public RuneBook getRuneBook() {
+                return null;
+            }
+
+            @Override
+            public String getVersion() {
+                return "dummy";
+            }
+
+            @Override
+            public ClientOverlay getClientOverlay() {
+                return null;
+            }
+
+            @Override
+            public ClientApi getClientApi() {
+                return null;
+            }
+
+            @Override
+            public Champions getChampions() {
+                return champions;
+            }
+        });
         SyncingListWrapper<ChampionBuild> pages = new SyncingListWrapper<>();
-        source.getRunesForGame(GameData.of(champions.getByName("blitzcrank"), gameMode), pages);
+        for (GameMode gm : source.getSupportedGameModes()) {
+            source.getRunesForGame(GameData.of(champions.getByName("blitzcrank"), gm), pages);
+        }
         for (ChampionBuild page : pages.getBackingList()) {
             if (page.hasSummonerSpells()) {
                 System.out.println(page.getFirstSpell().getName() + ", " + page.getSecondSpell().getName());

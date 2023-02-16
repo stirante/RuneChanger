@@ -9,21 +9,18 @@ import com.stirante.runechanger.api.*;
 import com.stirante.runechanger.model.app.SettingsConfiguration;
 import com.stirante.runechanger.model.client.GameData;
 import com.stirante.runechanger.sourcestore.RuneSource;
-import com.stirante.runechanger.utils.AnalyticsUtil;
+import com.stirante.runechanger.sourcestore.SourceStore;
 import com.stirante.runechanger.utils.StringUtils;
 import com.stirante.runechanger.utils.SyncingListWrapper;
 import generated.Position;
-import org.apache.hc.client5.http.entity.EntityBuilder;
+import org.apache.hc.client5.http.classic.methods.HttpPost;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
-import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.apache.hc.client5.http.classic.methods.*;
 
 import java.io.IOException;
-import java.net.URL;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -129,13 +126,18 @@ public class ChampionGGSource implements RuneSource {
                         .replaceAll("%rank%", DEFAULT_TIER.name())));
                 json = Pipe.from(client.execute(request).getEntity().getContent()).toString();
             }
-            JsonArray data = JsonParser.parseString(json).getAsJsonObject().getAsJsonObject("data").getAsJsonArray("allChampionStats");
+            JsonArray data = JsonParser.parseString(json)
+                    .getAsJsonObject()
+                    .getAsJsonObject("data")
+                    .getAsJsonArray("allChampionStats");
             StreamSupport.stream(data.spliterator(), false)
                     .map(JsonElement::getAsJsonObject)
                     .collect(Collectors.groupingBy(jsonElement -> jsonElement.get("championId").getAsInt()))
                     .values().stream()
                     .map(roles -> roles.stream()
-                            .max(Comparator.comparingInt(jsonElement -> jsonElement.getAsJsonObject().get("games").getAsInt())).orElseThrow())
+                            .max(Comparator.comparingInt(jsonElement -> jsonElement.getAsJsonObject()
+                                    .get("games")
+                                    .getAsInt())).orElseThrow())
                     .forEach(obj -> {
                         Champion champ = champions.getById(obj.get("championId").getAsInt());
                         Position role = toPosition(obj.get("role").getAsString());
@@ -179,7 +181,8 @@ public class ChampionGGSource implements RuneSource {
             }
             if (i < 5) {
                 page.getRunes().add(Rune.getById(build.get("runeId").getAsInt()));
-            } else {
+            }
+            else {
                 page.getModifiers().add(Modifier.getById(build.get("runeId").getAsInt()));
             }
         }
@@ -209,7 +212,11 @@ public class ChampionGGSource implements RuneSource {
         }
 
         List<SummonerSpell> spells =
-                StreamSupport.stream(stats.getAsJsonArray("summonerSpells").get(0).getAsJsonObject().getAsJsonArray("summonerSpellIds").spliterator(), false)
+                StreamSupport.stream(stats.getAsJsonArray("summonerSpells")
+                                .get(0)
+                                .getAsJsonObject()
+                                .getAsJsonArray("summonerSpellIds")
+                                .spliterator(), false)
                         .map(jsonElement -> SummonerSpell.getByKey(jsonElement.getAsInt()))
                         .collect(Collectors.toList());
 
@@ -226,7 +233,8 @@ public class ChampionGGSource implements RuneSource {
         Map<Position, ChampionBuild> cache = pageCache.get(data.getChampion());
         if (cache != null) {
             pages.addAll(cache.values());
-        } else {
+        }
+        else {
             cache = new HashMap<>();
             for (String role : ROLES) {
                 try {
@@ -242,18 +250,22 @@ public class ChampionGGSource implements RuneSource {
                         json = Pipe.from(client.execute(request).getEntity().getContent()).toString();
                     }
                     JsonObject obj = StreamSupport.stream(JsonParser.parseString(json)
-                            .getAsJsonObject().getAsJsonObject("data")
-                            .getAsJsonObject("championBuildStats")
-                            .getAsJsonArray("builds").spliterator(), false)
-                            .map(JsonElement::getAsJsonObject).max(Comparator.comparingInt(o -> o.get("games").getAsInt()))
-                            .orElseThrow();
-                        if (obj.get("games").getAsInt() > minThreshold) {
-                            ChampionBuild page = toChampionBuild(data.getChampion(), role, obj);
-                            if (page != null) {
-                                pages.add(page);
-                                cache.put(toPosition(role), page);
-                            }
+                                    .getAsJsonObject().getAsJsonObject("data")
+                                    .getAsJsonObject("championBuildStats")
+                                    .getAsJsonArray("builds").spliterator(), false)
+                            .map(JsonElement::getAsJsonObject)
+                            .max(Comparator.comparingInt(o -> o.get("games").getAsInt()))
+                            .orElse(null);
+                    if (obj == null) {
+                        continue;
+                    }
+                    if (obj.get("games").getAsInt() > minThreshold) {
+                        ChampionBuild page = toChampionBuild(data.getChampion(), role, obj);
+                        if (page != null) {
+                            pages.add(page);
+                            cache.put(toPosition(role), page);
                         }
+                    }
                 } catch (Exception e) {
                     log.error("Failed to get build for {} {}", data.getChampion(), role, e);
                 }
@@ -300,6 +312,11 @@ public class ChampionGGSource implements RuneSource {
     @Override
     public void init(RuneChangerApi api) {
         initCache(api.getChampions());
+    }
+
+    public static void main(String[] args) throws IOException {
+        ChampionGGSource source = new ChampionGGSource();
+        SourceStore.testSource(source);
     }
 
     private enum Tier {

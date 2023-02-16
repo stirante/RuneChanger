@@ -30,7 +30,7 @@ public class AramAcademySource implements RuneSource {
 
     public static void main(String[] args) throws IOException {
         AramAcademySource source = new AramAcademySource();
-        SourceStore.testSource(source, GameMode.ARAM);
+        SourceStore.testSource(source);
     }
 
     @Override

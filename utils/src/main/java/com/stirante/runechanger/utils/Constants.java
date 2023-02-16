@@ -1,16 +1,14 @@
 package com.stirante.runechanger.utils;
 
-import javafx.scene.text.Font;
-
 public class Constants {
     //app name
     public static final String APP_NAME = "RuneChanger";
 
     //percentage positions and lengths
-    public static final float RUNE_BUTTON_POSITION_X = 0.3046875f;
-    public static final float RUNE_BUTTON_POSITION_Y = 0.9305556f ;
+    public static final float RUNE_BUTTON_POSITION_X = 0.2845312f;
+    public static final float RUNE_BUTTON_POSITION_Y = 0.9305556f;
     public static final float RUNE_BUTTON_SIZE = 0.039f;
-    public static final float RUNE_MENU_X = 0.36640626f;
+    public static final float RUNE_MENU_X = 0.3785625f;
     public static final float RUNE_MENU_Y = 0.9236111f;
     public static final float RUNE_ITEM_HEIGHT = 0.050000012f;
     public static final float RUNE_ITEM_WIDTH = 0.15000004f;
