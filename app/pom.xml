@@ -99,7 +99,7 @@
         <dependency>
             <groupId>com.stirante.runechanger</groupId>
             <artifactId>utils</artifactId>
-            <version>1.15.0</version>
+            <version>${revision}</version>
             <scope>compile</scope>
         </dependency>
     </dependencies>
